@@ -38,8 +38,9 @@ final class Autoloader {
 	/**
 	 * Charge une classe du namespace InfinityCod\.
 	 *
-	 * Les sous-namespace Admin, Rest, Core… vivent dans des sous-dossiers
-	 * homonymes : InfinityCod\Carriers\Yalidine -> carriers/class-yalidine.php.
+	 * Convention fichiers : dossiers minuscules (namespace en kebab),
+	 * fichiers class-nom-en-kebab.php. Un second candidat "aplati"
+	 * (class-nomkebab.php) sert de filet de sécurité.
 	 *
 	 * @param string $class Nom complet de la classe.
 	 * @return bool True si la classe a été chargée.
@@ -51,18 +52,21 @@ final class Autoloader {
 
 		$relative = substr( $class, strlen( self::PREFIX ) );
 		$parts    = explode( '\\', $relative );
+		$plain    = strtolower( implode( '', $parts ) );
 		$name     = strtolower( preg_replace( '/(?<!^)[A-Z]/', '-$0', end( $parts ) ) );
 		array_pop( $parts );
 
-		$path = self::$root;
+		$dir = self::$root;
 		foreach ( $parts as $part ) {
-			$path .= strtolower( $part ) . '/';
+			$dir .= strtolower( $part ) . '/';
 		}
-		$path .= 'class-' . $name . '.php';
 
-		if ( is_readable( $path ) ) {
-			require_once $path;
-			return true;
+		foreach ( array( 'class-' . $name . '.php', 'class-' . $plain . '.php' ) as $file ) {
+			$path = $dir . $file;
+			if ( is_readable( $path ) ) {
+				require_once $path;
+				return true;
+			}
 		}
 
 		return false;

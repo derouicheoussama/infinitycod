@@ -1,0 +1,88 @@
+/**
+ * InfinityCod — Styles admin (responsive, mobile-first).
+ * Préfixe isolé .icod- pour éviter tout conflit de thème.
+ */
+
+.icod-wrap{max-width:1480px}
+.icod-title{margin-bottom:16px}
+.icod-tabs{margin-bottom:16px}
+
+/* Cartes */
+.icod-card{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:16px;margin:0 0 16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.icod-card h2{margin-top:0;font-size:15px;line-height:1.4}
+.icod-card .description{margin-top:0;color:#50575e}
+
+/* Réglages : grilles de champs */
+.icod-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-top:12px}
+.icod-grid label{display:flex;flex-direction:column;gap:6px}
+.icod-grid label > span{font-weight:600;font-size:12.5px;color:#3c434a}
+.icod-grid-full label{grid-column:1/-1}
+.icod-grid input[type=text],.icod-grid input[type=password],.icod-grid input[type=number],.icod-grid select,.icod-grid textarea{width:100%;max-width:100%}
+.icod-grid input[type=color]{width:64px;height:36px;padding:2px;border:1px solid #dcdcde;border-radius:4px}
+
+/* Bascules */
+.icod-toggles{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.icod-toggle{display:flex;align-items:center;gap:10px;font-size:13.5px}
+.icod-toggle input[type=checkbox]{width:18px;height:18px;flex:none}
+.icod-toggle-danger{color:#b32d2e}
+
+/* Défauts tarifs */
+.icod-defaults-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.icod-defaults-grid label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:12.5px}
+.icod-defaults-grid input{width:100%}
+
+/* Barre d'outils tableaux */
+.icod-table-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px}
+.icod-search{flex:1;min-width:200px;max-width:340px}
+.icod-hint{color:#646970;font-size:12.5px}
+
+/* Tableaux */
+.icod-table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:6px}
+.icod-table{margin-top:0!important;border-collapse:collapse;min-width:640px}
+.icod-table th{font-weight:600;font-size:12.5px;white-space:nowrap}
+.icod-table td,.icod-table th{padding:10px 12px;vertical-align:middle}
+.icod-table input[type=number]{width:110px;min-height:36px}
+.icod-col-check{text-align:center}
+.icod-col-code{width:60px}
+.icod-ar{display:block;font-size:12.5px;color:#787c82;direction:rtl;text-align:right}
+.icod-wilayas-table tbody tr:hover,.icod-communes-table tbody tr:hover{background:#f6f7f7}
+
+/* Badge bureau stopdesk */
+.icod-desk-badge{color:#c3c4c7;font-size:15px}
+.icod-desk-badge.has{color:#0e7a4f}
+
+/* Statistiques bureaux */
+.icod-desk-stats{display:flex;flex-wrap:wrap;gap:16px;margin:8px 0 0;list-style:none;padding:0}
+.icod-desk-stats li{background:#f0f6f3;border-radius:6px;padding:6px 12px;font-size:12.5px}
+
+/* Sélecteur de wilaya */
+.icod-wilaya-picker{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.icod-wilaya-picker select{min-width:260px;min-height:36px}
+
+/* Sauvegarde */
+.icod-submit{margin-top:6px}
+
+/* Pastille de sauvegarde par ligne */
+.icod-row-saved{opacity:.55;transition:opacity .4s;position:relative}
+.icod-row-saved::after{content:"✓";position:absolute;inset-inline-end:8px;color:#0e7a4f;font-weight:700}
+
+/* ===== Responsive : cartes empilées sous 768px ===== */
+@media (max-width:782px){
+	.icod-card{padding:12px}
+	.icod-table input[type=number]{width:92px}
+	.icod-search{max-width:100%}
+	.icod-table th,.icod-table td{padding:8px}
+}
+@media (max-width:600px){
+	/* Le tableau reste scrollable horizontalement mais les zones tactiles
+	   sont agrandies : inputs ≥ 44px de haut. */
+	.icod-table input[type=number]{min-height:44px;font-size:16px}
+	.icod-table input[type=checkbox]{width:22px;height:22px}
+	.icod-submit .button-hero{width:100%}
+}
+
+/* Mode sombre natif de wp-admin (22+) */
+@media (prefers-color-scheme:dark){
+	body.is-dark-theme .icod-card{background:#1d1e1f;border-color:#2c2c2e}
+	body.is-dark-theme .icod-hint{color:#a7aaad}
+}

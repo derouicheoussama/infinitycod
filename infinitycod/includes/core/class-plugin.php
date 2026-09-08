@@ -46,8 +46,8 @@ final class Plugin {
 		'form'      => '\\InfinityCod\\Form\\FormManager',
 		'rest'      => '\\InfinityCod\\Rest\\Routes',
 		'carriers'  => '\\InfinityCod\\Carriers\\CarrierManager',
-		'whatsapp'  => '\\InfinityCod\\WhatsApp\\WhatsAppManager',
-		'stats'     => '\\InfinityCod\\Stats\\PnL',
+		'whatsapp'  => '\\InfinityCod\\Whatsapp\\WhatsappManager',
+		'stats'     => '\\InfinityCod\\Stats\\Pnl',
 		'admin'     => '\\InfinityCod\\Admin\\AdminManager',
 		'license'   => '\\InfinityCod\\License\\LicenseManager',
 	);
@@ -70,8 +70,6 @@ final class Plugin {
 	 * @return void
 	 */
 	public function boot() {
-		$this->module( 'i18n' )->register();
-
 		/**
 		 * Permet d'activer/désactiver des modules avant le chargement.
 		 *
@@ -80,13 +78,18 @@ final class Plugin {
 		$module_map = apply_filters( 'infinitycod_modules', $this->module_map );
 
 		foreach ( $module_map as $slug => $class ) {
-			if ( class_exists( $class ) ) {
-				$module              = new $class();
-				$this->modules[ $slug ] = $module;
+			if ( ! class_exists( $class ) ) {
+				continue;
+			}
 
-				if ( method_exists( $module, 'register' ) ) {
-					$module->register();
-				}
+			if ( ! isset( $this->modules[ $slug ] ) ) {
+				$this->modules[ $slug ] = new $class();
+			}
+
+			$module = $this->modules[ $slug ];
+
+			if ( method_exists( $module, 'register' ) ) {
+				$module->register();
 			}
 		}
 
