@@ -172,3 +172,13 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 
 ### Security
 - **Blindage anti-fatal généralisé** : `inject_update`, `remote()`, la page Mises à jour et le test de connexion sont protégés par try/catch Throwable — tout bug futur du moteur de mise à jour est journalisé et dégrade proprement au lieu de crasher l'admin (règle §54 fail-safe, retour d'expérience de la v2.1.0).
+
+## 2.3.0 — 2026-09-08
+
+### Fixed
+- **Commande impossible — erreur critique à la soumission** : appel à `wc_stock_management()`, une fonction qui n'existe pas dans WooCommerce. Le bloc est retiré — le stock est décrémenté nativement par WooCommerce lors des passages de statut (processing/completed). Cette fonction était présente depuis la première version du formulaire.
+- **Référence `Settings` non importée dans la route submit** (fatal `InfinityCod\Rest\Settings`), détectée par le nouveau contrôle d'imports — corrigée.
+
+### Added
+- **Contrôle d'imports** (`tools/check-imports.js`, intégré à `npm run check`) : toute référence statique `Classe::` résolvant vers un mauvais namespace fait échouer la CI — plus aucun fatal de ce type ne peut être publié.
+- **Endpoint submit blindé** : toute exception technique renvoie désormais une erreur JSON explicite (jamais la page « erreur critique ») et est journalisée.

@@ -129,7 +129,7 @@ function wp_remote_request( ...$a ) { return new WP_Error_Stub( 'http', 'offline
 function wp_remote_post( ...$a ) { return new WP_Error_Stub( 'http', 'offline' ); }
 function wp_remote_retrieve_response_code( $r ) { return 0; }
 function wp_remote_retrieve_body( $r ) { return ''; }
-function is_wp_error( $t ) { return $t instanceof WP_Error_Stub; }
+function is_wp_error( $t ) { return $t instanceof WP_Error_Stub || $t instanceof WP_Error; }
 function mysql2date( $f, $v ) { return date( $f, strtotime( (string) $v ) ); }
 function number_format_i18n( $n, $d = 0 ) { return number_format( (float) $n, (int) $d ); }
 function wp_generate_password( $len, $sp = true, $ex = true ) { return substr( 'abcdef1234567890', 0, $len ); }
@@ -160,6 +160,8 @@ function checked( ...$a ) {}
 function dbDelta( $sql ) { $GLOBALS['__wpdb_log'][] = substr( (string) $sql, 0, 60 ) . '…'; return array(); }
 function wc_get_product( $id = 0 ) { return null; }
 
+class WP_Error_Stub2 extends WP_Error_Stub {}
+
 class WP_Error_Stub {
 	public $errors = array();
 	public function __construct( $c = '', $m = '' ) { $this->errors[ $c ] = $m; }
@@ -188,6 +190,14 @@ $GLOBALS['wp_filesystem'] = null;
 
 /* ---------- WooCommerce stub minimal ---------- */
 
+class WP_Error {
+	public $errors = array();
+	public function __construct( $code = '', $message = '' ) { $this->errors[ $code ] = $message; }
+	public function get_error_code() { return key( $this->errors ); }
+	public function get_error_message() { $k = key( $this->errors ); return $k !== null ? (string) $this->errors[ $k ] : ''; }
+	public function has_errors() { return ! empty( $this->errors ); }
+}
+
 class WooCommerce {}
 class WC_Order_Item_Product { public function set_product( $p ) {} public function set_quantity( $q ) {} public function set_subtotal( $s ) {} public function set_total( $t ) {} }
 class WC_Order_Item_Fee { public function set_name( $n ) {} public function set_amount( $a ) {} public function set_total( $t ) {} }
@@ -199,6 +209,8 @@ if ( ! file_exists( $fake_upgrade ) ) {
     @mkdir( dirname( $fake_upgrade ), 0777, true );
     file_put_contents( $fake_upgrade, '<?php' );
 }
+
+class WP_REST_Request {}
 
 /* ---------- Séquence de test ---------- */
 
@@ -305,6 +317,8 @@ if ( ! function_exists( 'sodium_crypto_sign_detached_sign' ) || ! $signing_priva
   if ( ! ( $v_ok && ! $v_bad ) ) { exit( 1 ); }
 }
 
+echo "10b) REST submit (chemin protégé try/catch)...";
+class REST_Request_Stub extends WP_REST_Request {	public function get_json_params() {		return array( 'product_id' => 1, 'name' => 'Test Client', 'phone' => '0555123456', 'wilaya' => '16', 'commune' => 'Alger Centre', 'quantity' => 1, 'mode' => 'home', 'payment' => 'cod', 'via_whatsapp' => 0, 'note' => '', 'honeypot' => '', 'ts' => 0, 'sig' => '', 'fingerprint' => 'x' );	}}$routes_module = infinitycod()->module( 'rest' );$resp_submit = $routes_module->submit( new REST_Request_Stub() );if ( is_wp_error( $resp_submit ) ) {  echo '   OK rejet propre : ' . $resp_submit->get_error_code() . "\n";} elseif ( is_array( $resp_submit ) || is_object( $resp_submit ) ) {  echo '   ✓ réponse REST émise\n';} else {  echo '   ? sortie inattendue\n';}
 echo "\n=== TOUS LES TESTS PASSENT ===\n";
 echo "11) URL API GitHub (anti-regression %2F)...\n";
 $url = \InfinityCod\License\Updater::api_url( 'derouicheoussama/infinitycod-releases', '/releases/latest' );

@@ -2468,12 +2468,12 @@ msgid "Aucun bureau disponible pour cette wilaya"
 msgstr ""
 
 #: includes/form/class-form-manager.php:548
-#: includes/rest/class-routes.php:354
+#: includes/rest/class-routes.php:374
 msgid "Une erreur est survenue, réessayez."
 msgstr ""
 
 #: includes/form/class-form-manager.php:549
-#: includes/rest/class-routes.php:258
+#: includes/rest/class-routes.php:278
 msgid "Veuillez saisir votre nom complet."
 msgstr ""
 
@@ -2494,7 +2494,7 @@ msgid "Veuillez choisir les options du produit."
 msgstr ""
 
 #: includes/form/class-form-manager.php:554
-#: includes/rest/class-routes.php:286
+#: includes/rest/class-routes.php:306
 msgid "Veuillez choisir un bureau de retrait."
 msgstr ""
 
@@ -2722,7 +2722,7 @@ msgstr ""
 msgid "Commande COD reçue via InfinityCod."
 msgstr ""
 
-#: includes/orders/class-order-store.php:271
+#: includes/orders/class-order-store.php:267
 msgid "InfinityCod : %s"
 msgstr ""
 
@@ -2751,44 +2751,48 @@ msgstr ""
 msgid "Paiement CIB/Edahabia reçu via Chargily (InfinityCod)."
 msgstr ""
 
-#: includes/rest/class-routes.php:184
+#: includes/rest/class-routes.php:185
 msgid "Produit introuvable."
 msgstr ""
 
-#: includes/rest/class-routes.php:244
+#: includes/rest/class-routes.php:238
+msgid "Une erreur technique est survenue lors de l'enregistrement. Votre commande n a pas été perdue si vous aviez payé — contactez-nous."
+msgstr ""
+
+#: includes/rest/class-routes.php:264
 msgid "Les commandes sont acceptées entre %1$02dh et %2$02dh. Revenez pendant ces horaires !"
 msgstr ""
 
-#: includes/rest/class-routes.php:262
+#: includes/rest/class-routes.php:282
 msgid "Numéro de téléphone algérien invalide (ex. 0555123456)."
 msgstr ""
 
-#: includes/rest/class-routes.php:269
+#: includes/rest/class-routes.php:289
 msgid "Wilaya non desservie, veuillez en choisir une autre."
 msgstr ""
 
-#: includes/rest/class-routes.php:275
+#: includes/rest/class-routes.php:295
 msgid "Commune introuvable pour cette wilaya."
 msgstr ""
 
-#: includes/rest/class-routes.php:311
+#: includes/rest/class-routes.php:331
 msgid "Impossible d‘enregistrer la commande pour le moment. Contactez-nous directement par téléphone."
 msgstr ""
 
-#: includes/rest/class-routes.php:321
-#: includes/rest/class-routes.php:348
+#: includes/rest/class-routes.php:341
+#: includes/rest/class-routes.php:368
 msgid "Ce produit n‘est plus disponible."
 msgstr ""
 
-#: includes/rest/class-routes.php:349
+#: includes/rest/class-routes.php:369
 msgid "Stock insuffisant pour cette quantité."
 msgstr ""
 
-#: includes/rest/class-routes.php:350
+#: includes/rest/class-routes.php:370
 msgid "Wilaya non desservie."
 msgstr ""
 
-#: includes/rest/class-routes.php:351
+#: includes/rest/class-routes.php:371
 msgid "Aucun tarif de livraison pour cette destination."
 msgstr ""
 

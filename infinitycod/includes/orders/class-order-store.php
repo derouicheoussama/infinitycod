@@ -203,11 +203,7 @@ class OrderStore {
 
 		$icod_id = $inserted ? (int) $wpdb->insert_id : 0;
 
-		// Réduction de stock standard WooCommerce (comme le checkout classique).
-		if ( $icod_id && wc_stock_management() === 'yes' ) {
-			wc_maybe_reduce_stock_levels( $order->get_id() );
-		}
-
+		// Stock : WooCommerce décrémente automatiquement lors des passages de statut.
 		/**
 		 * Après création d'une commande COD.
 		 *

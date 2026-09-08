@@ -15,6 +15,7 @@
 namespace InfinityCod\Rest;
 
 use InfinityCod\AntiFraud\Shield;
+use InfinityCod\Core\Settings;
 use InfinityCod\Form\OffersEngine;
 use InfinityCod\Form\Validator;
 use InfinityCod\Shipping\RatesManager;
@@ -228,6 +229,25 @@ class Routes {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function submit( $request ) {
+		try {
+			return $this->do_submit( $request );
+		} catch ( \Throwable $e ) {
+			\InfinityCod\Logging\Logger::log( 'error', 'submit : ' . $e->getMessage() );
+			return new \WP_Error(
+				'icod_server_error',
+				__( 'Une erreur technique est survenue lors de l\'enregistrement. Votre commande n a pas été perdue si vous aviez payé — contactez-nous.', 'infinitycod' ),
+				array( 'status' => 500 )
+			);
+		}
+	}
+
+	/**
+	 * Corps effectif de la soumission.
+	 *
+	 * @param \WP_REST_Request $request Requête.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	private function do_submit( $request ) {
 		$body = $this->body( $request );
 
 		// 0. Restriction horaire des commandes.
