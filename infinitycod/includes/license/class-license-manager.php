@@ -11,6 +11,8 @@
 
 namespace InfinityCod\License;
 
+use InfinityCod\Core\Settings;
+
 defined( 'ABSPATH' ) || exit;
 
 class LicenseManager {
@@ -23,12 +25,20 @@ class LicenseManager {
 	 * @return string
 	 */
 	public static function server_url() {
+		$url = (string) Settings::get( 'license_server', 'https://infinitycoder.app/api.php' );
+
+		// Migration défensive : les anciennes installations pointant vers
+		// factexpert.online sont redirigées vers le domaine Infinity Coder.
+		if ( '' === trim( $url ) || false !== strpos( $url, 'factexpert.online' ) ) {
+			$url = 'https://infinitycoder.app/api.php';
+		}
+
 		/**
 		 * Url de l'API du serveur de licences Infinity Coder.
 		 *
 		 * @param string $url Url par défaut.
 		 */
-		return apply_filters( 'infinitycod_license_server_url', (string) \InfinityCod\Core\Settings::get( 'license_server', 'https://infinitycoder.app/api.php' ) );
+		return apply_filters( 'infinitycod_license_server_url', $url );
 	}
 
 	/**

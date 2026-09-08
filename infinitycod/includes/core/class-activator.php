@@ -29,9 +29,6 @@ class Activator {
 
 		update_option( 'infinitycod_db_version', INFINITYCOD_DB_VERSION );
 		update_option( 'infinitycod_installed_at', current_time( 'mysql' ) );
-
-		// Mise à jour DB silencieuse lors des montées de version.
-		add_action( 'admin_init', array( __CLASS__, 'maybe_upgrade' ) );
 	}
 
 	/**
@@ -144,7 +141,21 @@ class Activator {
 		if ( get_option( 'infinitycod_db_version' ) !== INFINITYCOD_DB_VERSION ) {
 			self::create_tables();
 			self::seed_geo();
+			self::migrate_settings();
 			update_option( 'infinitycod_db_version', INFINITYCOD_DB_VERSION, true );
+		}
+	}
+
+	/**
+	 * Migrations de réglages entre versions.
+	 *
+	 * @return void
+	 */
+	public static function migrate_settings() {
+		// 1.7.1 : le serveur de licences ne doit plus pointer vers factexpert.online.
+		$license_server = Settings::get( 'license_server', '' );
+		if ( $license_server && false !== strpos( (string) $license_server, 'factexpert.online' ) ) {
+			Settings::set( 'license_server', 'https://infinitycoder.app/api.php' );
 		}
 	}
 

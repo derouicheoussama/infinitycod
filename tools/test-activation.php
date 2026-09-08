@@ -249,4 +249,17 @@ $license = new \InfinityCod\License\LicenseManager();
 $result = $license->activate( 'INFINITY-DEV' );
 echo '   ✓ Licence dev : ' . ( $result['ok'] ? 'ACTIVE' : 'ERREUR' ) . "\n";
 
+echo "9) Migration license_server (scenario du site a distance)...";
+update_option( 'infinitycod_db_version', '0.0.0' ); // force maybe_upgrade
+update_option( 'infinitycod_settings', array_merge( (array) get_option( 'infinitycod_settings', array() ), array(
+  'license_server' => 'https://factexpert.online/api.php',
+) ) );
+  \InfinityCod\Core\Activator::maybe_upgrade();
+  $migrated = \InfinityCod\Core\Settings::get( 'license_server' );
+  if ( false !== strpos( (string) $migrated, 'factexpert' ) ) {
+    echo "   X Migration echouee : " . $migrated . "\n";
+    exit( 1 );
+  }
+  echo '   OK migre vers ' . $migrated;
+
 echo "\n=== TOUS LES TESTS PASSENT ===\n";

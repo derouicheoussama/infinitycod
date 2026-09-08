@@ -2157,27 +2157,27 @@ msgstr ""
 msgid "DA"
 msgstr ""
 
-#: includes/license/class-license-manager.php:93
+#: includes/license/class-license-manager.php:103
 msgid "Veuillez saisir votre clé de licence."
 msgstr ""
 
-#: includes/license/class-license-manager.php:105
+#: includes/license/class-license-manager.php:115
 msgid "Licence de développement activée."
 msgstr ""
 
-#: includes/license/class-license-manager.php:145
+#: includes/license/class-license-manager.php:155
 msgid "Licence activée. Merci %s !"
 msgstr ""
 
-#: includes/license/class-license-manager.php:153
+#: includes/license/class-license-manager.php:163
 msgid "Activation refusée (%1$s). %2$s"
 msgstr ""
 
-#: includes/license/class-license-manager.php:228
+#: includes/license/class-license-manager.php:238
 msgid "Premium actif"
 msgstr ""
 
-#: includes/license/class-license-manager.php:230
+#: includes/license/class-license-manager.php:240
 msgid "Version gratuite"
 msgstr ""
 

@@ -101,3 +101,9 @@ Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
 
 ### Qualité
 - **Audits automatiques intégrés** (`npm run check`) : chaque champ de réglages est vérifié côté sauvegarde ET valeurs par défaut (73 champs), chaque clé `Settings::get()` doit avoir un défaut (80 clés), scan anti-corruption de namespaces et de variables échappées sur tous les fichiers PHP.
+
+## 1.7.1 — 2026-09-08
+
+### Corrigé
+- **Champ « Serveur de licences » resté sur factexpert.online** : la valeur était sauvegardée dans la base du site, donc le nouveau défaut ne s'affichait pas. Migration automatique à la mise à jour : tout champ pointant vers factexpert.online est réécrit vers `https://infinitycoder.app/api.php`, avec défense au niveau de la lecture (impossible que le plugin l'utilise, même avec une ancienne valeur en base).
+- **Migrations de base de données jamais exécutées sur les installations mises à jour** (bug critique latant) : le hook `maybe_upgrade` n'était enregistré que pendant la requête d'activation. Il tourne maintenant à chaque requête admin — la colonne `email` manquante (1.6.0) et toutes les futures migrations s'appliquent automatiquement.
