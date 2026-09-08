@@ -273,58 +273,12 @@ class Updater {
 	}
 
 	/**
-	 * Infos de la dernière version disponible.
+	 * Infos de la dernière version disponible — source unique : GitHub.
 	 *
 	 * @return array|null version, download_url, homepage, changelog, sha256.
 	 */
 	private function remote() {
-		$github = $this->remote_github();
-		if ( $github ) {
-			return $github;
-		}
-
-		// GitHub injoignable (hébergeur restreint / rate limit) :
-		// repli sur le manifest hébergé sur infinitycoder.app (§93-94).
-		return $this->remote_manifest();
-	}
-
-	/**
-	 * Manifest de secours hébergé sur infinitycoder.app.
-	 *
-	 * Même format que update.json généré par le build : version,
-	 * download_url, sha256… L'administrateur dépose simplement le
-	 * manifest (et éventuellement les zips) sur son domaine.
-	 *
-	 * @return array|null
-	 */
-	private function remote_manifest() {
-		$cached = get_transient( 'icod_update_info' );
-		if ( false !== $cached ) {
-			return is_array( $cached ) ? $cached : null;
-		}
-
-		$url = apply_filters( 'infinitycod_fallback_manifest_url', 'https://infinitycoder.app/updates/infinitycod.json' );
-
-		$response = wp_remote_get( $url, array(
-			'timeout' => 10,
-			'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
-		) );
-
-		$status = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
-		$body   = is_wp_error( $response ) ? '' : (string) wp_remote_retrieve_body( $response );
-		$data   = $status >= 200 && $status < 300 ? json_decode( $body, true ) : null;
-
-		if ( ! is_array( $data ) || empty( $data['version'] ) || empty( $data['download_url'] ) ) {
-			set_transient( 'icod_update_info', array( 'unreachable' => 1, 'reason' => 'no_manifest' ), 30 * MINUTE_IN_SECONDS );
-			return null;
-		}
-
-		$data['homepage']  = isset( $data['details_url'] ) ? (string) $data['details_url'] : '';
-		$data['changelog'] = '';
-		$data['source']    = 'infinitycoder.app';
-
-		set_transient( 'icod_update_info', $data, 2 * HOUR_IN_SECONDS );
-		return $data;
+		return $this->remote_github();
 	}
 
 	/**
@@ -451,7 +405,6 @@ class Updater {
 	 */
 	public static function clear_cache() {
 		delete_transient( 'icod_update_gh' );
-		delete_transient( 'icod_update_info' );
 	}
 
 	/**

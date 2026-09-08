@@ -149,3 +149,9 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 ### Fixed
 - **Aucune mise à jour détectée (cause racine)** : l'URL de l'API GitHub encodait le slash du dépôt (`owner%2Frepo`) via rawurlencode — l'API répondait 404 en permanence, même avec un dépôt public et des releases publiées. L'URL est maintenant construite directement (dépôt déjà validé par regex) et un test anti-régression couvre ce cas dans le harnais.
 - Après cette correction, le WARNING « Updater injoignable » dans Diagnostics disparaît et les mises à jour sont détectées depuis GitHub.
+
+## 2.1.3 — 2026-09-08
+
+### Modifié
+- **Mises à jour : GitHub direct, rien d'autre** — suppression du repli manifest sur domaine web. La source unique est le dépôt public des releases GitHub (`derouicheoussama/infinitycod-releases`), consulté sans token, toutes les heures. Aucun fichier à héberger ailleurs, aucun intermédiaire.
+- Diagnostics simplifiés en conséquence (source GitHub + résultat du test de connexion).

@@ -181,15 +181,6 @@ class DiagnosticsPage {
 			$this->add( 'Updater — GitHub (primaire)', 'v' . $gh['version'], self::PASS, __( 'dépôt public des releases', 'infinitycod' ) );
 		}
 
-		// Repli : manifest infinitycoder.app.
-		$info = get_transient( 'icod_update_info' );
-		$info = is_array( $info ) ? $info : array();
-		if ( ! empty( $info['unreachable'] ) ) {
-			$this->add( 'Updater — Repli infinitycoder.app', __( 'manifest absent', 'infinitycod' ), self::WARN, __( 'déposez dist/update.json sur https://infinitycoder.app/updates/', 'infinitycod' ) );
-		} elseif ( ! empty( $info['version'] ) ) {
-			$this->add( 'Updater — Repli infinitycoder.app', 'v' . $info['version'], self::PASS, __( 'manifest de secours accessible', 'infinitycod' ) );
-		}
-
 		// Résultat du dernier test manuel.
 		$test = get_option( 'icod_updater_test', array() );
 		$test = is_array( $test ) ? $test : array();
