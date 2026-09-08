@@ -34,6 +34,11 @@ class AdminManager {
 		add_action( 'wp_ajax_icod_order_status', array( $this, 'handle_order_status' ) );
 		add_action( 'wp_ajax_icod_order_blacklist', array( $this, 'handle_order_blacklist' ) );
 		add_action( 'admin_post_icod_orders_export', array( $this, 'handle_orders_export' ) );
+		add_action( 'admin_post_icod_carrier_save', array( $this, 'handle_carrier_save' ) );
+		add_action( 'wp_ajax_icod_carrier_test', array( $this, 'handle_carrier_test' ) );
+		add_action( 'wp_ajax_icod_parcel_create', array( $this, 'handle_parcel_create' ) );
+		add_action( 'wp_ajax_icod_sync_tracking', array( $this, 'handle_sync_tracking' ) );
+		add_action( 'wp_ajax_icod_import_offices', array( $this, 'handle_import_offices' ) );
 	}
 
 	/**
@@ -529,5 +534,160 @@ class AdminManager {
 
 		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		exit;
+	}
+
+	/**
+	 * Sauvegarde des connexions transporteurs (admin-post).
+	 *
+	 * @return void
+	 */
+	public function handle_carrier_save() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_carrier_save' );
+
+		$posted = isset( $_POST['icod_carrier'] ) && is_array( $_POST['icod_carrier'] ) ? wp_unslash( $_POST['icod_carrier'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+
+		$fields = array( 'api_id', 'api_token', 'api_key', 'user_guid', 'base_url' );
+
+		foreach ( $posted as $code => $data ) {
+			$code  = sanitize_key( $code );
+			$clean = array();
+
+			foreach ( $fields as $field ) {
+				if ( isset( $data[ $field ] ) ) {
+					$value = sanitize_text_field( (string) $data[ $field ] );
+					if ( '' !== $value ) {
+						$clean[ $field ] = $value;
+					}
+				}
+			}
+
+			// Conserver les anciennes valeurs secrètes si le champ est laissé vide (mot de passe).
+			$previous = \InfinityCod\Carriers\CarrierManager::config( $code );
+			foreach ( array( 'api_token', 'api_key' ) as $secret ) {
+				if ( empty( $clean[ $secret ] ) && ! empty( $previous[ $secret ] ) ) {
+					$clean[ $secret ] = $previous[ $secret ];
+				}
+			}
+
+			$clean['enabled'] = empty( $data['enabled'] ) ? 0 : 1;
+			\InfinityCod\Carriers\CarrierManager::save_config( $code, $clean );
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-carriers&icod_msg=saved' ) );
+		exit;
+	}
+
+	/**
+	 * Test de connexion AJAX (teste les valeurs saisies sans les enregistrer).
+	 *
+	 * @return void
+	 */
+	public function handle_carrier_test() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+
+		$code    = isset( $_POST['code'] ) ? sanitize_key( wp_unslash( $_POST['code'] ) ) : '';
+		$manager = infinitycod()->module( 'carriers' );
+
+		if ( ! $code || ! $manager || ! $manager->catalog_entry( $code ) ) {
+			wp_send_json_error( array( 'message' => 'invalid' ) );
+		}
+
+		$config = array();
+		foreach ( array( 'api_id', 'api_token', 'api_key', 'user_guid', 'base_url' ) as $field ) {
+			if ( isset( $_POST[ $field ] ) && '' !== $_POST[ $field ] ) {
+				$config[ $field ] = sanitize_text_field( wp_unslash( $_POST[ $field ] ) );
+			}
+		}
+
+		$previous        = \InfinityCod\Carriers\CarrierManager::config( $code );
+		$config          = array_merge( $previous, $config );
+		$config['enabled'] = 1;
+
+		$entry = $manager->catalog_entry( $code );
+		$class = '\\InfinityCod\\Carriers\\' . $entry['adapter'];
+
+		if ( ! class_exists( $class ) ) {
+			wp_send_json_error( array( 'message' => 'adapter' ) );
+		}
+
+		if ( empty( $config['base_url'] ) ) {
+			$config['base_url'] = $entry['default_base'];
+		}
+
+		$adapter = new $class( $config );
+		$result  = $adapter->test();
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Création d'un colis (AJAX).
+	 *
+	 * @return void
+	 */
+	public function handle_parcel_create() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+
+		$id      = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+		$carrier = isset( $_POST['carrier'] ) ? sanitize_key( wp_unslash( $_POST['carrier'] ) ) : '';
+
+		$manager = infinitycod()->module( 'carriers' );
+		$result  = $manager ? $manager->create_parcel_from_order( $id, $carrier ) : array( 'ok' => false, 'message' => 'no manager', 'tracking' => '' );
+
+		if ( ! empty( $result['ok'] ) ) {
+			wp_send_json_success( $result );
+		}
+		wp_send_json_error( $result );
+	}
+
+	/**
+	 * Synchronisation manuelle des suivis (AJAX).
+	 *
+	 * @return void
+	 */
+	public function handle_sync_tracking() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+
+		$manager = infinitycod()->module( 'carriers' );
+		$result  = $manager ? $manager->sync_tracking() : array( 'checked' => 0, 'updated' => 0 );
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Import des bureaux Yalidine (AJAX).
+	 *
+	 * @return void
+	 */
+	public function handle_import_offices() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+
+		$manager = infinitycod()->module( 'carriers' );
+		$result  = $manager ? $manager->import_yalidine_offices() : array( 'ok' => false, 'message' => 'no manager' );
+
+		if ( ! empty( $result['ok'] ) ) {
+			wp_send_json_success( $result );
+		}
+		wp_send_json_error( $result );
 	}
 }

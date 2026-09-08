@@ -137,4 +137,100 @@
 				});
 		});
 	});
+	/* ===== Transporteurs ===== */
+
+	// Test de connexion : envoie les champs saisis sans les enregistrer.
+	document.querySelectorAll('.icod-test').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			var card = btn.closest('.icod-carrier-card');
+			var resultEl = document.querySelector('[data-result="' + btn.getAttribute('data-code') + '"]');
+			btn.disabled = true;
+			resultEl.textContent = '⏳';
+
+			var body = { action: 'icod_carrier_test', nonce: icodAdmin.nonce, code: btn.getAttribute('data-code') };
+			card.querySelectorAll('input').forEach(function (input) {
+				if (input.name && input.type !== 'checkbox') {
+					body[input.name.split('[').pop().replace(']', '')] = input.value;
+				}
+			});
+
+			window.fetch(icodAdmin.ajaxUrl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: new window.URLSearchParams(body).toString()
+			}).then(function (res) { return res.json(); }).then(function (json) {
+				btn.disabled = false;
+				var payload = (json && json.data) || {};
+				resultEl.textContent = (json && json.success) ? ('✅ ' + payload.message) : ('❌ ' + payload.message);
+			}).catch(function () {
+				btn.disabled = false;
+				resultEl.textContent = '❌ ' + icodAdmin.i18n.error;
+			});
+		});
+	});
+
+	// Import bureaux Yalidine.
+	document.querySelectorAll('.icod-import-offices').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			btn.disabled = true;
+			btn.textContent = '⏳ ' + icodAdmin.i18n.loading;
+
+			post('icod_import_offices', {}).then(function (json) {
+				btn.disabled = false;
+				var payload = (json && json.data) || {};
+				btn.textContent = (json && json.success) ? '✅ ' + payload.message : '❌ ' + payload.message;
+			}).catch(function () {
+				btn.disabled = false;
+				btn.textContent = '❌ ' + icodAdmin.i18n.error;
+			});
+		});
+	});
+
+	// Création de colis.
+	document.querySelectorAll('.icod-ship-btn').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			var cell = btn.closest('.icod-ship-cell');
+			var select = cell ? cell.querySelector('.icod-ship-carrier') : null;
+			var carrier = select ? select.value : '';
+			if (!carrier) { return; }
+			btn.disabled = true;
+
+			post('icod_parcel_create', { id: btn.getAttribute('data-id'), carrier: carrier }).then(function (json) {
+				var payload = (json && json.data) || {};
+				if (json && json.success) {
+					var tr = btn.closest('tr');
+					tr.style.opacity = '.5';
+					btn.textContent = '✅ ' + payload.tracking;
+				} else {
+					btn.disabled = false;
+					window.alert(payload.message || icodAdmin.i18n.error);
+				}
+			}).catch(function () {
+				btn.disabled = false;
+				window.alert(icodAdmin.i18n.error);
+			});
+		});
+	});
+
+	// Synchronisation manuelle des suivis.
+	var syncBtn = document.querySelector('.icod-sync-now');
+	if (syncBtn) {
+		syncBtn.addEventListener('click', function () {
+			syncBtn.disabled = true;
+
+			post('icod_sync_tracking', {}).then(function (json) {
+				syncBtn.disabled = false;
+				var payload = (json && json.data) || {};
+				if (json && json.success) {
+					window.location.reload();
+				} else {
+					window.alert(icodAdmin.i18n.error);
+				}
+			}).catch(function () {
+				syncBtn.disabled = false;
+				window.alert(icodAdmin.i18n.error);
+			});
+		});
+	}
 })();

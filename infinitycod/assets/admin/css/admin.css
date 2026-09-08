@@ -158,3 +158,11 @@
 @media (max-width:600px){
 	.icod-filters-grid{grid-template-columns:1fr}
 }
+
+/* ===== Transporteurs ===== */
+.icod-carrier-card h2{margin:0}
+.icod-carrier-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.icod-carrier-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.icod-test-result{font-weight:600}
+.icod-ship-cell{white-space:nowrap}
+.icod-ship-cell select{min-height:36px}
