@@ -39,7 +39,12 @@ class UpdatesPage {
 	public function render() {
 		$updater = infinitycod()->module( 'license' ) ? new Updater() : null;
 
-		$remote = $updater ? $updater->latest() : null;
+		$remote = null;
+		try {
+			$remote = $updater ? $updater->latest() : null;
+		} catch ( \Throwable $e ) {
+			\InfinityCod\Logging\Logger::log( 'error', 'Updates page : ' . $e->getMessage() );
+		}
 		$remote = is_array( $remote ) ? $remote : array();
 
 		$latest     = ! empty( $remote['version'] ) ? (string) $remote['version'] : '';

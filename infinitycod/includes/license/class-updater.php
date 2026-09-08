@@ -278,7 +278,12 @@ class Updater {
 	 * @return array|null version, download_url, homepage, changelog, sha256.
 	 */
 	private function remote() {
-		return $this->remote_github();
+		try {
+			return $this->remote_github();
+		} catch ( \Throwable $e ) {
+			\InfinityCod\Logging\Logger::log( 'error', 'remote : ' . $e->getMessage() );
+			return null;
+		}
 	}
 
 	/**

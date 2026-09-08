@@ -167,3 +167,8 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 
 ### Changed
 - Les frais de livraison incluent désormais le supplément poids dans le devis serveur, la commande WooCommerce et la ligne COD.
+
+## 2.2.1 — 2026-09-08
+
+### Security
+- **Blindage anti-fatal généralisé** : `inject_update`, `remote()`, la page Mises à jour et le test de connexion sont protégés par try/catch Throwable — tout bug futur du moteur de mise à jour est journalisé et dégrade proprement au lieu de crasher l'admin (règle §54 fail-safe, retour d'expérience de la v2.1.0).

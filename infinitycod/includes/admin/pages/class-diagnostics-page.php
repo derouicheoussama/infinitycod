@@ -264,7 +264,12 @@ class DiagnosticsPage {
 		}
 
 		$updater = new \InfinityCod\License\Updater();
-		$latest  = $updater->latest();
+		try {
+			$latest = $updater->latest();
+		} catch ( \Throwable $e ) {
+			\InfinityCod\Logging\Logger::log( 'error', 'Test updater : ' . $e->getMessage() );
+			$latest = null;
+		}
 
 		$test = array(
 			'time'   => current_time( 'mysql' ),
