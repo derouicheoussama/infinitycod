@@ -1,33 +1,54 @@
 <?php
 /**
- * Mises à jour à distance : branche le plugin sur le serveur Infinity Coder
- * avec l'API de mise à jour standard de WordPress (écran Extensions,
- * notifications automatiques, mise à jour en 1 clic).
+ * Mises à jour à distance : source GitHub Releases (privée ou publique)
+ * avec repli sur le serveur Infinity Coder (factexpert.online).
  *
- * Le serveur expose un JSON simple (voir docs/SERVEUR-MISES-A-JOUR.md) :
- * { "version": "1.2.0", "download_url": "...", "requires": "6.0", ... }
+ * GitHub : le plugin interroge l'API `/releases/latest` du dépôt configuré
+ * (Réglages → Avancé). Pour un dépôt PRIVÉ, un token GitHub est requis
+ * (lecture seule suffit) — il sert aussi au téléchargement du zip.
  *
  * @package InfinityCod
  */
 
 namespace InfinityCod\License;
 
+use InfinityCod\Core\Settings;
+
 defined( 'ABSPATH' ) || exit;
 
 class Updater {
 
 	/**
-	 * Url du manifeste de mise à jour.
+	 * Manifeste du serveur de secours.
 	 *
 	 * @return string
 	 */
 	public static function info_url() {
 		/**
-		 * Url du manifeste de versions InfinityCod.
+		 * Url du manifeste de versions sur le serveur Infinity Coder.
 		 *
 		 * @param string $url Url par défaut.
 		 */
 		return apply_filters( 'infinitycod_update_info_url', 'https://factexpert.online/updates/infinitycod.json' );
+	}
+
+	/**
+	 * Dépôt GitHub configuré (« proprietaire/depot ») ou vide.
+	 *
+	 * @return string
+	 */
+	public static function github_repo() {
+		$repo = trim( (string) Settings::get( 'github_repo', '' ) );
+		return preg_match( '#^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$#', $repo ) ? $repo : '';
+	}
+
+	/**
+	 * Token GitHub (lecture) éventuel — requis pour un dépôt privé.
+	 *
+	 * @return string
+	 */
+	public static function github_token() {
+		return trim( (string) Settings::get( 'github_token', '' ) );
 	}
 
 	/**
@@ -38,24 +59,102 @@ class Updater {
 	public function register() {
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'inject_update' ) );
 		add_filter( 'plugins_api', array( $this, 'plugin_info' ), 20, 3 );
+		add_filter( 'upgrader_pre_download', array( $this, 'auth_private_download' ), 10, 4 );
 	}
 
 	/**
-	 * Télécharge (avec cache 6 h) le manifeste distant.
+	 * Récupère les infos de la dernière version.
+	 *
+	 * Source prioritaire : GitHub Releases. Repli : serveur Infinity Coder.
+	 *
+	 * @return array|null version, download_url, homepage, changelog, slug_source.
+	 */
+	private function remote() {
+		$github = $this->remote_github();
+		if ( $github ) {
+			return $github;
+		}
+		return $this->remote_site();
+	}
+
+	/**
+	 * Dernière release GitHub (avec cache 2 h).
 	 *
 	 * @return array|null
 	 */
-	private function remote() {
+	private function remote_github() {
+		$repo = self::github_repo();
+
+		if ( '' === $repo ) {
+			return null;
+		}
+
+		$cached = get_transient( 'icod_update_gh' );
+		if ( false !== $cached ) {
+			return is_array( $cached ) ? $cached : null;
+		}
+
+		$args = array(
+			'timeout' => 10,
+			'headers' => array(
+				'Accept'     => 'application/vnd.github+json',
+				'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION,
+			),
+		);
+
+		$token = self::github_token();
+		if ( '' !== $token ) {
+			$args['headers']['Authorization'] = 'Bearer ' . $token;
+		}
+
+		$response = wp_remote_get( 'https://api.github.com/repos/' . rawurlencode( str_replace( '.git', '', $repo ) ) . '/releases/latest', $args );
+
+		$status = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
+		$body   = is_wp_error( $response ) ? '' : (string) wp_remote_retrieve_body( $response );
+		$release = $status >= 200 && $status < 300 ? json_decode( $body, true ) : null;
+
+		if ( ! is_array( $release ) || empty( $release['tag_name'] ) ) {
+			// 404 = aucune release encore publiée : cache court.
+			set_transient( 'icod_update_gh', array( 'unreachable' => 1 ), 30 * MINUTE_IN_SECONDS );
+			return null;
+		}
+
+		// Le zip attaché à la release (généré par le workflow GitHub Actions).
+		$download = '';
+		if ( ! empty( $release['assets'] ) && is_array( $release['assets'] ) ) {
+			foreach ( $release['assets'] as $asset ) {
+				if ( isset( $asset['browser_download_url'] ) && substr( strtolower( (string) $asset['name'] ), -4 ) === '.zip' ) {
+					$download = (string) $asset['browser_download_url'];
+					break;
+				}
+			}
+		}
+
+		$data = array(
+			'version'      => ltrim( (string) $release['tag_name'], 'vV' ),
+			'download_url' => $download,
+			'homepage'     => isset( $release['html_url'] ) ? (string) $release['html_url'] : '',
+			'changelog'    => isset( $release['body'] ) ? (string) $release['body'] : '',
+			'source'       => 'github',
+		);
+
+		set_transient( 'icod_update_gh', $data, 2 * HOUR_IN_SECONDS );
+		return $data;
+	}
+
+	/**
+	 * Manifeste du serveur de secours (cache 6 h).
+	 *
+	 * @return array|null
+	 */
+	private function remote_site() {
 		$cached = get_transient( 'icod_update_info' );
 
 		if ( false !== $cached ) {
 			return is_array( $cached ) ? $cached : null;
 		}
 
-		$response = wp_remote_get(
-			self::info_url(),
-			array( 'timeout' => 10 )
-		);
+		$response = wp_remote_get( self::info_url(), array( 'timeout' => 10 ) );
 
 		if ( is_wp_error( $response ) ) {
 			set_transient( 'icod_update_info', array( 'unreachable' => 1 ), 30 * MINUTE_IN_SECONDS );
@@ -70,22 +169,26 @@ class Updater {
 			return null;
 		}
 
+		$body['source']      = 'site';
+		$body['changelog']   = isset( $body['sections']['changelog'] ) ? (string) $body['sections']['changelog'] : '';
+		$body['download_url'] = isset( $body['download_url'] ) ? (string) $body['download_url'] : '';
+
 		set_transient( 'icod_update_info', $body, 6 * HOUR_IN_SECONDS );
 		return $body;
 	}
 
 	/**
-	 * Vide le cache de manifeste (bouton « Vérifier les mises à jour »).
+	 * Vide les caches de mise à jour (bouton « Vérifier les mises à jour »).
 	 *
 	 * @return void
 	 */
 	public static function clear_cache() {
+		delete_transient( 'icod_update_gh' );
 		delete_transient( 'icod_update_info' );
 	}
 
 	/**
-	 * Injecte la mise à jour dans la transient WordPress si une version
-	 * plus récente existe.
+	 * Injecte la mise à jour dans la transient WordPress si plus récente.
 	 *
 	 * @param object $transient Transient update_plugins.
 	 * @return object
@@ -97,7 +200,7 @@ class Updater {
 
 		$remote = $this->remote();
 
-		if ( ! $remote || empty( $remote['version'] ) ) {
+		if ( ! $remote || empty( $remote['version'] ) || empty( $remote['download_url'] ) ) {
 			return $transient;
 		}
 
@@ -105,26 +208,26 @@ class Updater {
 			return $transient;
 		}
 
-		$package = ! empty( $remote['download_url'] ) ? (string) $remote['download_url'] : '';
+		$package = (string) $remote['download_url'];
 
-		// Serveur de téléchargement protégé par licence : clé transmise pour vérification.
-		$stored  = LicenseManager::stored();
-		if ( $package && ! empty( $stored['key_hash'] ) ) {
-			$package = add_query_arg( 'key_hash', rawurlencode( $stored['key_hash'] ), $package );
+		// Serveur Infinity Coder protégé par licence : clé transmise.
+		if ( isset( $remote['source'] ) && 'site' === $remote['source'] ) {
+			$stored = LicenseManager::stored();
+			if ( ! empty( $stored['key_hash'] ) ) {
+				$package = add_query_arg( 'key_hash', rawurlencode( $stored['key_hash'] ), $package );
+			}
 		}
 
-		$update = array(
+		$transient->response[ INFINITYCOD_BASENAME ] = (object) array(
 			'slug'        => 'infinitycod',
 			'plugin'      => INFINITYCOD_BASENAME,
 			'new_version' => (string) $remote['version'],
 			'url'         => ! empty( $remote['homepage'] ) ? (string) $remote['homepage'] : 'https://infinitycoder.app',
 			'package'     => $package,
-			'requires'    => isset( $remote['requires'] ) ? (string) $remote['requires'] : '6.0',
-			'requires_php' => isset( $remote['requires_php'] ) ? (string) $remote['requires_php'] : '7.4',
-			'tested'      => isset( $remote['tested'] ) ? (string) $remote['tested'] : get_bloginfo( 'version' ),
+			'requires'    => '6.0',
+			'requires_php' => '7.4',
+			'tested'      => get_bloginfo( 'version' ),
 		);
-
-		$transient->response[ INFINITYCOD_BASENAME ] = (object) $update;
 
 		return $transient;
 	}
@@ -148,21 +251,108 @@ class Updater {
 			return $result;
 		}
 
+		$changelog = '';
+		if ( ! empty( $remote['changelog'] ) ) {
+			$changelog = '<pre style="white-space:pre-wrap;font-family:inherit">' . esc_html( (string) $remote['changelog'] ) . '</pre>';
+		}
+
 		$info                = new \stdClass();
-		$info->name          = isset( $remote['name'] ) ? $remote['name'] : 'InfinityCod';
+		$info->name          = 'InfinityCod — Paiement à la livraison (COD Algérie)';
 		$info->slug          = 'infinitycod';
 		$info->version       = (string) $remote['version'];
-		$info->requires      = isset( $remote['requires'] ) ? $remote['requires'] : '6.0';
-		$info->requires_php  = isset( $remote['requires_php'] ) ? $remote['requires_php'] : '7.4';
-		$info->tested        = isset( $remote['tested'] ) ? $remote['tested'] : get_bloginfo( 'version' );
+		$info->requires      = '6.0';
+		$info->requires_php  = '7.4';
+		$info->tested        = get_bloginfo( 'version' );
 		$info->author        = '<a href="https://infinitycoder.app">Infinity Coder</a>';
-		$info->homepage      = isset( $remote['homepage'] ) ? $remote['homepage'] : 'https://infinitycoder.app';
-		$info->download_link = ! empty( $remote['download_url'] ) ? $remote['download_url'] : '';
+		$info->homepage      = ! empty( $remote['homepage'] ) ? (string) $remote['homepage'] : 'https://infinitycoder.app';
+		$info->download_link = (string) $remote['download_url'];
 		$info->sections      = array(
-			'description' => isset( $remote['sections']['description'] ) ? wp_kses_post( $remote['sections']['description'] ) : '<p>' . __( 'Solution COD tout-en-un pour WooCommerce Algérie.', 'infinitycod' ) . '</p>',
-			'changelog'   => isset( $remote['sections']['changelog'] ) ? wp_kses_post( $remote['sections']['changelog'] ) : '',
+			'description' => '<p>' . __( 'Solution COD tout-en-un pour WooCommerce Algérie : formulaire de commande rapide, 58 wilayas & 1541 communes, transporteurs intégrés, WhatsApp automatique et statistiques P&L.', 'infinitycod' ) . '</p>',
+			'changelog'   => $changelog,
 		);
 
 		return $info;
+	}
+
+	/**
+	 * Téléchargement d'un asset GitHub de dépôt PRIVÉ.
+	 *
+	 * WordPress télécharge le zip sans en-tête d'autorisation : GitHub
+	 * répond 404/403 sur un dépôt privé. On effectue le téléchargement
+	 * nous-mêmes en deux temps (auth sur github.com, puis l'URL signée S3
+	 * de redirection SANS en-tête d'autorisation) et on renvoie les octets
+	 * à l'upgrader.
+	 *
+	 * @param false|mixed $reply    Valeur par défaut (false = comportement standard).
+	 * @param string      $package  Url du zip en cours de téléchargement.
+	 * @return false|string Octets du zip, ou false pour le comportement standard.
+	 */
+	public function auth_private_download( $reply, $package ) {
+		if ( $reply || ! is_string( $package ) ) {
+			return $reply;
+		}
+
+		$repo = self::github_repo();
+
+		if ( '' === $repo || false === strpos( $package, 'github.com/' . $repo . '/' ) ) {
+			return $reply;
+		}
+
+		$token = self::github_token();
+		if ( '' === $token ) {
+			return $reply; // Dépôt public : téléchargement standard.
+		}
+
+		// 1re étape : URL signée (redirection suivie manuellement).
+		$step1 = wp_remote_get(
+			$package,
+			array(
+				'timeout'    => 60,
+				'redirection' => 0,
+				'headers'    => array(
+					'Authorization' => 'Bearer ' . $token,
+					'User-Agent'    => 'InfinityCod-Updater/' . INFINITYCOD_VERSION,
+					'Accept'        => 'application/octet-stream',
+				),
+			)
+		);
+
+		if ( is_wp_error( $step1 ) ) {
+			return $reply;
+		}
+
+		$code = (int) wp_remote_retrieve_response_code( $step1 );
+
+		// Dépôt public ou asset déjà servi directement : contenu renvoyé tel quel.
+		if ( $code >= 200 && $code < 300 ) {
+			return wp_remote_retrieve_body( $step1 );
+		}
+
+		$location = wp_remote_retrieve_header( $step1, 'location' );
+
+		if ( ! $location || ( $code < 300 || $code >= 400 ) ) {
+			return $reply;
+		}
+
+		// 2e étape : S3 signé, SANS en-tête d'autorisation.
+		$step2 = wp_remote_get(
+			$location,
+			array(
+				'timeout'    => 120,
+				'redirection' => 2,
+			)
+		);
+
+		if ( is_wp_error( $step2 ) ) {
+			return $reply;
+		}
+
+		$zip = wp_remote_retrieve_body( $step2 );
+
+		if ( '' === $zip || 'PK' !== substr( $zip, 0, 2 ) ) {
+			return $reply;
+		}
+
+		return $zip;
 	}
 }

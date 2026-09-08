@@ -31,3 +31,6 @@ Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
 - **Page « À propos »** : version, statut de licence, statut système (PHP, WordPress, WooCommerce, thème actif, tables, transporteurs connectés), bouton « Vérifier les mises à jour ».
 - **Mises à jour à distance** : API standard WordPress (notifications + mise à jour en 1 clic) branchée sur factexpert.online, téléchargement gated par licence ; documentation serveur dans docs/SERVEUR-MISES-A-JOUR.md.
 - Compatibilité thèmes renforcée : resets !important ciblés (hauteurs, couleurs, boutons, selects) contre les styles agressifs d'Astra/Flatsome/WoodMart/Divi.
+
+### Ajouté (1.1.0, suite)
+- **Mises à jour depuis GitHub** : source prioritaire GitHub Releases du dépôt `derouicheoussama/infinitycod` (fallback factexpert.online). Dépôt privé supporté : token GitHub configurable dans Réglages → Avancé, téléchargement authentifié en deux temps (gestion de la redirection signée S3). Workflow GitHub Actions de release automatique (lint → build zip → release) déclenché par les tags `v*`.

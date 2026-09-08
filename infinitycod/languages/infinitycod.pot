@@ -954,8 +954,8 @@ msgstr ""
 
 #: includes/admin/pages/class-settings-page.php:56
 #: includes/admin/pages/class-settings-page.php:56
-#: includes/admin/pages/class-settings-page.php:409
-#: includes/admin/pages/class-settings-page.php:409
+#: includes/admin/pages/class-settings-page.php:427
+#: includes/admin/pages/class-settings-page.php:427
 msgid "Avancé"
 msgstr ""
 
@@ -1269,8 +1269,33 @@ msgstr ""
 msgid "Relance paniers : nombre de relances max"
 msgstr ""
 
+#: includes/admin/pages/class-settings-page.php:409
+#: includes/admin/pages/class-settings-page.php:409
+msgid "Mises à jour via GitHub"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:410
+#: includes/admin/pages/class-settings-page.php:410
+msgid "Le plugin vérifie les nouvelles versions dans les Releases GitHub du dépôt configuré. Pour un dépôt PRIVÉ, renseignez un token GitHub (lecture seule — classic token, scope repo). Sans token, un dépôt public fonctionne aussi."
+msgstr ""
+
 #: includes/admin/pages/class-settings-page.php:413
 #: includes/admin/pages/class-settings-page.php:413
+msgid "Dépôt GitHub (propriétaire/dépôt)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:417
+#: includes/admin/pages/class-settings-page.php:417
+msgid "Token GitHub (dépôt privé uniquement)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:422
+#: includes/admin/pages/class-settings-page.php:422
+msgid "En cas d‘indisponibilité de GitHub, le plugin se replie sur factexpert.online/updates/infinitycod.json."
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:431
+#: includes/admin/pages/class-settings-page.php:431
 msgid "Supprimer toutes les données (tables, réglages) à la désinstallation du plugin"
 msgstr ""
 
@@ -1709,8 +1734,8 @@ msgstr ""
 msgid "Version gratuite"
 msgstr ""
 
-#: includes/license/class-updater.php:162
-msgid "Solution COD tout-en-un pour WooCommerce Algérie."
+#: includes/license/class-updater.php:270
+msgid "Solution COD tout-en-un pour WooCommerce Algérie : formulaire de commande rapide, 58 wilayas & 1541 communes, transporteurs intégrés, WhatsApp automatique et statistiques P&L."
 msgstr ""
 
 #: includes/orders/class-order-store.php:114

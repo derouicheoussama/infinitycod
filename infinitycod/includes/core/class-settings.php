@@ -94,6 +94,10 @@ class Settings {
 			// Divers.
 			'delete_on_uninstall'   => 0,
 			'wizard_done'           => 0,
+
+			// Mises à jour via GitHub.
+			'github_repo'           => 'derouicheoussama/infinitycod', // proprietaire/depot.
+			'github_token'          => '',   // Requis pour un dépôt privé (lecture seule).
 		);
 	}
 

@@ -1,0 +1,39 @@
+# Publie automatiquement une release GitHub à chaque tag v*
+# Le zip (dist/infinitycod.zip) est construit et attaché à la release :
+# les installations WordPress le récupèrent via l'Updater du plugin.
+name: Release InfinityCod
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Dépendances
+        run: npm ci || npm install
+
+      - name: Vérifications (lint PHP + autoloader)
+        run: node tools/lint-php.js && node tools/smoke.js
+
+      - name: Construction du zip
+        run: node tools/build.js
+
+      - name: Publication de la release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/infinitycod.zip
+          generate_release_notes: true
