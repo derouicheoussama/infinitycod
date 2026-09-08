@@ -111,8 +111,9 @@ class Settings {
 			'payment_return_text'   => __( 'Merci ! Votre paiement a bien été reçu et votre commande est confirmée. Nous vous contacterons très vite.', 'infinitycod' ),
 
 			// Mises à jour via GitHub.
-			'github_repo'           => 'derouicheoussama/infinitycod', // proprietaire/depot.
-			'github_token'          => '',   // Requis pour un dépôt privé (lecture seule).
+			'releases_repo'         => 'derouicheoussama/infinitycod-releases', // Dépôt PUBLIC des zips (sans token).
+			'github_repo'           => 'derouicheoussama/infinitycod', // Dépôt privé des sources.
+			'github_token'          => '',   // Seulement si releases_repo est vide (dépôt privé).
 		);
 	}
 

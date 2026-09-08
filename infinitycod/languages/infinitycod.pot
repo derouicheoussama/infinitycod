@@ -984,8 +984,8 @@ msgstr ""
 
 #: includes/admin/pages/class-settings-page.php:57
 #: includes/admin/pages/class-settings-page.php:57
-#: includes/admin/pages/class-settings-page.php:513
-#: includes/admin/pages/class-settings-page.php:513
+#: includes/admin/pages/class-settings-page.php:517
+#: includes/admin/pages/class-settings-page.php:517
 msgid "Avancé"
 msgstr ""
 
@@ -1396,36 +1396,41 @@ msgstr ""
 
 #: includes/admin/pages/class-settings-page.php:496
 #: includes/admin/pages/class-settings-page.php:496
-msgid "Le plugin vérifie les nouvelles versions dans les Releases GitHub du dépôt configuré. Pour un dépôt PRIVÉ, renseignez un token GitHub (lecture seule — classic token, scope repo). Sans token, un dépôt public fonctionne aussi."
+msgid "Recommandé : créez un dépôt PUBLIC « releases » contenant uniquement les zips — les clients reçoivent les mises à jour sans aucun token, et vos sources restent privées. Si vous laissez ce champ vide, le plugin consulte le dépôt des sources (token alors obligatoire s‘il est privé)."
 msgstr ""
 
 #: includes/admin/pages/class-settings-page.php:499
 #: includes/admin/pages/class-settings-page.php:499
-msgid "Dépôt GitHub (propriétaire/dépôt)"
+msgid "Dépôt PUBLIC des releases (recommandé)"
 msgstr ""
 
 #: includes/admin/pages/class-settings-page.php:503
 #: includes/admin/pages/class-settings-page.php:503
+msgid "Dépôt des sources (avec token si privé)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:507
+#: includes/admin/pages/class-settings-page.php:507
 msgid "Token GitHub (dépôt privé uniquement)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:508
-#: includes/admin/pages/class-settings-page.php:508
+#: includes/admin/pages/class-settings-page.php:512
+#: includes/admin/pages/class-settings-page.php:512
 msgid "En cas d‘indisponibilité de GitHub, le plugin se replie sur factexpert.online/updates/infinitycod.json."
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:517
-#: includes/admin/pages/class-settings-page.php:517
+#: includes/admin/pages/class-settings-page.php:521
+#: includes/admin/pages/class-settings-page.php:521
 msgid "Badge de commandes en attente sur le menu admin"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:521
-#: includes/admin/pages/class-settings-page.php:521
+#: includes/admin/pages/class-settings-page.php:525
+#: includes/admin/pages/class-settings-page.php:525
 msgid "Mise à jour automatique du plugin (sans clic, dès qu‘une version GitHub est publiée)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:525
-#: includes/admin/pages/class-settings-page.php:525
+#: includes/admin/pages/class-settings-page.php:529
+#: includes/admin/pages/class-settings-page.php:529
 msgid "Supprimer toutes les données (tables, réglages) à la désinstallation du plugin"
 msgstr ""
 
@@ -1894,7 +1899,22 @@ msgstr ""
 msgid "Version gratuite"
 msgstr ""
 
-#: includes/license/class-updater.php:317
+#: includes/license/class-updater.php:116
+#: includes/license/class-updater.php:116
+msgid "InfinityCod — mises à jour indisponibles :"
+msgstr ""
+
+#: includes/license/class-updater.php:117
+#: includes/license/class-updater.php:117
+msgid "le dépôt GitHub est privé et aucun token n‘est configuré. Créez un dépôt public « releases » (recommandé, sans token côté clients) ou collez un token GitHub dans les réglages."
+msgstr ""
+
+#: includes/license/class-updater.php:119
+#: includes/license/class-updater.php:119
+msgid "Configurer"
+msgstr ""
+
+#: includes/license/class-updater.php:377
 msgid "Solution COD tout-en-un pour WooCommerce Algérie : formulaire de commande rapide, 58 wilayas & 1541 communes, transporteurs intégrés, WhatsApp automatique et statistiques P&L."
 msgstr ""
 

@@ -493,10 +493,14 @@ class SettingsPage {
 		?>
 		<div class="icod-card">
 			<h2><?php esc_html_e( 'Mises à jour via GitHub', 'infinitycod' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'Le plugin vérifie les nouvelles versions dans les Releases GitHub du dépôt configuré. Pour un dépôt PRIVÉ, renseignez un token GitHub (lecture seule — classic token, scope repo). Sans token, un dépôt public fonctionne aussi.', 'infinitycod' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Recommandé : créez un dépôt PUBLIC « releases » contenant uniquement les zips — les clients reçoivent les mises à jour sans aucun token, et vos sources restent privées. Si vous laissez ce champ vide, le plugin consulte le dépôt des sources (token alors obligatoire s‘il est privé).', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
 				<label>
-					<span><?php esc_html_e( 'Dépôt GitHub (propriétaire/dépôt)', 'infinitycod' ); ?></span>
+					<span><?php esc_html_e( 'Dépôt PUBLIC des releases (recommandé)', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[releases_repo]" value="<?php echo esc_attr( Settings::get( 'releases_repo' ) ); ?>" dir="ltr" placeholder="derouicheoussama/infinitycod-releases" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Dépôt des sources (avec token si privé)', 'infinitycod' ); ?></span>
 					<input type="text" name="icod[github_repo]" value="<?php echo esc_attr( Settings::get( 'github_repo' ) ); ?>" dir="ltr" placeholder="derouicheoussama/infinitycod" />
 				</label>
 				<label>
@@ -597,7 +601,7 @@ class SettingsPage {
 		}
 
 		// Clés / identifiants.
-		foreach ( array( 'whatsapp_number', 'whatsapp_phone_id', 'whatsapp_ultramsg_instance', 'github_repo' ) as $id_key ) {
+		foreach ( array( 'whatsapp_number', 'whatsapp_phone_id', 'whatsapp_ultramsg_instance', 'github_repo', 'releases_repo' ) as $id_key ) {
 			if ( isset( $raw[ $id_key ] ) ) {
 				$clean[ $id_key ] = preg_replace( '/[^0-9a-zA-Z_\-.\/]/', '', $raw[ $id_key ] );
 			}

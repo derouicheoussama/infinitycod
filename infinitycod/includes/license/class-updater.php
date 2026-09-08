@@ -33,6 +33,17 @@ class Updater {
 	}
 
 	/**
+	 * Dépôt PUBLIC des releases (« proprietaire/depot »), consultable sans
+	 * token par toutes les boutiques clientes. Prioritaire sur github_repo.
+	 *
+	 * @return string
+	 */
+	public static function releases_repo() {
+		$repo = trim( (string) Settings::get( 'releases_repo', '' ) );
+		return preg_match( '#^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$#', $repo ) ? $repo : '';
+	}
+
+	/**
 	 * Dépôt GitHub configuré (« proprietaire/depot ») ou vide.
 	 *
 	 * @return string
@@ -70,6 +81,43 @@ class Updater {
 
 		// Mise à jour automatique (option marchand).
 		add_filter( 'auto_update_plugin', array( $this, 'auto_update' ), 20, 2 );
+
+		// Diagnostic : prévenir si les mises à jour sont indisponibles.
+		add_action( 'admin_notices', array( $this, 'update_notice' ) );
+	}
+
+	/**
+	 * Notice admin quand la vérification GitHub échoue (dépôt privé sans
+	 * token ni dépôt public de releases).
+	 *
+	 * @return void
+	 */
+	public function update_notice() {
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			return;
+		}
+
+		// Dépôt public configuré : rien à signaler.
+		if ( '' !== self::releases_repo() ) {
+			return;
+		}
+
+		$cached = get_transient( 'icod_update_gh' );
+		if ( ! is_array( $cached ) || empty( $cached['unreachable'] ) ) {
+			return;
+		}
+
+		if ( 'network' === ( isset( $cached['reason'] ) ? $cached['reason'] : '' ) ) {
+			return; // Simple incident réseau : pas d'alerte.
+		}
+
+		printf(
+			'<div class="notice notice-warning"><p><strong>%1$s</strong> %2$s <a href="%3$s">%4$s</a></p></div>',
+			esc_html__( 'InfinityCod — mises à jour indisponibles :', 'infinitycod' ),
+			esc_html__( 'le dépôt GitHub est privé et aucun token n‘est configuré. Créez un dépôt public « releases » (recommandé, sans token côté clients) ou collez un token GitHub dans les réglages.', 'infinitycod' ),
+			esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=advanced' ) ),
+			esc_html__( 'Configurer', 'infinitycod' )
+		);
 	}
 
 	/**
@@ -127,10 +175,19 @@ class Updater {
 	/**
 	 * Dernière release GitHub (avec cache 2 h).
 	 *
+	 * Source prioritaire : dépôt PUBLIC des releases (aucun token requis
+	 * chez les clients). Repli : dépôt privé + token.
+	 *
 	 * @return array|null
 	 */
 	private function remote_github() {
-		$repo = self::github_repo();
+		$repo  = self::releases_repo();
+		$token = '';
+
+		if ( '' === $repo ) {
+			$repo  = self::github_repo();
+			$token = self::github_token();
+		}
 
 		if ( '' === $repo ) {
 			return null;
@@ -149,7 +206,6 @@ class Updater {
 			),
 		);
 
-		$token = self::github_token();
 		if ( '' !== $token ) {
 			$args['headers']['Authorization'] = 'Bearer ' . $token;
 		}
@@ -161,8 +217,12 @@ class Updater {
 		$release = $status >= 200 && $status < 300 ? json_decode( $body, true ) : null;
 
 		if ( ! is_array( $release ) || empty( $release['tag_name'] ) ) {
-			// 404 = aucune release encore publiée : cache court.
-			set_transient( 'icod_update_gh', array( 'unreachable' => 1 ), 30 * MINUTE_IN_SECONDS );
+			// 404 = dépôt privé sans token, ou aucune release publiée.
+			set_transient( 'icod_update_gh', array(
+				'unreachable' => 1,
+				'reason'      => 404 === $status ? 'private_or_empty' : 'network',
+				'repo'        => $repo,
+			), 30 * MINUTE_IN_SECONDS );
 			return null;
 		}
 
@@ -339,9 +399,17 @@ class Updater {
 			return $reply;
 		}
 
-		$repo = self::github_repo();
+		$repos = array_filter( array( self::releases_repo(), self::github_repo() ) );
+		$matched = '';
 
-		if ( '' === $repo || false === strpos( $package, 'github.com/' . $repo . '/' ) ) {
+		foreach ( $repos as $repo ) {
+			if ( false !== strpos( $package, 'github.com/' . $repo . '/' ) ) {
+				$matched = $repo;
+				break;
+			}
+		}
+
+		if ( '' === $matched ) {
 			return $reply;
 		}
 

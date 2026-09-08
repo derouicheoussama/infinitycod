@@ -50,3 +50,10 @@ Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
 
 ### Ajouté
 - **Paiement en ligne Chargily Pay v2 (CIB / Edahabia)** : choix COD / paiement immédiat dans le formulaire, création de checkout (API pay.chargily.net, mode test/production), redirection client, confirmation par vérification API au retour + webhook signé HMAC-SHA256 (`/wp-json/infinitycod/v1/chargily/webhook`), commande marquée **Payée 💳** (flag + WooCommerce payment_complete + statut COD confirmé), page de retour personnalisable. Colonnes DB `payment/checkout_id/paid/paid_at` (migration automatique). Réglages → onglet Paiement.
+
+## 1.3.1 — 2026-09-08
+
+### Corrigé
+- **Mises à jour non reçues** (cause identifiée) : le dépôt des sources est PRIVÉ — l'API GitHub renvoie 404 aux boutiques sans token, donc aucune version n'était jamais détectée. Le plugin consulte maintenant en priorité un **dépôt public dédié aux releases** (`derouicheoussama/infinitycod-releases`, zips uniquement, aucune source) : les clients reçoivent les mises à jour **sans aucun token**. Le dépôt privé + token reste utilisable en repli.
+- **Diagnostic visible** : notice admin « mises à jour indisponibles » quand le dépôt est privé sans token, avec lien direct vers la configuration.
+- Nouveau script `node tools/publish-releases.js` : publie le zip de la version courante sur le dépôt public en une commande.
