@@ -1,55 +1,47 @@
 # Publier les mises à jour depuis GitHub
 
-Le dépôt privé **derouicheoussama/infinitycod** est la source officielle des mises à jour du plugin.
+## Architecture des dépôts
 
-## Chaîne de publication (automatique)
+| Dépôt | Visibilité | Contenu | Rôle |
+|---|---|---|---|
+| `derouicheoussama/infinitycod` | **Privé** | Code source complet | Développement, historique, releases internes (CI) |
+| `derouicheoussama/infinitycod-releases` | **Public** | Zips des releases uniquement | Source des mises à jour des boutiques clientes — **aucun token requis** |
 
-```
-git tag v1.2.0 && git push origin v1.2.0
-        │
-        ▼  GitHub Actions (.github/workflows/release.yml)
-   lint PHP + smoke autoloader
-        │
-        ▼
-   node tools/build.js  →  dist/infinitycod.zip
-        │
-        ▼
-   Release GitHub v1.2.0 + zip attaché
-        │
-        ▼  (toutes les boutiques clientes, toutes les 12 h)
-   WordPress affiche « Mise à jour disponible » → installation en 1 clic
-```
+Le plugin (v1.3.1+) interroge `https://api.github.com/repos/derouicheoussama/infinitycod-releases/releases/latest` toutes les heures. Le dépôt étant public, tout fonctionne sans token côté clients.
 
-## Publier une version
+## Rituel de publication (4 commandes)
 
 ```bash
 # 1. Mettre à jour la version dans infinitycod/infinitycod.php
 #    (en-tête "Version:" + constante INFINITYCOD_VERSION)
+# 2. Commit
+git add -A && git commit -m "1.4.0 — description des changements"
 
-# 2. Committer puis taguer
-git add -A
-git commit -m "1.2.0 — description"
-git tag v1.2.0
-git push origin main --tags
+# 3. Tag : la CI du dépôt privé construit le zip et crée la release interne
+git tag v1.4.0 && git push origin main --tags
+
+# 4. Publier le zip sur le dépôt PUBLIC (source des mises à jour clients)
+node tools/publish-releases.js
 ```
 
-Le workflow GitHub Actions fait le reste : lint, build du zip, création de la release avec les release notes automatiques (issues/PRs + CHANGELOG si inclus dans le message du tag).
+`tools/publish-releases.js` reconstruit le zip, crée la release `v1.4.0` dans le dépôt public et y téléverse `infinitycod.zip` — en utilisant les identifiants Git de votre machine.
 
 ## Côté client (boutique WordPress)
 
-Le plugin interroge `https://api.github.com/repos/derouicheoussama/infinitycod/releases/latest` toutes les 12 h (transient WP, forçable via **InfinityCod → À propos → Vérifier les mises à jour**).
+- **Installation initiale** : téléverser le zip une fois (Extensions → Ajouter).
+- Ensuite : vérification horaire, notification « Mise à jour disponible » sous le nom du plugin, mise à jour en 1 clic.
+- **Option** « Mise à jour automatique » (Réglages → Avancé) : le plugin s'installe tout seul, sans clic.
+- **Diagnostic** : si les mises à jour sont indisponibles (ex. dépôt public mal configuré), une notice s'affiche dans l'admin avec un lien vers les réglages.
 
-- **Dépôt public** : rien à configurer.
-- **Dépôt privé** (configuré ainsi) : renseignez un **token GitHub lecture seule** dans *Réglages → Avancé → Token GitHub* sur chaque boutique cliente. Classic token avec scope `repo`. Le token sert à lire la release ET télécharger le zip (l'upgrader passe par un téléchargement authentifié en deux temps pour gérer la redirection signée S3 de GitHub).
-- **Repli** : si GitHub est indisponible, le plugin tente `factexpert.online/updates/infinitycod.json` (voir SERVEUR-MISES-A-JOUR.md).
+## Paramètres associés (Réglages → Avancé)
 
-## Installation initiale d'une boutique cliente
+| Champ | Défaut | Rôle |
+|---|---|---|
+| Dépôt PUBLIC des releases | `derouicheoussama/infinitycod-releases` | Interrogé par tous les clients, sans token |
+| Dépôt des sources | `derouicheoussama/infinitycod` | Repli : utilisé avec un token si le dépôt public est vide |
+| Token GitHub | vide | Seulement pour le repli dépôt privé |
+| Mise à jour automatique | désactivée | Installation automatique des nouvelles versions |
 
-1. Téléverser `infinitycod.zip` (ou le zip de la release GitHub) : Extensions → Ajouter
-2. *Réglages → Avancé* : coller le token GitHub (dépôt privé)
-3. Les mises à jour arrivent ensuite automatiquement
+## Repli serveur
 
-## Sécurité du token
-
-- Créez un token **fine-grained** (lecture seule, dépôt infinitycod uniquement) plutôt qu'un classic `repo` quand c'est possible.
-- Le token est stocké dans les réglages du site client (option sans autoload exposée publiquement ? Non : option autoload off pour le token). Chaque client a donc accès en théorie au contenu du dépôt — c'est inhérent à un dépôt privé partagé. Si vous voulez isoler davantage, créez un dépôt `releases` public contenant UNIQUEMENT les zips (pas les sources) et configurez-le dans *Réglages → Avancé*.
+Si GitHub est injoignable, le plugin tente `https://factexpert.online/updates/infinitycod.json` (voir SERVEUR-MISES-A-JOUR.md).

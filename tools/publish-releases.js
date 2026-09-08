@@ -58,20 +58,24 @@ const tag = 'v' + version;
 
 // 3. Release dans le dépôt public (crée le tag sur la branche par défaut).
 console.log(`Publication de ${tag} sur ${RELEASES_REPO}…`);
-const body = JSON.stringify({
+// Le corps passe par un fichier UTF-8 : les accents dans les arguments curl
+// sont corrompus par la page de codes Windows.
+const bodyPath = path.join(root, 'dist', 'release-body.json');
+fs.writeFileSync(bodyPath, JSON.stringify({
   tag_name: tag,
   name: 'InfinityCod ' + version,
-  body: `Mise à jour automatique WordPress : installez via Extensions → Mettre à jour.\n\nZip : \`infinitycod.zip\` (source des mises à jour des boutiques clientes).`,
+  body: 'Mise à jour WordPress : Extensions → Mettre à jour. Zip = source des mises à jour des boutiques clientes.',
   draft: false,
   prerelease: false,
-});
+}), 'utf8');
+
 const release = api([
   '-X', 'POST',
   '-H', `Authorization: Bearer ${token}`,
   '-H', 'Accept: application/vnd.github+json',
+  '-H', 'Content-Type: application/json',
   'https://api.github.com/repos/' + RELEASES_REPO + '/releases',
-  '--data-binary', '@-',
-  body,
+  '--data-binary', '@' + bodyPath,
 ]);
 
 if (!release.id) {
