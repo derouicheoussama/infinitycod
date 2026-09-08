@@ -173,3 +173,7 @@
 .icod-status-open{background:#fdf3e0;color:#996800}
 .icod-status-recovered{background:#e5f2e9;color:#0e7a4f}
 .icod-status-archived{background:#f0f0f1;color:#8c8f94}
+
+/* ===== Statistiques ===== */
+.icod-chart-wrap{position:relative;height:280px}
+@media (max-width:782px){.icod-chart-wrap{height:220px}}

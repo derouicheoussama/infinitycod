@@ -39,6 +39,9 @@ class AdminManager {
 		add_action( 'wp_ajax_icod_parcel_create', array( $this, 'handle_parcel_create' ) );
 		add_action( 'wp_ajax_icod_sync_tracking', array( $this, 'handle_sync_tracking' ) );
 		add_action( 'wp_ajax_icod_import_offices', array( $this, 'handle_import_offices' ) );
+
+		// Métabox offres par produit.
+		( new ProductMetaBox() )->register();
 	}
 
 	/**
