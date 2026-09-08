@@ -218,7 +218,7 @@ class Shield {
 		global $wpdb;
 		$orders = Schema::table( 'orders' );
 		$logs   = Schema::table( 'fraud_logs' );
-		$since  = current_time( 'mysql', time() - HOUR_IN_SECONDS );
+		$since  = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - HOUR_IN_SECONDS );
 
 		$n  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$orders} WHERE ip = %s AND created_at >= %s", $ip, $since ) ); // phpcs:ignore WordPress.DB.PreparedSQL
 		$n += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$logs} WHERE ip = %s AND created_at >= %s", $ip, $since ) ); // phpcs:ignore WordPress.DB.PreparedSQL
@@ -235,7 +235,7 @@ class Shield {
 	public function count_fingerprint_last_hour( $fingerprint ) {
 		global $wpdb;
 		$orders = Schema::table( 'orders' );
-		$since  = current_time( 'mysql', time() - HOUR_IN_SECONDS );
+		$since  = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - HOUR_IN_SECONDS );
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare( "SELECT COUNT(*) FROM {$orders} WHERE fingerprint = %s AND created_at >= %s", $fingerprint, $since ) // phpcs:ignore WordPress.DB.PreparedSQL

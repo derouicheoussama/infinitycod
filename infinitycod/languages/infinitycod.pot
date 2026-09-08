@@ -85,8 +85,8 @@ msgstr ""
 
 #: includes/admin/class-admin-manager.php:189
 #: includes/admin/class-admin-manager.php:189
-#: includes/admin/pages/class-dashboard-page.php:80
-#: includes/admin/pages/class-dashboard-page.php:80
+#: includes/admin/pages/class-dashboard-page.php:82
+#: includes/admin/pages/class-dashboard-page.php:82
 msgid "InfinityCod — Tableau de bord"
 msgstr ""
 
@@ -222,8 +222,8 @@ msgstr ""
 
 #: includes/admin/pages/class-abandoned-page.php:77
 #: includes/admin/pages/class-abandoned-page.php:77
-#: includes/admin/pages/class-dashboard-page.php:112
-#: includes/admin/pages/class-dashboard-page.php:112
+#: includes/admin/pages/class-dashboard-page.php:114
+#: includes/admin/pages/class-dashboard-page.php:114
 msgid "Statut"
 msgstr ""
 
@@ -379,79 +379,79 @@ msgstr ""
 msgid "30 derniers jours"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:87
-#: includes/admin/pages/class-dashboard-page.php:87
+#: includes/admin/pages/class-dashboard-page.php:89
+#: includes/admin/pages/class-dashboard-page.php:89
 #: includes/admin/pages/class-stats-page.php:79
 #: includes/admin/pages/class-stats-page.php:79
 msgid "commandes"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:89
-#: includes/admin/pages/class-dashboard-page.php:89
+#: includes/admin/pages/class-dashboard-page.php:91
+#: includes/admin/pages/class-dashboard-page.php:91
 msgid "À confirmer + en cours :"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:90
-#: includes/admin/pages/class-dashboard-page.php:90
+#: includes/admin/pages/class-dashboard-page.php:92
+#: includes/admin/pages/class-dashboard-page.php:92
 msgid "Livrées :"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:91
-#: includes/admin/pages/class-dashboard-page.php:91
+#: includes/admin/pages/class-dashboard-page.php:93
+#: includes/admin/pages/class-dashboard-page.php:93
 msgid "CA confirmé :"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:93
-#: includes/admin/pages/class-dashboard-page.php:93
+#: includes/admin/pages/class-dashboard-page.php:95
+#: includes/admin/pages/class-dashboard-page.php:95
 msgid "Taux de confirmation :"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:104
-#: includes/admin/pages/class-dashboard-page.php:104
+#: includes/admin/pages/class-dashboard-page.php:106
+#: includes/admin/pages/class-dashboard-page.php:106
 msgid "Dernières commandes"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:110
-#: includes/admin/pages/class-dashboard-page.php:110
+#: includes/admin/pages/class-dashboard-page.php:112
+#: includes/admin/pages/class-dashboard-page.php:112
 #: includes/admin/pages/class-geo-page.php:117
 #: includes/admin/pages/class-geo-page.php:117
 msgid "Wilaya"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:111
-#: includes/admin/pages/class-dashboard-page.php:111
+#: includes/admin/pages/class-dashboard-page.php:113
+#: includes/admin/pages/class-dashboard-page.php:113
 #: includes/admin/pages/class-orders-page.php:145
 #: includes/admin/pages/class-orders-page.php:145
 msgid "Total"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:125
-#: includes/admin/pages/class-dashboard-page.php:125
+#: includes/admin/pages/class-dashboard-page.php:127
+#: includes/admin/pages/class-dashboard-page.php:127
 msgid "Pas encore de commande. Partagez une fiche produit contenant le formulaire !"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:130
-#: includes/admin/pages/class-dashboard-page.php:130
+#: includes/admin/pages/class-dashboard-page.php:132
+#: includes/admin/pages/class-dashboard-page.php:132
 msgid "Toutes les commandes"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:135
-#: includes/admin/pages/class-dashboard-page.php:135
+#: includes/admin/pages/class-dashboard-page.php:137
+#: includes/admin/pages/class-dashboard-page.php:137
 msgid "Top wilayas (30 jours)"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:144
-#: includes/admin/pages/class-dashboard-page.php:144
+#: includes/admin/pages/class-dashboard-page.php:146
+#: includes/admin/pages/class-dashboard-page.php:146
 msgid "Aucune donnée"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:150
-#: includes/admin/pages/class-dashboard-page.php:150
+#: includes/admin/pages/class-dashboard-page.php:152
+#: includes/admin/pages/class-dashboard-page.php:152
 msgid "Activité anti-fraude"
 msgstr ""
 
-#: includes/admin/pages/class-dashboard-page.php:159
-#: includes/admin/pages/class-dashboard-page.php:159
+#: includes/admin/pages/class-dashboard-page.php:161
+#: includes/admin/pages/class-dashboard-page.php:161
 msgid "Aucune activité suspecte 🎉"
 msgstr ""
 
@@ -1551,12 +1551,19 @@ msgstr ""
 msgid "UltraMsg incomplet (instance ou clé manquante)."
 msgstr ""
 
-#: infinitycod.php:47
-#: infinitycod.php:47
+#: infinitycod.php:45
+#: infinitycod.php:45
+#: infinitycod.php:59
+#: infinitycod.php:59
 msgid "InfinityCod :"
 msgstr ""
 
-#: infinitycod.php:48
-#: infinitycod.php:48
+#: infinitycod.php:46
+#: infinitycod.php:46
+msgid "PHP 7.4 ou supérieur est requis. Demandez à votre hébergeur de mettre à jour PHP, puis réactivez le plugin."
+msgstr ""
+
+#: infinitycod.php:60
+#: infinitycod.php:60
 msgid "WooCommerce doit être installé et activé pour utiliser le plugin."
 msgstr ""

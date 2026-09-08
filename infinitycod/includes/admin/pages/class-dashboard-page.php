@@ -31,9 +31,11 @@ class DashboardPage {
 		);
 
 		$cutoffs = array(
-			'today' => current_time( 'mysql', strtotime( 'today' ) ),
-			'7d'    => current_time( 'mysql', time() - 7 * DAY_IN_SECONDS ),
-			'30d'   => current_time( 'mysql', time() - 30 * DAY_IN_SECONDS ),
+			// current_time('timestamp') = epoch ajusté au fuseau du site :
+			// pattern canonique pour des dates SQL cohérentes avec created_at.
+			'today' => gmdate( 'Y-m-d H:i:s', strtotime( 'today', current_time( 'timestamp' ) ) ),
+			'7d'    => gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - 7 * DAY_IN_SECONDS ),
+			'30d'   => gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - 30 * DAY_IN_SECONDS ),
 		);
 
 		$kpi = array();

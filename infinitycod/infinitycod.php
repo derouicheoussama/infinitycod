@@ -37,6 +37,18 @@ function infinitycod() {
 	return \InfinityCod\Core\Plugin::instance();
 }
 
+// Hébergement trop ancien : arrêt propre avec message (jamais de fatal).
+if ( version_compare( PHP_VERSION, '7.4.0', '<' ) ) {
+	add_action( 'admin_notices', function () {
+		printf(
+			'<div class="notice notice-error"><p><strong>%s</strong> %s</p></div>',
+			esc_html__( 'InfinityCod :', 'infinitycod' ),
+			esc_html__( 'PHP 7.4 ou supérieur est requis. Demandez à votre hébergeur de mettre à jour PHP, puis réactivez le plugin.', 'infinitycod' )
+		);
+	} );
+	return;
+}
+
 add_action( 'plugins_loaded', function () {
 	// WooCommerce obligatoire : on charge quand même pour afficher l'avis,
 	// mais les modules fonctionnels restent inactifs.

@@ -40,7 +40,7 @@ class StatsPage {
 			return;
 		}
 
-		$from   = current_time( 'mysql', time() - $this->days * DAY_IN_SECONDS );
+		$from   = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - $this->days * DAY_IN_SECONDS );
 		$to     = current_time( 'mysql' );
 		$kpis   = $stats->kpis( $from, $to );
 		$series = $stats->daily_series( $from, $to );

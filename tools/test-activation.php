@@ -1,0 +1,219 @@
+<?php
+/**
+ * Harnais de test : simule l'activation et le démarrage du plugin
+ * sans WordPress, pour reproduire les erreurs fatales.
+ * Usage : .tools/php/php.exe tools/test-activation.php
+ */
+
+error_reporting( E_ALL );
+ini_set( 'display_errors', '1' );
+
+define( 'ABSPATH', __DIR__ . '/../.tools/fake-wp/' );
+define( 'MINUTE_IN_SECONDS', 60 );
+define( 'HOUR_IN_SECONDS', 3600 );
+define( 'DAY_IN_SECONDS', 86400 );
+define( 'WPINC', 'wp-includes' );
+define( 'ARRAY_A', 'ARRAY_A' );
+define( 'ARRAY_N', 'ARRAY_N' );
+define( 'OBJECT', 'OBJECT' );
+
+/* ---------- Stubs WordPress ---------- */
+
+$GLOBALS['__options']   = array();
+$GLOBALS['__actions']   = array();
+$GLOBALS['__wpdb_log']  = array();
+
+class wpdb_stub {
+	public $prefix = 'wp_';
+	public $rows_affected = 0;
+	public $insert_id = 1;
+
+	public function get_charset_collate() { return 'DEFAULT CHARACTER SET utf8mb4'; }
+	public function prepare( $query, ...$args ) {
+		if ( $args && is_array( $args[0] ) ) { $args = $args[0]; }
+		foreach ( $args as $arg ) {
+			$pos = strpos( $query, '%' );
+			if ( false === $pos ) break;
+			$replacement = is_numeric( $arg ) ? (string) $arg : "'" . addslashes( (string) $arg ) . "'";
+			$query = substr_replace( $query, $replacement, $pos, 2 );
+		}
+		return $query;
+	}
+	public function get_var( $q ) { $GLOBALS['__wpdb_log'][] = $q; return '0'; }
+	public function get_row( $q, $o = null ) { $GLOBALS['__wpdb_log'][] = $q; return null; }
+	public function get_results( $q, $o = null ) { $GLOBALS['__wpdb_log'][] = $q; return array(); }
+	public function query( $q ) { $GLOBALS['__wpdb_log'][] = $q; return 0; }
+	public function insert( $t, $d, $f = null ) { $GLOBALS['__wpdb_log'][] = "INSERT {$t}"; $this->insert_id++; return 1; }
+	public function update( $t, $d, $w, $f = null, $wf = null ) { $GLOBALS['__wpdb_log'][] = "UPDATE {$t}"; return 1; }
+	public function delete( $t, $w, $f = null ) { return 1; }
+	public function esc_like( $s ) { return addslashes( (string) $s ); }
+}
+$GLOBALS['wpdb'] = new wpdb_stub();
+
+function add_action( ...$a ) { $GLOBALS['__actions'][] = $a; return true; }
+function add_filter( ...$a ) { return true; }
+function apply_filters( $t, $v ) { return $v; }
+function do_action( ...$a ) {}
+function __ ( $s, $d = null ) { return $s; }
+function _e( $s, $d = null ) { echo $s; }
+function _n( $s, $p, $n, $d = null ) { return 1 === (int) $n ? $s : $p; }
+function esc_html__( $s, $d = null ) { return $s; }
+function esc_attr__( $s, $d = null ) { return $s; }
+function esc_html_e( $s, $d = null ) { echo htmlspecialchars( $s, ENT_QUOTES ); }
+function esc_attr_e( $s, $d = null ) { echo htmlspecialchars( $s, ENT_QUOTES ); }
+function esc_html( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
+function esc_attr( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
+function esc_js( $s ) { return (string) $s; }
+function esc_url( $s ) { return (string) $s; }
+function esc_url_raw( $s ) { return (string) $s; }
+function esc_sql( $s ) { return is_array( $s ) ? array_map( 'addslashes', $s ) : addslashes( (string) $s ); }
+function esc_textarea( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
+function get_option( $k, $d = false ) { return array_key_exists( $k, $GLOBALS['__options'] ) ? $GLOBALS['__options'][ $k ] : $d; }
+function update_option( $k, $v, $autoload = null ) { $GLOBALS['__options'][ $k ] = $v; return true; }
+function add_option( $k, $v, $x = '', $a = false ) { $GLOBALS['__options'][ $k ] = $v; return true; }
+function delete_option( $k ) { unset( $GLOBALS['__options'][ $k ] ); return true; }
+function get_transient( $k, $d = false ) { return $d; }
+function set_transient( $k, $v, $e = 0 ) { return true; }
+function current_time( $type, $gmt = 0 ) { return 'mysql' === $type ? gmdate( 'Y-m-d H:i:s', time() + 3600 ) : time() + 3600; }
+function current_user_can( ...$c ) { return true; }
+function check_admin_referer( ...$a ) {}
+function check_ajax_referer( ...$a ) {}
+function wp_verify_nonce( ...$a ) { return 1; }
+function wp_create_nonce( ...$a ) { return 'nonce123'; }
+function wp_nonce_field( ...$a ) { echo '<input type="hidden" name="_wpnonce" value="nonce123" />'; }
+function wp_referer_field( ...$a ) {}
+function wp_salt( $s = '' ) { return 'salt-' . $s; }
+function wp_json_encode( $d, $f = 0 ) { return json_encode( $d, $f ); }
+function wp_parse_args( $args, $defaults = array() ) { return array_merge( $defaults, (array) $args ); }
+function wp_unslash( $v ) { return $v; }
+function sanitize_text_field( $v ) { return trim( strip_tags( (string) $v ) ); }
+function sanitize_textarea_field( $v ) { return trim( strip_tags( (string) $v ) ); }
+function sanitize_key( $v ) { return strtolower( preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $v ) ) ); }
+function absint( $v ) { return abs( (int) $v ); }
+function remove_accents( $s ) { return (string) $s; }
+function home_url( $p = '' ) { return 'https://example.test' . $p; }
+function admin_url( $p = '' ) { return 'https://example.test/wp-admin/' . $p; }
+function add_query_arg( ...$a ) { return 'https://example.test/q'; }
+function shortcode_atts( $d, $a, $s = '' ) { return array_merge( $d, (array) $a ); }
+function add_shortcode( ...$a ) { return true; }
+function has_shortcode( $c, $t ) { return false !== strpos( (string) $c, '[' . $t ); }
+function register_activation_hook( ...$a ) { return true; }
+function register_deactivation_hook( ...$a ) { return true; }
+function load_plugin_textdomain( ...$a ) { return true; }
+function plugin_basename( $f ) { return basename( dirname( $f ) ) . '/' . basename( $f ); }
+function plugin_dir_path( $f ) { return trailingslashit( dirname( $f ) ); }
+function plugin_dir_url( $f ) { return 'https://example.test/wp-content/plugins/' . basename( dirname( $f ) ) . '/'; }
+function trailingslashit( $s ) { return rtrim( (string) $s, '/\\' ) . '/'; }
+function untrailingslashit( $s ) { return rtrim( (string) $s, '/\\' ); }
+function wp_next_scheduled( $h ) { return false; }
+function wp_schedule_event( ...$a ) { return true; }
+function wp_style_is( ...$a ) { return false; }
+function wp_register_style( ...$a ) { return true; }
+function wp_register_script( ...$a ) { return true; }
+function wp_enqueue_style( ...$a ) { return true; }
+function wp_enqueue_script( ...$a ) { return true; }
+function wp_localize_script( ...$a ) { return true; }
+function rest_url( $p = '' ) { return 'https://example.test/wp-json/' . $p; }
+function rest_ensure_response( $d ) { return $d; }
+function register_rest_route( ...$a ) { $GLOBALS['__wpdb_log'][] = 'ROUTE ' . $a[1]; return true; }
+function get_post_meta( $id, $k, $single = false ) { return ''; }
+function update_post_meta( ...$a ) { return true; }
+function delete_post_meta( ...$a ) { return true; }
+function get_edit_post_link( $id ) { return 'https://example.test/post.php?post=' . $id . '&action=edit'; }
+function get_the_title( $id ) { return 'Produit test'; }
+function paginate_links( $a = array() ) { return ''; }
+function nocache_headers() {}
+function wp_remote_request( ...$a ) { return new WP_Error_Stub( 'http', 'offline' ); }
+function wp_remote_post( ...$a ) { return new WP_Error_Stub( 'http', 'offline' ); }
+function wp_remote_retrieve_response_code( $r ) { return 0; }
+function wp_remote_retrieve_body( $r ) { return ''; }
+function is_wp_error( $t ) { return $t instanceof WP_Error_Stub; }
+function mysql2date( $f, $v ) { return date( $f, strtotime( (string) $v ) ); }
+function number_format_i18n( $n, $d = 0 ) { return number_format( (float) $n, (int) $d ); }
+function wp_generate_password( $len, $sp = true, $ex = true ) { return substr( 'abcdef1234567890', 0, $len ); }
+function is_rtl() { return false; }
+function get_locale() { return 'fr_FR'; }
+function get_post( $id = 0 ) { return null; }
+function wp_die( $m = '' ) { throw new RuntimeException( 'wp_die: ' . $m ); }
+function wp_safe_redirect( $u ) { throw new RuntimeException( 'redirect: ' . $u ); }
+function wp_send_json_success( $d = null ) { echo '[json_success] '; echo wp_json_encode( $d ), "\n"; }
+function wp_send_json_error( $d = null ) { echo '[json_error] '; echo wp_json_encode( $d ), "\n"; }
+function add_menu_page( ...$a ) { return true; }
+function add_submenu_page( ...$a ) { return true; }
+function wp_enqueue_media( ...$a ) { return true; }
+function selected( ...$a ) {}
+function checked( ...$a ) {}
+function dbDelta( $sql ) { $GLOBALS['__wpdb_log'][] = substr( (string) $sql, 0, 60 ) . '…'; return array(); }
+function wc_get_product( $id = 0 ) { return null; }
+
+class WP_Error_Stub {
+	public $errors = array();
+	public function __construct( $c = '', $m = '' ) { $this->errors[ $c ] = $m; }
+	public function get_error_message() { return implode( '', $this->errors ); }
+	public function get_error_code() { return key( $this->errors ); }
+}
+
+/* ---------- WooCommerce stub minimal ---------- */
+
+class WooCommerce {}
+class WC_Order_Item_Product { public function set_product( $p ) {} public function set_quantity( $q ) {} public function set_subtotal( $s ) {} public function set_total( $t ) {} }
+class WC_Order_Item_Fee { public function set_name( $n ) {} public function set_amount( $a ) {} public function set_total( $t ) {} }
+class WC_Order_Item_Shipping { public function set_method_title( $m ) {} public function set_method_id( $m ) {} public function set_total( $t ) {} }
+
+/* ---------- Séquence de test ---------- */
+
+$plugin_dir = dirname( __DIR__ ) . '/infinitycod/';
+require $plugin_dir . 'infinitycod.php';
+
+echo "1) Fichier principal chargé ✓\n";
+
+echo "2) Activation…\n";
+\InfinityCod\Core\Activator::activate();
+echo "   Activation OK ✓\n";
+
+echo "3) Boot complet…\n";
+infinitycod()->boot();
+echo "   Boot OK ✓ (" . count( $GLOBALS['__wpdb_log'] ) . " requêtes simulées)\n";
+
+echo "4) Instanciation directe de chaque module…\n";
+foreach ( array( 'geo', 'rates', 'shield', 'orders', 'form', 'rest', 'carriers', 'whatsapp', 'stats', 'admin', 'license' ) as $slug ) {
+	$module = infinitycod()->module( $slug );
+	if ( null === $module ) {
+		echo "   ⚠ [{$slug}] module introuvable\n";
+		continue;
+	}
+	echo "   ✓ [{$slug}] " . get_class( $module ) . "\n";
+}
+
+echo "5) Rendu du shortcode formulaire (sans produit)…\n";
+$form_manager = infinitycod()->module( 'form' );
+$out = $form_manager->shortcode( array() );
+echo '   Shortcode OK ✓ (longueur ' . strlen( (string) $out ) . ")\n";
+
+echo "6) Rendu de toutes les pages admin…\n";
+$admin = infinitycod()->module( 'admin' );
+
+ob_start();
+foreach ( array( 'render_dashboard', 'render_orders', 'render_abandoned', 'render_geo', 'render_carriers', 'render_stats', 'render_settings' ) as $method ) {
+	ob_clean();
+	$admin->{$method}();
+	$html = ob_get_contents();
+	echo '   ✓ ' . str_pad( $method, 20 ) . '(' . strlen( (string) $html ) . " octets)\n";
+}
+ob_end_clean();
+
+echo "7) Fin de course des traitements (bulk, export, licence)…\n";
+try {
+	ob_start();
+	$admin->handle_orders_bulk();
+} catch ( Exception $e ) {
+	/* wp_die stub : sortie propre attendue */
+}
+ob_end_clean();
+echo "   ✓ handle_orders_bulk (arrêt wp_die attendu)\n";
+
+$license = new \InfinityCod\License\LicenseManager();
+$result = $license->activate( 'INFINITY-DEV' );
+echo '   ✓ Licence dev : ' . ( $result['ok'] ? 'ACTIVE' : 'ERREUR' ) . "\n";
+
+echo "\n=== TOUS LES TESTS PASSENT ===\n";

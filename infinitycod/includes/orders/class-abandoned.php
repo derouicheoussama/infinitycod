@@ -56,7 +56,7 @@ class Abandoned {
 		global $wpdb;
 
 		$table  = Schema::table( 'abandoned' );
-		$cutoff = current_time( 'mysql', time() - $delay_minutes * MINUTE_IN_SECONDS );
+		$cutoff = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - $delay_minutes * MINUTE_IN_SECONDS );
 
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(

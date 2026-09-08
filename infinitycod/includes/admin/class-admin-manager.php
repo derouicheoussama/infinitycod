@@ -223,7 +223,7 @@ class AdminManager {
 	 * @return void
 	 */
 	public function render_geo() {
-		( new Pages\GeoPage( $this ) )->render();
+		( new Pages\GeoPage() )->render();
 	}
 
 	/**
