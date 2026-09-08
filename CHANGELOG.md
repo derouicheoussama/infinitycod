@@ -192,3 +192,12 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 ### Changed
 - **Téléchargement des mises à jour refondu** (filtre `pre_http_request`) : le checksum SHA-256 est maintenant vérifié de façon fiable dans le flux WordPress natif, avec authentification correcte des dépôts privés (auth GitHub puis S3 sans credentials).
 - Suppression du code mort et des patchs temporaires (tools/patch-*).
+
+## 2.5.0 — 2026-09-08
+
+### Fixed
+- **« Adresse email invalide. » sur des emails valides** : le regex client-side avait perdu ses backslashes lors d'un patch (il excluait la lettre « s » !). Tout email contenant un « s » était rejeté. Regex restauré et protégé.
+- Mises à jour : le correctif `%2F` (2.1.2) est confirmé — la détection fonctionne désormais directement depuis /wp-admin/plugins.php après mise à jour vers cette version.
+
+### Improved
+- **Miniature du produit dans l'en-tête du formulaire** (comme les meilleurs formulaires COD) — l'image renforce la confiance et réduit les abandons.

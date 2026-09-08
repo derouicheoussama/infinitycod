@@ -356,7 +356,7 @@
 			var name = nameInput.value.trim();
 
 			var emailInput = el(form, '[name="icod_email"]');
-			if (emailInput && emailInput.value.trim() && !/^[^s@]+@[^s@]+.[^s@]+$/.test(emailInput.value.trim())) {
+			if (emailInput && emailInput.value.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailInput.value.trim())) {
 				errors.push({ field: emailInput, message: I18N.errorEmailFormat });
 			}
 			if (name.length < 2 || !/^[\p{L}\s'\-]+$/u.test(name)) {

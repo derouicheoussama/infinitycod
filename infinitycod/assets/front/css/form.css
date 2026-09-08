@@ -491,3 +491,21 @@ select.icod-input{
 .icod-root.icod-theme-auto[data-preset="rose"]{--icod-head-bg:linear-gradient(135deg,#a02b52,#c73f6f)}
 .icod-root.icod-theme-auto[data-preset="royal"]{--icod-head-bg:linear-gradient(135deg,#4c1d95,#6d28d9)}
 .icod-root.icod-theme-auto[data-preset="cafe"]{--icod-head-bg:linear-gradient(135deg,#4d3322,#6f4e37)}
+
+/* ===== En-tête : miniature produit (v2.5) ===== */
+.icod-head-thumb{
+	width:56px;height:56px;flex:none;
+	object-fit:cover;border-radius:12px;
+	border:1.5px solid color-mix(in srgb, var(--icod-accent) 30%, transparent);
+	box-shadow:0 2px 8px rgba(16,24,40,.12);
+}
+
+/* Prix live dans l en-tête (desktop, côté droit) */
+.icod-head-price{
+	margin-inline-start:auto;
+	font-weight:800;font-size:1.1rem;
+	color:var(--icod-accent);white-space:nowrap;
+}
+
+/* Barre livraison gratuite : respiration */
+.icod-freebar{margin-bottom:12px}
