@@ -426,6 +426,7 @@
 				commune_ar: communeAr,
 				mode: currentMode(),
 				stopdesk: currentMode() === 'desk' ? deskSelect.value : '',
+				note: (el(form, '.icod-note') || { value: '' }).value.trim(),
 				honeypot: el(form, '.icod-hp').value,
 				ts: el(form, '[name="icod_ts"]').value,
 				sig: el(form, '[name="icod_sig"]').value,

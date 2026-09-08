@@ -137,6 +137,17 @@
 				});
 		});
 	});
+	/* ===== Formulaire : synchronise la couleur d'accent avec le thème choisi ===== */
+
+	document.querySelectorAll('.icod-preset input').forEach(function (radio) {
+		radio.addEventListener('change', function () {
+			var accent = document.querySelector('input[name="icod[accent_color]"]');
+			if (accent && radio.getAttribute('data-accent')) {
+				accent.value = radio.getAttribute('data-accent');
+			}
+		});
+	});
+
 	/* ===== Transporteurs ===== */
 
 	// Test de connexion : envoie les champs saisis sans les enregistrer.

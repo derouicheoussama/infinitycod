@@ -21,8 +21,8 @@ msgstr ""
 
 #: includes/admin/class-admin-manager.php:85
 #: includes/admin/class-admin-manager.php:86
-#: includes/admin/class-admin-manager.php:206
-#: includes/admin/class-admin-manager.php:206
+#: includes/admin/class-admin-manager.php:215
+#: includes/admin/class-admin-manager.php:215
 msgid "Commandes COD"
 msgstr ""
 
@@ -40,15 +40,15 @@ msgstr ""
 
 #: includes/admin/class-admin-manager.php:112
 #: includes/admin/class-admin-manager.php:113
-#: includes/admin/class-admin-manager.php:241
-#: includes/admin/class-admin-manager.php:241
+#: includes/admin/class-admin-manager.php:250
+#: includes/admin/class-admin-manager.php:250
 msgid "Transporteurs"
 msgstr ""
 
 #: includes/admin/class-admin-manager.php:121
 #: includes/admin/class-admin-manager.php:122
-#: includes/admin/class-admin-manager.php:255
-#: includes/admin/class-admin-manager.php:255
+#: includes/admin/class-admin-manager.php:264
+#: includes/admin/class-admin-manager.php:264
 msgid "Statistiques P&L"
 msgstr ""
 
@@ -62,78 +62,88 @@ msgstr ""
 msgid "Réglages"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:168
-#: includes/form/class-form-manager.php:341
+#: includes/admin/class-admin-manager.php:139
+#: includes/admin/pages/class-about-page.php:57
+#: includes/admin/pages/class-about-page.php:57
+msgid "À propos d‘InfinityCod"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:140
+msgid "À propos"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:177
+#: includes/form/class-form-manager.php:427
 msgid "Chargement…"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:169
+#: includes/admin/class-admin-manager.php:178
 msgid "Une erreur est survenue."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:170
+#: includes/admin/class-admin-manager.php:179
 msgid "Enregistré ✓"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:171
+#: includes/admin/class-admin-manager.php:180
 msgid "Confirmer ?"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:172
+#: includes/admin/class-admin-manager.php:181
 msgid "Hérite"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:189
-#: includes/admin/class-admin-manager.php:189
+#: includes/admin/class-admin-manager.php:198
+#: includes/admin/class-admin-manager.php:198
 #: includes/admin/pages/class-dashboard-page.php:82
 #: includes/admin/pages/class-dashboard-page.php:82
 msgid "InfinityCod — Tableau de bord"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:190
-#: includes/admin/class-admin-manager.php:190
+#: includes/admin/class-admin-manager.php:199
+#: includes/admin/class-admin-manager.php:199
 msgid "Le tableau de bord arrive avec la phase Commandes."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:207
-#: includes/admin/class-admin-manager.php:207
+#: includes/admin/class-admin-manager.php:216
+#: includes/admin/class-admin-manager.php:216
 msgid "Le gestionnaire de commandes arrive avec la phase Commandes."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:242
-#: includes/admin/class-admin-manager.php:242
+#: includes/admin/class-admin-manager.php:251
+#: includes/admin/class-admin-manager.php:251
 msgid "Les intégrations transporteurs arrivent avec la phase Livraison."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:256
-#: includes/admin/class-admin-manager.php:256
+#: includes/admin/class-admin-manager.php:265
+#: includes/admin/class-admin-manager.php:265
 msgid "Fonctionnalité Premium"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:257
-#: includes/admin/class-admin-manager.php:257
+#: includes/admin/class-admin-manager.php:266
+#: includes/admin/class-admin-manager.php:266
 msgid "Les statistiques P&L (CA, taux de confirmation et de retour par wilaya, transporteur et produit) nécessitent une licence Premium."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:259
-#: includes/admin/class-admin-manager.php:259
+#: includes/admin/class-admin-manager.php:268
+#: includes/admin/class-admin-manager.php:268
 msgid "Activer une licence"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:271
-#: includes/admin/class-admin-manager.php:271
+#: includes/admin/class-admin-manager.php:280
+#: includes/admin/class-admin-manager.php:280
 msgid "Les statistiques arrivent avec la phase Stats."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:330
-#: includes/admin/class-admin-manager.php:330
-#: includes/admin/class-admin-manager.php:378
-#: includes/admin/class-admin-manager.php:378
+#: includes/admin/class-admin-manager.php:348
+#: includes/admin/class-admin-manager.php:348
+#: includes/admin/class-admin-manager.php:396
+#: includes/admin/class-admin-manager.php:396
 msgid "Accès refusé."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:399
-#: includes/admin/class-admin-manager.php:464
+#: includes/admin/class-admin-manager.php:417
+#: includes/admin/class-admin-manager.php:482
 msgid "Blacklist manuelle (dashboard)"
 msgstr ""
 
@@ -255,6 +265,154 @@ msgstr ""
 #: includes/admin/pages/class-abandoned-page.php:120
 #: includes/admin/pages/class-abandoned-page.php:120
 msgid "Derniers messages WhatsApp"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:60
+#: includes/admin/pages/class-about-page.php:60
+msgid "Cache des mises à jour vidé — WordPress vérifiera une nouvelle version dès maintenant."
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:68
+#: includes/admin/pages/class-about-page.php:68
+msgid "La solution de paiement à la livraison pensée pour l‘Algérie : formulaire COD rapide, 58 wilayas & 1541 communes, transporteurs intégrés, WhatsApp automatique et statistiques P&L."
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:74
+#: includes/admin/pages/class-about-page.php:74
+msgid "Version %s disponible !"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:75
+#: includes/admin/pages/class-about-page.php:75
+msgid "Mettre à jour"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:84
+#: includes/admin/pages/class-about-page.php:84
+msgid "Statut du système"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:88
+msgid "actif"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:88
+#: includes/admin/pages/class-about-page.php:88
+msgid "non actif !"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:89
+#: includes/admin/pages/class-about-page.php:89
+msgid "Thème actif"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:90
+#: includes/admin/pages/class-about-page.php:90
+msgid "Tables du plugin"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:91
+#: includes/admin/pages/class-about-page.php:91
+msgid "Commandes COD enregistrées"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:92
+#: includes/admin/pages/class-about-page.php:92
+#: includes/admin/pages/class-geo-page.php:52
+#: includes/admin/pages/class-geo-page.php:52
+msgid "Bureaux Stopdesk"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:94
+#: includes/admin/pages/class-about-page.php:94
+msgid "Transporteurs connectés"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:95
+msgid "aucun"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:98
+#: includes/admin/pages/class-about-page.php:98
+#: includes/admin/pages/class-settings-page.php:54
+#: includes/admin/pages/class-settings-page.php:54
+msgid "WhatsApp"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:99
+msgid "désactivé"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:105
+#: includes/admin/pages/class-about-page.php:105
+msgid "Vérifier les mises à jour"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:111
+#: includes/admin/pages/class-about-page.php:111
+msgid "Fonctionnalités"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:113
+#: includes/admin/pages/class-about-page.php:113
+msgid "Formulaire COD responsive — 5 thèmes, mode sombre, RTL arabe"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:114
+#: includes/admin/pages/class-about-page.php:114
+msgid "58 wilayas + 1541 communes officielles (FR/AR)"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:115
+#: includes/admin/pages/class-about-page.php:115
+msgid "Bouclier anti-fraude avec score de risque"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:116
+#: includes/admin/pages/class-about-page.php:116
+msgid "Dashboard commandes + export Excel"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:117
+#: includes/admin/pages/class-about-page.php:117
+msgid "Transporteurs : Yalidine, ZR Express, Maystro, Noest, E-COM, DHD"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:118
+#: includes/admin/pages/class-about-page.php:118
+msgid "WhatsApp automatique + relance des paniers abandonnés"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:119
+#: includes/admin/pages/class-about-page.php:119
+msgid "Offres par quantité et livraison gratuite"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:120
+#: includes/admin/pages/class-about-page.php:120
+msgid "Statistiques P&L par wilaya, transporteur et produit"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:125
+#: includes/admin/pages/class-about-page.php:125
+msgid "Liens"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:127
+#: includes/admin/pages/class-about-page.php:127
+msgid "Site officiel"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:128
+#: includes/admin/pages/class-about-page.php:128
+#: includes/admin/pages/class-settings-page.php:55
+#: includes/admin/pages/class-settings-page.php:55
+msgid "Licence"
+msgstr ""
+
+#: includes/admin/pages/class-about-page.php:131
+#: includes/admin/pages/class-about-page.php:131
+msgid "Installé le %s par Infinity Coder (Oussama Derouiche)."
 msgstr ""
 
 #: includes/admin/pages/class-carriers-page.php:46
@@ -475,13 +633,6 @@ msgstr ""
 msgid "Communes"
 msgstr ""
 
-#: includes/admin/pages/class-geo-page.php:52
-#: includes/admin/pages/class-geo-page.php:52
-#: includes/admin/pages/class-geo-page.php:238
-#: includes/admin/pages/class-geo-page.php:238
-msgid "Bureaux Stopdesk"
-msgstr ""
-
 #: includes/admin/pages/class-geo-page.php:89
 #: includes/admin/pages/class-geo-page.php:89
 msgid "Tarifs par défaut"
@@ -535,7 +686,7 @@ msgstr ""
 
 #: includes/admin/pages/class-geo-page.php:121
 #: includes/admin/pages/class-geo-page.php:121
-#: includes/form/class-form-manager.php:345
+#: includes/form/class-form-manager.php:431
 msgid "Gratuite"
 msgstr ""
 
@@ -571,8 +722,7 @@ msgstr ""
 
 #: includes/admin/pages/class-geo-page.php:191
 #: includes/admin/pages/class-geo-page.php:191
-#: includes/form/class-form-manager.php:207
-#: includes/form/class-form-manager.php:207
+#: includes/core/class-settings.php:57
 msgid "Commune"
 msgstr ""
 
@@ -802,20 +952,10 @@ msgstr ""
 msgid "Anti-fraude"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:54
-#: includes/admin/pages/class-settings-page.php:54
-msgid "WhatsApp"
-msgstr ""
-
-#: includes/admin/pages/class-settings-page.php:55
-#: includes/admin/pages/class-settings-page.php:55
-msgid "Licence"
-msgstr ""
-
 #: includes/admin/pages/class-settings-page.php:56
 #: includes/admin/pages/class-settings-page.php:56
-#: includes/admin/pages/class-settings-page.php:344
-#: includes/admin/pages/class-settings-page.php:344
+#: includes/admin/pages/class-settings-page.php:409
+#: includes/admin/pages/class-settings-page.php:409
 msgid "Avancé"
 msgstr ""
 
@@ -854,198 +994,283 @@ msgstr ""
 msgid "Activer la licence"
 msgstr ""
 
+#: includes/admin/pages/class-settings-page.php:169
+msgid "Moderne"
+msgstr ""
+
 #: includes/admin/pages/class-settings-page.php:170
-#: includes/admin/pages/class-settings-page.php:170
-msgid "Apparence du formulaire"
+msgid "Élégant"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:171
+msgid "Sunset"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:172
+msgid "Océan"
 msgstr ""
 
 #: includes/admin/pages/class-settings-page.php:173
-#: includes/admin/pages/class-settings-page.php:173
+msgid "Minimal"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:177
+#: includes/admin/pages/class-settings-page.php:177
+msgid "Thème du formulaire"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:178
+#: includes/admin/pages/class-settings-page.php:178
+msgid "Choisissez un thème visuel — la couleur d‘accent ci-dessous le personnalise encore."
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:191
+#: includes/admin/pages/class-settings-page.php:191
 msgid "Titre du formulaire"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:177
-#: includes/admin/pages/class-settings-page.php:177
+#: includes/admin/pages/class-settings-page.php:195
+#: includes/admin/pages/class-settings-page.php:195
+msgid "Sous-titre (facultatif)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:199
+#: includes/admin/pages/class-settings-page.php:199
 msgid "Texte du bouton"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:181
-#: includes/admin/pages/class-settings-page.php:181
+#: includes/admin/pages/class-settings-page.php:203
+#: includes/admin/pages/class-settings-page.php:203
 msgid "Couleur d‘accent"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:185
-#: includes/admin/pages/class-settings-page.php:185
-msgid "Thème"
+#: includes/admin/pages/class-settings-page.php:207
+#: includes/admin/pages/class-settings-page.php:207
+msgid "Mode sombre"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:187
-#: includes/admin/pages/class-settings-page.php:187
+#: includes/admin/pages/class-settings-page.php:209
+#: includes/admin/pages/class-settings-page.php:209
 msgid "Clair"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:188
-#: includes/admin/pages/class-settings-page.php:188
+#: includes/admin/pages/class-settings-page.php:210
+#: includes/admin/pages/class-settings-page.php:210
 msgid "Sombre"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:189
-#: includes/admin/pages/class-settings-page.php:189
+#: includes/admin/pages/class-settings-page.php:211
+#: includes/admin/pages/class-settings-page.php:211
 msgid "Automatique (préférence du visiteur)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:193
-#: includes/admin/pages/class-settings-page.php:193
+#: includes/admin/pages/class-settings-page.php:215
+#: includes/admin/pages/class-settings-page.php:215
 msgid "Quantité maximale par commande"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:200
-#: includes/admin/pages/class-settings-page.php:200
+#: includes/admin/pages/class-settings-page.php:222
+#: includes/admin/pages/class-settings-page.php:222
 msgid "Afficher le sélecteur de quantité"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:204
-#: includes/admin/pages/class-settings-page.php:204
+#: includes/admin/pages/class-settings-page.php:226
+#: includes/admin/pages/class-settings-page.php:226
+msgid "Proposer la livraison au bureau (Stopdesk)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:230
+#: includes/admin/pages/class-settings-page.php:230
+msgid "Champ « Note » libre pour le client"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:234
+#: includes/admin/pages/class-settings-page.php:234
+msgid "Afficher les paliers d‘offres par quantité"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:238
+#: includes/admin/pages/class-settings-page.php:238
+msgid "Bandeau de réassurance (COD, 58 wilayas, vérification colis)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:242
+#: includes/admin/pages/class-settings-page.php:242
 msgid "Barre récapitulative collante sur mobile"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:219
-#: includes/admin/pages/class-settings-page.php:219
+#: includes/admin/pages/class-settings-page.php:248
+#: includes/admin/pages/class-settings-page.php:248
+msgid "Libellés des champs"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:249
+#: includes/admin/pages/class-settings-page.php:249
+msgid "Personnalisez le texte affiché devant chaque champ (utile en arabe ou pour votre ton de marque)."
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:252
+#: includes/admin/pages/class-settings-page.php:252
+msgid "Champ nom"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:256
+#: includes/admin/pages/class-settings-page.php:256
+msgid "Champ téléphone"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:260
+#: includes/admin/pages/class-settings-page.php:260
+msgid "Champ wilaya"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:264
+#: includes/admin/pages/class-settings-page.php:264
+msgid "Champ commune"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:268
+#: includes/admin/pages/class-settings-page.php:268
+msgid "Champ note"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:284
+#: includes/admin/pages/class-settings-page.php:284
 msgid "Bouclier anti-fraude (Shield)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:220
-#: includes/admin/pages/class-settings-page.php:220
+#: includes/admin/pages/class-settings-page.php:285
+#: includes/admin/pages/class-settings-page.php:285
 msgid "Aucun système n‘élimine 100 % des fausses commandes ; ces barrières réduisent fortement les abus sans gêner les vrais clients."
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:224
-#: includes/admin/pages/class-settings-page.php:224
+#: includes/admin/pages/class-settings-page.php:289
+#: includes/admin/pages/class-settings-page.php:289
 msgid "Activer le bouclier anti-fraude"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:228
-#: includes/admin/pages/class-settings-page.php:228
+#: includes/admin/pages/class-settings-page.php:293
+#: includes/admin/pages/class-settings-page.php:293
 msgid "Exiger un numéro algérien valide (Mobilis, Djezzy, Ooredoo)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:232
-#: includes/admin/pages/class-settings-page.php:232
+#: includes/admin/pages/class-settings-page.php:297
+#: includes/admin/pages/class-settings-page.php:297
 msgid "Refuser un numéro ayant déjà une commande en attente"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:237
-#: includes/admin/pages/class-settings-page.php:237
+#: includes/admin/pages/class-settings-page.php:302
+#: includes/admin/pages/class-settings-page.php:302
 msgid "Temps minimum de remplissage (secondes)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:241
-#: includes/admin/pages/class-settings-page.php:241
+#: includes/admin/pages/class-settings-page.php:306
+#: includes/admin/pages/class-settings-page.php:306
 msgid "Commandes max. par IP et par heure"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:245
-#: includes/admin/pages/class-settings-page.php:245
+#: includes/admin/pages/class-settings-page.php:310
+#: includes/admin/pages/class-settings-page.php:310
 msgid "Score de risque bloquant (0-100)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:261
-#: includes/admin/pages/class-settings-page.php:261
+#: includes/admin/pages/class-settings-page.php:326
+#: includes/admin/pages/class-settings-page.php:326
 msgid "WhatsApp automatique"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:262
-#: includes/admin/pages/class-settings-page.php:262
+#: includes/admin/pages/class-settings-page.php:327
+#: includes/admin/pages/class-settings-page.php:327
 msgid "Envoyez automatiquement des messages aux clients et relancez les paniers abandonnés — ce que les concurrents ne font qu‘en manuel."
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:266
-#: includes/admin/pages/class-settings-page.php:266
+#: includes/admin/pages/class-settings-page.php:331
+#: includes/admin/pages/class-settings-page.php:331
 msgid "Activer les messages WhatsApp"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:270
-#: includes/admin/pages/class-settings-page.php:270
+#: includes/admin/pages/class-settings-page.php:335
+#: includes/admin/pages/class-settings-page.php:335
 msgid "Relancer automatiquement les paniers abandonnés"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:275
-#: includes/admin/pages/class-settings-page.php:275
+#: includes/admin/pages/class-settings-page.php:340
+#: includes/admin/pages/class-settings-page.php:340
 msgid "Passerelle"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:277
-#: includes/admin/pages/class-settings-page.php:277
+#: includes/admin/pages/class-settings-page.php:342
+#: includes/admin/pages/class-settings-page.php:342
 msgid "Liens wa.me (ouverture manuelle, gratuit)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:278
-#: includes/admin/pages/class-settings-page.php:278
+#: includes/admin/pages/class-settings-page.php:343
+#: includes/admin/pages/class-settings-page.php:343
 msgid "WhatsApp Cloud API (officiel Meta)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:283
-#: includes/admin/pages/class-settings-page.php:283
+#: includes/admin/pages/class-settings-page.php:348
+#: includes/admin/pages/class-settings-page.php:348
 msgid "Numéro marchand (format international, ex. 213XXXXXXXXX)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:287
-#: includes/admin/pages/class-settings-page.php:287
+#: includes/admin/pages/class-settings-page.php:352
+#: includes/admin/pages/class-settings-page.php:352
 msgid "Cloud API — Token permanent"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:291
-#: includes/admin/pages/class-settings-page.php:291
+#: includes/admin/pages/class-settings-page.php:356
+#: includes/admin/pages/class-settings-page.php:356
 msgid "Cloud API — Phone Number ID"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:295
-#: includes/admin/pages/class-settings-page.php:295
+#: includes/admin/pages/class-settings-page.php:360
+#: includes/admin/pages/class-settings-page.php:360
 msgid "UltraMsg — Instance"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:299
-#: includes/admin/pages/class-settings-page.php:299
+#: includes/admin/pages/class-settings-page.php:364
+#: includes/admin/pages/class-settings-page.php:364
 msgid "UltraMsg — Clé API"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:306
-#: includes/admin/pages/class-settings-page.php:306
+#: includes/admin/pages/class-settings-page.php:371
+#: includes/admin/pages/class-settings-page.php:371
 msgid "Messages"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:307
-#: includes/admin/pages/class-settings-page.php:307
+#: includes/admin/pages/class-settings-page.php:372
+#: includes/admin/pages/class-settings-page.php:372
 msgid "Variables disponibles : {nom}, {telephone}, {commande}, {total}, {suivi}, {wilaya}, {commune}, {produit}."
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:310
-#: includes/admin/pages/class-settings-page.php:310
+#: includes/admin/pages/class-settings-page.php:375
+#: includes/admin/pages/class-settings-page.php:375
 msgid "Commande reçue"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:314
-#: includes/admin/pages/class-settings-page.php:314
+#: includes/admin/pages/class-settings-page.php:379
+#: includes/admin/pages/class-settings-page.php:379
 msgid "Commande expédiée"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:318
-#: includes/admin/pages/class-settings-page.php:318
+#: includes/admin/pages/class-settings-page.php:383
+#: includes/admin/pages/class-settings-page.php:383
 msgid "Relance panier abandonné"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:324
-#: includes/admin/pages/class-settings-page.php:324
+#: includes/admin/pages/class-settings-page.php:389
+#: includes/admin/pages/class-settings-page.php:389
 msgid "Relance paniers : délai avant la 1re relance (minutes)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:328
-#: includes/admin/pages/class-settings-page.php:328
+#: includes/admin/pages/class-settings-page.php:393
+#: includes/admin/pages/class-settings-page.php:393
 msgid "Relance paniers : nombre de relances max"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:348
-#: includes/admin/pages/class-settings-page.php:348
+#: includes/admin/pages/class-settings-page.php:413
+#: includes/admin/pages/class-settings-page.php:413
 msgid "Supprimer toutes les données (tables, réglages) à la désinstallation du plugin"
 msgstr ""
 
@@ -1271,211 +1496,221 @@ msgid "Commandez maintenant — paiement à la livraison"
 msgstr ""
 
 #: includes/core/class-settings.php:43
+msgid "Remplissez le formulaire, nous vous appelons pour confirmer."
+msgstr ""
+
+#: includes/core/class-settings.php:44
 msgid "Confirmer la commande"
 msgstr ""
 
-#: includes/core/class-settings.php:69
-msgid "Bonjour {nom} 👋 Merci pour votre commande #{commande} ! Nous vous rappellerons très vite au {telephone} pour la confirmer. Montant à la livraison : {total}."
-msgstr ""
-
-#: includes/core/class-settings.php:70
-msgid "Bonjour {nom}, votre commande #{commande} a été expédiée 📦. Suivi : {suivi}. Merci pour votre confiance !"
-msgstr ""
-
-#: includes/core/class-settings.php:71
-msgid "Bonjour {nom} 👋 Votre commande de {produit} est restée inachevée 🛒. Répondez OUI et nous vous rappelons tout de suite pour la finaliser !"
-msgstr ""
-
-#: includes/form/class-form-manager.php:180
-#: includes/form/class-form-manager.php:180
-msgid "— Choisir —"
-msgstr ""
-
-#: includes/form/class-form-manager.php:188
-#: includes/form/class-form-manager.php:188
+#: includes/core/class-settings.php:54
 msgid "Nom complet"
 msgstr ""
 
-#: includes/form/class-form-manager.php:193
-#: includes/form/class-form-manager.php:193
+#: includes/core/class-settings.php:55
 msgid "Téléphone"
 msgstr ""
 
-#: includes/form/class-form-manager.php:201
-#: includes/form/class-form-manager.php:201
+#: includes/core/class-settings.php:58
+msgid "Note (facultatif)"
+msgstr ""
+
+#: includes/core/class-settings.php:84
+msgid "Bonjour {nom} 👋 Merci pour votre commande #{commande} ! Nous vous rappellerons très vite au {telephone} pour la confirmer. Montant à la livraison : {total}."
+msgstr ""
+
+#: includes/core/class-settings.php:85
+msgid "Bonjour {nom}, votre commande #{commande} a été expédiée 📦. Suivi : {suivi}. Merci pour votre confiance !"
+msgstr ""
+
+#: includes/core/class-settings.php:86
+msgid "Bonjour {nom} 👋 Votre commande de {produit} est restée inachevée 🛒. Répondez OUI et nous vous rappelons tout de suite pour la finaliser !"
+msgstr ""
+
+#: includes/form/class-form-manager.php:207
+#: includes/form/class-form-manager.php:207
+msgid "— Choisir —"
+msgstr ""
+
+#: includes/form/class-form-manager.php:228
+#: includes/form/class-form-manager.php:228
 msgid "— Wilaya —"
 msgstr ""
 
-#: includes/form/class-form-manager.php:209
-#: includes/form/class-form-manager.php:209
-#: includes/form/class-form-manager.php:342
+#: includes/form/class-form-manager.php:236
+#: includes/form/class-form-manager.php:236
+#: includes/form/class-form-manager.php:428
 msgid "— Commune —"
 msgstr ""
 
-#: includes/form/class-form-manager.php:215
-#: includes/form/class-form-manager.php:215
+#: includes/form/class-form-manager.php:243
+#: includes/form/class-form-manager.php:243
 msgid "Mode de livraison"
 msgstr ""
 
-#: includes/form/class-form-manager.php:220
-#: includes/form/class-form-manager.php:220
-msgid "🏠 À domicile"
+#: includes/form/class-form-manager.php:249
+#: includes/form/class-form-manager.php:249
+msgid "À domicile"
 msgstr ""
 
-#: includes/form/class-form-manager.php:228
-#: includes/form/class-form-manager.php:228
-msgid "🏢 Au bureau"
+#: includes/form/class-form-manager.php:257
+#: includes/form/class-form-manager.php:257
+msgid "Au bureau"
 msgstr ""
 
-#: includes/form/class-form-manager.php:235
-#: includes/form/class-form-manager.php:235
+#: includes/form/class-form-manager.php:265
+#: includes/form/class-form-manager.php:265
 msgid "Bureau de retrait"
 msgstr ""
 
-#: includes/form/class-form-manager.php:237
-#: includes/form/class-form-manager.php:237
-#: includes/form/class-form-manager.php:343
+#: includes/form/class-form-manager.php:267
+#: includes/form/class-form-manager.php:267
+#: includes/form/class-form-manager.php:429
 msgid "— Choisir un bureau —"
 msgstr ""
 
-#: includes/form/class-form-manager.php:243
-#: includes/form/class-form-manager.php:243
+#: includes/form/class-form-manager.php:276
+#: includes/form/class-form-manager.php:276
 msgid "Quantité"
 msgstr ""
 
-#: includes/form/class-form-manager.php:245
-#: includes/form/class-form-manager.php:245
+#: includes/form/class-form-manager.php:278
+#: includes/form/class-form-manager.php:278
 msgid "Diminuer"
 msgstr ""
 
-#: includes/form/class-form-manager.php:247
-#: includes/form/class-form-manager.php:247
+#: includes/form/class-form-manager.php:280
+#: includes/form/class-form-manager.php:280
 msgid "Augmenter"
 msgstr ""
 
-#: includes/form/class-form-manager.php:261
+#: includes/form/class-form-manager.php:301
 msgid "🛒 %d articles ou plus : −%s%%"
 msgstr ""
 
-#: includes/form/class-form-manager.php:273
-#: includes/form/class-form-manager.php:273
+#: includes/form/class-form-manager.php:316
+#: includes/form/class-form-manager.php:316
 msgid "Sous-total"
 msgstr ""
 
-#: includes/form/class-form-manager.php:274
-#: includes/form/class-form-manager.php:274
+#: includes/form/class-form-manager.php:317
+#: includes/form/class-form-manager.php:317
 msgid "Remise"
 msgstr ""
 
-#: includes/form/class-form-manager.php:275
-#: includes/form/class-form-manager.php:275
+#: includes/form/class-form-manager.php:318
+#: includes/form/class-form-manager.php:318
 msgid "Livraison"
 msgstr ""
 
-#: includes/form/class-form-manager.php:276
-#: includes/form/class-form-manager.php:276
+#: includes/form/class-form-manager.php:319
+#: includes/form/class-form-manager.php:319
 msgid "Total à payer à la livraison"
 msgstr ""
 
-#: includes/form/class-form-manager.php:286
-#: includes/form/class-form-manager.php:286
+#: includes/form/class-form-manager.php:330
+#: includes/form/class-form-manager.php:330
 #: includes/orders/class-order-store.php:143
 msgid "Paiement à la livraison"
 msgstr ""
 
-#: includes/form/class-form-manager.php:287
-#: includes/form/class-form-manager.php:287
+#: includes/form/class-form-manager.php:331
+#: includes/form/class-form-manager.php:331
 msgid "Livraison 58 wilayas"
 msgstr ""
 
-#: includes/form/class-form-manager.php:288
-#: includes/form/class-form-manager.php:288
+#: includes/form/class-form-manager.php:332
+#: includes/form/class-form-manager.php:332
 msgid "Vérifiez le colis à la réception"
 msgstr ""
 
-#: includes/form/class-form-manager.php:294
-#: includes/form/class-form-manager.php:294
+#: includes/form/class-form-manager.php:341
+#: includes/form/class-form-manager.php:341
 msgid "✅ Commande enregistrée !"
 msgstr ""
 
-#: includes/form/class-form-manager.php:296
-#: includes/form/class-form-manager.php:296
+#: includes/form/class-form-manager.php:343
+#: includes/form/class-form-manager.php:343
 msgid "Passer une autre commande"
 msgstr ""
 
-#: includes/form/class-form-manager.php:344
+#: includes/form/class-form-manager.php:430
 msgid "Aucun bureau disponible pour cette wilaya"
 msgstr ""
 
-#: includes/form/class-form-manager.php:346
+#: includes/form/class-form-manager.php:432
 #: includes/rest/class-routes.php:302
 msgid "Une erreur est survenue, réessayez."
 msgstr ""
 
-#: includes/form/class-form-manager.php:347
+#: includes/form/class-form-manager.php:433
 #: includes/rest/class-routes.php:214
 msgid "Veuillez saisir votre nom complet."
 msgstr ""
 
-#: includes/form/class-form-manager.php:348
+#: includes/form/class-form-manager.php:434
 msgid "Numéro algérien invalide (ex. 0555123456)."
 msgstr ""
 
-#: includes/form/class-form-manager.php:349
+#: includes/form/class-form-manager.php:435
 msgid "Veuillez choisir votre wilaya."
 msgstr ""
 
-#: includes/form/class-form-manager.php:350
+#: includes/form/class-form-manager.php:436
 msgid "Veuillez choisir votre commune."
 msgstr ""
 
-#: includes/form/class-form-manager.php:351
+#: includes/form/class-form-manager.php:437
 msgid "Veuillez choisir les options du produit."
 msgstr ""
 
-#: includes/form/class-form-manager.php:352
+#: includes/form/class-form-manager.php:438
 #: includes/rest/class-routes.php:237
 msgid "Veuillez choisir un bureau de retrait."
 msgstr ""
 
-#: includes/form/class-form-manager.php:353
+#: includes/form/class-form-manager.php:439
 msgid "Envoi en cours…"
 msgstr ""
 
-#: includes/form/class-form-manager.php:354
+#: includes/form/class-form-manager.php:440
 msgid "Commande refusée. Si c‘est une erreur, contactez-nous par téléphone."
 msgstr ""
 
-#: includes/form/class-form-manager.php:355
+#: includes/form/class-form-manager.php:441
 msgid "Merci ! Votre commande n° {num} a bien été enregistrée. Nous vous appellerons très vite pour la confirmer."
 msgstr ""
 
-#: includes/form/class-form-manager.php:356
+#: includes/form/class-form-manager.php:442
 msgid "DA"
 msgstr ""
 
-#: includes/license/class-license-manager.php:90
+#: includes/license/class-license-manager.php:93
 msgid "Veuillez saisir votre clé de licence."
 msgstr ""
 
-#: includes/license/class-license-manager.php:102
+#: includes/license/class-license-manager.php:105
 msgid "Licence de développement activée."
 msgstr ""
 
-#: includes/license/class-license-manager.php:142
+#: includes/license/class-license-manager.php:145
 msgid "Licence activée. Merci %s !"
 msgstr ""
 
-#: includes/license/class-license-manager.php:150
+#: includes/license/class-license-manager.php:153
 msgid "Activation refusée (%1$s). %2$s"
 msgstr ""
 
-#: includes/license/class-license-manager.php:225
+#: includes/license/class-license-manager.php:228
 msgid "Premium actif"
 msgstr ""
 
-#: includes/license/class-license-manager.php:227
+#: includes/license/class-license-manager.php:230
 msgid "Version gratuite"
+msgstr ""
+
+#: includes/license/class-updater.php:162
+msgid "Solution COD tout-en-un pour WooCommerce Algérie."
 msgstr ""
 
 #: includes/orders/class-order-store.php:114

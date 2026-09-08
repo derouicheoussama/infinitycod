@@ -42,6 +42,9 @@ class LicenseManager {
 		if ( ! wp_next_scheduled( 'infinitycod_license_heartbeat' ) ) {
 			wp_schedule_event( time() + DAY_IN_SECONDS, 'weekly', 'infinitycod_license_heartbeat' );
 		}
+
+		// Mises à jour à distance via l'API standard WordPress.
+		( new Updater() )->register();
 	}
 
 	/**

@@ -134,6 +134,14 @@ function wp_generate_password( $len, $sp = true, $ex = true ) { return substr( '
 function is_rtl() { return false; }
 function get_locale() { return 'fr_FR'; }
 function get_post( $id = 0 ) { return null; }
+function is_product() { return false; }
+function is_singular( $t = '' ) { return false; }
+function did_action( $h ) { return 0; }
+function wp_remote_get( ...$a ) { return new WP_Error_Stub( 'http', 'offline' ); }
+function delete_transient( $k ) {}
+function delete_site_transient( $k ) {}
+function get_bloginfo( $k = 'name' ) { return '6.5'; }
+function wp_get_theme() { return new class { public function get( $k ) { return 'Twenty Twenty-Four'; } }; }
 function wp_die( $m = '' ) { throw new RuntimeException( 'wp_die: ' . $m ); }
 function wp_safe_redirect( $u ) { throw new RuntimeException( 'redirect: ' . $u ); }
 function wp_send_json_success( $d = null ) { echo '[json_success] '; echo wp_json_encode( $d ), "\n"; }
@@ -194,7 +202,7 @@ echo "6) Rendu de toutes les pages admin…\n";
 $admin = infinitycod()->module( 'admin' );
 
 ob_start();
-foreach ( array( 'render_dashboard', 'render_orders', 'render_abandoned', 'render_geo', 'render_carriers', 'render_stats', 'render_settings' ) as $method ) {
+foreach ( array( 'render_dashboard', 'render_orders', 'render_abandoned', 'render_geo', 'render_carriers', 'render_stats', 'render_settings', 'render_about' ) as $method ) {
 	ob_clean();
 	$admin->{$method}();
 	$html = ob_get_contents();

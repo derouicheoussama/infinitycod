@@ -18,3 +18,16 @@ Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
 - REST API publique `/wp-json/infinitycod/v1/` (communes, stopdesks, devis, soumission, paniers abandonnés), tarification exclusivement côté serveur.
 - Internationalisation FR (défaut) / AR / EN, fichier POT (313 chaînes), outil de génération.
 - Outils développeur : `npm run check` (lint PHP + smoke autoloader), `npm run build` (zip), `npm run pot`.
+
+## 1.1.0 — 2026-09-08
+
+### Corrigé
+- **CSS du formulaire jamais chargé** : les assets étaient enregistrés mais enqueued pendant le rendu du corps de page, après `wp_head` — le formulaire s'affichait en HTML brut. Chargement anticipé (fiche produit ou shortcode détecté tôt) + fallback écriture inline du lien CSS. C'est la cause du formulaire « brut » constaté sur l'installation de test.
+
+### Ajouté
+- **Design du formulaire refondu** : en-tête avec icône et sous-titre, layout 2 colonnes sur desktop (champs / récapitulatif sticky), icônes intégrées dans les champs nom et téléphone, cartes de mode de livraison, animations d'erreur, bandeau d'accent dégradé.
+- **5 thèmes de formulaire** : Moderne, Élégant, Sunset, Océan, Minimal (sélecteur visuel dans les réglages, synchronisation automatique de la couleur d'accent).
+- **Personnalisation des champs** : libellés éditables (nom, téléphone, wilaya, commune, note) + bascules d'affichage (sélecteur quantité, livraison Stopdesk, champ note, paliers d'offres, bandeau de réassurance).
+- **Page « À propos »** : version, statut de licence, statut système (PHP, WordPress, WooCommerce, thème actif, tables, transporteurs connectés), bouton « Vérifier les mises à jour ».
+- **Mises à jour à distance** : API standard WordPress (notifications + mise à jour en 1 clic) branchée sur factexpert.online, téléchargement gated par licence ; documentation serveur dans docs/SERVEUR-MISES-A-JOUR.md.
+- Compatibilité thèmes renforcée : resets !important ciblés (hauteurs, couleurs, boutons, selects) contre les styles agressifs d'Astra/Flatsome/WoodMart/Divi.

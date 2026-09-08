@@ -40,13 +40,28 @@ class Settings {
 
 			// Formulaire.
 			'form_title'            => __( 'Commandez maintenant — paiement à la livraison', 'infinitycod' ),
+			'form_subtitle'         => __( 'Remplissez le formulaire, nous vous appelons pour confirmer.', 'infinitycod' ),
 			'button_text'           => __( 'Confirmer la commande', 'infinitycod' ),
 			'show_qty_selector'     => 1,
 			'qty_min'               => 1,
 			'qty_max'               => 20,
 			'form_theme'            => 'light',        // light | dark | auto.
+			'form_preset'           => 'modern',       // modern | elegant | sunset | ocean | minimal.
 			'accent_color'          => '#0e7a4f',
 			'sticky_bar'            => 1,
+
+			// Libellés personnalisables des champs.
+			'label_name'            => __( 'Nom complet', 'infinitycod' ),
+			'label_phone'           => __( 'Téléphone', 'infinitycod' ),
+			'label_wilaya'          => __( 'Wilaya', 'infinitycod' ),
+			'label_commune'         => __( 'Commune', 'infinitycod' ),
+			'label_note'            => __( 'Note (facultatif)', 'infinitycod' ),
+
+			// Affichage des champs / blocs du formulaire.
+			'show_note'             => 0,
+			'show_stopdesk'         => 1,
+			'show_offers'           => 1,
+			'show_reassurance'      => 1,
 
 			// Anti-fraude.
 			'shield_enabled'        => 1,

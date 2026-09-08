@@ -165,13 +165,35 @@ class SettingsPage {
 	 * @return void
 	 */
 	private function tab_form() {
+		$presets = array(
+			'modern'  => array( 'label' => __( 'Moderne', 'infinitycod' ), 'color' => '#0e7a4f' ),
+			'elegant' => array( 'label' => __( 'Élégant', 'infinitycod' ), 'color' => '#1d3557' ),
+			'sunset'  => array( 'label' => __( 'Sunset', 'infinitycod' ), 'color' => '#e8590c' ),
+			'ocean'   => array( 'label' => __( 'Océan', 'infinitycod' ), 'color' => '#1971c2' ),
+			'minimal' => array( 'label' => __( 'Minimal', 'infinitycod' ), 'color' => '#1a1d21' ),
+		);
 		?>
 		<div class="icod-card">
-			<h2><?php esc_html_e( 'Apparence du formulaire', 'infinitycod' ); ?></h2>
+			<h2><?php esc_html_e( 'Thème du formulaire', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Choisissez un thème visuel — la couleur d‘accent ci-dessous le personnalise encore.', 'infinitycod' ); ?></p>
+			<div class="icod-preset-grid">
+				<?php foreach ( $presets as $preset_key => $preset ) : ?>
+					<label class="icod-preset <?php checked( Settings::get( 'form_preset', 'modern' ), $preset_key ); ?>">
+						<input type="radio" name="icod[form_preset]" value="<?php echo esc_attr( $preset_key ); ?>" data-accent="<?php echo esc_attr( $preset['color'] ); ?>" <?php checked( Settings::get( 'form_preset', 'modern' ), $preset_key ); ?> />
+						<span class="icod-preset-swatch" style="background:<?php echo esc_attr( $preset['color'] ); ?>;border-radius:<?php echo 'elegant' === $preset_key ? '4px' : ( 'sunset' === $preset_key ? '14px' : ( 'minimal' === $preset_key ? '3px' : '10px' ) ); ?>"></span>
+						<span class="icod-preset-label"><?php echo esc_html( $preset['label'] ); ?></span>
+					</label>
+				<?php endforeach; ?>
+			</div>
+
 			<div class="icod-grid">
 				<label>
 					<span><?php esc_html_e( 'Titre du formulaire', 'infinitycod' ); ?></span>
 					<input type="text" name="icod[form_title]" value="<?php echo esc_attr( Settings::get( 'form_title' ) ); ?>" class="regular-text" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Sous-titre (facultatif)', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[form_subtitle]" value="<?php echo esc_attr( Settings::get( 'form_subtitle' ) ); ?>" class="regular-text" />
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Texte du bouton', 'infinitycod' ); ?></span>
@@ -182,7 +204,7 @@ class SettingsPage {
 					<input type="color" name="icod[accent_color]" value="<?php echo esc_attr( Settings::get( 'accent_color' ) ); ?>" />
 				</label>
 				<label>
-					<span><?php esc_html_e( 'Thème', 'infinitycod' ); ?></span>
+					<span><?php esc_html_e( 'Mode sombre', 'infinitycod' ); ?></span>
 					<select name="icod[form_theme]">
 						<option value="light" <?php selected( Settings::get( 'form_theme' ), 'light' ); ?>><?php esc_html_e( 'Clair', 'infinitycod' ); ?></option>
 						<option value="dark" <?php selected( Settings::get( 'form_theme' ), 'dark' ); ?>><?php esc_html_e( 'Sombre', 'infinitycod' ); ?></option>
@@ -200,8 +222,51 @@ class SettingsPage {
 					<span><?php esc_html_e( 'Afficher le sélecteur de quantité', 'infinitycod' ); ?></span>
 				</label>
 				<label class="icod-toggle">
+					<input type="checkbox" name="icod[show_stopdesk]" value="1" <?php checked( (int) Settings::get( 'show_stopdesk' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Proposer la livraison au bureau (Stopdesk)', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[show_note]" value="1" <?php checked( (int) Settings::get( 'show_note' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Champ « Note » libre pour le client', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[show_offers]" value="1" <?php checked( (int) Settings::get( 'show_offers' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Afficher les paliers d‘offres par quantité', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[show_reassurance]" value="1" <?php checked( (int) Settings::get( 'show_reassurance' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Bandeau de réassurance (COD, 58 wilayas, vérification colis)', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
 					<input type="checkbox" name="icod[sticky_bar]" value="1" <?php checked( (int) Settings::get( 'sticky_bar' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Barre récapitulative collante sur mobile', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Libellés des champs', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Personnalisez le texte affiché devant chaque champ (utile en arabe ou pour votre ton de marque).', 'infinitycod' ); ?></p>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Champ nom', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[label_name]" value="<?php echo esc_attr( Settings::get( 'label_name' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Champ téléphone', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[label_phone]" value="<?php echo esc_attr( Settings::get( 'label_phone' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Champ wilaya', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[label_wilaya]" value="<?php echo esc_attr( Settings::get( 'label_wilaya' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Champ commune', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[label_commune]" value="<?php echo esc_attr( Settings::get( 'label_commune' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Champ note', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[label_note]" value="<?php echo esc_attr( Settings::get( 'label_note' ) ); ?>" />
 				</label>
 			</div>
 		</div>
@@ -369,7 +434,7 @@ class SettingsPage {
 		$clean = array();
 
 		// Textes.
-		foreach ( array( 'form_title', 'button_text' ) as $text_key ) {
+		foreach ( array( 'form_title', 'form_subtitle', 'button_text', 'label_name', 'label_phone', 'label_wilaya', 'label_commune', 'label_note' ) as $text_key ) {
 			if ( isset( $raw[ $text_key ] ) ) {
 				$clean[ $text_key ] = sanitize_text_field( $raw[ $text_key ] );
 			}
@@ -388,6 +453,9 @@ class SettingsPage {
 		// Énumérations.
 		if ( isset( $raw['form_theme'] ) && in_array( $raw['form_theme'], array( 'light', 'dark', 'auto' ), true ) ) {
 			$clean['form_theme'] = $raw['form_theme'];
+		}
+		if ( isset( $raw['form_preset'] ) && in_array( $raw['form_preset'], array( 'modern', 'elegant', 'sunset', 'ocean', 'minimal' ), true ) ) {
+			$clean['form_preset'] = $raw['form_preset'];
 		}
 		if ( isset( $raw['whatsapp_gateway'] ) && in_array( $raw['whatsapp_gateway'], array( 'wame', 'cloud', 'ultramsg' ), true ) ) {
 			$clean['whatsapp_gateway'] = $raw['whatsapp_gateway'];
@@ -408,7 +476,7 @@ class SettingsPage {
 		}
 
 		// Cases à cocher (absent = 0).
-		foreach ( array( 'show_qty_selector', 'sticky_bar', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
+		foreach ( array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
 			$clean[ $toggle_key ] = empty( $raw[ $toggle_key ] ) ? 0 : 1;
 		}
 

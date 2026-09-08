@@ -177,3 +177,25 @@
 /* ===== Statistiques ===== */
 .icod-chart-wrap{position:relative;height:280px}
 @media (max-width:782px){.icod-chart-wrap{height:220px}}
+
+/* ===== Sélecteur de thème du formulaire ===== */
+.icod-preset-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin:12px 0 4px}
+.icod-preset{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px;background:#fff;border:2px solid #dcdcde;border-radius:8px;cursor:pointer;font-weight:600;font-size:12.5px;transition:border-color .15s}
+.icod-preset:hover{border-color:#a7aaad}
+.icod-preset:has(input:checked){border-color:#0e7a4f;background:#f4faf7}
+.icod-preset input{position:absolute;opacity:0;pointer-events:none}
+.icod-preset-swatch{display:block;width:46px;height:30px;border:1px solid rgba(0,0,0,.12)}
+.icod-preset-label{color:#3c434a}
+
+/* ===== Page À propos ===== */
+.icod-about-hero{display:flex;align-items:flex-start;gap:16px}
+.icod-about-badge{display:flex;align-items:center;justify-content:center;width:56px;height:56px;flex:none;font-size:1.8rem;font-weight:800;color:#fff;background:linear-gradient(135deg,#0e7a4f,#1971c2);border-radius:14px}
+.icod-about-hero h2{margin:0 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.icod-about-version{font-size:12px;font-weight:700;color:#0e7a4f;background:#e5f2e9;padding:2px 8px;border-radius:99px}
+.icod-about-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.icod-about-update{display:inline-flex;align-items:center;gap:8px}
+.icod-sysinfo{margin:0;padding:0;list-style:none}
+.icod-sysinfo li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed #e2e4e7;font-size:13px}
+.icod-features{margin:0;padding:0;list-style:none}
+.icod-features li{padding:5px 0;font-size:13px}
+.icod-about-links{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}

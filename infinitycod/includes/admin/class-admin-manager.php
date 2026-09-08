@@ -133,6 +133,15 @@ class AdminManager {
 			'infinitycod-settings',
 			array( $this, 'render_settings' )
 		);
+
+		add_submenu_page(
+			'infinitycod',
+			__( 'À propos d‘InfinityCod', 'infinitycod' ),
+			__( 'À propos', 'infinitycod' ),
+			'manage_woocommerce',
+			'infinitycod-about',
+			array( $this, 'render_about' )
+		);
 	}
 
 	/**
@@ -279,6 +288,15 @@ class AdminManager {
 	 */
 	public function render_settings() {
 		( new Pages\SettingsPage() )->render();
+	}
+
+	/**
+	 * Rendu de la page à propos.
+	 *
+	 * @return void
+	 */
+	public function render_about() {
+		( new Pages\AboutPage() )->render();
 	}
 
 	/**
