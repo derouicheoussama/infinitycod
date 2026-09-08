@@ -202,7 +202,7 @@ $form_manager = infinitycod()->module( 'form' );
 $out = $form_manager->shortcode( array() );
 echo '   Shortcode OK ✓ (longueur ' . strlen( (string) $out ) . ")\n";
 
-echo "6) Rendu de toutes les pages admin…\n";
+echo "6) Rendu de toutes les pages admin + tous les onglets de réglages…\n";
 $admin = infinitycod()->module( 'admin' );
 
 ob_start();
@@ -213,6 +213,17 @@ foreach ( array( 'render_dashboard', 'render_orders', 'render_abandoned', 'rende
 	echo '   ✓ ' . str_pad( $method, 20 ) . '(' . strlen( (string) $html ) . " octets)\n";
 }
 ob_end_clean();
+
+// Chaque onglet des réglages — aurait attrapé le fatal tab_order de la 1.5.0.
+foreach ( array( 'form', 'order', 'fraud', 'whatsapp', 'payment', 'license', 'advanced' ) as $tab ) {
+	$_GET['tab'] = $tab;
+	ob_start();
+	( new \InfinityCod\Admin\Pages\SettingsPage() )->render();
+	$html = ob_get_contents();
+	ob_end_clean();
+	echo '   ✓ onglet ' . str_pad( $tab, 10 ) . '(' . strlen( (string) $html ) . " octets)\n";
+}
+unset( $_GET['tab'] );
 
 echo "7) Fin de course des traitements (bulk, export, licence)…\n";
 try {

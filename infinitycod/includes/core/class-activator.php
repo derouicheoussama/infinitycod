@@ -25,6 +25,8 @@ class Activator {
 		self::seed_geo();
 		self::seed_settings();
 
+		set_transient( 'icod_welcome', 1, 7 * DAY_IN_SECONDS );
+
 		update_option( 'infinitycod_db_version', INFINITYCOD_DB_VERSION );
 		update_option( 'infinitycod_installed_at', current_time( 'mysql' ) );
 

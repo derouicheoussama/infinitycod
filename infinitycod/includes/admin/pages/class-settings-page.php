@@ -349,6 +349,90 @@ class SettingsPage {
 	}
 
 	/**
+	 * Onglet commande : remerciement, redirection, upsell.
+	 *
+	 * @return void
+	 */
+	private function tab_order() {
+		?>
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Message de remerciement', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Affiché après une commande réussie. Variable disponible : {num} (numéro de commande).', 'infinitycod' ); ?></p>
+			<div class="icod-grid icod-grid-full">
+				<label>
+					<span><?php esc_html_e( 'Titre', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[success_title]" value="<?php echo esc_attr( Settings::get( 'success_title' ) ); ?>" class="regular-text" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Texte', 'infinitycod' ); ?></span>
+					<textarea name="icod[success_text]" rows="2" class="large-text"><?php echo esc_textarea( Settings::get( 'success_text' ) ); ?></textarea>
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Redirection après la commande', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Exemples : page de remerciement, page Facebook, autre produit… Pendant le délai, le client voit le message de remerciement et les upsells éventuels.', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[redirect_enabled]" value="1" <?php checked( (int) Settings::get( 'redirect_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Rediriger le client après sa commande', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Url de redirection', 'infinitycod' ); ?></span>
+					<input type="url" name="icod[redirect_url]" value="<?php echo esc_attr( Settings::get( 'redirect_url' ) ); ?>" dir="ltr" placeholder="https://…" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Délai avant redirection (secondes)', 'infinitycod' ); ?></span>
+					<input type="number" min="3" max="60" name="icod[redirect_delay]" value="<?php echo esc_attr( (int) Settings::get( 'redirect_delay', 8 ) ); ?>" />
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Upsell — produits suggérés', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Jusqu‘à 3 produits proposés sur l‘écran de succès (photo, prix, bouton Commander). Le client les commande via leur fiche produit.', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[upsell_enabled]" value="1" <?php checked( (int) Settings::get( 'upsell_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Afficher des produits suggérés après la commande', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Titre de la section', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[upsell_title]" value="<?php echo esc_attr( Settings::get( 'upsell_title' ) ); ?>" class="regular-text" />
+				</label>
+				<?php
+				$product_choices = array();
+				if ( function_exists( 'wc_get_products' ) ) {
+					foreach ( (array) wc_get_products( array( 'limit' => 300, 'status' => 'publish', 'orderby' => 'title', 'order' => 'ASC', 'return' => 'objects' ) ) as $p ) {
+						$product_choices[ $p->get_id() ] = $p->get_name();
+					}
+				}
+				$selected_ids = array_pad( array_slice( array_filter( array_map( 'absint', (array) Settings::get( 'upsell_ids', array() ) ) ), 0, 3 ), 3, 0 );
+				foreach ( $selected_ids as $slot => $pid ) :
+					?>
+					<label>
+						<span><?php printf( esc_html__( 'Produit suggéré %d', 'infinitycod' ), $slot + 1 ); ?></span>
+						<select name="icod[upsell_ids][]">
+							<option value="0"><?php esc_html_e( '— Aucun —', 'infinitycod' ); ?></option>
+							<?php foreach ( $product_choices as $cid => $cname ) : ?>
+								<option value="<?php echo esc_attr( $cid ); ?>" <?php selected( $pid, $cid ); ?>><?php echo esc_html( $cname ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</label>
+					<?php
+				endforeach;
+				?>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Onglet anti-fraude.
 	 *
 	 * @return void

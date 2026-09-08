@@ -57,8 +57,86 @@ class AdminManager {
 		add_action( 'admin_menu', array( $this, 'apply_menu_badge' ), 999 );
 		add_filter( 'admin_footer_text', array( $this, 'footer_credit' ) );
 
+		// Liste des extensions : liens d'action et de meta pro.
+		add_filter( 'plugin_action_links_' . INFINITYCOD_BASENAME, array( $this, 'action_links' ) );
+		add_filter( 'plugin_row_meta', array( $this, 'row_meta' ), 10, 2 );
+
+		// Accueil d'installation : redirection unique vers le dashboard.
+		add_action( 'admin_init', array( $this, 'welcome_redirect' ), 1 );
+
 		// Métabox offres par produit.
 		( new ProductMetaBox() )->register();
+	}
+
+	/**
+	 * Liens « Réglages » et « Commandes » sur la ligne du plugin.
+	 *
+	 * @param array $actions Liens existants.
+	 * @return array
+	 */
+	public function action_links( $actions ) {
+		$custom = array(
+			sprintf(
+				'<a href="%s">%s</a>',
+				esc_url( admin_url( 'admin.php?page=infinitycod-settings' ) ),
+				esc_html__( 'Réglages', 'infinitycod' )
+			),
+			sprintf(
+				'<a href="%s">%s</a>',
+				esc_url( admin_url( 'admin.php?page=infinitycod-orders' ) ),
+				esc_html__( 'Commandes', 'infinitycod' )
+			),
+		);
+		return array_merge( $custom, (array) $actions );
+	}
+
+	/**
+	 * Meta de ligne : site, documentation, version.
+	 *
+	 * @param array  $meta Meta existantes.
+	 * @param string $file Fichier du plugin en cours.
+	 * @return array
+	 */
+	public function row_meta( $meta, $file ) {
+		if ( INFINITYCOD_BASENAME !== $file ) {
+			return $meta;
+		}
+
+		$meta[] = sprintf(
+			'<a href="%s" target="_blank" rel="noopener">%s</a>',
+			esc_url( 'https://infinitycoder.app' ),
+			esc_html__( 'Site web', 'infinitycod' )
+		);
+		$meta[] = sprintf(
+			'<a href="%s" target="_blank" rel="noopener">%s</a>',
+			esc_url( 'https://github.com/derouicheoussama/infinitycod-releases/releases' ),
+			esc_html__( 'Nouveautés', 'infinitycod' )
+		);
+		return $meta;
+	}
+
+	/**
+	 * Après activation : redirection unique vers le dashboard InfinityCod.
+	 *
+	 * @return void
+	 */
+	public function welcome_redirect() {
+		if ( ! get_transient( 'icod_welcome' ) ) {
+			return;
+		}
+
+		delete_transient( 'icod_welcome' );
+
+		if ( wp_doing_ajax() || ( defined( 'DOING_CRON' ) && DOING_CRON ) || ! current_user_can( 'manage_woocommerce' ) ) {
+			return;
+		}
+
+		if ( isset( $_GET['activate-multi'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- activation en masse.
+			return;
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod' ) );
+		exit;
 	}
 
 	/**

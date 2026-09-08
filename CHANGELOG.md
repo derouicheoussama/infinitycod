@@ -72,3 +72,12 @@ Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
 - **Onglet « Commande »** dans les réglages : message de remerciement personnalisé (titre + texte, variable {num}), **redirection personnalisée après la commande** (url + délai 3-60 s, pendant lequel le client voit le remerciement et les upsells), **upsell** : jusqu'à 3 produits suggérés (photo, prix, bouton Commander) affichés sur l'écran de succès.
 - Écran de succès enrichi : numéro de commande + montant total affichés.
 - **UX admin** : checklist de configuration avec progression sur le tableau de bord (transporteur, WhatsApp, paiement, première commande), mini-cartes KPI (en attente / confirmées / expédiées / livrées) au-dessus du tableur des commandes, bouton « Enregistrer » toujours visible (sticky) sur les longues pages de réglages.
+
+## 1.5.1 — 2026-09-08
+
+### Corrigé
+- **Fatal error sur la page Réglages (v1.5.0)** : la méthode `tab_order()` était appelée par le switch d'onglets mais jamais définie (insertion de patch partielle). Le harnais de test couvre désormais **les 7 onglets de réglages** — ce type de régression ne peut plus passer inaperçu.
+
+### Ajouté
+- **Intégration professionnelle dans l'écran Extensions** : liens « Réglages » et « Commandes » directement sur la ligne du plugin, méta « Site web » et « Nouveautés », et fiche **« Voir les détails »** complète (description détaillée, installation pas à pas, FAQ, changelog) comme une fiche WordPress.org.
+- **Accueil d'installation pro** : après l'activation, redirection automatique vers le tableau de bord InfinityCod avec la checklist de configuration.

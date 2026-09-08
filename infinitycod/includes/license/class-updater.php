@@ -145,21 +145,12 @@ class Updater {
 	}
 
 	/**
-	 * Récupère les infos de la dernière version (GitHub Releases uniquement).
-	 *
-	 * @return array|null version, download_url, homepage, changelog.
-	 */
-	private function remote() {
-		return $this->remote_github();
-	}
-
-	/**
 	 * Dernière release GitHub (avec cache 2 h).
 	 *
 	 * Source prioritaire : dépôt PUBLIC des releases (aucun token requis
 	 * chez les clients). Repli : dépôt privé + token.
 	 *
-	 * @return array|null
+	 * @return array|null version, download_url, homepage, changelog.
 	 */
 	private function remote_github() {
 		$repo  = self::releases_repo();
@@ -259,14 +250,12 @@ class Updater {
 			return $transient;
 		}
 
-		$package = (string) $remote['download_url'];
-
 		$transient->response[ INFINITYCOD_BASENAME ] = (object) array(
 			'slug'        => 'infinitycod',
 			'plugin'      => INFINITYCOD_BASENAME,
 			'new_version' => (string) $remote['version'],
 			'url'         => ! empty( $remote['homepage'] ) ? (string) $remote['homepage'] : 'https://infinitycoder.app',
-			'package'     => $package,
+			'package'     => (string) $remote['download_url'],
 			'requires'    => '6.0',
 			'requires_php' => '7.4',
 			'tested'      => get_bloginfo( 'version' ),
@@ -276,7 +265,9 @@ class Updater {
 	}
 
 	/**
-	 * Fiche « Informations sur l'extension » (modal WordPress).
+	 * Fiche « Informations sur l'extension » (modal « Voir les détails »
+	 * de l'écran Extensions) — sections description, installation, FAQ,
+	 * changelog, comme une fiche WordPress.org.
 	 *
 	 * @param false|object|array $result Résultat par défaut.
 	 * @param string             $action Action demandée.
@@ -290,28 +281,50 @@ class Updater {
 
 		$remote = $this->remote();
 
-		if ( ! $remote ) {
-			return $result;
-		}
+		$features = '<h4>' . esc_html__( 'Ce que fait InfinityCod', 'infinitycod' ) . '</h4><ul>'
+			. '<li>' . esc_html__( 'Formulaire COD one-page mobile-first : 5 thèmes, mode sombre, RTL arabe.', 'infinitycod' ) . '</li>'
+			. '<li>' . esc_html__( '58 wilayas + 1541 communes officielles (noms français et arabes).', 'infinitycod' ) . '</li>'
+			. '<li>' . esc_html__( 'Bouclier anti-fraude : score de risque, blacklist, doublons, limitation par IP.', 'infinitycod' ) . '</li>'
+			. '<li>' . esc_html__( 'Dashboard commandes avec filtres, actions groupées et export Excel.', 'infinitycod' ) . '</li>'
+			. '<li>' . esc_html__( 'Transporteurs intégrés : Yalidine, ZR Express, Maystro, Noest, E-COM, DHD — colis en 1 clic et suivi automatique.', 'infinitycod' ) . '</li>'
+			. '<li>' . esc_html__( 'WhatsApp automatique et relance des paniers abandonnés.', 'infinitycod' ) . '</li>'
+			. '<li>' . esc_html__( 'Paiement en ligne CIB / Edahabia via Chargily Pay.', 'infinitycod' ) . '</li>'
+			. '<li>' . esc_html__( 'Offres par quantité et statistiques P&L par wilaya, transporteur et produit.', 'infinitycod' ) . '</li>'
+			. '</ul>'
+			. '<p><strong>' . esc_html__( 'Shortcode :', 'infinitycod' ) . '</strong> <code>[infinitycod_form]</code> — ' . esc_html__( 'insertion automatique sur les fiches produit.', 'infinitycod' ) . '</p>';
+
+		$installation = '<ol>'
+			. '<li>' . esc_html__( 'Téléversez le zip via Extensions → Ajouter → Téléverser, puis activez.', 'infinitycod' ) . '</li>'
+			. '<li>' . esc_html__( 'Les 58 wilayas et 1541 communes sont importées automatiquement.', 'infinitycod' ) . '</li>'
+			. '<li>' . esc_html__( 'InfinityCod → Wilayas & Tarifs : définissez vos tarifs domicile / stopdesk.', 'infinitycod' ) . '</li>'
+			. '<li>' . esc_html__( 'Réglages → Formulaire : personnalisez le thème, les libellés, l‘upsell et la redirection. Le formulaire s‘insère seul sur vos fiches produit.', 'infinitycod' ) . '</li>'
+			. '</ol>';
+
+		$faq = '<h4>' . esc_html__( 'Le formulaire apparaît où ?', 'infinitycod' ) . '</h4><p>' . esc_html__( 'Automatiquement sous le résumé produit. Vous pouvez aussi utiliser le shortcode [infinitycod_form] ou [infinitycod_form id="123"].', 'infinitycod' ) . '</p>'
+			. '<h4>' . esc_html__( 'Compatibilité des thèmes ?', 'infinitycod' ) . '</h4><p>' . esc_html__( 'Oui : styles isolés et renforcés (Astra, Flatsome, WoodMart, Divi…), mode sombre et RTL inclus.', 'infinitycod' ) . '</p>'
+			. '<h4>' . esc_html__( 'Comment fonctionnent les mises à jour ?', 'infinitycod' ) . '</h4><p>' . esc_html__( 'Vérification horaire via GitHub ; mise à jour en 1 clic ou automatique (Réglages → Avancé).', 'infinitycod' ) . '</p>'
+			. '<h4>' . esc_html__( 'Le paiement en ligne est-il sécurisé ?', 'infinitycod' ) . '</h4><p>' . esc_html__( 'Le client paie sur la page sécurisée Chargily ; la confirmation est vérifiée par API et par webhook signé.', 'infinitycod' ) . '</p>';
 
 		$changelog = '';
-		if ( ! empty( $remote['changelog'] ) ) {
+		if ( $remote && ! empty( $remote['changelog'] ) ) {
 			$changelog = '<pre style="white-space:pre-wrap;font-family:inherit">' . esc_html( (string) $remote['changelog'] ) . '</pre>';
 		}
 
 		$info                = new \stdClass();
 		$info->name          = 'InfinityCod — Paiement à la livraison (COD Algérie)';
 		$info->slug          = 'infinitycod';
-		$info->version       = (string) $remote['version'];
+		$info->version       = $remote && ! empty( $remote['version'] ) ? (string) $remote['version'] : INFINITYCOD_VERSION;
 		$info->requires      = '6.0';
 		$info->requires_php  = '7.4';
 		$info->tested        = get_bloginfo( 'version' );
 		$info->author        = '<a href="https://infinitycoder.app">Infinity Coder</a>';
-		$info->homepage      = ! empty( $remote['homepage'] ) ? (string) $remote['homepage'] : 'https://infinitycoder.app';
-		$info->download_link = (string) $remote['download_url'];
+		$info->homepage      = 'https://infinitycoder.app';
+		$info->download_link = $remote && ! empty( $remote['download_url'] ) ? (string) $remote['download_url'] : '';
 		$info->sections      = array(
-			'description' => '<p>' . __( 'Solution COD tout-en-un pour WooCommerce Algérie : formulaire de commande rapide, 58 wilayas & 1541 communes, transporteurs intégrés, WhatsApp automatique et statistiques P&L.', 'infinitycod' ) . '</p>',
-			'changelog'   => $changelog,
+			'description'  => '<p>' . esc_html__( 'La solution de paiement à la livraison tout-en-un pensée pour l‘Algérie.', 'infinitycod' ) . '</p>' . $features,
+			'installation' => $installation,
+			'faq'          => $faq,
+			'changelog'    => $changelog,
 		);
 
 		return $info;
