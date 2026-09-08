@@ -200,6 +200,21 @@ class Updater {
 	}
 
 	/**
+	 * Construit une url d'API GitHub pour un dépôt validé.
+	 *
+	 * IMPORTANT : le slash du chemin « owner/repo » ne doit JAMAIS être
+	 * encodé (%2F) — un rawurlencode global renvoie un 404 systématique.
+	 * Le dépôt est déjà validé par la regex [A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+.
+	 *
+	 * @param string $repo Dépôt validé (owner/name).
+	 * @param string $path Chemin API (ex. /releases/latest).
+	 * @return string
+	 */
+	public static function api_url( $repo, $path ) {
+		return 'https://api.github.com/repos/' . $repo . $path;
+	}
+
+	/**
 	 * Liste des releases récentes (pour le rollback sur la page Updates).
 	 *
 	 * @param int $limit Nombre maximum.
@@ -224,7 +239,7 @@ class Updater {
 			$args['headers']['Authorization'] = 'Bearer ' . $token;
 		}
 
-		$response = wp_remote_get( 'https://api.github.com/repos/' . rawurlencode( $repo ) . '/releases?per_page=' . (int) $limit, $args );
+		$response = wp_remote_get( self::api_url( $repo, '/releases?per_page=' . (int) $limit ), $args );
 		$body     = is_wp_error( $response ) ? '' : (string) wp_remote_retrieve_body( $response );
 		$releases = json_decode( $body, true );
 
@@ -349,8 +364,8 @@ class Updater {
 
 		// Canal beta : liste des releases récentes (prereleases incluses).
 		$endpoint = 'beta' === self::channel()
-			? 'https://api.github.com/repos/' . rawurlencode( $repo ) . '/releases?per_page=5'
-			: 'https://api.github.com/repos/' . rawurlencode( $repo ) . '/releases/latest';
+			? self::api_url( $repo, '/releases?per_page=5' )
+			: self::api_url( $repo, '/releases/latest' );
 
 		$response = wp_remote_get( $endpoint, $args );
 

@@ -306,3 +306,10 @@ if ( ! function_exists( 'sodium_crypto_sign_detached_sign' ) || ! $signing_priva
 }
 
 echo "\n=== TOUS LES TESTS PASSENT ===\n";
+echo "11) URL API GitHub (anti-regression %2F)...\n";
+$url = \InfinityCod\License\Updater::api_url( 'derouicheoussama/infinitycod-releases', '/releases/latest' );
+if ( strpos( $url, '%2F' ) !== false || strpos( $url, 'derouicheoussama/infinitycod-releases/releases/latest' ) === false ) {
+	echo "   X URL invalide : $url\n";
+	exit( 1 );
+}
+echo "   OK $url\n";

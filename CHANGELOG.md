@@ -143,3 +143,9 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 
 ### Improved
 - Message d'aide dans Réglages → Avancé pour le repli manifest.
+
+## 2.1.2 — 2026-09-08
+
+### Fixed
+- **Aucune mise à jour détectée (cause racine)** : l'URL de l'API GitHub encodait le slash du dépôt (`owner%2Frepo`) via rawurlencode — l'API répondait 404 en permanence, même avec un dépôt public et des releases publiées. L'URL est maintenant construite directement (dépôt déjà validé par regex) et un test anti-régression couvre ce cas dans le harnais.
+- Après cette correction, le WARNING « Updater injoignable » dans Diagnostics disparaît et les mises à jour sont détectées depuis GitHub.
