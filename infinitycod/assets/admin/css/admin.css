@@ -86,3 +86,75 @@
 	body.is-dark-theme .icod-card{background:#1d1e1f;border-color:#2c2c2e}
 	body.is-dark-theme .icod-hint{color:#a7aaad}
 }
+
+/* ===== Commandes ===== */
+
+/* Filtres */
+.icod-filters-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));align-items:end}
+.icod-filters-grid label{display:flex;flex-direction:column;gap:5px;font-weight:600;font-size:12.5px}
+.icod-filters-grid input,.icod-filters-grid select{min-height:36px;max-width:100%}
+.icod-filters-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Lignes de sous-information */
+.icod-sub{display:block;font-size:12px;color:#787c82;margin-top:2px}
+
+/* Pastilles de statut */
+.icod-status{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11.5px;font-weight:700;line-height:1.5;white-space:nowrap}
+.icod-status-pending{background:#f0f0f1;color:#50575e}
+.icod-status-confirmed{background:#e5f2e9;color:#0e7a4f}
+.icod-status-no_answer{background:#fdf3e0;color:#996800}
+.icod-status-shipped{background:#e3edfa;color:#1d5fa8}
+.icod-status-delivered{background:#0e7a4f;color:#fff}
+.icod-status-returned{background:#fbe4e2;color:#b32d2e}
+.icod-status-failed{background:#f6e7fd;color:#7b2d9e}
+.icod-status-cancelled{background:#f0f0f1;color:#8c8f94;text-decoration:line-through}
+
+/* Risque */
+.icod-risk{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11.5px;font-weight:700}
+.icod-risk-low{color:#0e7a4f;background:#e5f2e9}
+.icod-risk-mid{color:#996800;background:#fdf3e0}
+.icod-risk-high{color:#b32d2e;background:#fbe4e2}
+.icod-risk-flags{color:#b32d2e;font-weight:600}
+
+/* Actions de ligne */
+.icod-row-actions{white-space:nowrap}
+.icod-row-actions .button-small{min-width:30px;text-align:center}
+.icod-danger{color:#b32d2e;border-color:#e3a5a3}
+
+/* Ligne détail */
+.icod-detail-row > td{background:#f9fafb;padding:14px 18px}
+.icod-detail-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.icod-detail-grid h4{margin:0 0 6px;font-size:12.5px;text-transform:uppercase;color:#646970;letter-spacing:.3px}
+
+/* ===== Tableau de bord ===== */
+.icod-kpi-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin-bottom:16px}
+.icod-kpi-card h2{margin:0 0 4px;font-size:13px;text-transform:uppercase;color:#646970;letter-spacing:.4px}
+.icod-kpi-value{margin:0;font-size:2.4rem;font-weight:800;line-height:1.1;color:#0e7a4f}
+.icod-kpi-label{margin:0 0 8px;color:#646970}
+.icod-kpi-details{margin:0;padding:0;list-style:none;font-size:12.5px;color:#50575e}
+.icod-kpi-details li{display:flex;justify-content:space-between;gap:8px;padding:2px 0;border-top:1px dashed #e2e4e7}
+.icod-dashboard-cols{display:grid;gap:14px;grid-template-columns:1.6fr 1fr}
+@media (max-width:1100px){.icod-dashboard-cols{grid-template-columns:1fr}}
+.icod-top-list{margin:0;padding:0;list-style:none}
+.icod-top-list li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed #e2e4e7;font-size:13px}
+.icod-fraud-list{margin:0;padding:0;list-style:none}
+.icod-fraud-list li{padding:5px 0;border-bottom:1px dashed #e2e4e7}
+
+/* ===== Responsive : tableau commandes en cartes sous 768px ===== */
+@media (max-width:782px){
+	/* Le tableau devient une pile de cartes lisibles sur mobile. */
+	.icod-orders-table thead{display:none}
+	.icod-orders-table,.icod-orders-table tbody{display:block}
+	.icod-orders-table tr{display:block;border:1px solid #dcdcde;border-radius:8px;margin-bottom:10px;padding:10px 12px;background:#fff}
+	.icod-orders-table td{display:flex;justify-content:space-between;align-items:center;gap:12px;border:0;padding:5px 0;text-align:end}
+	.icod-orders-table td::before{content:attr(data-label);font-weight:600;font-size:11.5px;color:#646970;text-align:start;flex:1}
+	.icod-orders-table td.icod-col-check,.icod-orders-table td.icod-col-actions{justify-content:flex-start}
+	.icod-orders-table td.icod-col-check::before,.icod-orders-table td.icod-col-actions::before{content:""}
+	.icod-detail-row{display:none!important}   /* détail accessible sur mobile via WooCommerce */
+	.icod-kpi-value{font-size:2rem}
+	.icod-filters-grid{grid-template-columns:1fr 1fr}
+	.icod-filters-actions{grid-column:1/-1}
+}
+@media (max-width:600px){
+	.icod-filters-grid{grid-template-columns:1fr}
+}

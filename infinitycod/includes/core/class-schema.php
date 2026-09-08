@@ -27,6 +27,19 @@ class Schema {
 	}
 
 	/**
+	 * Lit une ligne de commande COD.
+	 *
+	 * @param int $id Ligne icod_orders.
+	 * @return array|null
+	 */
+	public static function get_order( $id ) {
+		global $wpdb;
+		$table = self::table( 'orders' );
+		$row   = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", (int) $id ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL
+		return $row ? $row : null;
+	}
+
+	/**
 	 * Retourne les requêtes CREATE TABLE de toutes les tables.
 	 *
 	 * @return array<string, string> nom court => SQL.

@@ -30,6 +30,10 @@ class AdminManager {
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 		add_action( 'admin_post_icod_save_wilayas', array( $this, 'handle_wilayas_save' ) );
 		add_action( 'wp_ajax_icod_save_commune', array( $this, 'handle_commune_save' ) );
+		add_action( 'admin_post_icod_orders_bulk', array( $this, 'handle_orders_bulk' ) );
+		add_action( 'wp_ajax_icod_order_status', array( $this, 'handle_order_status' ) );
+		add_action( 'wp_ajax_icod_order_blacklist', array( $this, 'handle_order_blacklist' ) );
+		add_action( 'admin_post_icod_orders_export', array( $this, 'handle_orders_export' ) );
 	}
 
 	/**
@@ -323,6 +327,207 @@ class AdminManager {
 		$saved = $rates ? $rates->save_wilaya_prices( $data ) : 0;
 
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-geo&icod_msg=saved&count=' . $saved ) );
+		exit;
+	}
+
+	/**
+	 * Actions groupées sur les commandes (admin-post).
+	 *
+	 * @return void
+	 */
+	public function handle_orders_bulk() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_orders_bulk' );
+
+		$bulk = isset( $_POST['bulk'] ) ? sanitize_key( wp_unslash( $_POST['bulk'] ) ) : '';
+		$ids  = isset( $_POST['ids'] ) && is_array( $_POST['ids'] ) ? array_map( 'absint', wp_unslash( $_POST['ids'] ) ) : array();
+
+		if ( ! $bulk || ! $ids ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-orders' ) );
+			exit;
+		}
+
+		$orders = infinitycod()->module( 'orders' );
+		$shield = infinitycod()->module( 'shield' );
+
+		foreach ( $ids as $id ) {
+			if ( 'blacklist' === $bulk ) {
+				if ( $orders && $shield ) {
+					$order = \InfinityCod\Core\Schema::get_order( $id );
+					if ( $order && $order['phone'] ) {
+						$shield->blacklist( 'phone', $order['phone'], __( 'Blacklist manuelle (dashboard)', 'infinitycod' ) );
+					}
+				}
+				continue;
+			}
+			if ( $orders ) {
+				$orders->set_status( $id, $bulk );
+			}
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-orders&icod_msg=done' ) );
+		exit;
+	}
+
+	/**
+	 * Changement rapide de statut (AJAX).
+	 *
+	 * @return void
+	 */
+	public function handle_order_status() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+
+		$id     = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+		$status = isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : '';
+
+		if ( ! $id || ! array_key_exists( $status, \InfinityCod\Orders\OrderStore::STATUSES ) ) {
+			wp_send_json_error( array( 'message' => 'invalid' ) );
+		}
+
+		$orders = infinitycod()->module( 'orders' );
+		$ok     = $orders ? $orders->set_status( $id, $status ) : false;
+
+		if ( $ok ) {
+			wp_send_json_success( array(
+				'status' => $status,
+				'label'  => \InfinityCod\Orders\OrderStore::STATUSES[ $status ],
+			) );
+		}
+		wp_send_json_error( array( 'message' => 'db' ) );
+	}
+
+	/**
+	 * Blacklist d'un téléphone (AJAX).
+	 *
+	 * @return void
+	 */
+	public function handle_order_blacklist() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+
+		$phone = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '';
+		$phone = \InfinityCod\Form\Validator::normalize_phone( $phone );
+
+		if ( null === $phone ) {
+			wp_send_json_error( array( 'message' => 'invalid' ) );
+		}
+
+		$shield = infinitycod()->module( 'shield' );
+		$ok     = $shield ? $shield->blacklist( 'phone', $phone, __( 'Blacklist manuelle (dashboard)', 'infinitycod' ) ) : false;
+
+		if ( $ok ) {
+			wp_send_json_success();
+		}
+		wp_send_json_error( array( 'message' => 'db' ) );
+	}
+
+	/**
+	 * Export CSV des commandes filtrées.
+	 *
+	 * @return void
+	 */
+	public function handle_orders_export() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_orders_export' );
+
+		global $wpdb;
+
+		$orders_table  = \InfinityCod\Core\Schema::table( 'orders' );
+		$wilayas_table = \InfinityCod\Core\Schema::table( 'wilayas' );
+
+		$where  = array( '1=1' );
+		$params = array();
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- export filtré, nonce vérifié ci-dessus.
+		$status = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
+		$wilaya = isset( $_GET['wilaya'] ) ? sanitize_text_field( wp_unslash( $_GET['wilaya'] ) ) : '';
+		$q      = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
+		$from   = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : '';
+		$to     = isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : '';
+		// phpcs:enable
+
+		if ( $status && array_key_exists( $status, \InfinityCod\Orders\OrderStore::STATUSES ) ) {
+			$where[]  = 'o.status = %s';
+			$params[] = $status;
+		}
+		if ( $wilaya && preg_match( '/^\d{1,2}$/', $wilaya ) ) {
+			$where[]  = 'o.wilaya_code = %s';
+			$params[] = str_pad( $wilaya, 2, '0', STR_PAD_LEFT );
+		}
+		if ( $q ) {
+			$like     = '%' . $wpdb->esc_like( $q ) . '%';
+			$where[]  = '(o.customer_name LIKE %s OR o.phone LIKE %s)';
+			$params[] = $like;
+			$params[] = $like;
+		}
+		if ( $from && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) {
+			$where[]  = 'o.created_at >= %s';
+			$params[] = $from . ' 00:00:00';
+		}
+		if ( $to && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) ) {
+			$where[]  = 'o.created_at <= %s';
+			$params[] = $to . ' 23:59:59';
+		}
+
+		$where_sql = implode( ' AND ', $where );
+		$sql       = "SELECT o.*, w.name_fr AS wilaya_name FROM {$orders_table} o
+			LEFT JOIN {$wilayas_table} w ON w.code = o.wilaya_code
+			WHERE {$where_sql} ORDER BY o.created_at DESC LIMIT 5000";
+
+		$rows = $params
+			? $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A ) // phpcs:ignore WordPress.DB.PreparedSQL
+			: $wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL
+
+		$statuses = \InfinityCod\Orders\OrderStore::STATUSES;
+
+		nocache_headers();
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=infinitycod-commandes-' . gmdate( 'Ymd-Hi' ) . '.csv' );
+
+		$out = fopen( 'php://output', 'w' );
+		// BOM UTF-8 pour Excel.
+		fwrite( $out, "\xEF\xBB\xBF" );
+		fputcsv( $out, array( 'ID', 'WC #', 'Date', 'Nom', 'Telephone', 'Wilaya', 'Commune', 'Mode', 'Bureau', 'Produit', 'Qte', 'Sous-total', 'Remise', 'Livraison', 'Total', 'Statut', 'Transporteur', 'Suivi', 'Score risque', 'IP' ), ';' );
+
+		foreach ( (array) $rows as $row ) {
+			fputcsv( $out, array(
+				$row['id'],
+				$row['wc_order_id'],
+				$row['created_at'],
+				$row['customer_name'],
+				$row['phone'],
+				$row['wilaya_name'],
+				$row['commune'],
+				'home' === $row['delivery_mode'] ? 'Domicile' : 'Bureau',
+				$row['stopdesk'],
+				$row['product_id'] ? get_the_title( (int) $row['product_id'] ) : '',
+				$row['quantity'],
+				$row['subtotal'],
+				$row['discount'],
+				$row['shipping'],
+				$row['total'],
+				isset( $statuses[ $row['status'] ] ) ? $statuses[ $row['status'] ] : $row['status'],
+				$row['carrier'],
+				$row['tracking'],
+				$row['fraud_score'],
+				$row['ip'],
+			), ';' );
+		}
+
+		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		exit;
 	}
 }
