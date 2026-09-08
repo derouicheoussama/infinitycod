@@ -57,3 +57,11 @@ Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
 - **Mises à jour non reçues** (cause identifiée) : le dépôt des sources est PRIVÉ — l'API GitHub renvoie 404 aux boutiques sans token, donc aucune version n'était jamais détectée. Le plugin consulte maintenant en priorité un **dépôt public dédié aux releases** (`derouicheoussama/infinitycod-releases`, zips uniquement, aucune source) : les clients reçoivent les mises à jour **sans aucun token**. Le dépôt privé + token reste utilisable en repli.
 - **Diagnostic visible** : notice admin « mises à jour indisponibles » quand le dépôt est privé sans token, avec lien direct vers la configuration.
 - Nouveau script `node tools/publish-releases.js` : publie le zip de la version courante sur le dépôt public en une commande.
+
+## 1.4.0 — 2026-09-08
+
+### Modifié
+- **Suppression du repli factexpert.online** dans les mises à jour : la seule source est GitHub Releases (dépôt public des releases). Rien à voir avec votre plugin n'y transite plus.
+- **Publication 100 % automatique** : un simple `git push --tags` construit le zip et le publie sur le dépôt public des releases (secret RELEASES_TOKEN configuré via CI, script tools/set-releases-secret.js). Plus aucune commande manuelle.
+- **Mise à jour automatique activée par défaut** chez les clients (désactivable dans Réglages → Avancé).
+- Le serveur d'activation des licences est désormais un champ modifiable (Réglages → Avancé) au lieu d'être figé dans le code.

@@ -11,6 +11,7 @@
     "check": "node tools/lint-php.js && node tools/smoke.js"
   },
   "devDependencies": {
+    "libsodium-wrappers": "^0.8.4",
     "php-parser": "^3.2.1"
   }
 }

@@ -99,7 +99,7 @@ class Settings {
 			'delete_on_uninstall'   => 0,
 			'wizard_done'           => 0,
 			'menu_badge'            => 1,    // Badge commandes en attente sur le menu.
-			'auto_update'           => 0,    // Mise à jour automatique du plugin.
+			'auto_update'           => 1,    // Mise à jour automatique du plugin (activée par défaut).
 
 			// Paiement en ligne (Chargily Pay — CIB / Edahabia).
 			'payment_enabled'       => 0,
@@ -114,6 +114,7 @@ class Settings {
 			'releases_repo'         => 'derouicheoussama/infinitycod-releases', // Dépôt PUBLIC des zips (sans token).
 			'github_repo'           => 'derouicheoussama/infinitycod', // Dépôt privé des sources.
 			'github_token'          => '',   // Seulement si releases_repo est vide (dépôt privé).
+			'license_server'        => 'https://factexpert.online/api.php', // API d'activation des licences.
 		);
 	}
 

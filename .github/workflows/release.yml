@@ -1,6 +1,7 @@
-# Publie automatiquement une release GitHub à chaque tag v*
-# Le zip (dist/infinitycod.zip) est construit et attaché à la release :
-# les installations WordPress le récupèrent via l'Updater du plugin.
+# Publie automatiquement une release à chaque tag v* :
+# 1. Release dans CE dépôt (sources privées)
+# 2. Release dans le dépôt PUBLIC derouicheoussama/infinitycod-releases
+#    (source des mises à jour des boutiques clientes — sans token chez eux)
 name: Release InfinityCod
 
 on:
@@ -10,6 +11,9 @@ on:
 
 permissions:
   contents: write
+
+env:
+  RELEASES_TOKEN: ${{ secrets.RELEASES_TOKEN }}
 
 jobs:
   release:
@@ -32,8 +36,20 @@ jobs:
       - name: Construction du zip
         run: node tools/build.js
 
-      - name: Publication de la release
+      - name: Release interne (dépôt privé des sources)
         uses: softprops/action-gh-release@v2
         with:
           files: dist/infinitycod.zip
           generate_release_notes: true
+
+      - name: Release publique (dépôt des mises à jour clients)
+        if: env.RELEASES_TOKEN != ''
+        continue-on-error: true
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: derouicheoussama/infinitycod-releases
+          token: ${{ secrets.RELEASES_TOKEN }}
+          tag_name: ${{ github.ref_name }}
+          name: InfinityCod ${{ github.ref_name }}
+          body: 'Mise à jour WordPress : Extensions → Mettre à jour (ou automatique).'
+          files: dist/infinitycod.zip

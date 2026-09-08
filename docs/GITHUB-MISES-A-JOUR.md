@@ -42,6 +42,3 @@ node tools/publish-releases.js
 | Token GitHub | vide | Seulement pour le repli dépôt privé |
 | Mise à jour automatique | désactivée | Installation automatique des nouvelles versions |
 
-## Repli serveur
-
-Si GitHub est injoignable, le plugin tente `https://factexpert.online/updates/infinitycod.json` (voir SERVEUR-MISES-A-JOUR.md).

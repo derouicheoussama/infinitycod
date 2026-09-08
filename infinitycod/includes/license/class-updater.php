@@ -1,11 +1,12 @@
 <?php
 /**
- * Mises à jour à distance : source GitHub Releases (privée ou publique)
- * avec repli sur le serveur Infinity Coder (factexpert.online).
+ * Mises à jour à distance via GitHub Releases : l'API standard de
+ * WordPress (écran Extensions, notification, mise à jour en 1 clic ou
+ * automatique) consulte le dépôt public des releases.
  *
- * GitHub : le plugin interroge l'API `/releases/latest` du dépôt configuré
- * (Réglages → Avancé). Pour un dépôt PRIVÉ, un token GitHub est requis
- * (lecture seule suffit) — il sert aussi au téléchargement du zip.
+ * GitHub : le plugin interroge l'API `/releases/latest` du dépôt public
+ * des releases (Réglages → Avancé). Le dépôt privé des sources + token
+ * reste utilisable en repli.
  *
  * @package InfinityCod
  */
@@ -17,20 +18,6 @@ use InfinityCod\Core\Settings;
 defined( 'ABSPATH' ) || exit;
 
 class Updater {
-
-	/**
-	 * Manifeste du serveur de secours.
-	 *
-	 * @return string
-	 */
-	public static function info_url() {
-		/**
-		 * Url du manifeste de versions sur le serveur Infinity Coder.
-		 *
-		 * @param string $url Url par défaut.
-		 */
-		return apply_filters( 'infinitycod_update_info_url', 'https://factexpert.online/updates/infinitycod.json' );
-	}
 
 	/**
 	 * Dépôt PUBLIC des releases (« proprietaire/depot »), consultable sans
@@ -158,18 +145,12 @@ class Updater {
 	}
 
 	/**
-	 * Récupère les infos de la dernière version.
+	 * Récupère les infos de la dernière version (GitHub Releases uniquement).
 	 *
-	 * Source prioritaire : GitHub Releases. Repli : serveur Infinity Coder.
-	 *
-	 * @return array|null version, download_url, homepage, changelog, slug_source.
+	 * @return array|null version, download_url, homepage, changelog.
 	 */
 	private function remote() {
-		$github = $this->remote_github();
-		if ( $github ) {
-			return $github;
-		}
-		return $this->remote_site();
+		return $this->remote_github();
 	}
 
 	/**
@@ -242,46 +223,10 @@ class Updater {
 			'download_url' => $download,
 			'homepage'     => isset( $release['html_url'] ) ? (string) $release['html_url'] : '',
 			'changelog'    => isset( $release['body'] ) ? (string) $release['body'] : '',
-			'source'       => 'github',
 		);
 
 		set_transient( 'icod_update_gh', $data, 2 * HOUR_IN_SECONDS );
 		return $data;
-	}
-
-	/**
-	 * Manifeste du serveur de secours (cache 6 h).
-	 *
-	 * @return array|null
-	 */
-	private function remote_site() {
-		$cached = get_transient( 'icod_update_info' );
-
-		if ( false !== $cached ) {
-			return is_array( $cached ) ? $cached : null;
-		}
-
-		$response = wp_remote_get( self::info_url(), array( 'timeout' => 10 ) );
-
-		if ( is_wp_error( $response ) ) {
-			set_transient( 'icod_update_info', array( 'unreachable' => 1 ), 30 * MINUTE_IN_SECONDS );
-			return null;
-		}
-
-		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
-		$status = (int) wp_remote_retrieve_response_code( $response );
-
-		if ( $status < 200 || $status >= 300 || ! is_array( $body ) || empty( $body['version'] ) ) {
-			set_transient( 'icod_update_info', array( 'unreachable' => 1 ), 30 * MINUTE_IN_SECONDS );
-			return null;
-		}
-
-		$body['source']      = 'site';
-		$body['changelog']   = isset( $body['sections']['changelog'] ) ? (string) $body['sections']['changelog'] : '';
-		$body['download_url'] = isset( $body['download_url'] ) ? (string) $body['download_url'] : '';
-
-		set_transient( 'icod_update_info', $body, 6 * HOUR_IN_SECONDS );
-		return $body;
 	}
 
 	/**
@@ -291,7 +236,6 @@ class Updater {
 	 */
 	public static function clear_cache() {
 		delete_transient( 'icod_update_gh' );
-		delete_transient( 'icod_update_info' );
 	}
 
 	/**
@@ -316,14 +260,6 @@ class Updater {
 		}
 
 		$package = (string) $remote['download_url'];
-
-		// Serveur Infinity Coder protégé par licence : clé transmise.
-		if ( isset( $remote['source'] ) && 'site' === $remote['source'] ) {
-			$stored = LicenseManager::stored();
-			if ( ! empty( $stored['key_hash'] ) ) {
-				$package = add_query_arg( 'key_hash', rawurlencode( $stored['key_hash'] ), $package );
-			}
-		}
 
 		$transient->response[ INFINITYCOD_BASENAME ] = (object) array(
 			'slug'        => 'infinitycod',

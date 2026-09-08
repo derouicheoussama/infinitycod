@@ -496,6 +496,10 @@ class SettingsPage {
 			<p class="description"><?php esc_html_e( 'Recommandé : créez un dépôt PUBLIC « releases » contenant uniquement les zips — les clients reçoivent les mises à jour sans aucun token, et vos sources restent privées. Si vous laissez ce champ vide, le plugin consulte le dépôt des sources (token alors obligatoire s‘il est privé).', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
 				<label>
+					<span><?php esc_html_e( 'Serveur de licences (API d‘activation)', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[license_server]" value="<?php echo esc_attr( Settings::get( 'license_server' ) ); ?>" dir="ltr" />
+				</label>
+				<label>
 					<span><?php esc_html_e( 'Dépôt PUBLIC des releases (recommandé)', 'infinitycod' ); ?></span>
 					<input type="text" name="icod[releases_repo]" value="<?php echo esc_attr( Settings::get( 'releases_repo' ) ); ?>" dir="ltr" placeholder="derouicheoussama/infinitycod-releases" />
 				</label>
@@ -509,7 +513,7 @@ class SettingsPage {
 				</label>
 			</div>
 			<p class="description" style="margin-top:10px">
-				<?php esc_html_e( 'En cas d‘indisponibilité de GitHub, le plugin se replie sur factexpert.online/updates/infinitycod.json.', 'infinitycod' ); ?>
+				<?php esc_html_e( 'Les clients vérifient les mises à jour toutes les heures dans le dépôt public des releases.', 'infinitycod' ); ?>
 			</p>
 		</div>
 
@@ -601,7 +605,7 @@ class SettingsPage {
 		}
 
 		// Clés / identifiants.
-		foreach ( array( 'whatsapp_number', 'whatsapp_phone_id', 'whatsapp_ultramsg_instance', 'github_repo', 'releases_repo' ) as $id_key ) {
+		foreach ( array( 'whatsapp_number', 'whatsapp_phone_id', 'whatsapp_ultramsg_instance', 'github_repo', 'releases_repo', 'license_server' ) as $id_key ) {
 			if ( isset( $raw[ $id_key ] ) ) {
 				$clean[ $id_key ] = preg_replace( '/[^0-9a-zA-Z_\-.\/]/', '', $raw[ $id_key ] );
 			}

@@ -68,8 +68,8 @@ msgid "Réglages"
 msgstr ""
 
 #: includes/admin/class-admin-manager.php:209
-#: includes/admin/pages/class-about-page.php:69
-#: includes/admin/pages/class-about-page.php:69
+#: includes/admin/pages/class-about-page.php:60
+#: includes/admin/pages/class-about-page.php:60
 msgid "À propos d‘InfinityCod"
 msgstr ""
 
@@ -272,156 +272,156 @@ msgstr ""
 msgid "Derniers messages WhatsApp"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:72
-#: includes/admin/pages/class-about-page.php:72
+#: includes/admin/pages/class-about-page.php:63
+#: includes/admin/pages/class-about-page.php:63
 msgid "Cache des mises à jour vidé — WordPress vérifiera une nouvelle version dès maintenant."
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:80
-#: includes/admin/pages/class-about-page.php:80
+#: includes/admin/pages/class-about-page.php:71
+#: includes/admin/pages/class-about-page.php:71
 msgid "La solution de paiement à la livraison pensée pour l‘Algérie : formulaire COD rapide, 58 wilayas & 1541 communes, transporteurs intégrés, WhatsApp automatique et statistiques P&L."
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:86
-#: includes/admin/pages/class-about-page.php:86
+#: includes/admin/pages/class-about-page.php:77
+#: includes/admin/pages/class-about-page.php:77
 msgid "Version %s disponible !"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:87
-#: includes/admin/pages/class-about-page.php:87
+#: includes/admin/pages/class-about-page.php:78
+#: includes/admin/pages/class-about-page.php:78
 msgid "Mettre à jour"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:91
-#: includes/admin/pages/class-about-page.php:91
+#: includes/admin/pages/class-about-page.php:82
+#: includes/admin/pages/class-about-page.php:82
 msgid "Dernière version publiée : %1$s (%2$s)"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:100
-#: includes/admin/pages/class-about-page.php:100
+#: includes/admin/pages/class-about-page.php:91
+#: includes/admin/pages/class-about-page.php:91
 msgid "Statut du système"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:104
+#: includes/admin/pages/class-about-page.php:95
 msgid "actif"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:104
-#: includes/admin/pages/class-about-page.php:104
+#: includes/admin/pages/class-about-page.php:95
+#: includes/admin/pages/class-about-page.php:95
 msgid "non actif !"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:105
-#: includes/admin/pages/class-about-page.php:105
+#: includes/admin/pages/class-about-page.php:96
+#: includes/admin/pages/class-about-page.php:96
 msgid "Thème actif"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:106
-#: includes/admin/pages/class-about-page.php:106
+#: includes/admin/pages/class-about-page.php:97
+#: includes/admin/pages/class-about-page.php:97
 msgid "Tables du plugin"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:107
-#: includes/admin/pages/class-about-page.php:107
+#: includes/admin/pages/class-about-page.php:98
+#: includes/admin/pages/class-about-page.php:98
 msgid "Commandes COD enregistrées"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:108
-#: includes/admin/pages/class-about-page.php:108
+#: includes/admin/pages/class-about-page.php:99
+#: includes/admin/pages/class-about-page.php:99
 #: includes/admin/pages/class-geo-page.php:52
 #: includes/admin/pages/class-geo-page.php:52
 msgid "Bureaux Stopdesk"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:110
-#: includes/admin/pages/class-about-page.php:110
+#: includes/admin/pages/class-about-page.php:101
+#: includes/admin/pages/class-about-page.php:101
 msgid "Transporteurs connectés"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:111
+#: includes/admin/pages/class-about-page.php:102
 msgid "aucun"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:114
-#: includes/admin/pages/class-about-page.php:114
+#: includes/admin/pages/class-about-page.php:105
+#: includes/admin/pages/class-about-page.php:105
 #: includes/admin/pages/class-settings-page.php:54
 #: includes/admin/pages/class-settings-page.php:54
 msgid "WhatsApp"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:115
+#: includes/admin/pages/class-about-page.php:106
 msgid "désactivé"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:121
-#: includes/admin/pages/class-about-page.php:121
+#: includes/admin/pages/class-about-page.php:112
+#: includes/admin/pages/class-about-page.php:112
 msgid "Vérifier les mises à jour"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:127
-#: includes/admin/pages/class-about-page.php:127
+#: includes/admin/pages/class-about-page.php:118
+#: includes/admin/pages/class-about-page.php:118
 msgid "Fonctionnalités"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:129
-#: includes/admin/pages/class-about-page.php:129
+#: includes/admin/pages/class-about-page.php:120
+#: includes/admin/pages/class-about-page.php:120
 msgid "Formulaire COD responsive — 5 thèmes, mode sombre, RTL arabe"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:130
-#: includes/admin/pages/class-about-page.php:130
+#: includes/admin/pages/class-about-page.php:121
+#: includes/admin/pages/class-about-page.php:121
 msgid "58 wilayas + 1541 communes officielles (FR/AR)"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:131
-#: includes/admin/pages/class-about-page.php:131
+#: includes/admin/pages/class-about-page.php:122
+#: includes/admin/pages/class-about-page.php:122
 msgid "Bouclier anti-fraude avec score de risque"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:132
-#: includes/admin/pages/class-about-page.php:132
+#: includes/admin/pages/class-about-page.php:123
+#: includes/admin/pages/class-about-page.php:123
 msgid "Dashboard commandes + export Excel"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:133
-#: includes/admin/pages/class-about-page.php:133
+#: includes/admin/pages/class-about-page.php:124
+#: includes/admin/pages/class-about-page.php:124
 msgid "Transporteurs : Yalidine, ZR Express, Maystro, Noest, E-COM, DHD"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:134
-#: includes/admin/pages/class-about-page.php:134
+#: includes/admin/pages/class-about-page.php:125
+#: includes/admin/pages/class-about-page.php:125
 msgid "WhatsApp automatique + relance des paniers abandonnés"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:135
-#: includes/admin/pages/class-about-page.php:135
+#: includes/admin/pages/class-about-page.php:126
+#: includes/admin/pages/class-about-page.php:126
 msgid "Offres par quantité et livraison gratuite"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:136
-#: includes/admin/pages/class-about-page.php:136
+#: includes/admin/pages/class-about-page.php:127
+#: includes/admin/pages/class-about-page.php:127
 msgid "Statistiques P&L par wilaya, transporteur et produit"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:141
-#: includes/admin/pages/class-about-page.php:141
+#: includes/admin/pages/class-about-page.php:132
+#: includes/admin/pages/class-about-page.php:132
 msgid "Liens"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:143
-#: includes/admin/pages/class-about-page.php:143
+#: includes/admin/pages/class-about-page.php:134
+#: includes/admin/pages/class-about-page.php:134
 msgid "Site officiel"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:144
-#: includes/admin/pages/class-about-page.php:144
+#: includes/admin/pages/class-about-page.php:135
+#: includes/admin/pages/class-about-page.php:135
 #: includes/admin/pages/class-settings-page.php:56
 #: includes/admin/pages/class-settings-page.php:56
 msgid "Licence"
 msgstr ""
 
-#: includes/admin/pages/class-about-page.php:147
-#: includes/admin/pages/class-about-page.php:147
+#: includes/admin/pages/class-about-page.php:138
+#: includes/admin/pages/class-about-page.php:138
 msgid "Installé le %s par Infinity Coder (Oussama Derouiche)."
 msgstr ""
 
@@ -984,8 +984,8 @@ msgstr ""
 
 #: includes/admin/pages/class-settings-page.php:57
 #: includes/admin/pages/class-settings-page.php:57
-#: includes/admin/pages/class-settings-page.php:517
-#: includes/admin/pages/class-settings-page.php:517
+#: includes/admin/pages/class-settings-page.php:521
+#: includes/admin/pages/class-settings-page.php:521
 msgid "Avancé"
 msgstr ""
 
@@ -1401,36 +1401,41 @@ msgstr ""
 
 #: includes/admin/pages/class-settings-page.php:499
 #: includes/admin/pages/class-settings-page.php:499
+msgid "Serveur de licences (API d‘activation)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:503
+#: includes/admin/pages/class-settings-page.php:503
 msgid "Dépôt PUBLIC des releases (recommandé)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:503
-#: includes/admin/pages/class-settings-page.php:503
+#: includes/admin/pages/class-settings-page.php:507
+#: includes/admin/pages/class-settings-page.php:507
 msgid "Dépôt des sources (avec token si privé)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:507
-#: includes/admin/pages/class-settings-page.php:507
+#: includes/admin/pages/class-settings-page.php:511
+#: includes/admin/pages/class-settings-page.php:511
 msgid "Token GitHub (dépôt privé uniquement)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:512
-#: includes/admin/pages/class-settings-page.php:512
-msgid "En cas d‘indisponibilité de GitHub, le plugin se replie sur factexpert.online/updates/infinitycod.json."
+#: includes/admin/pages/class-settings-page.php:516
+#: includes/admin/pages/class-settings-page.php:516
+msgid "Les clients vérifient les mises à jour toutes les heures dans le dépôt public des releases."
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:521
-#: includes/admin/pages/class-settings-page.php:521
+#: includes/admin/pages/class-settings-page.php:525
+#: includes/admin/pages/class-settings-page.php:525
 msgid "Badge de commandes en attente sur le menu admin"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:525
-#: includes/admin/pages/class-settings-page.php:525
+#: includes/admin/pages/class-settings-page.php:529
+#: includes/admin/pages/class-settings-page.php:529
 msgid "Mise à jour automatique du plugin (sans clic, dès qu‘une version GitHub est publiée)"
 msgstr ""
 
-#: includes/admin/pages/class-settings-page.php:529
-#: includes/admin/pages/class-settings-page.php:529
+#: includes/admin/pages/class-settings-page.php:533
+#: includes/admin/pages/class-settings-page.php:533
 msgid "Supprimer toutes les données (tables, réglages) à la désinstallation du plugin"
 msgstr ""
 
@@ -1899,22 +1904,22 @@ msgstr ""
 msgid "Version gratuite"
 msgstr ""
 
-#: includes/license/class-updater.php:116
-#: includes/license/class-updater.php:116
+#: includes/license/class-updater.php:103
+#: includes/license/class-updater.php:103
 msgid "InfinityCod — mises à jour indisponibles :"
 msgstr ""
 
-#: includes/license/class-updater.php:117
-#: includes/license/class-updater.php:117
+#: includes/license/class-updater.php:104
+#: includes/license/class-updater.php:104
 msgid "le dépôt GitHub est privé et aucun token n‘est configuré. Créez un dépôt public « releases » (recommandé, sans token côté clients) ou collez un token GitHub dans les réglages."
 msgstr ""
 
-#: includes/license/class-updater.php:119
-#: includes/license/class-updater.php:119
+#: includes/license/class-updater.php:106
+#: includes/license/class-updater.php:106
 msgid "Configurer"
 msgstr ""
 
-#: includes/license/class-updater.php:377
+#: includes/license/class-updater.php:313
 msgid "Solution COD tout-en-un pour WooCommerce Algérie : formulaire de commande rapide, 58 wilayas & 1541 communes, transporteurs intégrés, WhatsApp automatique et statistiques P&L."
 msgstr ""
 

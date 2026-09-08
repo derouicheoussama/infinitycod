@@ -42,20 +42,11 @@ class AboutPage {
 
 		// Dernière version connue (transients en cache — jamais d'appel réseau ici).
 		$gh     = get_transient( 'icod_update_gh' );
-		$site   = get_transient( 'icod_update_info' );
 		$gh     = is_array( $gh ) ? $gh : array();
-		$site   = is_array( $site ) ? $site : array();
 
-		$latest = '';
-		$source = '';
-		if ( ! empty( $gh['version'] ) ) {
-			$latest = (string) $gh['version'];
-			$source = 'GitHub';
-		} elseif ( ! empty( $site['version'] ) ) {
-			$latest = (string) $site['version'];
-			$source = 'factexpert.online';
-		}
-		$newer = '' !== $latest && version_compare( INFINITYCOD_VERSION, $latest, '<' );
+		$latest = ! empty( $gh['version'] ) ? (string) $gh['version'] : '';
+		$source = 'GitHub';
+		$newer  = '' !== $latest && version_compare( INFINITYCOD_VERSION, $latest, '<' );
 
 		$carriers = infinitycod()->module( 'carriers' );
 		$active_carriers = array();
