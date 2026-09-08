@@ -39,6 +39,7 @@ final class Plugin {
 	 */
 	private $module_map = array(
 		'i18n'      => __NAMESPACE__ . '\\I18n',
+		'logger'    => '\\InfinityCod\\Logging\\Logger',
 		'geo'       => '\\InfinityCod\\Geo\\GeoManager',
 		'rates'     => '\\InfinityCod\\Shipping\\RatesManager',
 		'shield'    => '\\InfinityCod\\AntiFraud\\Shield',

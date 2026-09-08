@@ -284,6 +284,24 @@ class AdminManager {
 
 		add_submenu_page(
 			'infinitycod',
+			__( 'Mises à jour', 'infinitycod' ),
+			__( 'Mises à jour', 'infinitycod' ),
+			'manage_woocommerce',
+			'infinitycod-updates',
+			array( $this, 'render_updates' )
+		);
+
+		add_submenu_page(
+			'infinitycod',
+			__( 'Diagnostics', 'infinitycod' ),
+			__( 'Diagnostics', 'infinitycod' ),
+			'manage_woocommerce',
+			'infinitycod-diagnostics',
+			array( $this, 'render_diagnostics' )
+		);
+
+		add_submenu_page(
+			'infinitycod',
 			__( 'À propos d‘InfinityCod', 'infinitycod' ),
 			__( 'À propos', 'infinitycod' ),
 			'manage_woocommerce',
@@ -439,6 +457,30 @@ class AdminManager {
 			$this->hooked_pages['settings'] = new Pages\SettingsPage();
 		}
 		$this->hooked_pages['settings']->render();
+	}
+
+	/**
+	 * Rendu de la page mises à jour.
+	 *
+	 * @return void
+	 */
+	public function render_updates() {
+		if ( ! isset( $this->hooked_pages['updates'] ) ) {
+			$this->hooked_pages['updates'] = new Pages\UpdatesPage();
+		}
+		$this->hooked_pages['updates']->render();
+	}
+
+	/**
+	 * Rendu de la page diagnostics.
+	 *
+	 * @return void
+	 */
+	public function render_diagnostics() {
+		if ( ! isset( $this->hooked_pages['diagnostics'] ) ) {
+			$this->hooked_pages['diagnostics'] = new Pages\DiagnosticsPage();
+		}
+		$this->hooked_pages['diagnostics']->render();
 	}
 
 	/**
@@ -713,7 +755,7 @@ class AdminManager {
 		fputcsv( $out, array( 'ID', 'WC #', 'Date', 'Nom', 'Telephone', 'Wilaya', 'Commune', 'Mode', 'Bureau', 'Produit', 'Qte', 'Sous-total', 'Remise', 'Livraison', 'Total', 'Statut', 'Transporteur', 'Suivi', 'Score risque', 'IP' ), ';' );
 
 		foreach ( (array) $rows as $row ) {
-			fputcsv( $out, array(
+			$cells = array(
 				$row['id'],
 				$row['wc_order_id'],
 				$row['created_at'],
@@ -734,7 +776,18 @@ class AdminManager {
 				$row['tracking'],
 				$row['fraud_score'],
 				$row['ip'],
-			), ';' );
+			);
+
+			// Anti CSV-injection : neutraliser les formules (Excel).
+			$cells = array_map( function( $v ) {
+				$v = (string) $v;
+				if ( isset( $v[0] ) && in_array( $v[0], array( '=', '+', '-', '@' ), true ) ) {
+					$v = "'" . $v;
+				}
+				return $v;
+			}, $cells );
+
+			fputcsv( $out, $cells, ';' );
 		}
 
 		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions

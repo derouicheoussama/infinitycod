@@ -1,7 +1,12 @@
-# Publie automatiquement une release à chaque tag v* :
-# 1. Release dans CE dépôt (sources privées)
-# 2. Release dans le dépôt PUBLIC derouicheoussama/infinitycod-releases
-#    (source des mises à jour des boutiques clientes — sans token chez eux)
+# Release InfinityCod — publication commerciale complète.
+#
+# Déclenché par un tag v* : tests → build → SHA-256 + manifest →
+# release interne (sources privées) → publication sur le dépôt PUBLIC
+# infinitycod-releases (source des mises à jour des clients).
+#
+# Secret requis (une seule fois) :
+#   RELEASES_TOKEN — GitHub token avec scope repo sur
+#   derouicheoussama/infinitycod-releases (publication croisée uniquement).
 name: Release InfinityCod
 
 on:
@@ -16,30 +21,75 @@ env:
   RELEASES_TOKEN: ${{ secrets.RELEASES_TOKEN }}
 
 jobs:
-  release:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Node 20
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Dépendances
         run: npm ci || npm install
 
-      - name: Vérifications (lint PHP + autoloader)
-        run: node tools/lint-php.js && node tools/smoke.js
+      - name: Vérification version (tag = header = constante)
+        run: node tools/version.js --check "${{ github.ref_name }}"
 
-      - name: Construction du zip
+      - name: PHP lint
+        run: node tools/lint-php.js
+
+      - name: Autoloader
+        run: node tools/smoke.js
+
+      - name: Audits qualité
+        run: node tools/audit.js && node tools/audit-settings.js
+
+      - name: Scan secrets
+        run: |
+          ! grep -rEn "sk_live_[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{30,}|BEGIN (RSA )?PRIVATE KEY" infinitycod/
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Dépendances
+        run: npm ci || npm install
+
+      - name: Build (zip + sha256 + manifest)
         run: node tools/build.js
+
+      - name: Upload artefacts (interne)
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: |
+            dist/infinitycod.zip
+            dist/infinitycod.zip.sha256
+            dist/update.json
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release
+          path: dist
 
       - name: Release interne (dépôt privé des sources)
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/infinitycod.zip
+          files: |
+            dist/infinitycod.zip
+            dist/infinitycod.zip.sha256
+            dist/update.json
           generate_release_notes: true
 
       - name: Release publique (dépôt des mises à jour clients)
@@ -52,4 +102,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: InfinityCod ${{ github.ref_name }}
           body: 'Mise à jour WordPress : Extensions → Mettre à jour (ou automatique).'
-          files: dist/infinitycod.zip
+          files: |
+            dist/infinitycod.zip
+            dist/infinitycod.zip.sha256
+            dist/update.json

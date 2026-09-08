@@ -1,0 +1,44 @@
+# CI InfinityCod — lint, audits, smoke, build test sur chaque push / PR.
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Dépendances
+        run: npm ci || npm install
+
+      - name: PHP lint (tous les fichiers)
+        run: node tools/lint-php.js
+
+      - name: Autoloader (résolution des modules)
+        run: node tools/smoke.js
+
+      - name: Audit réglages (couverture champs + clés + anti-corruption)
+        run: node tools/audit.js && node tools/audit-settings.js
+
+      - name: Scan secrets (patterns)
+        run: |
+          ! grep -rEn "sk_live_[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{30,}|BEGIN (RSA )?PRIVATE KEY" infinitycod/
+
+      - name: Build de test
+        run: node tools/build.js
+
+      - name: Cohérence de version (source unique)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: node tools/version.js --check "${{ github.ref_name }}"

@@ -40,6 +40,17 @@ const entries = [];
 const totalKo = entries.reduce((sum, e) => sum + e.data.length, 0) / 1024;
 console.log(`Plugin : ${entries.length} fichiers, ${totalKo.toFixed(0)} Ko`);
 
+// Validation pré-build : fichiers interdits dans un zip commercial.
+const forbidden = [/\.git\//, /\.github\//, /node_modules\//, /(^|\/)tests?\//, /\.env/, /\.tools\//];
+for (const e of entries) {
+  for (const re of forbidden) {
+    if (re.test(e.name)) {
+      console.error('✗ Fichier interdit dans le zip commercial : ' + e.name);
+      process.exit(1);
+    }
+  }
+}
+
 fs.mkdirSync(dist, { recursive: true });
 makeZip(zipPath, entries);
 
@@ -54,8 +65,35 @@ if (!entries.some((e) => e.name === 'infinitycod/infinitycod.php')) {
   ok = false;
 }
 
+// ===== Artefacts de release : SHA-256 + manifest update.json =====
+const crypto = require('crypto');
+const zipBuf = fs.readFileSync(zipPath);
+const sha256 = crypto.createHash('sha256').update(zipBuf).digest('hex');
+fs.writeFileSync(zipPath + '.sha256', sha256 + '  infinitycod.zip\n');
+
+// Version depuis le header du plugin (source de vérité).
+const header = fs.readFileSync(path.join(src, 'infinitycod.php'), 'utf8');
+const version = (header.match(/define\(\s*'INFINITYCOD_VERSION',\s*'([0-9.]+)'/) || [])[1];
+
+const manifest = {
+  name: 'InfinityCod — Paiement à la livraison (COD Algérie)',
+  slug: 'infinitycod',
+  version: version,
+  requires: '6.0',
+  requires_php: '7.4',
+  requires_woocommerce: '6.0',
+  download_url: `https://github.com/derouicheoussama/infinitycod-releases/releases/download/v${version}/infinitycod.zip`,
+  details_url: `https://github.com/derouicheoussama/infinitycod-releases/releases/tag/v${version}`,
+  sha256: sha256,
+  release_date: new Date().toISOString(),
+  channel: 'stable',
+};
+fs.writeFileSync(path.join(dist, 'update.json'), JSON.stringify(manifest, null, 2));
+
 const mb = (fs.statSync(zipPath).size / 1024 / 1024).toFixed(2);
 console.log(`✓ dist/infinitycod.zip créé (${mb} Mo, ${entries.length} entrées, racine infinitycod/, séparateurs '/')`);
+console.log(`✓ dist/infinitycod.zip.sha256 (${sha256.slice(0, 16)}…)`);
+console.log(`✓ dist/update.json (v${version}, canal stable)`);
 console.log('  Installation : wp-admin → Extensions → Ajouter → Téléverser → Activer.');
 
 process.exit(ok ? 0 : 1);

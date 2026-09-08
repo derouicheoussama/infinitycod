@@ -1,0 +1,342 @@
+<?php
+/**
+ * Page admin : Updates — centre de contrôle des mises à jour.
+ *
+ * Version installée vs disponible, canal, compatibilité, intégrité,
+ * mise à jour en 1 clic (WordPress natif), rollback réel vers une
+ * sauvegarde locale, historique.
+ *
+ * @package InfinityCod
+ */
+
+namespace InfinityCod\Admin\Pages;
+
+use InfinityCod\Core\Settings;
+use InfinityCod\License\Updater;
+
+
+defined( 'ABSPATH' ) || exit;
+
+class UpdatesPage {
+
+	/**
+	 * Constructeur : handlers.
+	 */
+	public function __construct() {
+		add_action( 'admin_post_icod_save_updates', array( $this, 'handle_save_settings' ) );
+		add_action( 'admin_post_icod_check_updates_now', array( $this, 'handle_check_now' ) );
+		add_action( 'admin_post_icod_rollback', array( $this, 'handle_rollback' ) );
+	}
+
+	/**
+	 * Affiche la page.
+	 *
+	 * @return void
+	 */
+	public function render() {
+		$updater = infinitycod()->module( 'license' ) ? new Updater() : null;
+
+		$remote = $updater ? $updater->latest() : null;
+		$remote = is_array( $remote ) ? $remote : array();
+
+		$latest     = ! empty( $remote['version'] ) ? (string) $remote['version'] : '';
+		$has_update = '' !== $latest && version_compare( INFINITYCOD_VERSION, $latest, '<' );
+
+		$history  = get_option( 'infinitycod_update_history', array() );
+		$history  = is_array( $history ) ? $history : array();
+		$msg      = isset( $_GET['icod_msg'] ) ? sanitize_text_field( rawurldecode( wp_unslash( $_GET['icod_msg'] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$upgrade_url = wp_nonce_url(
+			self_admin_url( 'update.php?action=upgrade-plugin&plugin=' . urlencode( INFINITYCOD_BASENAME ) ),
+			'upgrade-plugin_' . INFINITYCOD_BASENAME
+		);
+		?>
+		<div class="wrap icod-wrap">
+			<h1 class="icod-title"><?php esc_html_e( 'Mises à jour', 'infinitycod' ); ?></h1>
+
+			<?php if ( 'checked' === $msg ) : ?>
+				<div class="notice notice-info is-dismissible"><p><?php esc_html_e( 'Vérification effectuée.', 'infinitycod' ); ?></p></div>
+			<?php endif; ?>
+			<?php if ( 'rollback-ok' === $msg ) : ?>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Rollback effectué — version restaurée avec succès.', 'infinitycod' ); ?></p></div>
+			<?php endif; ?>
+			<?php if ( 'rollback-fail' === $msg ) : ?>
+				<div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Rollback impossible : sauvegarde introuvable pour cette version.', 'infinitycod' ); ?></p></div>
+			<?php endif; ?>
+
+			<div class="icod-card">
+				<h2><?php esc_html_e( 'État des mises à jour', 'infinitycod' ); ?></h2>
+				<table class="icod-updates-state">
+					<tr>
+						<td><?php esc_html_e( 'Version installée', 'infinitycod' ); ?></td>
+						<td><strong><?php echo esc_html( INFINITYCOD_VERSION ); ?></strong></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Dernière version disponible', 'infinitycod' ); ?></td>
+						<td>
+							<?php if ( $latest ) : ?>
+								<strong><?php echo esc_html( $latest ); ?></strong>
+								<span class="icod-hint">— <?php echo esc_html( 'beta' === Updater::channel() ? 'canal beta' : 'canal stable' ); ?></span>
+							<?php else : ?>
+								<em><?php esc_html_e( 'Inconnue (GitHub injoignable ou aucune release publiée)', 'infinitycod' ); ?></em>
+							<?php endif; ?>
+						</td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Statut', 'infinitycod' ); ?></td>
+						<td>
+							<?php if ( $has_update ) : ?>
+								<span class="icod-status icod-status-no_answer">
+									<?php printf( esc_html__( 'InfinityCod %s disponible', 'infinitycod' ), esc_html( $latest ) ); ?>
+								</span>
+								<a class="button button-primary button-small" href="<?php echo esc_url( $upgrade_url ); ?>"><?php esc_html_e( 'Mettre à jour maintenant', 'infinitycod' ); ?></a>
+							<?php elseif ( $latest ) : ?>
+								<span class="icod-status icod-status-delivered"><?php esc_html_e( 'À jour', 'infinitycod' ); ?></span>
+							<?php else : ?>
+								<span class="icod-status icod-status-pending"><?php esc_html_e( 'Inconnu', 'infinitycod' ); ?></span>
+							<?php endif; ?>
+						</td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Licence', 'infinitycod' ); ?></td>
+						<td><?php echo esc_html( \InfinityCod\License\LicenseManager::status_label() ); ?></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Intégrité du package', 'infinitycod' ); ?></td>
+						<td>
+							<?php if ( ! empty( $remote['sha256'] ) ) : ?>
+								<span class="icod-status icod-status-delivered">SHA-256 <?php esc_html_e( 'vérifié avant installation', 'infinitycod' ); ?></span>
+							<?php else : ?>
+								<span class="icod-hint"><?php esc_html_e( 'Manifest sans empreinte (installation contrôlée par WordPress)', 'infinitycod' ); ?></span>
+							<?php endif; ?>
+						</td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Compatibilité', 'infinitycod' ); ?></td>
+						<td>
+							<?php
+							if ( $remote ) {
+								$compat = $updater->check_compatibility( $remote );
+								if ( is_wp_error( $compat ) ) {
+									echo '<span class="icod-risk icod-risk-high">' . esc_html( $compat->get_error_message() ) . '</span>';
+								} else {
+									echo '<span class="icod-status icod-status-delivered">PASS</span> <span class="icod-hint">PHP ' . esc_html( PHP_VERSION ) . ' · WP ' . esc_html( get_bloginfo( 'version' ) ) . '</span>';
+								}
+							} else {
+								echo '—';
+							}
+							?>
+						</td>
+					</tr>
+				</table>
+
+				<div class="icod-updates-actions">
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block">
+						<input type="hidden" name="action" value="icod_check_updates_now" />
+						<?php wp_nonce_field( 'icod_check_updates_now' ); ?>
+						<button type="submit" class="button">🔄 <?php esc_html_e( 'Vérifier les mises à jour', 'infinitycod' ); ?></button>
+					</form>
+					<?php if ( $has_update ) : ?>
+						<a class="button button-primary" href="<?php echo esc_url( $upgrade_url ); ?>">⬆ <?php esc_html_e( 'Mettre à jour vers', 'infinitycod' ); ?> <?php echo esc_html( $latest ); ?></a>
+					<?php endif; ?>
+				</div>
+			</div>
+
+			<div class="icod-card">
+				<h2><?php esc_html_e( 'Paramètres de mise à jour', 'infinitycod' ); ?></h2>
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+					<input type="hidden" name="action" value="icod_save_updates" />
+					<?php wp_nonce_field( 'icod_save_updates' ); ?>
+					<div class="icod-grid">
+						<label>
+							<span><?php esc_html_e( 'Canal de mise à jour', 'infinitycod' ); ?></span>
+							<select name="icod[update_channel]">
+								<option value="stable" <?php selected( \InfinityCod\License\Updater::channel(), 'stable' ); ?>><?php esc_html_e( 'Stable (recommandé)', 'infinitycod' ); ?></option>
+								<option value="beta" <?php selected( \InfinityCod\License\Updater::channel(), 'beta' ); ?>><?php esc_html_e( 'Beta (prereleases)', 'infinitycod' ); ?></option>
+							</select>
+						</label>
+					</div>
+					<div class="icod-toggles">
+						<label class="icod-toggle">
+							<input type="checkbox" name="icod[auto_update]" value="1" <?php checked( (int) Settings::get( 'auto_update' ), 1 ); ?> />
+							<span><?php esc_html_e( 'Installation automatique des nouvelles versions', 'infinitycod' ); ?></span>
+						</label>
+					</div>
+					<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Enregistrer', 'infinitycod' ); ?></button></p>
+				</form>
+			</div>
+
+			<div class="icod-card">
+				<h2><?php esc_html_e( 'Rollback — restaurer une sauvegarde locale', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Une sauvegarde complète (fichiers + réglages) est créée automatiquement avant chaque mise à jour. La restaurer remet la version précédente du plugin ; la base de données reste compatible (migrations non destructives).', 'infinitycod' ); ?></p>
+				<?php
+				$backups = $this->list_backups();
+				if ( $backups ) :
+					?>
+					<table class="widefat striped icod-table" style="max-width:640px">
+						<thead><tr>
+							<th><?php esc_html_e( 'Version', 'infinitycod' ); ?></th>
+							<th><?php esc_html_e( 'Date de sauvegarde', 'infinitycod' ); ?></th>
+							<th><?php esc_html_e( 'Action', 'infinitycod' ); ?></th>
+						</tr></thead>
+						<tbody>
+							<?php foreach ( $backups as $backup ) : ?>
+								<tr>
+									<td><strong><?php echo esc_html( $backup['version'] ); ?></strong></td>
+									<td><?php echo esc_html( $backup['date'] ); ?></td>
+									<td>
+										<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Restaurer cette version et remplacer les fichiers actuels ?', 'infinitycod' ) ); ?>');">
+											<input type="hidden" name="action" value="icod_rollback" />
+											<input type="hidden" name="version" value="<?php echo esc_attr( $backup['version'] ); ?>" />
+											<?php wp_nonce_field( 'icod_rollback' ); ?>
+											<button type="submit" class="button button-small">↩ <?php esc_html_e( 'Restaurer', 'infinitycod' ); ?></button>
+										</form>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				<?php else : ?>
+					<p class="icod-hint"><?php esc_html_e( 'Aucune sauvegarde locale encore disponible. La première sauvegarde est créée automatiquement avant la prochaine mise à jour.', 'infinitycod' ); ?></p>
+				<?php endif; ?>
+			</div>
+
+			<div class="icod-card">
+				<h2><?php esc_html_e( 'Historique', 'infinitycod' ); ?></h2>
+				<?php if ( $history ) : ?>
+					<table class="widefat striped icod-table" style="max-width:640px">
+						<thead><tr>
+							<th><?php esc_html_e( 'Transition', 'infinitycod' ); ?></th>
+							<th><?php esc_html_e( 'Action', 'infinitycod' ); ?></th>
+							<th><?php esc_html_e( 'Résultat', 'infinitycod' ); ?></th>
+							<th><?php esc_html_e( 'Date', 'infinitycod' ); ?></th>
+						</tr></thead>
+						<tbody>
+							<?php foreach ( $history as $entry ) : ?>
+								<tr>
+									<td><?php echo esc_html( $entry['from'] . ' → ' . $entry['to'] ); ?></td>
+									<td><?php echo esc_html( $entry['action'] ); ?></td>
+									<td>
+										<span class="icod-status <?php echo 'success' === $entry['result'] ? 'icod-status-delivered' : 'icod-status-returned'; ?>">
+											<?php echo esc_html( $entry['result'] ); ?>
+										</span>
+										<?php if ( ! empty( $entry['error'] ) ) : ?>
+											<span class="icod-sub"><?php echo esc_html( $entry['error'] ); ?></span>
+										<?php endif; ?>
+									</td>
+									<td><?php echo esc_html( mysql2date( 'd/m/Y H:i', $entry['date'] ) ); ?></td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				<?php else : ?>
+					<p class="icod-hint"><?php esc_html_e( 'Aucune mise à jour encore réalisée sur ce site.', 'infinitycod' ); ?></p>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Liste les sauvegardes locales disponibles (uploads/infinitycod-backups).
+	 *
+	 * @return array[] version, date.
+	 */
+	private function list_backups() {
+		$upload = wp_get_upload_dir();
+		$dir    = $upload['basedir'] . '/infinitycod-backups';
+
+		if ( ! is_dir( $dir ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( (array) glob( $dir . '/infinitycod-*', GLOB_ONLYDIR ) as $path ) {
+			$name = basename( $path );
+			if ( 0 !== strpos( $name, 'infinitycod-' ) ) {
+				continue;
+			}
+			$out[] = array(
+				'version' => substr( $name, strlen( 'infinitycod-' ) ),
+				'date'    => date_i18n( 'd/m/Y H:i', (int) filemtime( $path ) ),
+				'path'    => $path,
+			);
+		}
+
+		usort( $out, function ( $a, $b ) {
+			return version_compare( $b['version'], $a['version'] );
+		} );
+
+		return $out;
+	}
+
+	/**
+	 * Sauvegarde canal + auto-update (formulaire de cette page).
+	 *
+	 * @return void
+	 */
+	public function handle_save_settings() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_save_updates' );
+
+		$channel = isset( $_POST['icod']['update_channel'] ) ? sanitize_key( wp_unslash( $_POST['icod']['update_channel'] ) ) : 'stable';
+		\InfinityCod\Core\Settings::set( 'update_channel', in_array( $channel, array( 'stable', 'beta' ), true ) ? $channel : 'stable' );
+		\InfinityCod\Core\Settings::set( 'auto_update', empty( $_POST['icod']['auto_update'] ) ? 0 : 1 );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=saved' ) );
+		exit;
+	}
+
+	/**
+	 * Force la vérification immédiate.
+	 *
+	 * @return void
+	 */
+	public function handle_check_now() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_check_updates_now' );
+
+		Updater::clear_cache();
+		delete_site_transient( 'update_plugins' );
+
+		if ( function_exists( 'wp_update_plugins' ) ) {
+			wp_update_plugins();
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=checked' ) );
+		exit;
+	}
+
+	/**
+	 * Rollback réel : restaure la sauvegarde locale de la version choisie.
+	 *
+	 * @return void
+	 */
+	public function handle_rollback() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_rollback' );
+
+		$version = isset( $_POST['version'] ) ? preg_replace( '/[^0-9.]/', '', wp_unslash( $_POST['version'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		$updater = new Updater();
+		$result  = $updater->restore_backup( $version );
+
+		\InfinityCod\Logging\Logger::log( 'update', 'Rollback vers ' . $version . ' : ' . ( is_wp_error( $result ) ? $result->get_error_message() : 'success' ) );
+
+		if ( is_wp_error( $result ) ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=rollback-fail' ) );
+			exit;
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=rollback-ok' ) );
+		exit;
+	}
+}

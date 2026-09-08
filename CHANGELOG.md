@@ -107,3 +107,24 @@ Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
 ### Corrigé
 - **Champ « Serveur de licences » resté sur factexpert.online** : la valeur était sauvegardée dans la base du site, donc le nouveau défaut ne s'affichait pas. Migration automatique à la mise à jour : tout champ pointant vers factexpert.online est réécrit vers `https://infinitycoder.app/api.php`, avec défense au niveau de la lecture (impossible que le plugin l'utilise, même avec une ancienne valeur en base).
 - **Migrations de base de données jamais exécutées sur les installations mises à jour** (bug critique latant) : le hook `maybe_upgrade` n'était enregistré que pendant la requête d'activation. Il tourne maintenant à chaque requête admin — la colonne `email` manquante (1.6.0) et toutes les futures migrations s'appliquent automatiquement.
+
+# InfinityCod 2.0.0 — Commercial Edition
+
+Transformation en produit commercial professionnel : chaîne de release sécurisée, rollback réel, diagnostics, logs, migrations versionnées.
+
+## 2.0.0 — 2026-09-08
+
+### Added
+- **Update Center** (InfinityCod → Mises à jour) : version installée vs disponible, canal stable/beta, compatibilité, intégrité, mise à jour 1 clic, **rollback réel** depuis les sauvegardes locales, historique des mises à jour.
+- **Diagnostics** (InfinityCod → Diagnostics) : 15 contrôles PASS/WARNING/FAIL (PHP, WordPress, WooCommerce, MySQL, mémoire, REST, WP-Cron, filesystem, tables, migrations, licence, updater) + rapport téléchargeable sans secrets.
+- **Sécurité des mises à jour** : vérification **SHA-256** du package avant installation (manifest update.json), **blocage de compatibilité** PHP/WordPress avec message explicite, **sauvegarde automatique** de la version courante (fichiers + réglages) avant mise à jour, rétention 3 sauvegardes.
+- **Système de logs** : catégories license/update/security/migration/api/error/diagnostic, fichiers mensuels protégés (uploads/infinitycod-logs/), nettoyage cron 60 jours, aucun secret journalisé.
+- **Migrations versionnées** : registry idempotent (option infinitycod_migrations), exécutées une seule fois, loggées.
+- **CI/CD pro** : workflow CI (push/PR : lint, autoloader, audits, scan secrets, build test), workflow Release durci (jobs test → build → release, gate version tag=header via tools/version.js), Dependabot, CODEOWNERS.
+- **Anti CSV-injection** sur l'export des commandes.
+
+### Fixed
+- Migrations de base de données jamais exécutées après activation (hook mal enregistré) — réparation + colonne email ajoutée automatiquement sur les installations concernées.
+
+### Security
+- Audit complet : ABSPATH sur tous les fichiers, 0 eval/exec/system/unserialize, 0 AJAX nopriv, capability manage_woocommerce sur tous les handlers, $wpdb->prepare systématique.

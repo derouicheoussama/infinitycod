@@ -141,22 +141,62 @@ class Activator {
 		if ( get_option( 'infinitycod_db_version' ) !== INFINITYCOD_DB_VERSION ) {
 			self::create_tables();
 			self::seed_geo();
-			self::migrate_settings();
 			update_option( 'infinitycod_db_version', INFINITYCOD_DB_VERSION, true );
 		}
+
+		// Migrations versionnées (idempotentes, exécutées une seule fois).
+		self::run_migrations();
 	}
 
 	/**
-	 * Migrations de réglages entre versions.
+	 * Registry des migrations versionnées.
+	 *
+	 * Chaque migration : clé unique => callback. Idempotente, exécutée
+	 * une seule fois (option infinitycod_migrations), loggée.
+	 *
+	 * @return array<string, callable>
+	 */
+	private static function migrations() {
+		return array(
+			'1.7.1_license_server' => function () {
+				$license_server = Settings::get( 'license_server', '' );
+				if ( $license_server && false !== strpos( (string) $license_server, 'factexpert.online' ) ) {
+					Settings::set( 'license_server', 'https://infinitycoder.app/api.php' );
+				}
+			},
+		);
+	}
+
+	/**
+	 * Exécute les migrations non encore appliquées.
+	 *
+	 * @return void
+	 */
+	public static function run_migrations() {
+		$done = get_option( 'infinitycod_migrations', array() );
+		$done = is_array( $done ) ? $done : array();
+
+		foreach ( self::migrations() as $key => $callback ) {
+			if ( in_array( $key, $done, true ) ) {
+				continue;
+			}
+
+			call_user_func( $callback );
+			$done[] = $key;
+
+			\InfinityCod\Logging\Logger::log( 'migration', 'Migration appliquée : ' . $key );
+		}
+
+		update_option( 'infinitycod_migrations', $done, false );
+	}
+
+	/**
+	 * Alias historique (compatibilité interne).
 	 *
 	 * @return void
 	 */
 	public static function migrate_settings() {
-		// 1.7.1 : le serveur de licences ne doit plus pointer vers factexpert.online.
-		$license_server = Settings::get( 'license_server', '' );
-		if ( $license_server && false !== strpos( (string) $license_server, 'factexpert.online' ) ) {
-			Settings::set( 'license_server', 'https://infinitycoder.app/api.php' );
-		}
+		self::run_migrations();
 	}
 
 	/**

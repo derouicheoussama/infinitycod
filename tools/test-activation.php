@@ -46,6 +46,8 @@ class wpdb_stub {
 	public function insert( $t, $d, $f = null ) { $GLOBALS['__wpdb_log'][] = "INSERT {$t}"; $this->insert_id++; return 1; }
 	public function update( $t, $d, $w, $f = null, $wf = null ) { $GLOBALS['__wpdb_log'][] = "UPDATE {$t}"; return 1; }
 	public function delete( $t, $w, $f = null ) { return 1; }
+	public function db_version() { return '8.0.36'; }
+	public function get_col( $q = null, $x = 0 ) { $GLOBALS['__wpdb_log'][] = $q; return array( 'email' ); }
 	public function esc_like( $s ) { return addslashes( (string) $s ); }
 }
 $GLOBALS['wpdb'] = new wpdb_stub();
@@ -165,6 +167,25 @@ class WP_Error_Stub {
 	public function get_error_code() { return key( $this->errors ); }
 }
 
+function wp_doing_ajax() { return false; }
+
+function wp_doing_cron() { return false; }
+
+function wp_get_upload_dir() { return array( 'basedir' => sys_get_temp_dir(), 'baseurl' => 'https://example.test/uploads' ); }
+
+function wp_nonce_url( $u, $a ) { return $u . '&_wpnonce=x'; }
+
+function self_admin_url( $p = '' ) { return 'https://example.test/wp-admin/' . $p; }
+
+function date_i18n( $f, $t = null ) { return date( $f, $t ?: time() ); }
+
+function wp_mkdir_p( $d ) { return is_dir( $d ) || mkdir( $d, 0777, true ); }
+
+/* ---------- Filesystem stub ---------- */
+function WP_Filesystem() { return true; }
+global $wp_filesystem_dummy;
+$GLOBALS['wp_filesystem'] = null;
+
 /* ---------- WooCommerce stub minimal ---------- */
 
 class WooCommerce {}
@@ -188,7 +209,7 @@ infinitycod()->boot();
 echo "   Boot OK ✓ (" . count( $GLOBALS['__wpdb_log'] ) . " requêtes simulées)\n";
 
 echo "4) Instanciation directe de chaque module…\n";
-foreach ( array( 'geo', 'rates', 'shield', 'orders', 'form', 'payment', 'rest', 'carriers', 'whatsapp', 'stats', 'admin', 'license' ) as $slug ) {
+foreach ( array( 'i18n', 'logger', 'geo', 'rates', 'shield', 'orders', 'form', 'payment', 'rest', 'carriers', 'whatsapp', 'stats', 'admin', 'license' ) as $slug ) {
 	$module = infinitycod()->module( $slug );
 	if ( null === $module ) {
 		echo "   ⚠ [{$slug}] module introuvable\n";
@@ -206,7 +227,7 @@ echo "6) Rendu de toutes les pages admin + tous les onglets de réglages…\n";
 $admin = infinitycod()->module( 'admin' );
 
 ob_start();
-foreach ( array( 'render_dashboard', 'render_orders', 'render_abandoned', 'render_geo', 'render_carriers', 'render_stats', 'render_settings', 'render_about' ) as $method ) {
+foreach ( array( 'render_dashboard', 'render_orders', 'render_abandoned', 'render_geo', 'render_carriers', 'render_stats', 'render_settings', 'render_updates', 'render_diagnostics', 'render_about' ) as $method ) {
 	ob_clean();
 	$admin->{$method}();
 	$html = ob_get_contents();
