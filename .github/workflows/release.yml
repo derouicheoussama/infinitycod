@@ -1,12 +1,15 @@
-# Release InfinityCod — publication commerciale complète.
+# Release InfinityCod — publication commerciale complète (job unique).
 #
-# Déclenché par un tag v* : tests → build → SHA-256 + manifest →
-# release interne (sources privées) → publication sur le dépôt PUBLIC
-# infinitycod-releases (source des mises à jour des clients).
+# Déclenché par un tag v* : gate version → lint → audits → scan secrets →
+# build (zip + sha256 + update.json) → release interne (sources privées) →
+# publication sur le dépôt PUBLIC infinitycod-releases (mises à jour clients).
 #
 # Secret requis (une seule fois) :
 #   RELEASES_TOKEN — GitHub token avec scope repo sur
 #   derouicheoussama/infinitycod-releases (publication croisée uniquement).
+#
+# NB : job unique volontaire (pas d'artefacts inter-jobs) afin de ne pas
+# consommer le quota de stockage d'artefacts GitHub.
 name: Release InfinityCod
 
 on:
@@ -21,7 +24,7 @@ env:
   RELEASES_TOKEN: ${{ secrets.RELEASES_TOKEN }}
 
 jobs:
-  test:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,39 +52,8 @@ jobs:
         run: |
           ! grep -rEn "sk_live_[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{30,}|BEGIN (RSA )?PRIVATE KEY" infinitycod/
 
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Dépendances
-        run: npm ci || npm install
-
       - name: Build (zip + sha256 + manifest)
         run: node tools/build.js
-
-      - name: Upload artefacts (interne)
-        uses: actions/upload-artifact@v4
-        with:
-          name: release
-          path: |
-            dist/infinitycod.zip
-            dist/infinitycod.zip.sha256
-            dist/update.json
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: release
-          path: dist
 
       - name: Release interne (dépôt privé des sources)
         uses: softprops/action-gh-release@v2
