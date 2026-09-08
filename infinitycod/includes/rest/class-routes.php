@@ -188,14 +188,23 @@ class Routes {
 
 		$price_home = $rates ? $rates->price( $wilaya_code, $commune, RatesManager::MODE_HOME ) : -1;
 		$price_desk = $rates ? $rates->price( $wilaya_code, $commune, RatesManager::MODE_DESK ) : -1;
-		$free       = $rates ? $rates->is_free( $wilaya_code, $quantity ) : false;
 
 		$unit_price = (float) $product->get_price();
+		$subtotal   = round( $unit_price * $quantity, 2 );
+		$free       = $rates ? $rates->is_free( $wilaya_code, $quantity, $subtotal ) : false;
 		$discount   = OffersEngine::discount( $product->get_id(), $unit_price, $quantity );
-		$shipping   = ( RatesManager::MODE_DESK === $mode ? $price_desk : $price_home );
-		$shipping   = $free ? 0 : $shipping;
 
-		$subtotal = round( $unit_price * $quantity, 2 );
+		// Supplément poids (si pas de livraison gratuite).
+		$weight     = \InfinityCod\Shipping\RatesManager::order_weight( $product->get_id(), $quantity );
+		$weight_fee = \InfinityCod\Shipping\RatesManager::weight_fee( $weight );
+
+		$shipping = ( RatesManager::MODE_DESK === $mode ? $price_desk : $price_home );
+		$shipping = $free ? 0 : $shipping + $weight_fee;
+
+		// Barre « Ajoutez encore X DA » (montant manquant pour la gratuité).
+		$free_remaining = ( $free || ! \InfinityCod\Core\Settings::get( 'free_amount_enabled' ) )
+			? 0
+			: max( 0, (float) \InfinityCod\Core\Settings::get( 'free_amount_threshold', 0 ) - $subtotal );
 
 		return rest_ensure_response( array(
 			'unit'          => $unit_price,
@@ -206,6 +215,8 @@ class Routes {
 			'price_home'    => $price_home,
 			'price_desk'    => $price_desk,
 			'free'          => $free ? 1 : 0,
+			'free_remaining'=> $free_remaining,
+			'weight_fee'    => $weight_fee,
 			'total'         => max( 0, $subtotal - $discount['amount'] + max( 0, $shipping ) ),
 		) );
 	}

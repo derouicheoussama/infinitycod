@@ -84,6 +84,16 @@ class Settings {
 			'wa_order_label'        => __( 'Commander via WhatsApp', 'infinitycod' ),
 			'msg_wa_order'          => __( '🛒 Nouvelle commande #{num} — {nom} ({telephone}) — {produit} — {total} — {wilaya}, {commune}', 'infinitycod' ),
 
+			// Livraison gratuite intelligente (par montant du panier).
+			'free_amount_enabled'   => 0,
+			'free_amount_threshold' => 5000, // DA.
+			'free_amount_message'   => __( '🚚 Ajoutez encore {reste} DA pour profiter de la livraison gratuite !', 'infinitycod' ),
+
+			// Supplément poids (produits lourds / encombrants).
+			'weight_fee_enabled'    => 0,
+			'weight_fee_per_kg'     => 100,  // DA par kg au-delà de l'inclus.
+			'weight_fee_free_kg'    => 2,    // kg inclus sans frais.
+
 			// Restrictions de commande.
 			'max_per_ip_day'        => 10,   // 0 = illimité.
 			'max_per_phone_day'     => 3,    // 0 = illimité.

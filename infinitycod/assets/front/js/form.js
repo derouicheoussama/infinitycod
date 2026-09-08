@@ -281,6 +281,21 @@
 					}
 				}
 
+				// Barre « Ajoutez encore X DA pour la livraison gratuite ».
+				var freebar = el(root, '[data-icod-freebar]');
+				if (freebar) {
+					var remaining = parseFloat(json.free_remaining) || 0;
+					if (remaining > 0 && I18N.freeBar) {
+						freebar.classList.remove('icod-hidden');
+						var textEl = freebar.querySelector('[data-icod-freebar-text]');
+						var fillEl = freebar.querySelector('[data-icod-freebar-fill]');
+						if (textEl) { textEl.textContent = I18N.freeBar.replace('{reste}', money(remaining)); }
+						if (fillEl && I18N.freeTarget) { fillEl.style.width = Math.min(100, (json.subtotal / I18N.freeTarget) * 100) + '%'; }
+					} else {
+						freebar.classList.add('icod-hidden');
+					}
+				}
+
 				updateSticky(json.total);
 				trackAbandoned();
 			});

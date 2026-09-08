@@ -47,6 +47,8 @@ class AdminManager {
 		$this->hooked_pages['settings'] = new Pages\SettingsPage();
 		$this->hooked_pages['about']    = new Pages\AboutPage();
 		add_action( 'admin_post_icod_save_wilayas', array( $this, 'handle_wilayas_save' ) );
+		add_action( 'admin_post_icod_rates_export', array( $this, 'handle_rates_export' ) );
+		add_action( 'admin_post_icod_rates_import', array( $this, 'handle_rates_import' ) );
 		add_action( 'wp_ajax_icod_save_commune', array( $this, 'handle_commune_save' ) );
 		add_action( 'admin_post_icod_orders_bulk', array( $this, 'handle_orders_bulk' ) );
 		add_action( 'wp_ajax_icod_order_status', array( $this, 'handle_order_status' ) );
@@ -572,6 +574,16 @@ class AdminManager {
 			);
 		}
 
+		// Livraison gratuite intelligente + poids.
+		\InfinityCod\Core\Settings::set( array(
+			'free_amount_enabled'   => empty( $_POST['icod_free_amount_enabled'] ) ? 0 : 1,
+			'free_amount_threshold' => isset( $_POST['icod_free_amount_threshold'] ) ? (float) $_POST['icod_free_amount_threshold'] : 0,
+			'free_amount_message'   => isset( $_POST['icod_free_amount_message'] ) ? sanitize_text_field( wp_unslash( $_POST['icod_free_amount_message'] ) ) : '',
+			'weight_fee_enabled'    => empty( $_POST['icod_weight_fee_enabled'] ) ? 0 : 1,
+			'weight_fee_per_kg'     => isset( $_POST['icod_weight_fee_per_kg'] ) ? (float) $_POST['icod_weight_fee_per_kg'] : 0,
+			'weight_fee_free_kg'    => isset( $_POST['icod_weight_fee_free_kg'] ) ? (float) $_POST['icod_weight_fee_free_kg'] : 0,
+		) );
+
 		// Défauts globaux éditables sur le même écran.
 		Settings::set( array(
 			'default_price_home' => isset( $_POST['icod_default_home'] ) && '' !== $_POST['icod_default_home'] ? (float) $_POST['icod_default_home'] : Settings::get( 'default_price_home' ),
@@ -793,6 +805,101 @@ class AdminManager {
 			fputcsv( $out, $cells, ';' );
 		}
 
+		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		exit;
+	}
+
+
+	/**
+	 * Import CSV des tarifs wilayas (format : code;domicile;stopdesk;active;gratuite).
+	 *
+	 * @return void
+	 */
+	public function handle_rates_import() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+		check_admin_referer( 'icod_save_wilayas' );
+
+		if ( empty( $_FILES['icod_rates_csv_file']['tmp_name'] ) ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-geo&icod_msg=import-empty' ) );
+			exit;
+		}
+
+		$handle = fopen( $_FILES['icod_rates_csv_file']['tmp_name'], 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions, WordPress.Security.ValidatedSanitizedInput
+		if ( ! $handle ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-geo&icod_msg=import-empty' ) );
+			exit;
+		}
+
+		$rates = infinitycod()->module( 'rates' );
+		$count = 0;
+		$line  = 0;
+
+		while ( ( $row = fgetcsv( $handle, 1000, ';' ) ) !== false ) {
+			$line++;
+			if ( 1 === $line && 0 === stripos( implode( '', (array) $row ), 'code' ) ) {
+				continue; // ligne d'en-tête.
+			}
+			$code = isset( $row[0] ) ? preg_replace( '/[^0-9]/', '', (string) $row[0] ) : '';
+			if ( '' === $code || ! preg_match( '/^\\d{1,2}$/', $code ) ) {
+				continue;
+			}
+			$data = array(
+				'home'   => isset( $row[2] ) && '' !== $row[2] ? (float) str_replace( ',', '.', $row[2] ) : -1,
+				'desk'   => isset( $row[3] ) && '' !== $row[3] ? (float) str_replace( ',', '.', $row[3] ) : -1,
+				'active' => isset( $row[4] ) ? (int) (bool) $row[4] : 1,
+				'free'   => isset( $row[5] ) ? (int) (bool) $row[5] : 0,
+			);
+			if ( $rates && $rates->save_wilaya_prices( array( str_pad( $code, 2, '0', STR_PAD_LEFT ) => $data ) ) ) {
+				$count++;
+			}
+		}
+		fclose( $handle );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-geo&icod_msg=imported&count=' . $count ) );
+		exit;
+	}
+
+	/**
+	 * Export CSV des tarifs wilayas (§77 : capability + nonce + anti-injection).
+	 *
+	 * @return void
+	 */
+	public function handle_rates_export() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+		check_admin_referer( 'icod_rates_export' );
+
+		global $wpdb;
+		$table = \InfinityCod\Core\Schema::table( 'wilayas' );
+		$rows  = $wpdb->get_results( "SELECT code, name_fr, price_home, price_desk, active, free_shipping FROM {$table} ORDER BY code ASC", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
+
+		nocache_headers();
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=infinitycod-tarifs-' . gmdate( 'Ymd' ) . '.csv' );
+
+		$out = fopen( 'php://output', 'w' );
+		fwrite( $out, "\xEF\xBB\xBF" );
+		fputcsv( $out, array( 'code', 'wilaya', 'domicile', 'stopdesk', 'active', 'gratuite' ), ';' );
+
+		foreach ( (array) $rows as $row ) {
+			$cells = array(
+				$row['code'],
+				$row['name_fr'],
+				(float) $row['price_home'] < 0 ? '' : $row['price_home'],
+				(float) $row['price_desk'] < 0 ? '' : $row['price_desk'],
+				$row['active'] ? '1' : '0',
+				$row['free_shipping'] ? '1' : '0',
+			);
+			// Anti CSV-injection.
+			$cells = array_map( function ( $v ) {
+				$v = (string) $v;
+				return ( isset( $v[0] ) && in_array( $v[0], array( '=', '+', '-', '@' ), true ) ) ? "'" . $v : $v;
+			}, $cells );
+			fputcsv( $out, $cells, ';' );
+		}
 		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		exit;
 	}

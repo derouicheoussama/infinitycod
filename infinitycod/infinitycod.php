@@ -3,10 +3,13 @@
  * Plugin Name:       InfinityCod — Paiement à la livraison (COD Algérie)
  * Plugin URI:        https://infinitycoder.app/infinitycod
  * Description:       Solution COD tout-en-un pour WooCommerce Algérie : formulaire de commande rapide, 58 wilayas & 1541 communes, tarifs domicile/stopdesk, anti-fraude, transporteurs intégrés (Yalidine, ZR Express, Maystro, Noest, Guepex…), WhatsApp automatique, offres par quantité et statistiques P&L.
- * Version:           2.1.3
+ * Version:           2.2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * WC requires at least: 6.0
+ * WC tested up to:      9.4
+ * Elementor tested up to: 3.25
+ * Requires Plugins:      woocommerce
  * Author:            Derouiche Oussama
  * Author URI:        https://derouicheoussama.com
  * License:           GPL-2.0-or-later
@@ -18,7 +21,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'INFINITYCOD_VERSION', '2.1.3' );
+define( 'INFINITYCOD_VERSION', '2.2.0' );
 define( 'INFINITYCOD_DB_VERSION', '1.2.1' );
 define( 'INFINITYCOD_AUTHOR', 'Derouiche Oussama' );
 define( 'INFINITYCOD_AUTHOR_URL', 'https://derouicheoussama.com' );
@@ -74,4 +77,11 @@ register_deactivation_hook( __FILE__, array( '\InfinityCod\Core\Activator', 'dea
 
 // Migrations de base de données et de réglages à CHAQUE requête admin :
 // applique les montées de version quand INFINITYCOD_DB_VERSION change.
+// Compatibilité HPOS ( WooCommerce High-Performance Order Storage ).
+add_action( 'before_woocommerce_init', function () {
+	if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+	}
+} );
+
 add_action( 'admin_init', array( '\InfinityCod\Core\Activator', 'maybe_upgrade' ) );

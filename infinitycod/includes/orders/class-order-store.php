@@ -87,11 +87,17 @@ class OrderStore {
 		if ( $shipping_price < 0 ) {
 			return array( 'ok' => false, 'error' => 'no_shipping_rate', 'order_id' => 0, 'icod_id' => 0, 'total' => 0 );
 		}
-		if ( $rates && $rates->is_free( $wilaya_code, $quantity ) ) {
+
+		$subtotal = round( $unit_price * $quantity, 2 );
+
+		// Livraison gratuite (quantité OU montant) + supplément poids.
+		if ( $rates && $rates->is_free( $wilaya_code, $quantity, $subtotal ) ) {
 			$shipping_price = 0;
+		} else {
+			$weight         = \InfinityCod\Shipping\RatesManager::order_weight( $product->get_id(), $quantity );
+			$shipping_price = $shipping_price + \InfinityCod\Shipping\RatesManager::weight_fee( $weight );
 		}
 
-		$subtotal  = round( $unit_price * $quantity, 2 );
 		$discount_amount = (float) $discount['amount'];
 		$total     = max( 0, $subtotal - $discount_amount + $shipping_price );
 

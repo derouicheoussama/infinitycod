@@ -82,7 +82,7 @@ class RatesManager {
 	 * @param int    $quantity    Quantité commandée.
 	 * @return bool
 	 */
-	public function is_free( $wilaya_code, $quantity = 1 ) {
+	public function is_free( $wilaya_code, $quantity = 1, $subtotal = 0.0 ) {
 		global $wpdb;
 
 		$table = Schema::table( 'wilayas' );
@@ -97,8 +97,62 @@ class RatesManager {
 			return true;
 		}
 
+		// Livraison gratuite par montant du panier.
+		$amount_threshold = (float) Settings::get( 'free_amount_threshold', 0 );
+		if ( Settings::get( 'free_amount_enabled' ) && $amount_threshold > 0 && (float) $subtotal >= $amount_threshold ) {
+			return true;
+		}
+
 		return false;
 	}
+
+	/**
+	 * Seuil restant avant livraison gratuite par montant (0 = gratuit déjà atteint ou désactivé).
+	 *
+	 * @param float $subtotal Sous-total courant.
+	 * @return float
+	 */
+	public function free_remaining( $subtotal ) {
+		if ( ! Settings::get( 'free_amount_enabled' ) ) {
+			return 0.0;
+		}
+		$threshold = (float) Settings::get( 'free_amount_threshold', 0 );
+		return max( 0, $threshold - (float) $subtotal );
+	}
+
+	/**
+	 * Supplément poids (produits lourds) selon les réglages globaux.
+	 *
+	 * @param float $total_weight Poids total en kg.
+	 * @return float Frais en DA.
+	 */
+	public static function weight_fee( $total_weight ) {
+		if ( ! Settings::get( 'weight_fee_enabled' ) ) {
+			return 0.0;
+		}
+		$per_kg   = (float) Settings::get( 'weight_fee_per_kg', 0 );
+		$free_kg  = (float) Settings::get( 'weight_fee_free_kg', 0 );
+		$billable = max( 0, ( (float) $total_weight ) - $free_kg );
+		return round( $billable * $per_kg, 2 );
+	}
+
+	/**
+	 * Poids total d'une ligne de commande (produit x quantité).
+	 *
+	 * @param int $product_id Produit ou variation.
+	 * @param int $quantity   Quantité.
+	 * @return float Poids en kg.
+	 */
+	public static function order_weight( $product_id, $quantity ) {
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			return 0.0;
+		}
+		return (float) $product->get_weight() * max( 1, (int) $quantity );
+	}
+
+	/**
+	 * Sauvegarde en masse des tarifs depuis l'écran admin.
 
 	/**
 	 * Sauvegarde en masse des tarifs depuis l'écran admin.

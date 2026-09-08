@@ -448,3 +448,8 @@ select.icod-input{
 	background-image:linear-gradient(180deg,#2fe06f,#1faf55)!important;
 	box-shadow:0 4px 14px rgba(37,211,102,.35)!important;
 }
+
+/* Barre livraison gratuite intelligente */
+.icod-freebar{padding:10px 12px;margin-bottom:10px;background:color-mix(in srgb, var(--icod-accent) 8%, var(--icod-bg));border:1px dashed var(--icod-accent);border-radius:var(--icod-radius-sm);font-size:.84rem;font-weight:600;color:var(--icod-text)}
+.icod-freebar-track{height:6px;margin-top:8px;background:color-mix(in srgb, var(--icod-accent) 18%, var(--icod-bg));border-radius:99px;overflow:hidden}
+.icod-freebar-fill{height:100%;background:var(--icod-accent);border-radius:99px;transition:width .4s ease}

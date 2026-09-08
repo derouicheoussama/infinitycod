@@ -155,3 +155,15 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 ### Modifié
 - **Mises à jour : GitHub direct, rien d'autre** — suppression du repli manifest sur domaine web. La source unique est le dépôt public des releases GitHub (`derouicheoussama/infinitycod-releases`), consulté sans token, toutes les heures. Aucun fichier à héberger ailleurs, aucun intermédiaire.
 - Diagnostics simplifiés en conséquence (source GitHub + résultat du test de connexion).
+
+## 2.2.0 — 2026-09-08
+
+### Added
+- **Livraison gratuite intelligente par montant** : seuil en DA + barre dynamique dans le formulaire « 🚚 Ajoutez encore {reste} DA pour la livraison gratuite ! » avec progression visuelle (dépasse le concurrent Mior Livraison Pro).
+- **Supplément poids** : frais par kg au-delà d'un seuil inclus (produits lourds/encombrants), appliqué automatiquement au tarif de livraison.
+- **Import / Export CSV des tarifs wilayas** en un clic depuis Wilayas & Tarifs (anti CSV-injection inclus).
+- **Widget Elementor natif** « InfinityCod — Formulaire COD » avec contrôles (produit, titre, bouton, thème visuel) — s'ajoute aux shortcodes et à l'insertion automatique.
+- **Compatibilités déclarées** : HPOS WooCommerce (custom order tables), `Requires Plugins: woocommerce`, WC/Elementor tested-up-to dans le header.
+
+### Changed
+- Les frais de livraison incluent désormais le supplément poids dans le devis serveur, la commande WooCommerce et la ligne COD.

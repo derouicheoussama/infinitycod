@@ -1,6 +1,6 @@
 {
   "name": "plugins-cod-algerien",
-  "version": "2.1.3",
+  "version": "2.2.0",
   "private": true,
   "description": "InfinityCod — plugin WordPress COD Algérie (dépôt de développement)",
   "scripts": {

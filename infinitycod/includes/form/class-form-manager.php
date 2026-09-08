@@ -380,6 +380,12 @@ class FormManager {
 
 						<aside class="icod-aside">
 							<div class="icod-summary" role="status" aria-live="polite">
+								<?php if ( Settings::get( 'free_amount_enabled' ) ) : ?>
+								<div class="icod-freebar icod-hidden" data-icod-freebar>
+									<span data-icod-freebar-text></span>
+									<div class="icod-freebar-track"><div class="icod-freebar-fill" data-icod-freebar-fill></div></div>
+								</div>
+								<?php endif; ?>
 								<div class="icod-summary-line"><span><?php esc_html_e( 'Sous-total', 'infinitycod' ); ?></span><span data-summary-subtotal>—</span></div>
 								<div class="icod-summary-line icod-hidden" data-summary-discount-row><span data-summary-discount-label><?php esc_html_e( 'Remise', 'infinitycod' ); ?></span><span data-summary-discount>—</span></div>
 								<div class="icod-summary-line"><span><?php esc_html_e( 'Livraison', 'infinitycod' ); ?></span><span data-summary-shipping>—</span></div>
@@ -551,6 +557,8 @@ class FormManager {
 				'successTitle'   => Settings::get( 'success_title' ),
 				'successText'    => Settings::get( 'success_text' ),
 				'redirecting'    => __( 'Vous allez être redirigé dans {s} secondes…', 'infinitycod' ),
+				'freeBar'        => Settings::get( 'free_amount_message' ),
+				'freeTarget'     => (float) Settings::get( 'free_amount_threshold', 0 ),
 				'errorEmailFormat' => __( 'Adresse email invalide.', 'infinitycod' ),
 				'da'             => __( 'DA', 'infinitycod' ),
 			),

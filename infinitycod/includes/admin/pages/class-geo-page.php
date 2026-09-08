@@ -84,8 +84,9 @@ class GeoPage {
 		$default_desk = Settings::get( 'default_price_desk' );
 		$free_qty     = (int) Settings::get( 'free_shipping_qty' );
 		?>
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
 			<input type="hidden" name="action" value="icod_save_wilayas" />
+			<input type="hidden" name="MAX_FILE_SIZE" value="2097152" />
 			<?php wp_nonce_field( 'icod_save_wilayas' ); ?>
 
 			<div class="icod-card icod-defaults">
@@ -107,10 +108,45 @@ class GeoPage {
 				</div>
 			</div>
 
+
+			<div class="icod-card icod-free-weight">
+				<h2><?php esc_html_e( 'Livraison gratuite intelligente & poids', 'infinitycod' ); ?></h2>
+				<div class="icod-toggles">
+					<label class="icod-toggle">
+						<input type="checkbox" name="icod[free_amount_enabled]" value="1" <?php checked( (int) Settings::get( 'free_amount_enabled' ), 1 ); ?> />
+						<span><?php esc_html_e( 'Livraison gratuite à partir d\'un montant de panier', 'infinitycod' ); ?></span>
+					</label>
+					<label class="icod-toggle">
+						<input type="checkbox" name="icod[weight_fee_enabled]" value="1" <?php checked( (int) Settings::get( 'weight_fee_enabled' ), 1 ); ?> />
+						<span><?php esc_html_e( 'Supplément poids (produits lourds)', 'infinitycod' ); ?></span>
+					</label>
+				</div>
+				<div class="icod-grid">
+					<label>
+						<span><?php esc_html_e( 'Seuil de gratuité (DA)', 'infinitycod' ); ?></span>
+						<input type="number" min="0" step="50" name="icod[free_amount_threshold]" value="<?php echo esc_attr( Settings::get( 'free_amount_threshold' ) ); ?>" />
+					</label>
+					<label>
+						<span><?php esc_html_e( 'Message dynamique (variable {reste})', 'infinitycod' ); ?></span>
+						<input type="text" name="icod[free_amount_message]" value="<?php echo esc_attr( Settings::get( 'free_amount_message' ) ); ?>" class="regular-text" />
+					</label>
+					<label>
+						<span><?php esc_html_e( 'Prix par kg supplémentaire (DA)', 'infinitycod' ); ?></span>
+						<input type="number" min="0" step="10" name="icod[weight_fee_per_kg]" value="<?php echo esc_attr( Settings::get( 'weight_fee_per_kg' ) ); ?>" />
+					</label>
+					<label>
+						<span><?php esc_html_e( 'Kg inclus sans frais', 'infinitycod' ); ?></span>
+						<input type="number" min="0" step="1" name="icod[weight_fee_free_kg]" value="<?php echo esc_attr( Settings::get( 'weight_fee_free_kg' ) ); ?>" />
+					</label>
+				</div>
+			</div>
+
 			<div class="icod-card">
 				<div class="icod-table-toolbar">
 					<input type="search" id="icod-wilaya-search" class="icod-search" placeholder="<?php esc_attr_e( 'Rechercher une wilaya…', 'infinitycod' ); ?>" />
 					<span class="icod-hint"><?php esc_html_e( 'Vide = hérite du défaut', 'infinitycod' ); ?></span>
+					<span class="icod-hint">·</span>
+					<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=icod_rates_export' ), 'icod_rates_export' ) ); ?>">📤 <?php esc_html_e( 'Exporter', 'infinitycod' ); ?></a>
 				</div>
 				<div class="icod-table-scroll">
 					<table class="widefat striped icod-table icod-wilayas-table">
@@ -148,6 +184,15 @@ class GeoPage {
 			<p class="icod-submit">
 				<button type="submit" class="button button-primary button-hero"><?php esc_html_e( 'Enregistrer les tarifs', 'infinitycod' ); ?></button>
 			</p>
+		</form>
+
+		<form method="post" enctype="multipart/form-data" class="icod-card" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+			<strong style="font-size:13px">📥 <?php esc_html_e( 'Import CSV des tarifs', 'infinitycod' ); ?></strong>
+			<span class="icod-hint"><?php esc_html_e( 'Format : code;domicile;stopdesk;active;gratuite', 'infinitycod' ); ?></span>
+			<input type="hidden" name="action" value="icod_rates_import" />
+			<?php wp_nonce_field( 'icod_save_wilayas' ); ?>
+			<input type="file" name="icod_rates_csv_file" accept=".csv" required />
+			<button type="submit" class="button"><?php esc_html_e( 'Importer', 'infinitycod' ); ?></button>
 		</form>
 		<?php
 	}
