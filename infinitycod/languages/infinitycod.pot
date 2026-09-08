@@ -336,7 +336,7 @@ msgid "Statut du système"
 msgstr ""
 
 #: includes/admin/pages/class-about-page.php:98
-#: includes/admin/pages/class-diagnostics-page.php:119
+#: includes/admin/pages/class-diagnostics-page.php:126
 msgid "actif"
 msgstr ""
 
@@ -508,6 +508,8 @@ msgstr ""
 
 #: includes/admin/pages/class-carriers-page.php:113
 #: includes/admin/pages/class-carriers-page.php:113
+#: includes/admin/pages/class-diagnostics-page.php:86
+#: includes/admin/pages/class-diagnostics-page.php:86
 msgid "Tester la connexion"
 msgstr ""
 
@@ -701,86 +703,127 @@ msgstr ""
 msgid "Aucune activité suspecte 🎉"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:52
-#: includes/admin/pages/class-diagnostics-page.php:52
+#: includes/admin/pages/class-diagnostics-page.php:53
+#: includes/admin/pages/class-diagnostics-page.php:53
 msgid "Diagnostics InfinityCod"
 msgstr ""
 
 #: includes/admin/pages/class-diagnostics-page.php:57
 #: includes/admin/pages/class-diagnostics-page.php:57
+msgid "Test de connexion effectué — voir la ligne « Dernier test de connexion » ci-dessous."
+msgstr ""
+
+#: includes/admin/pages/class-diagnostics-page.php:63
+#: includes/admin/pages/class-diagnostics-page.php:63
 msgid "Test"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:58
-#: includes/admin/pages/class-diagnostics-page.php:58
+#: includes/admin/pages/class-diagnostics-page.php:64
+#: includes/admin/pages/class-diagnostics-page.php:64
 msgid "Valeur"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:60
-#: includes/admin/pages/class-diagnostics-page.php:60
+#: includes/admin/pages/class-diagnostics-page.php:66
+#: includes/admin/pages/class-diagnostics-page.php:66
 msgid "Détail"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:79
-#: includes/admin/pages/class-diagnostics-page.php:79
+#: includes/admin/pages/class-diagnostics-page.php:85
+#: includes/admin/pages/class-diagnostics-page.php:85
 msgid "Télécharger le rapport de diagnostic"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:80
-#: includes/admin/pages/class-diagnostics-page.php:80
+#: includes/admin/pages/class-diagnostics-page.php:87
+#: includes/admin/pages/class-diagnostics-page.php:87
 msgid "Le rapport ne contient aucune clé ni donnée client."
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:119
+#: includes/admin/pages/class-diagnostics-page.php:126
 msgid "non actif"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:130
+#: includes/admin/pages/class-diagnostics-page.php:137
 msgid "disponible"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:130
+#: includes/admin/pages/class-diagnostics-page.php:137
 msgid "indisponible"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:134
+#: includes/admin/pages/class-diagnostics-page.php:141
 msgid "non planifié"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:134
+#: includes/admin/pages/class-diagnostics-page.php:141
 msgid "WP-Cron fonctionne lors des visites du site"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:139
+#: includes/admin/pages/class-diagnostics-page.php:146
 msgid "inscriptible"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:139
+#: includes/admin/pages/class-diagnostics-page.php:146
 msgid "non inscriptible"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:144
+#: includes/admin/pages/class-diagnostics-page.php:151
 msgid "présentes"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:144
+#: includes/admin/pages/class-diagnostics-page.php:151
 msgid "absentes"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:149
+#: includes/admin/pages/class-diagnostics-page.php:156
 msgid "présente"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:149
+#: includes/admin/pages/class-diagnostics-page.php:156
 msgid "absente"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:158
+#: includes/admin/pages/class-diagnostics-page.php:167
+msgid "dépôt privé sans token, ou aucune release publiée"
+msgstr ""
+
+#: includes/admin/pages/class-diagnostics-page.php:168
+msgid "serveur injoignable (réseau restreint ou limite de débit GitHub)"
+msgstr ""
+
+#: includes/admin/pages/class-diagnostics-page.php:169
+msgid "release publiée sans package zip"
+msgstr ""
+
+#: includes/admin/pages/class-diagnostics-page.php:170
+msgid "signature du manifest invalide — mise à jour refusée par sécurité"
+msgstr ""
+
+#: includes/admin/pages/class-diagnostics-page.php:179
 msgid "injoignable"
 msgstr ""
 
-#: includes/admin/pages/class-diagnostics-page.php:162
-msgid "jamais vérifié"
+#: includes/admin/pages/class-diagnostics-page.php:181
+msgid "dépôt public des releases"
+msgstr ""
+
+#: includes/admin/pages/class-diagnostics-page.php:188
+msgid "manifest absent"
+msgstr ""
+
+#: includes/admin/pages/class-diagnostics-page.php:188
+msgid "déposez dist/update.json sur https://infinitycoder.app/updates/"
+msgstr ""
+
+#: includes/admin/pages/class-diagnostics-page.php:190
+msgid "manifest de secours accessible"
+msgstr ""
+
+#: includes/admin/pages/class-diagnostics-page.php:198
+msgid "Dernier test de connexion"
+msgstr ""
+
+#: includes/admin/pages/class-diagnostics-page.php:281
+msgid "aucune source joignable"
 msgstr ""
 
 #: includes/admin/pages/class-geo-page.php:46
@@ -1786,7 +1829,7 @@ msgstr ""
 
 #: includes/admin/pages/class-settings-page.php:672
 #: includes/admin/pages/class-settings-page.php:672
-msgid "Les clients vérifient les mises à jour toutes les heures dans le dépôt public des releases."
+msgid "Primaire : dépôt public des releases. Repli automatique : https://infinitycoder.app/updates/infinitycod.json — déposez simplement dist/update.json sur ce domaine pour activer le repli."
 msgstr ""
 
 #: includes/admin/pages/class-settings-page.php:681
@@ -2456,133 +2499,133 @@ msgstr ""
 msgid "le dépôt GitHub est privé et aucun token n‘est configuré. Créez un dépôt public « releases » ou collez un token GitHub dans les réglages."
 msgstr ""
 
-#: includes/license/class-updater.php:444
-#: includes/license/class-updater.php:444
+#: includes/license/class-updater.php:492
+#: includes/license/class-updater.php:492
 msgid "Ce que fait InfinityCod"
 msgstr ""
 
-#: includes/license/class-updater.php:445
-#: includes/license/class-updater.php:445
+#: includes/license/class-updater.php:493
+#: includes/license/class-updater.php:493
 msgid "Formulaire COD one-page mobile-first : 5 thèmes, mode sombre, RTL arabe."
 msgstr ""
 
-#: includes/license/class-updater.php:446
-#: includes/license/class-updater.php:446
+#: includes/license/class-updater.php:494
+#: includes/license/class-updater.php:494
 msgid "58 wilayas + 1541 communes officielles (noms français et arabes)."
 msgstr ""
 
-#: includes/license/class-updater.php:447
-#: includes/license/class-updater.php:447
+#: includes/license/class-updater.php:495
+#: includes/license/class-updater.php:495
 msgid "Bouclier anti-fraude : score de risque, blacklist, doublons, limitation par IP."
 msgstr ""
 
-#: includes/license/class-updater.php:448
-#: includes/license/class-updater.php:448
+#: includes/license/class-updater.php:496
+#: includes/license/class-updater.php:496
 msgid "Dashboard commandes avec filtres, actions groupées et export Excel."
 msgstr ""
 
-#: includes/license/class-updater.php:449
-#: includes/license/class-updater.php:449
+#: includes/license/class-updater.php:497
+#: includes/license/class-updater.php:497
 msgid "Transporteurs intégrés : Yalidine, ZR Express, Maystro, Noest, E-COM, DHD — colis en 1 clic et suivi automatique."
 msgstr ""
 
-#: includes/license/class-updater.php:450
-#: includes/license/class-updater.php:450
+#: includes/license/class-updater.php:498
+#: includes/license/class-updater.php:498
 msgid "WhatsApp automatique et relance des paniers abandonnés."
 msgstr ""
 
-#: includes/license/class-updater.php:451
-#: includes/license/class-updater.php:451
+#: includes/license/class-updater.php:499
+#: includes/license/class-updater.php:499
 msgid "Paiement en ligne CIB / Edahabia via Chargily Pay."
 msgstr ""
 
-#: includes/license/class-updater.php:452
-#: includes/license/class-updater.php:452
+#: includes/license/class-updater.php:500
+#: includes/license/class-updater.php:500
 msgid "Offres par quantité et statistiques P&L par wilaya, transporteur et produit."
 msgstr ""
 
-#: includes/license/class-updater.php:456
-#: includes/license/class-updater.php:456
+#: includes/license/class-updater.php:504
+#: includes/license/class-updater.php:504
 msgid "Téléversez le zip via Extensions → Ajouter → Téléverser, puis activez."
 msgstr ""
 
-#: includes/license/class-updater.php:457
-#: includes/license/class-updater.php:457
+#: includes/license/class-updater.php:505
+#: includes/license/class-updater.php:505
 msgid "Les 58 wilayas et 1541 communes sont importées automatiquement."
 msgstr ""
 
-#: includes/license/class-updater.php:458
-#: includes/license/class-updater.php:458
+#: includes/license/class-updater.php:506
+#: includes/license/class-updater.php:506
 msgid "InfinityCod → Wilayas & Tarifs : définissez vos tarifs domicile / stopdesk."
 msgstr ""
 
-#: includes/license/class-updater.php:459
-#: includes/license/class-updater.php:459
+#: includes/license/class-updater.php:507
+#: includes/license/class-updater.php:507
 msgid "Réglages → Formulaire : personnalisez le thème, les libellés, l‘upsell et la redirection."
 msgstr ""
 
-#: includes/license/class-updater.php:462
-#: includes/license/class-updater.php:462
+#: includes/license/class-updater.php:510
+#: includes/license/class-updater.php:510
 msgid "Le formulaire apparaît où ?"
 msgstr ""
 
-#: includes/license/class-updater.php:462
-#: includes/license/class-updater.php:462
+#: includes/license/class-updater.php:510
+#: includes/license/class-updater.php:510
 msgid "Automatiquement (position réglable). Shortcode : [infinitycod_form] ou [infinitycod_form id=\"123\"]."
 msgstr ""
 
-#: includes/license/class-updater.php:463
-#: includes/license/class-updater.php:463
+#: includes/license/class-updater.php:511
+#: includes/license/class-updater.php:511
 msgid "Compatibilité des thèmes ?"
 msgstr ""
 
-#: includes/license/class-updater.php:463
-#: includes/license/class-updater.php:463
+#: includes/license/class-updater.php:511
+#: includes/license/class-updater.php:511
 msgid "Oui : styles isolés et renforcés (Astra, Flatsome, WoodMart, Divi…), mode sombre et RTL inclus."
 msgstr ""
 
-#: includes/license/class-updater.php:464
-#: includes/license/class-updater.php:464
+#: includes/license/class-updater.php:512
+#: includes/license/class-updater.php:512
 msgid "Comment fonctionnent les mises à jour ?"
 msgstr ""
 
-#: includes/license/class-updater.php:464
-#: includes/license/class-updater.php:464
+#: includes/license/class-updater.php:512
+#: includes/license/class-updater.php:512
 msgid "Vérification horaire via GitHub ; mise à jour en 1 clic ou automatique ; intégrité SHA-256 vérifiée et sauvegarde créée avant installation."
 msgstr ""
 
-#: includes/license/class-updater.php:465
-#: includes/license/class-updater.php:465
+#: includes/license/class-updater.php:513
+#: includes/license/class-updater.php:513
 msgid "Le paiement en ligne est-il sécurisé ?"
 msgstr ""
 
-#: includes/license/class-updater.php:465
-#: includes/license/class-updater.php:465
+#: includes/license/class-updater.php:513
+#: includes/license/class-updater.php:513
 msgid "Le client paie sur la page sécurisée Chargily ; la confirmation est vérifiée par API et par webhook signé."
 msgstr ""
 
-#: includes/license/class-updater.php:483
-#: includes/license/class-updater.php:483
+#: includes/license/class-updater.php:531
+#: includes/license/class-updater.php:531
 msgid "La solution de paiement à la livraison tout-en-un pensée pour l‘Algérie."
 msgstr ""
 
-#: includes/license/class-updater.php:531
+#: includes/license/class-updater.php:579
 msgid "InfinityCod : le téléchargement du package a échoué. Votre version actuelle reste installée. "
 msgstr ""
 
-#: includes/license/class-updater.php:535
+#: includes/license/class-updater.php:583
 msgid "InfinityCod : mise à jour annulée — la vérification d‘intégrité SHA-256 a échoué. Votre version actuelle reste installée."
 msgstr ""
 
-#: includes/license/class-updater.php:559
+#: includes/license/class-updater.php:607
 msgid "InfinityCod %1$s requiert PHP %2$s+. Votre serveur utilise PHP %3$s. Mise à jour bloquée, votre version actuelle reste installée."
 msgstr ""
 
-#: includes/license/class-updater.php:573
+#: includes/license/class-updater.php:621
 msgid "InfinityCod %1$s requiert WordPress %2$s+. Votre site utilise WordPress %3$s. Mise à jour bloquée."
 msgstr ""
 
-#: includes/license/class-updater.php:707
+#: includes/license/class-updater.php:755
 msgid "Aucune sauvegarde trouvée pour cette version."
 msgstr ""
 

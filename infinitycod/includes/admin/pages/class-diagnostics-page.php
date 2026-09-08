@@ -31,6 +31,7 @@ class DiagnosticsPage {
 	 */
 	public function __construct() {
 		add_action( 'admin_post_icod_diagnostics_download', array( $this, 'handle_download' ) );
+		add_action( 'admin_post_icod_test_updater', array( $this, 'handle_test_updater' ) );
 	}
 
 	/**
@@ -50,6 +51,11 @@ class DiagnosticsPage {
 		?>
 		<div class="wrap icod-wrap">
 			<h1 class="icod-title"><?php esc_html_e( 'Diagnostics InfinityCod', 'infinitycod' ); ?></h1>
+
+			<?php $tested = isset( $_GET['icod_msg'] ) ? sanitize_key( wp_unslash( $_GET['icod_msg'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+			<?php if ( 'tested' === $tested ) : ?>
+				<div class="notice notice-info is-dismissible"><p><?php esc_html_e( 'Test de connexion effectué — voir la ligne « Dernier test de connexion » ci-dessous.', 'infinitycod' ); ?></p></div>
+			<?php endif; ?>
 
 			<div class="icod-card">
 				<table class="widefat striped icod-table icod-diag-table">
@@ -77,6 +83,7 @@ class DiagnosticsPage {
 					<input type="hidden" name="action" value="icod_diagnostics_download" />
 					<?php wp_nonce_field( 'icod_diagnostics_download' ); ?>
 					<button type="submit" class="button">⬇ <?php esc_html_e( 'Télécharger le rapport de diagnostic', 'infinitycod' ); ?></button>
+					<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=icod_test_updater' ), 'icod_test_updater' ) ); ?>">📡 <?php esc_html_e( 'Tester la connexion', 'infinitycod' ); ?></a>
 					<span class="icod-hint" style="margin-inline-start:8px"><?php esc_html_e( 'Le rapport ne contient aucune clé ni donnée client.', 'infinitycod' ); ?></span>
 				</form>
 			</div>
@@ -152,14 +159,47 @@ class DiagnosticsPage {
 		// Licence.
 		$this->add( 'Licence', \InfinityCod\License\LicenseManager::status_label(), \InfinityCod\License\LicenseManager::is_premium() ? self::PASS : self::PASS, '' );
 
-		// Updater.
+		// Updater : GitHub (source primaire).
 		$gh = get_transient( 'icod_update_gh' );
-		if ( is_array( $gh ) && ! empty( $gh['unreachable'] ) ) {
-			$this->add( 'Updater (GitHub)', __( 'injoignable', 'infinitycod' ), self::WARN, isset( $gh['repo'] ) ? $gh['repo'] : '' );
-		} elseif ( is_array( $gh ) && ! empty( $gh['version'] ) ) {
-			$this->add( 'Updater (GitHub)', 'v' . $gh['version'], self::PASS, 'Dépôt public des releases' );
-		} else {
-			$this->add( 'Updater (GitHub)', __( 'jamais vérifié', 'infinitycod' ), self::WARN, 'InfinityCod → Mises à jour → Vérifier' );
+		$gh = is_array( $gh ) ? $gh : array();
+
+		$reason_labels = array(
+			'private_or_empty' => __( 'dépôt privé sans token, ou aucune release publiée', 'infinitycod' ),
+			'network'          => __( 'serveur injoignable (réseau restreint ou limite de débit GitHub)', 'infinitycod' ),
+			'no_package'       => __( 'release publiée sans package zip', 'infinitycod' ),
+			'bad_signature'    => __( 'signature du manifest invalide — mise à jour refusée par sécurité', 'infinitycod' ),
+		);
+
+		if ( ! empty( $gh['unreachable'] ) ) {
+			$reason = isset( $gh['reason'] ) ? $gh['reason'] : '';
+			$detail = isset( $reason_labels[ $reason ] ) ? $reason_labels[ $reason ] : '';
+			if ( ! empty( $gh['repo'] ) ) {
+				$detail .= ' · ' . $gh['repo'];
+			}
+			$this->add( 'Updater — GitHub (primaire)', __( 'injoignable', 'infinitycod' ), self::WARN, $detail );
+		} elseif ( ! empty( $gh['version'] ) ) {
+			$this->add( 'Updater — GitHub (primaire)', 'v' . $gh['version'], self::PASS, __( 'dépôt public des releases', 'infinitycod' ) );
+		}
+
+		// Repli : manifest infinitycoder.app.
+		$info = get_transient( 'icod_update_info' );
+		$info = is_array( $info ) ? $info : array();
+		if ( ! empty( $info['unreachable'] ) ) {
+			$this->add( 'Updater — Repli infinitycoder.app', __( 'manifest absent', 'infinitycod' ), self::WARN, __( 'déposez dist/update.json sur https://infinitycoder.app/updates/', 'infinitycod' ) );
+		} elseif ( ! empty( $info['version'] ) ) {
+			$this->add( 'Updater — Repli infinitycoder.app', 'v' . $info['version'], self::PASS, __( 'manifest de secours accessible', 'infinitycod' ) );
+		}
+
+		// Résultat du dernier test manuel.
+		$test = get_option( 'icod_updater_test', array() );
+		$test = is_array( $test ) ? $test : array();
+		if ( ! empty( $test['time'] ) ) {
+			$this->add(
+				__( 'Dernier test de connexion', 'infinitycod' ),
+				esc( $test['ok'] ? 'OK' : 'échec' ) . ' · ' . esc( $test['source'] ) . ( ! empty( $test['version'] ) ? ' · v' . esc( $test['version'] ) : '' ),
+				$test['ok'] ? self::PASS : self::WARN,
+				esc( $test['time'] )
+			);
 		}
 
 		// Canal.
@@ -212,5 +252,48 @@ class DiagnosticsPage {
 		header( 'Content-Disposition: attachment; filename=infinitycod-diagnostics-' . gmdate( 'Ymd-Hi' ) . '.txt' );
 		echo esc_html( implode( "\n", $lines ) );
 		exit;
+	}
+
+	/**
+	 * Test manuel de connexion updater (GitHub puis repli).
+	 *
+	 * @return void
+	 */
+	public function handle_test_updater() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_test_updater' );
+
+		\InfinityCod\License\Updater::clear_cache();
+		delete_site_transient( 'update_plugins' );
+		if ( function_exists( 'wp_update_plugins' ) ) {
+			wp_update_plugins();
+		}
+
+		$updater = new \InfinityCod\License\Updater();
+		$latest  = $updater->latest();
+
+		$test = array(
+			'time'   => current_time( 'mysql' ),
+			'ok'     => ! empty( $latest['version'] ),
+			'source' => isset( $latest['source'] ) ? ( 'github' === $latest['source'] ? 'GitHub' : 'infinitycoder.app' ) : __( 'aucune source joignable', 'infinitycod' ),
+			'version'=> isset( $latest['version'] ) ? (string) $latest['version'] : '',
+		);
+		update_option( 'icod_updater_test', $test, false );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-diagnostics&icod_msg=tested' ) );
+		exit;
+	}
+
+	/**
+	 * Échappement minimal pour l'affichage interne.
+	 *
+	 * @param string $value Valeur.
+	 * @return string
+	 */
+	private function esc( $value ) {
+		return htmlspecialchars( (string) $value, ENT_QUOTES );
 	}
 }

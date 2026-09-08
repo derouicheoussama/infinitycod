@@ -669,7 +669,7 @@ class SettingsPage {
 				</label>
 			</div>
 			<p class="description" style="margin-top:10px">
-				<?php esc_html_e( 'Les clients vérifient les mises à jour toutes les heures dans le dépôt public des releases.', 'infinitycod' ); ?>
+				<?php esc_html_e( 'Primaire : dépôt public des releases. Repli automatique : https://infinitycoder.app/updates/infinitycod.json — déposez simplement dist/update.json sur ce domaine pour activer le repli.', 'infinitycod' ); ?>
 			</p>
 		</div>
 

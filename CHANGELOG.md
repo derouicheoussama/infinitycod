@@ -134,3 +134,12 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 ### Added
 - **Signature cryptographique Ed25519 du manifest de mise à jour** : la CI signe `update.json` (clé privée en GitHub Secret — jamais dans le plugin), le plugin vérifie la signature via sodium/sodium_compat avant d'accepter un SHA-256. Manifest falsifié = mise à jour non proposée + log sécurité.
 - **Attribution professionnelle complète** (§107-129) : headers auteur/copyright sur les 42 fichiers PHP, attribution JS/CSS, header plugin `Author: Derouiche Oussama` + `https://derouicheoussama.com`, constantes centralisées, section Developer (À propos, README, docs), contrôle `tools/check-attribution.js` intégré à CI et `npm run check`.
+
+## 2.1.1 — 2026-09-08
+
+### Added
+- **Repli de mise à jour sur infinitycoder.app** : si l'API GitHub est injoignable depuis l'hébergeur du client (réseau restreint ou rate limit), le plugin consulte automatiquement `https://infinitycoder.app/updates/infinitycod.json` (même format que le manifest du build). Déposez simplement `dist/update.json` sur ce domaine pour activer le repli.
+- **Diagnostics enrichis** : le contrôle updater affiche maintenant la source primaire (GitHub) ET le repli (infinitycoder.app) séparément, la **raison précise** d'un échec (rate limit, dépôt privé, signature invalide…), plus un bouton **« Tester la connexion »** qui enregistre le résultat du test.
+
+### Improved
+- Message d'aide dans Réglages → Avancé pour le repli manifest.
