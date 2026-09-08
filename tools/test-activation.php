@@ -193,6 +193,13 @@ class WC_Order_Item_Product { public function set_product( $p ) {} public functi
 class WC_Order_Item_Fee { public function set_name( $n ) {} public function set_amount( $a ) {} public function set_total( $t ) {} }
 class WC_Order_Item_Shipping { public function set_method_title( $m ) {} public function set_method_id( $m ) {} public function set_total( $t ) {} }
 
+/* Fixture WordPress minimale : créée à l'exécution (le dossier .tools/ est gitignoré). */
+$fake_upgrade = dirname( __DIR__ ) . '/.tools/fake-wp/wp-admin/includes/upgrade.php';
+if ( ! file_exists( $fake_upgrade ) ) {
+    @mkdir( dirname( $fake_upgrade ), 0777, true );
+    file_put_contents( $fake_upgrade, '<?php' );
+}
+
 /* ---------- Séquence de test ---------- */
 
 $plugin_dir = dirname( __DIR__ ) . '/infinitycod/';
