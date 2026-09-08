@@ -32,6 +32,13 @@ class Updater {
 	const SIGNING_PUBLIC_KEY = 'beDoIoaR5hZvEA2U93fiu80Bzg2uz78MT0n0EydFEKk=';
 
 	/**
+	 * Empreinte SHA-256 du package en attente de téléchargement.
+	 *
+	 * @var string
+	 */
+	private $pending_sha = '';
+
+	/**
 	 * Vérifie la signature Ed25519 d'un manifest signé.
 	 *
 	 * @param string $raw_json Corps JSON brut du manifest.
@@ -511,15 +518,11 @@ class Updater {
 	}
 
 	/**
-	 * Intercepte le téléchargement du package pour :
-	 * 1. vérifier la compatibilité PHP / WordPress ;
-	 * 2. vérifier l'intégrité SHA-256 quand le manifest le fournit ;
-	 * 3. sauvegarder la version courante avant remplacement ;
-	 * 4. télécharger nous-mêmes les assets d'un dépôt privé (auth + S3).
+	 * Avant chaque téléchargement de package : compatibilité + sauvegarde.
 	 *
 	 * @param false|mixed $reply   Valeur par défaut.
 	 * @param string      $package Url du package.
-	 * @return false|string|\\WP_Error False = comportement standard ; string = octets du zip ; WP_Error = abandon avec message.
+	 * @return false|mixed|\\WP_Error WP_Error = mise à jour bloquée avec message.
 	 */
 	public function secure_download( $reply, $package ) {
 		if ( ! is_string( $package ) || false === strpos( $package, 'infinitycod' ) ) {
@@ -539,27 +542,123 @@ class Updater {
 		$backup = $this->backup_current();
 		if ( is_wp_error( $backup ) ) {
 			\InfinityCod\Logging\Logger::log( 'update', 'Backup failed: ' . $backup->get_error_message() );
-			// Non bloquant : l'update peut continuer, mais on le journalise.
 		} else {
 			\InfinityCod\Logging\Logger::log( 'update', 'Backup created: ' . (string) $backup );
 		}
 
-		// 3. Intégrité : si un SHA-256 est connu, télécharger et vérifier nous-mêmes.
-		$sha256 = is_array( $remote ) ? (string) ( $remote['sha256'] ?? '' ) : '';
-		if ( '' !== $sha256 ) {
-			$bytes = $this->fetch_package( $package );
-			if ( is_wp_error( $bytes ) ) {
-				return new \WP_Error( 'icod_download_failed', __( 'InfinityCod : le téléchargement du package a échoué. Votre version actuelle reste installée. ', 'infinitycod' ) . $bytes->get_error_message() );
+		// Mémorise l'empreinte attendue pour l'intercepteur de téléchargement.
+		$this->pending_sha = is_array( $remote ) ? (string) ( $remote['sha256'] ?? '' ) : '';
+
+		return false; // Le téléchargement continue via le flux standard WordPress.
+	}
+
+	/**
+	 * Intercepte le téléchargement d'un asset InfinityCod : vérifie
+	 * l'intégrité SHA-256 quand une empreinte est attendue, et gère
+	 * l'authentification d'un dépôt privé (auth puis S3 sans auth).
+	 *
+	 * @param false|array|\WP_Error $pre  Valeur de court-circuit.
+	 * @param array                 $args Arguments HTTP.
+	 * @param string                $url  Url demandée.
+	 * @return array|\WP_Error|false Réponse simulée ou valeur inchangée.
+	 */
+	public function intercept_download( $pre, $args, $url ) {
+		if ( ! is_string( $url ) || false === strpos( $url, '/releases/download/' ) ) {
+			return $pre;
+		}
+
+		$repos  = array_filter( array( self::releases_repo(), self::github_repo() ) );
+		$match  = '';
+		foreach ( $repos as $repo ) {
+			if ( false !== strpos( $url, 'github.com/' . $repo . '/' ) ) {
+				$match = $repo;
+				break;
 			}
-			if ( ! $this->verify_sha256( $bytes, $sha256 ) ) {
+		}
+		if ( '' === $match ) {
+			return $pre;
+		}
+
+		static $busy = false;
+		if ( $busy ) {
+			return $pre;
+		}
+
+		$busy = true;
+		$bytes = $this->fetch_package_auth( $url, self::github_token() );
+		$busy  = false;
+
+		if ( is_wp_error( $bytes ) ) {
+			return new \WP_Error( 'icod_download_failed', __( 'InfinityCod : téléchargement du package impossible. Votre version actuelle reste installée. ', 'infinitycod' ) . $bytes->get_error_message() );
+		}
+
+		// Intégrité : empreinte mémorisée lors de l'injection de la mise à jour.
+		if ( '' !== $this->pending_sha ) {
+			if ( ! self::verify_sha256( $bytes, $this->pending_sha ) ) {
 				\InfinityCod\Logging\Logger::log( 'security', 'SHA-256 mismatch — update aborted.' );
 				return new \WP_Error( 'icod_checksum', __( 'InfinityCod : mise à jour annulée — la vérification d‘intégrité SHA-256 a échoué. Votre version actuelle reste installée.', 'infinitycod' ) );
 			}
 			\InfinityCod\Logging\Logger::log( 'update', 'Package SHA-256 verified.' );
-			return $bytes;
 		}
 
-		return $reply; // Pas de manifest : comportement WordPress standard.
+		return array(
+			'headers'  => array(),
+			'body'     => $bytes,
+			'response' => array( 'code' => 200, 'message' => 'OK' ),
+		);
+	}
+
+	/**
+	 * Télécharge un asset GitHub avec authentification si un token est présent.
+	 *
+	 * @param string $url   Url de l'asset.
+	 * @param string $token Token (peut être vide).
+	 * @return string|\\WP_Error Corps du fichier ou erreur.
+	 */
+	private function fetch_package_auth( $url, $token ) {
+		$headers = array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION );
+
+		if ( '' !== $token ) {
+			$headers['Authorization'] = 'Bearer ' . $token;
+			$headers['Accept']        = 'application/octet-stream';
+
+			// Étape 1 : URL signée (redirection suivie manuellement).
+			$step1 = wp_remote_get( $url, array(
+				'timeout'     => 60,
+				'redirection' => 0,
+				'headers'     => $headers,
+			) );
+
+			if ( is_wp_error( $step1 ) ) {
+				return $step1;
+			}
+
+			$code = (int) wp_remote_retrieve_response_code( $step1 );
+			if ( $code >= 300 && $code < 400 ) {
+				$location = wp_remote_retrieve_header( $step1, 'location' );
+				if ( $location ) {
+					// Étape 2 : S3 signé, SANS Authorization.
+					$step2 = wp_remote_get( $location, array( 'timeout' => 120, 'redirection' => 2 ) );
+					if ( is_wp_error( $step2 ) ) {
+						return $step2;
+					}
+					return wp_remote_retrieve_body( $step2 );
+				}
+			}
+
+			if ( $code >= 200 && $code < 300 ) {
+				return wp_remote_retrieve_body( $step1 );
+			}
+
+			return new \WP_Error( 'icod_http_' . $code, sprintf( 'HTTP %d', $code ) );
+		}
+
+		// Sans token : téléchargement direct public.
+		$direct = wp_remote_get( $url, array( 'timeout' => 120, 'redirection' => 3, 'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ) ) );
+		if ( is_wp_error( $direct ) ) {
+			return $direct;
+		}
+		return wp_remote_retrieve_body( $direct );
 	}
 
 	/**
@@ -659,7 +758,8 @@ class Updater {
 		);
 		$wp_filesystem->put_contents( $target . '/backup-state.json', wp_json_encode( $state ), FS_CHMOD_FILE );
 
-		// Politique de rétention : 3 sauvegardes maximum (§84).
+		// Politique de rétention réglable (défaut 3).
+		$keep = max( 1, min( 10, (int) Settings::get( 'backup_retention', 3 ) ) );
 		$dirs = (array) $wp_filesystem->dirlist( $backup_dir );
 		$kept = array();
 		foreach ( $dirs as $name => $info ) {
@@ -852,44 +952,5 @@ class Updater {
 
 			return new \WP_Error( 'icod_http_' . $code, 'HTTP ' . $code );
 		}
-
-		// Dépôt public : téléchargement direct.
-		$response = wp_remote_get( $package, array( 'timeout' => 120, 'redirection' => 3 ) );
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-		return wp_remote_retrieve_body( $response );
-	}
-
-	/**
-	 * Téléchargement d'un asset GitHub de dépôt PRIVÉ (fallback upgrader
-	 * standard utilisé quand aucun SHA-256 n'est disponible).
-	 *
-	 * @param false|mixed $reply   Valeur par défaut.
-	 * @param string      $package Url du zip.
-	 * @return false|string
-	 */
-	public function auth_private_download( $reply, $package ) {
-		if ( $reply || ! is_string( $package ) ) {
-			return $reply;
-		}
-
-		$repos  = array_filter( array( self::releases_repo(), self::github_repo() ) );
-		$matched = '';
-		foreach ( $repos as $repo ) {
-			if ( false !== strpos( $package, 'github.com/' . $repo . '/' ) ) {
-				$matched = $repo;
-				break;
-			}
-		}
-		if ( '' === $matched ) {
-			return $reply;
-		}
-
-		$bytes = $this->fetch_package( $package );
-		if ( is_wp_error( $bytes ) || '' === $bytes || 'PK' !== substr( $bytes, 0, 2 ) ) {
-			return $reply;
-		}
-		return $bytes;
 	}
 }

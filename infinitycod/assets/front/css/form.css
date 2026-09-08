@@ -453,3 +453,41 @@ select.icod-input{
 .icod-freebar{padding:10px 12px;margin-bottom:10px;background:color-mix(in srgb, var(--icod-accent) 8%, var(--icod-bg));border:1px dashed var(--icod-accent);border-radius:var(--icod-radius-sm);font-size:.84rem;font-weight:600;color:var(--icod-text)}
 .icod-freebar-track{height:6px;margin-top:8px;background:color-mix(in srgb, var(--icod-accent) 18%, var(--icod-bg));border-radius:99px;overflow:hidden}
 .icod-freebar-fill{height:100%;background:var(--icod-accent);border-radius:99px;transition:width .4s ease}
+
+/* ===== Thèmes supplémentaires (v2.4) ===== */
+.icod-root[data-preset="rose"]{
+	--icod-accent:#d6336c;
+	--icod-radius:18px;
+	--icod-radius-sm:12px;
+	--icod-shadow:0 5px 20px rgba(214,51,108,.13);
+	--icod-surface:#fdf3f7;
+	--icod-border:#f0d3e0;
+	--icod-head-bg:linear-gradient(135deg,#d6336c,#f06595);
+	--icod-head-ink:#ffffff;
+}
+.icod-root[data-preset="royal"]{
+	--icod-accent:#6d28d9;
+	--icod-radius:14px;
+	--icod-radius-sm:10px;
+	--icod-shadow:0 5px 20px rgba(109,40,217,.13);
+	--icod-surface:#f5f2fc;
+	--icod-border:#ddd2f2;
+	--icod-head-bg:linear-gradient(135deg,#6d28d9,#8b5cf6);
+	--icod-head-ink:#ffffff;
+}
+.icod-root[data-preset="cafe"]{
+	--icod-accent:#7c4a21;
+	--icod-radius:10px;
+	--icod-radius-sm:8px;
+	--icod-shadow:0 4px 16px rgba(111,78,55,.13);
+	--icod-surface:#faf6f1;
+	--icod-border:#e6d7c6;
+	--icod-head-bg:linear-gradient(135deg,#6f4e37,#96694a);
+	--icod-head-ink:#ffffff;
+}
+.icod-root.icod-theme-dark[data-preset="rose"]{--icod-head-bg:linear-gradient(135deg,#a02b52,#c73f6f)}
+.icod-root.icod-theme-dark[data-preset="royal"]{--icod-head-bg:linear-gradient(135deg,#4c1d95,#6d28d9)}
+.icod-root.icod-theme-dark[data-preset="cafe"]{--icod-head-bg:linear-gradient(135deg,#4d3322,#6f4e37)}
+.icod-root.icod-theme-auto[data-preset="rose"]{--icod-head-bg:linear-gradient(135deg,#a02b52,#c73f6f)}
+.icod-root.icod-theme-auto[data-preset="royal"]{--icod-head-bg:linear-gradient(135deg,#4c1d95,#6d28d9)}
+.icod-root.icod-theme-auto[data-preset="cafe"]{--icod-head-bg:linear-gradient(135deg,#4d3322,#6f4e37)}

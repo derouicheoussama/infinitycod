@@ -182,3 +182,13 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 ### Added
 - **Contrôle d'imports** (`tools/check-imports.js`, intégré à `npm run check`) : toute référence statique `Classe::` résolvant vers un mauvais namespace fait échouer la CI — plus aucun fatal de ce type ne peut être publié.
 - **Endpoint submit blindé** : toute exception technique renvoie désormais une erreur JSON explicite (jamais la page « erreur critique ») et est journalisée.
+
+## 2.4.0 — 2026-09-08
+
+### Added
+- **8 styles de formulaire** : Modern, Elegant, Sunset, Ocean, Minimal + **Rose, Royal, Café** (nouveaux).
+- **Réglages avancés** : journal on/off, rétention des sauvegardes (1-10).
+
+### Changed
+- **Téléchargement des mises à jour refondu** (filtre `pre_http_request`) : le checksum SHA-256 est maintenant vérifié de façon fiable dans le flux WordPress natif, avec authentification correcte des dépôts privés (auth GitHub puis S3 sans credentials).
+- Suppression du code mort et des patchs temporaires (tools/patch-*).

@@ -241,6 +241,9 @@ class SettingsPage {
 			'sunset'  => array( 'label' => __( 'Sunset', 'infinitycod' ), 'color' => '#e8590c' ),
 			'ocean'   => array( 'label' => __( 'Océan', 'infinitycod' ), 'color' => '#1971c2' ),
 			'minimal' => array( 'label' => __( 'Minimal', 'infinitycod' ), 'color' => '#1a1d21' ),
+			'rose'   => array( 'label' => __( 'Rose', 'infinitycod' ), 'color' => '#d6336c' ),
+			'royal'  => array( 'label' => __( 'Royal', 'infinitycod' ), 'color' => '#6d28d9' ),
+			'cafe'   => array( 'label' => __( 'Café', 'infinitycod' ), 'color' => '#7c4a21' ),
 		);
 		?>
 		<div class="icod-card">
@@ -684,7 +687,18 @@ class SettingsPage {
 					<input type="checkbox" name="icod[auto_update]" value="1" <?php checked( (int) Settings::get( 'auto_update' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Mise à jour automatique du plugin (sans clic, dès qu‘une version GitHub est publiée)', 'infinitycod' ); ?></span>
 				</label>
-				<label class="icod-toggle icod-toggle-danger">
+				<div class="icod-grid">
+					<label>
+						<span><?php esc_html_e( 'Sauvegardes conservées avant purge (1-10)', 'infinitycod' ); ?></span>
+						<input type="number" min="1" max="10" name="icod[backup_retention]" value="<?php echo esc_attr( Settings::get( 'backup_retention', 3 ) ); ?>" />
+					</label>
+				</div>
+				<div class="icod-toggles">
+					<label class="icod-toggle">
+						<input type="checkbox" name="icod[log_enabled]" value="1" <?php checked( (int) Settings::get( 'log_enabled', 1 ), 1 ); ?> />
+						<span><?php esc_html_e( 'Journal InfinityCod (logs techniques, sans données clients)', 'infinitycod' ); ?></span>
+					</label>
+cod-toggle-danger">
 					<input type="checkbox" name="icod[delete_on_uninstall]" value="1" <?php checked( (int) Settings::get( 'delete_on_uninstall' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Supprimer toutes les données (tables, réglages) à la désinstallation du plugin', 'infinitycod' ); ?></span>
 				</label>
