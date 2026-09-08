@@ -166,3 +166,10 @@
 .icod-test-result{font-weight:600}
 .icod-ship-cell{white-space:nowrap}
 .icod-ship-cell select{min-height:36px}
+
+/* ===== Paniers abandonnés ===== */
+.icod-progress{display:inline-block;width:70px;height:8px;border-radius:99px;background:#e9eaec;overflow:hidden;vertical-align:middle;margin-inline-end:6px}
+.icod-progress > span{display:block;height:100%;background:#0e7a4f}
+.icod-status-open{background:#fdf3e0;color:#996800}
+.icod-status-recovered{background:#e5f2e9;color:#0e7a4f}
+.icod-status-archived{background:#f0f0f1;color:#8c8f94}

@@ -238,6 +238,10 @@ class SettingsPage {
 					<span><?php esc_html_e( 'Commande expédiée', 'infinitycod' ); ?></span>
 					<textarea name="icod[msg_order_shipped]" rows="3" class="large-text"><?php echo esc_textarea( Settings::get( 'msg_order_shipped' ) ); ?></textarea>
 				</label>
+				<label>
+					<span><?php esc_html_e( 'Relance panier abandonné', 'infinitycod' ); ?></span>
+					<textarea name="icod[msg_abandoned]" rows="3" class="large-text"><?php echo esc_textarea( Settings::get( 'msg_abandoned' ) ); ?></textarea>
+				</label>
 			</div>
 			<div class="icod-grid">
 				<label>
@@ -294,7 +298,7 @@ class SettingsPage {
 				$clean[ $text_key ] = sanitize_text_field( $raw[ $text_key ] );
 			}
 		}
-		foreach ( array( 'msg_order_received', 'msg_order_shipped' ) as $textarea_key ) {
+		foreach ( array( 'msg_order_received', 'msg_order_shipped', 'msg_abandoned' ) as $textarea_key ) {
 			if ( isset( $raw[ $textarea_key ] ) ) {
 				$clean[ $textarea_key ] = sanitize_textarea_field( $raw[ $textarea_key ] );
 			}

@@ -88,6 +88,15 @@ class AdminManager {
 
 		add_submenu_page(
 			'infinitycod',
+			__( 'Paniers abandonnés', 'infinitycod' ),
+			__( 'Paniers abandonnés', 'infinitycod' ),
+			'manage_woocommerce',
+			'infinitycod-abandoned',
+			array( $this, 'render_abandoned' )
+		);
+
+		add_submenu_page(
+			'infinitycod',
 			__( 'Wilayas & Tarifs', 'infinitycod' ),
 			__( 'Wilayas & Tarifs', 'infinitycod' ),
 			'manage_woocommerce',
@@ -194,6 +203,15 @@ class AdminManager {
 			esc_html__( 'Commandes COD', 'infinitycod' ),
 			esc_html__( 'Le gestionnaire de commandes arrive avec la phase Commandes.', 'infinitycod' )
 		);
+	}
+
+	/**
+	 * Rendu de la page paniers abandonnés.
+	 *
+	 * @return void
+	 */
+	public function render_abandoned() {
+		( new Pages\AbandonedPage() )->render();
 	}
 
 	/**
