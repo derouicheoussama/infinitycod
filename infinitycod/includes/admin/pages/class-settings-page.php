@@ -778,6 +778,7 @@ cod-toggle-danger">
 			'max_per_phone_day'    => array( 0, 20 ),
 			'max_per_email_day'    => array( 0, 20 ),
 			'redirect_delay'       => array( 3, 60 ),
+			'backup_retention'     => array( 1, 10 ),
 			'min_submit_seconds'   => array( 0, 60 ),
 			'max_per_ip_hour'      => array( 1, 100 ),
 			'min_fraud_score_block' => array( 0, 100 ),
@@ -790,7 +791,7 @@ cod-toggle-danger">
 		}
 
 		// Cases à cocher (absent = 0).
-		foreach ( array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'menu_badge', 'auto_update', 'payment_enabled', 'redirect_enabled', 'upsell_enabled', 'show_email', 'restrict_hours_enabled', 'wa_order_enabled', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
+		foreach ( array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'menu_badge', 'auto_update', 'payment_enabled', 'redirect_enabled', 'upsell_enabled', 'show_email', 'restrict_hours_enabled', 'wa_order_enabled', 'log_enabled', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
 			$clean[ $toggle_key ] = empty( $raw[ $toggle_key ] ) ? 0 : 1;
 		}
 
