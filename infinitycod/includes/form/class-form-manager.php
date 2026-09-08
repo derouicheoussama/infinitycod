@@ -71,7 +71,21 @@ class FormManager {
 			return;
 		}
 
-		add_action( 'woocommerce_single_product_summary', array( $this, 'render_auto' ), 35 );
+		// Position choisie dans les réglages.
+		$positions = array(
+			'before_summary' => array( 'woocommerce_single_product_summary', 5 ),
+			'after_price'    => array( 'woocommerce_single_product_summary', 15 ),
+			'after_excerpt'  => array( 'woocommerce_single_product_summary', 20 ),
+			'before_cart'    => array( 'woocommerce_single_product_summary', 24 ),
+			'after_cart'     => array( 'woocommerce_single_product_summary', 29 ),
+			'after_summary'  => array( 'woocommerce_single_product_summary', 35 ),
+			'end_product'    => array( 'woocommerce_after_single_product', 10 ),
+		);
+		$position  = Settings::get( 'form_position', 'after_summary' );
+		$hook      = isset( $positions[ $position ] ) ? $positions[ $position ][0] : 'woocommerce_single_product_summary';
+		$priority  = isset( $positions[ $position ] ) ? $positions[ $position ][1] : 35;
+
+		add_action( $hook, array( $this, 'render_auto' ), $priority );
 	}
 
 	/**
@@ -125,6 +139,11 @@ class FormManager {
 		$show_note        = (bool) Settings::get( 'show_note', 0 );
 		$show_offers      = (bool) Settings::get( 'show_offers', 1 );
 		$show_reassurance = (bool) Settings::get( 'show_reassurance', 1 );
+		$show_email       = (bool) Settings::get( 'show_email', 0 );
+		$wa_order         = (bool) Settings::get( 'wa_order_enabled', 0 ) && Settings::get( 'whatsapp_number' );
+		$wa_order         = (bool) Settings::get( 'wa_order_enabled', 0 ) && Settings::get( 'whatsapp_number' );
+		$wa_order         = (bool) Settings::get( 'wa_order_enabled', 0 ) && Settings::get( 'whatsapp_number' );
+		$wa_order         = (bool) Settings::get( 'wa_order_enabled', 0 ) && Settings::get( 'whatsapp_number' );
 		$payment_online   = infinitycod()->module( 'payment' ) ? \InfinityCod\Payment\PaymentManager::enabled() : false;
 
 		$ts  = time();
@@ -232,6 +251,16 @@ class FormManager {
 								<label for="icod-phone-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( $label_phone ); ?></label>
 								<input type="tel" name="icod_phone" id="icod-phone-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-input-phone" inputmode="tel" autocomplete="tel" placeholder="<?php echo esc_attr( Settings::get( 'phone_placeholder' ) ); ?>" required data-icod-field="phone" />
 							</div>
+
+							<?php if ( $show_email ) : ?>
+							<div class="icod-field">
+								<label for="icod-email-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( Settings::get( 'label_email' ) ); ?></label>
+								<input type="email" name="icod_email" id="icod-email-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input" autocomplete="email" />
+							</div>
+							<?php endif; ?>
+
+
+
 
 							<div class="icod-row">
 								<div class="icod-field">
@@ -359,6 +388,21 @@ class FormManager {
 							<button type="submit" class="icod-submit">
 								<?php echo esc_html( $button ); ?>
 							</button>
+
+							<?php if ( $wa_order ) : ?>
+								<button type="button" class="icod-submit icod-wa-btn" data-icod-wa>
+									💬 <?php echo esc_html( Settings::get( 'wa_order_label' ) ); ?>
+								</button>
+							<?php endif; ?>
+
+							<?php if ( $wa_order ) : ?>
+							<?php endif; ?>
+
+							<?php if ( $wa_order ) : ?>
+							<?php endif; ?>
+
+							<?php if ( $wa_order ) : ?>
+							<?php endif; ?>
 
 							<?php if ( $show_reassurance ) : ?>
 								<p class="icod-reassurance">
@@ -504,6 +548,7 @@ class FormManager {
 				'successTitle'   => Settings::get( 'success_title' ),
 				'successText'    => Settings::get( 'success_text' ),
 				'redirecting'    => __( 'Vous allez être redirigé dans {s} secondes…', 'infinitycod' ),
+				'errorEmailFormat' => __( 'Adresse email invalide.', 'infinitycod' ),
 				'da'             => __( 'DA', 'infinitycod' ),
 			),
 		) );

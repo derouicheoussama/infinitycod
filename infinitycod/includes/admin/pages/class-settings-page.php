@@ -291,7 +291,23 @@ class SettingsPage {
 					<input type="number" min="1" max="999" name="icod[qty_max]" value="<?php echo esc_attr( Settings::get( 'qty_max' ) ); ?>" />
 				</label>
 			</div>
+			<label>
+				<span><?php esc_html_e( 'Position du formulaire sur la fiche produit', 'infinitycod' ); ?></span>
+				<select name="icod[form_position]">
+					<option value="before_summary" <?php selected( Settings::get( 'form_position' ), 'before_summary' ); ?>><?php esc_html_e( 'Avant le résumé produit', 'infinitycod' ); ?></option>
+					<option value="after_price" <?php selected( Settings::get( 'form_position' ), 'after_price' ); ?>><?php esc_html_e( 'Après le prix', 'infinitycod' ); ?></option>
+					<option value="after_excerpt" <?php selected( Settings::get( 'form_position' ), 'after_excerpt' ); ?>><?php esc_html_e( 'Après la description courte', 'infinitycod' ); ?></option>
+					<option value="before_cart" <?php selected( Settings::get( 'form_position' ), 'before_cart' ); ?>><?php esc_html_e( 'Avant le bouton Ajouter au panier', 'infinitycod' ); ?></option>
+					<option value="after_cart" <?php selected( Settings::get( 'form_position' ), 'after_cart' ); ?>><?php esc_html_e( 'Après le bouton Ajouter au panier', 'infinitycod' ); ?></option>
+					<option value="after_summary" <?php selected( Settings::get( 'form_position' ), 'after_summary' ); ?>><?php esc_html_e( 'Après le résumé produit (défaut)', 'infinitycod' ); ?></option>
+					<option value="end_product" <?php selected( Settings::get( 'form_position' ), 'end_product' ); ?>><?php esc_html_e( 'Fin de la fiche produit', 'infinitycod' ); ?></option>
+				</select>
+			</label>
 			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[show_email]" value="1" <?php checked( (int) Settings::get( 'show_email' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Afficher un champ email (facultatif, sert aux restrictions anti-abus)', 'infinitycod' ); ?></span>
+				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[show_qty_selector]" value="1" <?php checked( (int) Settings::get( 'show_qty_selector' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Afficher le sélecteur de quantité', 'infinitycod' ); ?></span>
@@ -338,6 +354,10 @@ class SettingsPage {
 				<label>
 					<span><?php esc_html_e( 'Champ commune', 'infinitycod' ); ?></span>
 					<input type="text" name="icod[label_commune]" value="<?php echo esc_attr( Settings::get( 'label_commune' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Champ email', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[label_email]" value="<?php echo esc_attr( Settings::get( 'label_email' ) ); ?>" />
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Champ note', 'infinitycod' ); ?></span>
@@ -440,6 +460,39 @@ class SettingsPage {
 	private function tab_fraud() {
 		?>
 		<div class="icod-card">
+			<h2><?php esc_html_e( 'Restrictions de commande', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Limitez les abus : horaires d\'ouverture, volume par IP, téléphone et email sur 24 h.', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[restrict_hours_enabled]" value="1" <?php checked( (int) Settings::get( 'restrict_hours_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Limiter les commandes à certaines heures', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Heure d\'ouverture', 'infinitycod' ); ?></span>
+					<input type="number" min="0" max="23" name="icod[restrict_hours_from]" value="<?php echo esc_attr( Settings::get( 'restrict_hours_from' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Heure de fermeture', 'infinitycod' ); ?></span>
+					<input type="number" min="0" max="23" name="icod[restrict_hours_to]" value="<?php echo esc_attr( Settings::get( 'restrict_hours_to' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Commandes max / IP / 24 h (0 = illimité)', 'infinitycod' ); ?></span>
+					<input type="number" min="0" max="100" name="icod[max_per_ip_day]" value="<?php echo esc_attr( Settings::get( 'max_per_ip_day' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Commandes max / téléphone / 24 h', 'infinitycod' ); ?></span>
+					<input type="number" min="0" max="20" name="icod[max_per_phone_day]" value="<?php echo esc_attr( Settings::get( 'max_per_phone_day' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Commandes max / email / 24 h', 'infinitycod' ); ?></span>
+					<input type="number" min="0" max="20" name="icod[max_per_email_day]" value="<?php echo esc_attr( Settings::get( 'max_per_email_day' ) ); ?>" />
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
 			<h2><?php esc_html_e( 'Bouclier anti-fraude (Shield)', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Aucun système n‘élimine 100 % des fausses commandes ; ces barrières réduisent fortement les abus sans gêner les vrais clients.', 'infinitycod' ); ?></p>
 			<div class="icod-toggles">
@@ -522,6 +575,29 @@ class SettingsPage {
 				<label>
 					<span><?php esc_html_e( 'UltraMsg — Clé API', 'infinitycod' ); ?></span>
 					<input type="password" name="icod[whatsapp_ultramsg_key]" value="<?php echo esc_attr( Settings::get( 'whatsapp_ultramsg_key' ) ); ?>" class="regular-text" autocomplete="new-password" />
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Commande via WhatsApp', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Ajoute un bouton « Commander via WhatsApp » : la commande est créée normalement puis WhatsApp s‘ouvre avec le résumé pré-rempli, envoyé à votre numéro marchand ci-dessus.', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[wa_order_enabled]" value="1" <?php checked( (int) Settings::get( 'wa_order_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Activer le bouton « Commander via WhatsApp »', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Libellé du bouton', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[wa_order_label]" value="<?php echo esc_attr( Settings::get( 'wa_order_label' ) ); ?>" class="regular-text" />
+				</label>
+			</div>
+			<div class="icod-grid icod-grid-full">
+				<label>
+					<span><?php esc_html_e( 'Message pré-rempli (variables : {num}, {nom}, {telephone}, {produit}, {total}, {wilaya}, {commune})', 'infinitycod' ); ?></span>
+					<textarea name="icod[msg_wa_order]" rows="3" class="large-text"><?php echo esc_textarea( Settings::get( 'msg_wa_order' ) ); ?></textarea>
 				</label>
 			</div>
 		</div>
@@ -627,12 +703,12 @@ class SettingsPage {
 		$clean = array();
 
 		// Textes.
-		foreach ( array( 'form_title', 'form_subtitle', 'button_text', 'phone_placeholder', 'label_name', 'label_phone', 'label_wilaya', 'label_commune', 'label_note', 'success_title', 'upsell_title', 'cod_label', 'payment_label' ) as $text_key ) {
+		foreach ( array( 'form_title', 'form_subtitle', 'button_text', 'phone_placeholder', 'label_name', 'label_phone', 'label_wilaya', 'label_commune', 'label_note', 'success_title', 'upsell_title', 'cod_label', 'payment_label', 'label_email', 'wa_order_label' ) as $text_key ) {
 			if ( isset( $raw[ $text_key ] ) ) {
 				$clean[ $text_key ] = sanitize_text_field( $raw[ $text_key ] );
 			}
 		}
-		foreach ( array( 'msg_order_received', 'msg_order_shipped', 'msg_abandoned', 'success_text', 'payment_return_text' ) as $textarea_key ) {
+		foreach ( array( 'msg_order_received', 'msg_order_shipped', 'msg_abandoned', 'success_text', 'payment_return_text', 'msg_wa_order' ) as $textarea_key ) {
 			if ( isset( $raw[ $textarea_key ] ) ) {
 				$clean[ $textarea_key ] = sanitize_textarea_field( $raw[ $textarea_key ] );
 			}
@@ -653,6 +729,9 @@ class SettingsPage {
 		if ( isset( $raw['chargily_mode'] ) && in_array( $raw['chargily_mode'], array( 'test', 'live' ), true ) ) {
 			$clean['chargily_mode'] = $raw['chargily_mode'];
 		}
+		if ( isset( $raw['form_position'] ) && in_array( $raw['form_position'], array( 'before_summary', 'after_price', 'after_excerpt', 'before_cart', 'after_cart', 'after_summary', 'end_product' ), true ) ) {
+			$clean['form_position'] = $raw['form_position'];
+		}
 
 		// Redirection après commande.
 		if ( isset( $raw['redirect_url'] ) ) {
@@ -672,6 +751,11 @@ class SettingsPage {
 		foreach ( array(
 			'qty_max'              => array( 1, 999 ),
 			'form_max_width'       => array( 400, 900 ),
+			'restrict_hours_from'  => array( 0, 23 ),
+			'restrict_hours_to'    => array( 0, 23 ),
+			'max_per_ip_day'       => array( 0, 100 ),
+			'max_per_phone_day'    => array( 0, 20 ),
+			'max_per_email_day'    => array( 0, 20 ),
 			'redirect_delay'       => array( 3, 60 ),
 			'min_submit_seconds'   => array( 0, 60 ),
 			'max_per_ip_hour'      => array( 1, 100 ),
@@ -685,7 +769,7 @@ class SettingsPage {
 		}
 
 		// Cases à cocher (absent = 0).
-		foreach ( array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'menu_badge', 'auto_update', 'payment_enabled', 'redirect_enabled', 'upsell_enabled', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
+		foreach ( array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'menu_badge', 'auto_update', 'payment_enabled', 'redirect_enabled', 'upsell_enabled', 'show_email', 'restrict_hours_enabled', 'wa_order_enabled', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
 			$clean[ $toggle_key ] = empty( $raw[ $toggle_key ] ) ? 0 : 1;
 		}
 

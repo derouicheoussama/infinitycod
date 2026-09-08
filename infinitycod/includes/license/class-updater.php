@@ -136,6 +136,15 @@ class Updater {
 	}
 
 	/**
+	 * Infos de la dernière version disponible.
+	 *
+	 * @return array|null version, download_url, homepage, changelog.
+	 */
+	private function remote() {
+		return $this->remote_github();
+	}
+
+	/**
 	 * Infos de la dernière version disponible (public, pour la page À propos).
 	 *
 	 * @return array|null

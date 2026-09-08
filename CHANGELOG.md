@@ -81,3 +81,13 @@ Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
 ### Ajouté
 - **Intégration professionnelle dans l'écran Extensions** : liens « Réglages » et « Commandes » directement sur la ligne du plugin, méta « Site web » et « Nouveautés », et fiche **« Voir les détails »** complète (description détaillée, installation pas à pas, FAQ, changelog) comme une fiche WordPress.org.
 - **Accueil d'installation pro** : après l'activation, redirection automatique vers le tableau de bord InfinityCod avec la checklist de configuration.
+
+## 1.6.0 — 2026-09-08
+
+### Corrigé
+- **Fatal error dans le moteur de mises à jour** (v1.5.1) : la méthode interne `remote()` avait été perdue lors d'une réécriture — `inject_update()` plantait sur plugin-install.php. Le harnais exécute maintenant `inject_update()` et `plugin_info()` directement, ce fatal ne peut plus repasser.
+
+### Ajouté
+- **Position du formulaire sur la fiche produit** (Réglages → Formulaire) : avant/après résumé, après le prix, après la description courte, avant/après le bouton ajouter au panier, fin de fiche.
+- **Commande via WhatsApp** (Réglages → WhatsApp) : bouton optionnel dans le formulaire — la commande est créée normalement puis WhatsApp s'ouvre pré-rempli vers votre numéro avec le résumé (template personnalisable : {num}, {nom}, {telephone}, {produit}, {total}, {wilaya}, {commune}).
+- **Restrictions anti-abus étendues** (Réglages → Anti-fraude) : horaires d'ouverture des commandes (ex. 9h-22h), limites 24 h par **IP**, par **téléphone** et par **email** (nouveau champ email facultatif activable, intégré à la commande WooCommerce et à la blacklist).

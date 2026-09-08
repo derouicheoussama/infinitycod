@@ -97,6 +97,7 @@ class Schema {
 			quantity smallint(6) NOT NULL DEFAULT 1,
 			customer_name varchar(160) NOT NULL DEFAULT '',
 			phone varchar(20) NOT NULL DEFAULT '',
+			email varchar(120) NOT NULL DEFAULT '',
 			wilaya_code varchar(3) NOT NULL DEFAULT '',
 			commune varchar(160) NOT NULL DEFAULT '',
 			delivery_mode varchar(10) NOT NULL DEFAULT 'home',

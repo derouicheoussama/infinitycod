@@ -132,6 +132,7 @@ class OrderStore {
 		$address = array(
 			'first_name' => $name,
 			'phone'      => isset( $data['phone'] ) ? $data['phone'] : '',
+			'email'      => isset( $data['email'] ) ? $data['email'] : '',
 			'city'       => $commune,
 			'state'      => $wilaya['name_fr'],
 			'country'    => 'DZ',
@@ -171,6 +172,7 @@ class OrderStore {
 				'quantity'      => $quantity,
 				'customer_name' => $name,
 				'phone'         => isset( $data['phone'] ) ? $data['phone'] : '',
+				'email'         => isset( $data['email'] ) ? $data['email'] : '',
 				'wilaya_code'   => $wilaya_code,
 				'commune'       => $commune,
 				'delivery_mode' => $mode,

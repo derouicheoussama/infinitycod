@@ -216,6 +216,26 @@ class Routes {
 	public function submit( $request ) {
 		$body = $this->body( $request );
 
+		// 0. Restriction horaire des commandes.
+		if ( Settings::get( 'restrict_hours_enabled' ) ) {
+			$from = max( 0, min( 23, (int) Settings::get( 'restrict_hours_from', 9 ) ) );
+			$to   = max( 0, min( 23, (int) Settings::get( 'restrict_hours_to', 22 ) ) );
+			$h    = (int) current_time( 'G' );
+			$open = ( $from <= $to ) ? ( $h >= $from && $h < $to ) : ( $h >= $from || $h < $to );
+			if ( ! $open ) {
+				return new \WP_Error(
+					'icod_hours',
+					sprintf(
+						/* translators: 1 : heure d'ouverture, 2 : heure de fermeture. */
+						__( 'Les commandes sont acceptées entre %1$02dh et %2$02dh. Revenez pendant ces horaires !', 'infinitycod' ),
+						$from,
+						$to
+					),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
 		// 1. Champs obligatoires.
 		$name  = isset( $body['name'] ) ? Validator::clean_name( $body['name'] ) : '';
 		$phone = isset( $body['phone'] ) ? Validator::normalize_phone( $body['phone'] ) : null;
@@ -243,7 +263,11 @@ class Routes {
 
 		$mode     = ( isset( $body['mode'] ) && 'desk' === $body['mode'] ) ? RatesManager::MODE_DESK : RatesManager::MODE_HOME;
 		$stopdesk = isset( $body['stopdesk'] ) ? sanitize_text_field( $body['stopdesk'] ) : '';
-		$payment  = ( isset( $body['payment'] ) && 'online' === $body['payment'] && InfinityCodPaymentPaymentManager::enabled() ) ? 'online' : 'cod';
+		$payment  = ( isset( $body['payment'] ) && 'online' === $body['payment'] && \InfinityCod\Payment\PaymentManager::enabled() ) ? 'online' : 'cod';
+		$email    = isset( $body['email'] ) ? sanitize_email( $body['email'] ) : '';
+		if ( $email && ! is_email( $email ) ) {
+			$email = '';
+		}
 		if ( RatesManager::MODE_DESK === $mode && '' === $stopdesk ) {
 			return new \WP_Error( 'icod_desk', __( 'Veuillez choisir un bureau de retrait.', 'infinitycod' ), array( 'status' => 400 ) );
 		}
@@ -258,6 +282,7 @@ class Routes {
 			'mode'        => $mode,
 			'quantity'    => isset( $body['quantity'] ) ? absint( $body['quantity'] ) : 1,
 			'product_id'  => isset( $body['product_id'] ) ? absint( $body['product_id'] ) : 0,
+			'email'       => isset( $body['email'] ) ? sanitize_email( $body['email'] ) : '',
 			'honeypot'    => isset( $body['honeypot'] ) ? sanitize_text_field( $body['honeypot'] ) : '',
 			'ts'          => isset( $body['ts'] ) ? absint( $body['ts'] ) : 0,
 			'sig'         => isset( $body['sig'] ) ? sanitize_text_field( $body['sig'] ) : '',
@@ -291,6 +316,7 @@ class Routes {
 			'quantity'     => isset( $body['quantity'] ) ? absint( $body['quantity'] ) : 1,
 			'name'         => $name,
 			'phone'        => $phone,
+			'email'        => $email,
 			'wilaya_code'  => $wilaya_code,
 			'commune'      => $commune_name,
 			'mode'         => $mode,
@@ -335,10 +361,29 @@ class Routes {
 			\InfinityCod\Orders\Abandoned::mark_recovered_by_phone( $phone );
 		}
 
+		$wa_url = '';
+		if ( ! empty( $body['via_whatsapp'] ) && Settings::get( 'wa_order_enabled' ) && Settings::get( 'whatsapp_number' ) ) {
+			$wa_to  = (string) preg_replace( '/\D/', '', (string) Settings::get( 'whatsapp_number' ) );
+			$wa_msg = \InfinityCod\Whatsapp\WhatsappManager::render_template(
+				Settings::get( 'msg_wa_order' ),
+				array(
+					'num'       => (int) $result['order_id'],
+					'nom'       => $name,
+					'telephone' => $phone,
+					'produit'   => $product ? wp_strip_all_tags( $product->get_name() ) : '',
+					'total'     => number_format_i18n( (float) $result['total'], 0 ) . ' DA',
+					'wilaya'    => $wilaya['name_fr'],
+					'commune'   => $commune_name,
+				)
+			);
+			$wa_url = 'https://wa.me/' . $wa_to . '?text=' . rawurlencode( $wa_msg );
+		}
+
 		return rest_ensure_response( array(
 			'ok'       => true,
 			'order_id' => (int) $result['order_id'],
 			'total'    => (float) $result['total'],
+			'wa_url'   => $wa_url,
 		) );
 	}
 

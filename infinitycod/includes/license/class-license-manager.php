@@ -28,7 +28,7 @@ class LicenseManager {
 		 *
 		 * @param string $url Url par défaut.
 		 */
-		return apply_filters( 'infinitycod_license_server_url', (string) InfinityCodCoreSettings::get( 'license_server', 'https://factexpert.online/api.php' ) );
+		return apply_filters( 'infinitycod_license_server_url', (string) \InfinityCod\Core\Settings::get( 'license_server', 'https://factexpert.online/api.php' ) );
 	}
 
 	/**

@@ -225,7 +225,17 @@ foreach ( array( 'form', 'order', 'fraud', 'whatsapp', 'payment', 'license', 'ad
 }
 unset( $_GET['tab'] );
 
-echo "7) Fin de course des traitements (bulk, export, licence)…\n";
+echo "7) Moteur de mises à jour (inject_update = chemin du fatal 1.5.1)…\n";
+$updater = new \InfinityCod\License\Updater();
+$transient = new stdClass();
+$transient->checked = array( 'infinitycod/infinitycod.php' => '1.0.0' );
+$transient->response = array();
+$result_t = $updater->inject_update( $transient );
+echo "   ✓ inject_update exécuté sans erreur\n";
+$info = $updater->plugin_info( false, 'plugin_information', (object) array( 'slug' => 'infinitycod' ) );
+echo '   ✓ plugin_info : ' . ( $info && isset( $info->sections['installation'] ) ? 'fiche complète' : 'fallback' ) . "\n";
+
+echo "8) Fin de course des traitements (bulk, export, licence)…\n";
 try {
 	ob_start();
 	$admin->handle_orders_bulk();

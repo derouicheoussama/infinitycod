@@ -432,3 +432,11 @@ select.icod-input{
 .icod-upsell-price{color:var(--icod-accent);font-weight:800}
 .icod-upsell-cta{font-size:.78rem;font-weight:700;color:var(--icod-accent)}
 .icod-redirect-note{font-size:.8rem;color:var(--icod-muted);margin:12px 0 0}
+
+/* Bouton commande via WhatsApp */
+.icod-wa-btn{
+	margin-top:10px;
+	background:#25d366!important;
+	background-image:linear-gradient(180deg,#2fe06f,#1faf55)!important;
+	box-shadow:0 4px 14px rgba(37,211,102,.35)!important;
+}

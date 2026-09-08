@@ -333,6 +333,11 @@
 				errors.push({ field: els(form, '.icod-attr')[0], message: I18N.errorAttrs });
 			}
 			var name = nameInput.value.trim();
+
+			var emailInput = el(form, '[name="icod_email"]');
+			if (emailInput && emailInput.value.trim() && !/^[^s@]+@[^s@]+.[^s@]+$/.test(emailInput.value.trim())) {
+				errors.push({ field: emailInput, message: I18N.errorEmailFormat });
+			}
 			if (name.length < 2 || !/^[\p{L}\s'\-]+$/u.test(name)) {
 				errors.push({ field: nameInput, message: I18N.errorName });
 			}
@@ -397,8 +402,9 @@
 		}
 
 		/* --- Soumission --- */
-		form.addEventListener('submit', function (event) {
-			event.preventDefault();
+		var waBtn = el(form, '[data-icod-wa]');
+
+		function doSubmit(viaWhatsApp) {
 			hideMsg();
 
 			var errors = validate();
@@ -410,12 +416,14 @@
 			submitBtn.disabled = true;
 			var originalLabel = submitBtn.textContent;
 			submitBtn.textContent = I18N.sending;
+			if (waBtn) { waBtn.disabled = true; }
 
 			var arOption = communeSelect.options[communeSelect.selectedIndex];
 			var communeFr = communeSelect.value;
 			var communeAr = arOption ? (arOption.getAttribute('data-ar') || '') : '';
 
 			var payRadio = el(form, 'input[name="icod_payment"]:checked');
+			var emailInput = el(form, '[name="icod_email"]');
 
 			api('submit', {
 				product_id: state.productId,
@@ -423,12 +431,14 @@
 				quantity: qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1,
 				name: nameInput.value.trim(),
 				phone: phoneInput.value.trim(),
+				email: emailInput ? emailInput.value.trim() : '',
 				wilaya: wilayaSelect.value,
 				commune: communeFr,
 				commune_ar: communeAr,
 				mode: currentMode(),
 				stopdesk: currentMode() === 'desk' ? deskSelect.value : '',
 				payment: payRadio ? payRadio.value : 'cod',
+				via_whatsapp: viaWhatsApp ? 1 : 0,
 				note: (el(form, '.icod-note') || { value: '' }).value.trim(),
 				honeypot: el(form, '.icod-hp').value,
 				ts: el(form, '[name="icod_ts"]').value,
@@ -437,6 +447,7 @@
 			}).then(function (json) {
 				submitBtn.disabled = false;
 				submitBtn.textContent = originalLabel;
+				if (waBtn) { waBtn.disabled = false; }
 
 				if (!json) {
 					showMsg(I18N.error, 'error');
@@ -504,6 +515,11 @@
 				if (sticky) { sticky.classList.remove('is-visible'); }
 				success.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
+				// Commande via WhatsApp : ouvrir la conversation pré-remplie.
+				if (json.wa_url) {
+					window.open(json.wa_url, '_blank');
+				}
+
 				var restart = el(root, '[data-icod-restart]');
 				if (restart) {
 					restart.addEventListener('click', function (e) {
@@ -514,9 +530,21 @@
 			}).catch(function () {
 				submitBtn.disabled = false;
 				submitBtn.textContent = originalLabel;
+				if (waBtn) { waBtn.disabled = false; }
 				showMsg(I18N.error, 'error');
 			});
+		}
+
+		form.addEventListener('submit', function (event) {
+			event.preventDefault();
+			doSubmit(false);
 		});
+
+		if (waBtn) {
+			waBtn.addEventListener('click', function () {
+				doSubmit(true);
+			});
+		}
 
 		refreshQuote();
 	}

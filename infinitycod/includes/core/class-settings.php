@@ -62,6 +62,11 @@ class Settings {
 			'form_preset'           => 'modern',       // modern | elegant | sunset | ocean | minimal.
 			'accent_color'          => '#0e7a4f',
 			'sticky_bar'            => 1,
+			'form_position'         => 'after_summary', // position sur la fiche produit.
+
+			// Champ email (facultatif, sert aussi aux restrictions).
+			'show_email'            => 0,
+			'label_email'           => __( 'Email (facultatif)', 'infinitycod' ),
 
 			// Libellés personnalisables des champs.
 			'label_name'            => __( 'Nom complet', 'infinitycod' ),
@@ -69,6 +74,19 @@ class Settings {
 			'label_wilaya'          => __( 'Wilaya', 'infinitycod' ),
 			'label_commune'         => __( 'Commune', 'infinitycod' ),
 			'label_note'            => __( 'Note (facultatif)', 'infinitycod' ),
+
+			// Commande via WhatsApp.
+			'wa_order_enabled'      => 0,
+			'wa_order_label'        => __( 'Commander via WhatsApp', 'infinitycod' ),
+			'msg_wa_order'          => __( '🛒 Nouvelle commande #{num} — {nom} ({telephone}) — {produit} — {total} — {wilaya}, {commune}', 'infinitycod' ),
+
+			// Restrictions de commande.
+			'max_per_ip_day'        => 10,   // 0 = illimité.
+			'max_per_phone_day'     => 3,    // 0 = illimité.
+			'max_per_email_day'     => 3,    // 0 = illimité.
+			'restrict_hours_enabled' => 0,
+			'restrict_hours_from'   => 9,    // heure de début (0-23).
+			'restrict_hours_to'     => 22,   // heure de fin (0-23).
 
 			// Affichage des champs / blocs du formulaire.
 			'show_note'             => 0,

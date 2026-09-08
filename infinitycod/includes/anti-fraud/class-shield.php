@@ -125,6 +125,34 @@ class Shield {
 			$score  += 30;
 		}
 
+		// 8. Email : blacklist + volume quotidien.
+		$email = isset( $input['email'] ) ? sanitize_email( $input['email'] ) : '';
+		if ( $email ) {
+			if ( $this->is_blacklisted( 'email', $email ) ) {
+				$flags[] = 'blacklist_email';
+				$score  += 100;
+			}
+			$max_email_day = (int) Settings::get( 'max_per_email_day', 3 );
+			if ( $max_email_day > 0 && $this->count_column_today( Schema::table( 'orders' ), 'email', $email ) >= $max_email_day ) {
+				$flags[] = 'email_day_limit';
+				$score  += 50;
+			}
+		}
+
+		// 9. Volume par téléphone sur 24 h.
+		$max_phone_day = (int) Settings::get( 'max_per_phone_day', 3 );
+		if ( $phone && $max_phone_day > 0 && $this->count_column_today( Schema::table( 'orders' ), 'phone', $phone ) >= $max_phone_day ) {
+			$flags[] = 'phone_day_limit';
+			$score  += 50;
+		}
+
+		// 10. Volume par IP sur 24 h.
+		$max_ip_day = (int) Settings::get( 'max_per_ip_day', 10 );
+		if ( $max_ip_day > 0 && $this->count_column_today( Schema::table( 'orders' ), 'ip', $ip ) >= $max_ip_day ) {
+			$flags[] = 'ip_day_limit';
+			$score  += 40;
+		}
+
 		$score = min( 100, $score );
 		$blocked = $score >= (int) Settings::get( 'min_fraud_score_block', 60 );
 
@@ -240,6 +268,24 @@ class Shield {
 		return (int) $wpdb->get_var(
 			$wpdb->prepare( "SELECT COUNT(*) FROM {$orders} WHERE fingerprint = %s AND created_at >= %s", $fingerprint, $since ) // phpcs:ignore WordPress.DB.PreparedSQL
 		);
+	}
+
+	/**
+	 * Nombre de lignes d'une table pour une colonne/valeur aujourd'hui.
+	 *
+	 * @param string $table  Table complète.
+	 * @param string $column Colonne (blanchie par l'appelant).
+	 * @param string $value  Valeur.
+	 * @return int
+	 */
+	public function count_column_today( $table, $column, $value ) {
+		global $wpdb;
+		$allowed = array( 'ip', 'phone', 'email', 'fingerprint' );
+		if ( ! in_array( $column, $allowed, true ) ) {
+			return 0;
+		}
+		$since = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - DAY_IN_SECONDS );
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE {$column} = %s AND created_at >= %s", $value, $since ) ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
 	}
 
 	/**
