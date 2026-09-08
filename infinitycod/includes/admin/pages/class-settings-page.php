@@ -200,6 +200,14 @@ class SettingsPage {
 					<input type="text" name="icod[button_text]" value="<?php echo esc_attr( Settings::get( 'button_text' ) ); ?>" class="regular-text" />
 				</label>
 				<label>
+					<span><?php esc_html_e( 'Indication du champ téléphone', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[phone_placeholder]" value="<?php echo esc_attr( Settings::get( 'phone_placeholder' ) ); ?>" dir="ltr" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Largeur du formulaire (px)', 'infinitycod' ); ?></span>
+					<input type="number" min="400" max="900" step="20" name="icod[form_max_width]" value="<?php echo esc_attr( (int) Settings::get( 'form_max_width', 680 ) ); ?>" />
+				</label>
+				<label>
 					<span><?php esc_html_e( 'Couleur d‘accent', 'infinitycod' ); ?></span>
 					<input type="color" name="icod[accent_color]" value="<?php echo esc_attr( Settings::get( 'accent_color' ) ); ?>" />
 				</label>
@@ -240,6 +248,21 @@ class SettingsPage {
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[sticky_bar]" value="1" <?php checked( (int) Settings::get( 'sticky_bar' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Barre récapitulative collante sur mobile', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Message de succès', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Affiché après la commande. Variable disponible : {num} (numéro de commande).', 'infinitycod' ); ?></p>
+			<div class="icod-grid icod-grid-full">
+				<label>
+					<span><?php esc_html_e( 'Titre', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[success_title]" value="<?php echo esc_attr( Settings::get( 'success_title' ) ); ?>" class="regular-text" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Texte', 'infinitycod' ); ?></span>
+					<textarea name="icod[success_text]" rows="2" class="large-text"><?php echo esc_textarea( Settings::get( 'success_text' ) ); ?></textarea>
 				</label>
 			</div>
 		</div>
@@ -426,6 +449,14 @@ class SettingsPage {
 		<div class="icod-card">
 			<h2><?php esc_html_e( 'Avancé', 'infinitycod' ); ?></h2>
 			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[menu_badge]" value="1" <?php checked( (int) Settings::get( 'menu_badge' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Badge de commandes en attente sur le menu admin', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[auto_update]" value="1" <?php checked( (int) Settings::get( 'auto_update' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Mise à jour automatique du plugin (sans clic, dès qu‘une version GitHub est publiée)', 'infinitycod' ); ?></span>
+				</label>
 				<label class="icod-toggle icod-toggle-danger">
 					<input type="checkbox" name="icod[delete_on_uninstall]" value="1" <?php checked( (int) Settings::get( 'delete_on_uninstall' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Supprimer toutes les données (tables, réglages) à la désinstallation du plugin', 'infinitycod' ); ?></span>
@@ -452,12 +483,12 @@ class SettingsPage {
 		$clean = array();
 
 		// Textes.
-		foreach ( array( 'form_title', 'form_subtitle', 'button_text', 'label_name', 'label_phone', 'label_wilaya', 'label_commune', 'label_note' ) as $text_key ) {
+		foreach ( array( 'form_title', 'form_subtitle', 'button_text', 'phone_placeholder', 'label_name', 'label_phone', 'label_wilaya', 'label_commune', 'label_note', 'success_title' ) as $text_key ) {
 			if ( isset( $raw[ $text_key ] ) ) {
 				$clean[ $text_key ] = sanitize_text_field( $raw[ $text_key ] );
 			}
 		}
-		foreach ( array( 'msg_order_received', 'msg_order_shipped', 'msg_abandoned' ) as $textarea_key ) {
+		foreach ( array( 'msg_order_received', 'msg_order_shipped', 'msg_abandoned', 'success_text' ) as $textarea_key ) {
 			if ( isset( $raw[ $textarea_key ] ) ) {
 				$clean[ $textarea_key ] = sanitize_textarea_field( $raw[ $textarea_key ] );
 			}
@@ -482,6 +513,7 @@ class SettingsPage {
 		// Numériques.
 		foreach ( array(
 			'qty_max'              => array( 1, 999 ),
+			'form_max_width'       => array( 400, 900 ),
 			'min_submit_seconds'   => array( 0, 60 ),
 			'max_per_ip_hour'      => array( 1, 100 ),
 			'min_fraud_score_block' => array( 0, 100 ),
@@ -494,7 +526,7 @@ class SettingsPage {
 		}
 
 		// Cases à cocher (absent = 0).
-		foreach ( array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
+		foreach ( array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'menu_badge', 'auto_update', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
 			$clean[ $toggle_key ] = empty( $raw[ $toggle_key ] ) ? 0 : 1;
 		}
 

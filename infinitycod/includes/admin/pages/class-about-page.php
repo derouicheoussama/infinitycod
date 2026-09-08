@@ -40,10 +40,22 @@ class AboutPage {
 		$desks_table  = Schema::table( 'stopdesks' );
 		$desks_count  = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$desks_table}" ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
 
-		// Mise à jour distante ?
-		$remote = get_transient( 'icod_update_info' );
-		$remote = is_array( $remote ) ? $remote : array();
-		$newer  = ! empty( $remote['version'] ) && version_compare( INFINITYCOD_VERSION, (string) $remote['version'], '<' );
+		// Dernière version connue (transients en cache — jamais d'appel réseau ici).
+		$gh     = get_transient( 'icod_update_gh' );
+		$site   = get_transient( 'icod_update_info' );
+		$gh     = is_array( $gh ) ? $gh : array();
+		$site   = is_array( $site ) ? $site : array();
+
+		$latest = '';
+		$source = '';
+		if ( ! empty( $gh['version'] ) ) {
+			$latest = (string) $gh['version'];
+			$source = 'GitHub';
+		} elseif ( ! empty( $site['version'] ) ) {
+			$latest = (string) $site['version'];
+			$source = 'factexpert.online';
+		}
+		$newer = '' !== $latest && version_compare( INFINITYCOD_VERSION, $latest, '<' );
 
 		$carriers = infinitycod()->module( 'carriers' );
 		$active_carriers = array();
@@ -71,8 +83,12 @@ class AboutPage {
 						<span class="icod-status icod-status-delivered"><?php echo esc_html( \InfinityCod\License\LicenseManager::status_label() ); ?></span>
 						<?php if ( $newer ) : ?>
 							<span class="icod-about-update">
-								<?php printf( /* translators: %s : version disponible. */ esc_html__( 'Version %s disponible !', 'infinitycod' ), '<strong>' . esc_html( $remote['version'] ) . '</strong>' ); ?>
+								<?php printf( /* translators: %s : version disponible. */ esc_html__( 'Version %s disponible !', 'infinitycod' ), '<strong>' . esc_html( $latest ) . '</strong>' ); ?>
 								<a href="<?php echo esc_url( admin_url( 'update-core.php' ) ); ?>" class="button button-primary button-small"><?php esc_html_e( 'Mettre à jour', 'infinitycod' ); ?></a>
+							</span>
+						<?php elseif ( '' !== $latest ) : ?>
+							<span class="icod-sub">
+								<?php printf( /* translators: 1 : version, 2 : source. */ esc_html__( 'Dernière version publiée : %1$s (%2$s)', 'infinitycod' ), esc_html( $latest ), esc_html( $source ) ); ?>
 							</span>
 						<?php endif; ?>
 					</p>

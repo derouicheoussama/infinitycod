@@ -60,6 +60,53 @@ class Updater {
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'inject_update' ) );
 		add_filter( 'plugins_api', array( $this, 'plugin_info' ), 20, 3 );
 		add_filter( 'upgrader_pre_download', array( $this, 'auth_private_download' ), 10, 4 );
+
+		// Vérification horaire indépendante du cycle natif de WordPress (12 h) :
+		// les clients voient une nouvelle release en quelques heures max.
+		add_action( 'infinitycod_update_check', array( $this, 'force_check' ) );
+		if ( ! wp_next_scheduled( 'infinitycod_update_check' ) ) {
+			wp_schedule_event( time() + 5 * MINUTE_IN_SECONDS, 'hourly', 'infinitycod_update_check' );
+		}
+
+		// Mise à jour automatique (option marchand).
+		add_filter( 'auto_update_plugin', array( $this, 'auto_update' ), 20, 2 );
+	}
+
+	/**
+	 * Rafraîchit les informations de version et redéclenche la vérification WP.
+	 *
+	 * @return void
+	 */
+	public function force_check() {
+		self::clear_cache();
+
+		if ( function_exists( 'wp_update_plugins' ) ) {
+			delete_site_transient( 'update_plugins' );
+			wp_update_plugins();
+		}
+	}
+
+	/**
+	 * Mise à jour automatique du plugin si le marchand l'a activée.
+	 *
+	 * @param bool   $update Décision courante.
+	 * @param object $item   Plugin concerné.
+	 * @return bool
+	 */
+	public function auto_update( $update, $item ) {
+		if ( isset( $item->plugin ) && INFINITYCOD_BASENAME === $item->plugin && Settings::get( 'auto_update' ) ) {
+			return true;
+		}
+		return $update;
+	}
+
+	/**
+	 * Infos de la dernière version disponible (public, pour la page À propos).
+	 *
+	 * @return array|null
+	 */
+	public function latest() {
+		return $this->remote();
 	}
 
 	/**

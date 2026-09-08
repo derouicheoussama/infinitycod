@@ -39,6 +39,7 @@ delete_option( 'infinitycod_license' );
 
 wp_clear_scheduled_hook( 'infinitycod_sync_tracking' );
 wp_clear_scheduled_hook( 'infinitycod_recover_abandoned' );
+wp_clear_scheduled_hook( 'infinitycod_update_check' );
 
 // Méta des commandes WooCommerce liées au plugin.
 $wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE '\\_infinitycod\\_%'" ); // phpcs:ignore WordPress.DB.PreparedSQL

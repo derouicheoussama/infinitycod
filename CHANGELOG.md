@@ -34,3 +34,10 @@ Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
 
 ### Ajouté (1.1.0, suite)
 - **Mises à jour depuis GitHub** : source prioritaire GitHub Releases du dépôt `derouicheoussama/infinitycod` (fallback factexpert.online). Dépôt privé supporté : token GitHub configurable dans Réglages → Avancé, téléchargement authentifié en deux temps (gestion de la redirection signée S3). Workflow GitHub Actions de release automatique (lint → build zip → release) déclenché par les tags `v*`.
+
+## 1.2.0 — 2026-09-08
+
+### Ajouté
+- **Mises à jour encore plus directes** : vérification horaire dédiée (cron `infinitycod_update_check`) en plus du cycle natif WordPress de 12 h — une release GitHub apparaît chez les clients en quelques heures maximum. Nouvelle option **« Mise à jour automatique »** : le plugin s'installe tout seul dès qu'une version est publiée (filtre `auto_update_plugin`).
+- **Interface admin** : badge rouge de commandes en attente sur le menu InfinityCod (option désactivable), crédit Infinity Coder en pied de page sur les écrans du plugin, page À propos affichant la dernière version publiée et sa source (GitHub / factexpert.online).
+- **Nouveaux réglages formulaire** : indication du champ téléphone, largeur du formulaire (400-900 px), titre et texte de succès personnalisés (variable {num}).

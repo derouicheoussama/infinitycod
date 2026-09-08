@@ -42,6 +42,10 @@ class Settings {
 			'form_title'            => __( 'Commandez maintenant — paiement à la livraison', 'infinitycod' ),
 			'form_subtitle'         => __( 'Remplissez le formulaire, nous vous appelons pour confirmer.', 'infinitycod' ),
 			'button_text'           => __( 'Confirmer la commande', 'infinitycod' ),
+			'phone_placeholder'     => __( '0X XX XX XX XX', 'infinitycod' ),
+			'form_max_width'        => 680,  // px, 400-900.
+			'success_title'         => __( '✅ Commande enregistrée !', 'infinitycod' ),
+			'success_text'          => __( 'Merci ! Votre commande n° {num} a bien été enregistrée. Nous vous appellerons très vite pour la confirmer.', 'infinitycod' ),
 			'show_qty_selector'     => 1,
 			'qty_min'               => 1,
 			'qty_max'               => 20,
@@ -94,6 +98,8 @@ class Settings {
 			// Divers.
 			'delete_on_uninstall'   => 0,
 			'wizard_done'           => 0,
+			'menu_badge'            => 1,    // Badge commandes en attente sur le menu.
+			'auto_update'           => 0,    // Mise à jour automatique du plugin.
 
 			// Mises à jour via GitHub.
 			'github_repo'           => 'derouicheoussama/infinitycod', // proprietaire/depot.

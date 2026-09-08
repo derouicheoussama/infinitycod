@@ -158,6 +158,8 @@ class FormManager {
 
 		$offers_tiers = $show_offers ? OffersEngine::tiers_for_product( $product->get_id() ) : array();
 
+		$max_width = max( 400, min( 900, (int) Settings::get( 'form_max_width', 680 ) ) );
+
 		ob_start();
 		?>
 		<div class="icod-root icod-theme-<?php echo esc_attr( $theme ); ?>"
@@ -167,6 +169,7 @@ class FormManager {
 			data-unit-price="<?php echo esc_attr( $product->get_price() ); ?>"
 			data-qty-max="<?php echo esc_attr( (int) Settings::get( 'qty_max', 20 ) ); ?>"
 			data-sticky="<?php echo esc_attr( (int) Settings::get( 'sticky_bar', 1 ) ); ?>"
+			style="max-width:<?php echo (int) $max_width; ?>px"
 			dir="<?php echo $rtl ? 'rtl' : 'ltr'; ?>">
 
 			<style>:root{--icod-accent:<?php echo esc_attr( $accent ); ?>;}</style>
@@ -218,7 +221,7 @@ class FormManager {
 
 							<div class="icod-field">
 								<label for="icod-phone-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( $label_phone ); ?></label>
-								<input type="tel" name="icod_phone" id="icod-phone-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-input-phone" inputmode="tel" autocomplete="tel" placeholder="0X XX XX XX XX" required data-icod-field="phone" />
+								<input type="tel" name="icod_phone" id="icod-phone-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-input-phone" inputmode="tel" autocomplete="tel" placeholder="<?php echo esc_attr( Settings::get( 'phone_placeholder' ) ); ?>" required data-icod-field="phone" />
 							</div>
 
 							<div class="icod-row">
@@ -338,7 +341,7 @@ class FormManager {
 			</section>
 
 			<div class="icod-success icod-hidden" data-icod-success hidden>
-				<h3><?php esc_html_e( '✅ Commande enregistrée !', 'infinitycod' ); ?></h3>
+				<h3 data-icod-success-title><?php echo esc_html( Settings::get( 'success_title' ) ); ?></h3>
 				<p data-icod-success-text></p>
 				<a class="icod-new-order" href="#" data-icod-restart><?php esc_html_e( 'Passer une autre commande', 'infinitycod' ); ?></a>
 			</div>
@@ -438,7 +441,8 @@ class FormManager {
 				'errorDesk'      => __( 'Veuillez choisir un bureau de retrait.', 'infinitycod' ),
 				'sending'        => __( 'Envoi en cours…', 'infinitycod' ),
 				'blocked'        => __( 'Commande refusée. Si c‘est une erreur, contactez-nous par téléphone.', 'infinitycod' ),
-				'successText'    => __( 'Merci ! Votre commande n° {num} a bien été enregistrée. Nous vous appellerons très vite pour la confirmer.', 'infinitycod' ),
+				'successTitle'   => Settings::get( 'success_title' ),
+				'successText'    => Settings::get( 'success_text' ),
 				'da'             => __( 'DA', 'infinitycod' ),
 			),
 		) );

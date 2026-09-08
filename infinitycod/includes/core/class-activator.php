@@ -154,5 +154,6 @@ class Activator {
 	public static function deactivate() {
 		wp_clear_scheduled_hook( 'infinitycod_sync_tracking' );
 		wp_clear_scheduled_hook( 'infinitycod_recover_abandoned' );
+		wp_clear_scheduled_hook( 'infinitycod_update_check' );
 	}
 }

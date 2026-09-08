@@ -39,9 +39,64 @@ class AdminManager {
 		add_action( 'wp_ajax_icod_parcel_create', array( $this, 'handle_parcel_create' ) );
 		add_action( 'wp_ajax_icod_sync_tracking', array( $this, 'handle_sync_tracking' ) );
 		add_action( 'wp_ajax_icod_import_offices', array( $this, 'handle_import_offices' ) );
+		add_action( 'admin_menu', array( $this, 'apply_menu_badge' ), 999 );
+		add_filter( 'admin_footer_text', array( $this, 'footer_credit' ) );
 
 		// Métabox offres par produit.
 		( new ProductMetaBox() )->register();
+	}
+
+	/**
+	 * Badge de commandes en attente sur l'entrée de menu InfinityCod.
+	 *
+	 * Attaché à admin_menu en priorité 999 : le menu est construit,
+	 * on enrichit le titre avant son rendu.
+	 *
+	 * @return void
+	 */
+	public function apply_menu_badge() {
+		if ( ! \InfinityCod\Core\Settings::get( 'menu_badge' ) ) {
+			return;
+		}
+
+		global $wpdb;
+
+		$orders_table = \InfinityCod\Core\Schema::table( 'orders' );
+		$pending      = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$orders_table} WHERE status = 'pending'" ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
+
+		if ( $pending < 1 ) {
+			return;
+		}
+
+		foreach ( (array) $GLOBALS['menu'] as $index => $item ) {
+			if ( isset( $item[2] ) && 'infinitycod' === $item[2] ) {
+				$GLOBALS['menu'][ $index ][0] .= sprintf(
+					' <span class="awaiting-mod count-%1$d"><span class="pending-count">%1$d</span></span>',
+					$pending
+				);
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Crédit en pied de page sur les écrans du plugin.
+	 *
+	 * @param string $text Texte courant.
+	 * @return string
+	 */
+	public function footer_credit( $text ) {
+		if ( function_exists( 'get_current_screen' ) ) {
+			$screen = get_current_screen();
+			if ( $screen && false !== strpos( (string) $screen->id, 'infinitycod' ) ) {
+				return sprintf(
+					/* translators: 1 : version. */
+					esc_html__( 'InfinityCod v%1$s — développé avec ❤️ par Infinity Coder (Oussama Derouiche)', 'infinitycod' ),
+					esc_html( INFINITYCOD_VERSION )
+				);
+			}
+		}
+		return $text;
 	}
 
 	/**

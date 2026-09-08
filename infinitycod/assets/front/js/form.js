@@ -450,8 +450,12 @@
 
 				var success = el(root, '[data-icod-success]');
 				var successText = el(root, '[data-icod-success-text]');
+				var successTitle = el(root, '[data-icod-success-title]');
 				if (successText) {
 					successText.textContent = I18N.successText.replace('{num}', json.order_id);
+				}
+				if (successTitle && I18N.successTitle) {
+					successTitle.textContent = I18N.successTitle.replace('{num}', json.order_id);
 				}
 				form.closest('.icod-card').classList.add('icod-hidden');
 				success.hidden = false;

@@ -138,6 +138,9 @@ function is_product() { return false; }
 function is_singular( $t = '' ) { return false; }
 function did_action( $h ) { return 0; }
 function wp_remote_get( ...$a ) { return new WP_Error_Stub( 'http', 'offline' ); }
+function wp_update_plugins() {}
+function get_site_transient( $k ) { return false; }
+function set_site_transient( $k, $v, $e = 0 ) { return true; }
 function delete_transient( $k ) {}
 function delete_site_transient( $k ) {}
 function get_bloginfo( $k = 'name' ) { return '6.5'; }
