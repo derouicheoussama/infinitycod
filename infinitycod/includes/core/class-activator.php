@@ -37,10 +37,15 @@ class Activator {
 	/**
 	 * Crée / met à jour les tables via dbDelta.
 	 *
+	 * Le require est conditionné : dans le harnais de test, dbDelta est
+	 * déjà défini et le fichier wp-admin n'existe pas.
+	 *
 	 * @return void
 	 */
 	public static function create_tables() {
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		if ( ! function_exists( 'dbDelta' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
 
 		foreach ( Schema::create_tables() as $sql ) {
 			dbDelta( $sql );
