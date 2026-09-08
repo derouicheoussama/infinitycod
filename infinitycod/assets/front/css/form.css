@@ -1,0 +1,252 @@
+/**
+ * InfinityCod — Formulaire COD (mobile-first, dark mode, RTL).
+ * Préfixe isolé .icod- : zéro conflit avec le thème.
+ * Breakpoints : 360 (base) / 480 / 768 / 1024.
+ */
+
+/* ===== Tokens ===== */
+.icod-root{
+	--icod-accent:#0e7a4f;
+	--icod-accent-ink:#fff;
+	--icod-bg:#ffffff;
+	--icod-surface:#f7f8f8;
+	--icod-text:#1a1d21;
+	--icod-muted:#5f6670;
+	--icod-border:#dfe2e6;
+	--icod-danger:#c0392b;
+	--icod-success:#0e7a4f;
+	--icod-radius:12px;
+	--icod-radius-sm:8px;
+	--icod-shadow:0 2px 10px rgba(16,24,40,.06);
+	--icod-field-h:50px;
+
+	font-family:inherit;
+	color:var(--icod-text);
+	line-height:1.45;
+	max-width:640px;
+	margin-inline:auto;
+}
+.icod-root *,.icod-root *::before,.icod-root *::after{box-sizing:border-box}
+
+/* Thème sombre forcé */
+.icod-root.icod-theme-dark{
+	--icod-bg:#17191d;
+	--icod-surface:#1f2329;
+	--icod-text:#e8eaed;
+	--icod-muted:#9aa1ab;
+	--icod-border:#32363d;
+	--icod-shadow:0 2px 10px rgba(0,0,0,.35);
+}
+/* Thème auto : suit la préférence du visiteur */
+@media (prefers-color-scheme:dark){
+	.icod-root.icod-theme-auto{
+		--icod-bg:#17191d;
+		--icod-surface:#1f2329;
+		--icod-text:#e8eaed;
+		--icod-muted:#9aa1ab;
+		--icod-border:#32363d;
+		--icod-shadow:0 2px 10px rgba(0,0,0,.35);
+	}
+}
+
+/* ===== Carte ===== */
+.icod-card{
+	background:var(--icod-bg);
+	border:1px solid var(--icod-border);
+	border-radius:var(--icod-radius);
+	box-shadow:var(--icod-shadow);
+	padding:20px 16px;
+}
+.icod-form-title{
+	margin:0 0 16px;
+	font-size:1.25rem;
+	font-weight:800;
+	text-align:center;
+}
+
+/* ===== Champs ===== */
+.icod-field{margin-bottom:14px}
+.icod-field > label{
+	display:block;
+	font-weight:600;
+	font-size:.86rem;
+	margin-bottom:6px;
+	color:var(--icod-text);
+}
+.icod-input{
+	width:100%;
+	height:var(--icod-field-h);
+	padding:0 14px;
+	font-size:16px;              /* évite le zoom auto iOS */
+	color:var(--icod-text);
+	background:var(--icod-surface);
+	border:1.5px solid var(--icod-border);
+	border-radius:var(--icod-radius-sm);
+	appearance:none;
+	transition:border-color .15s, box-shadow .15s;
+}
+select.icod-input{
+	background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888f98' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+	background-repeat:no-repeat;
+	background-position:right 14px center;
+	padding-inline-end:38px;
+}
+.icod-root[dir="rtl"] select.icod-input{background-position:left 14px center}
+.icod-input:focus{
+	outline:none;
+	border-color:var(--icod-accent);
+	box-shadow:0 0 0 3px color-mix(in srgb, var(--icod-accent) 22%, transparent);
+}
+.icod-input:disabled{opacity:.55}
+.icod-input.icod-invalid{border-color:var(--icod-danger)}
+
+/* Deux colonnes dès 480px (wilaya + commune, avant : empilées) */
+.icod-row{display:grid;grid-template-columns:1fr;gap:0 12px}
+@media (min-width:480px){.icod-row{grid-template-columns:1fr 1fr}}
+
+/* Honeypot : invisible pour les humains, présent pour les bots. */
+.icod-hp{position:absolute!important;inset-inline-start:-9999px!important;height:0;width:0;opacity:0}
+
+/* ===== Mode de livraison ===== */
+.icod-mode{border:0;margin:4px 0 14px;padding:0}
+.icod-mode legend{font-weight:600;font-size:.86rem;margin-bottom:8px;padding:0}
+.icod-mode-option{display:block;position:relative;cursor:pointer}
+.icod-mode-option + .icod-mode-option{margin-top:8px}
+.icod-mode-radio{position:absolute;opacity:0;inset-inline-start:0;top:0;width:100%;height:100%;margin:0;cursor:pointer}
+.icod-mode-box{
+	display:flex;align-items:center;justify-content:space-between;gap:8px;
+	padding:12px 14px;
+	border:1.5px solid var(--icod-border);
+	border-radius:var(--icod-radius-sm);
+	background:var(--icod-surface);
+	transition:border-color .15s, background .15s;
+	font-size:.95rem;
+}
+.icod-mode-title{font-weight:600}
+.icod-mode-price{font-weight:700;color:var(--icod-accent);white-space:nowrap}
+.icod-mode-radio:checked + .icod-mode-box{
+	border-color:var(--icod-accent);
+	background:color-mix(in srgb, var(--icod-accent) 8%, var(--icod-bg));
+	box-shadow:0 0 0 1px var(--icod-accent) inset;
+}
+.icod-mode-radio:focus-visible + .icod-mode-box{box-shadow:0 0 0 3px color-mix(in srgb, var(--icod-accent) 30%, transparent)}
+
+/* ===== Quantité ===== */
+.icod-qty{display:inline-flex;align-items:center;border:1.5px solid var(--icod-border);border-radius:var(--icod-radius-sm);overflow:hidden;background:var(--icod-surface)}
+.icod-qty-btn{
+	width:46px;height:var(--icod-field-h);
+	font-size:1.35rem;line-height:1;
+	background:transparent;border:0;color:var(--icod-text);
+	cursor:pointer;touch-action:manipulation;
+}
+.icod-qty-btn:active{background:color-mix(in srgb, var(--icod-accent) 12%, transparent)}
+.icod-qty-input{
+	width:64px;height:var(--icod-field-h);
+	text-align:center;font-size:1rem;font-weight:700;
+	border:0;background:transparent;color:var(--icod-text);
+	-moz-appearance:textfield;appearance:textfield;
+}
+.icod-qty-input::-webkit-outer-spin-button,.icod-qty-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+/* ===== Offres ===== */
+.icod-offers{
+	list-style:none;margin:0 0 14px;padding:10px 14px;
+	background:color-mix(in srgb, var(--icod-accent) 8%, var(--icod-bg));
+	border-radius:var(--icod-radius-sm);
+	font-size:.86rem;color:var(--icod-text);
+}
+.icod-offers li{margin:2px 0}
+
+/* ===== Résumé ===== */
+.icod-summary{
+	border-top:1.5px dashed var(--icod-border);
+	padding-top:12px;margin-bottom:16px;
+	font-size:.95rem;
+}
+.icod-summary-line{display:flex;justify-content:space-between;gap:10px;padding:3px 0;color:var(--icod-muted)}
+.icod-summary-line [data-summary-discount]{color:var(--icod-success);font-weight:600}
+.icod-summary-total{
+	display:flex;justify-content:space-between;gap:10px;align-items:baseline;
+	margin-top:8px;padding-top:10px;
+	border-top:1.5px solid var(--icod-border);
+	font-weight:800;font-size:1.05rem;color:var(--icod-text);
+}
+.icod-summary-total [data-summary-total]{color:var(--icod-accent);font-size:1.2rem;white-space:nowrap}
+
+/* ===== Messages ===== */
+.icod-msg{
+	margin:0 0 14px;padding:10px 14px;
+	border-radius:var(--icod-radius-sm);
+	font-size:.9rem;
+}
+.icod-msg.is-error{background:color-mix(in srgb, var(--icod-danger) 10%, var(--icod-bg));color:var(--icod-danger);border:1px solid color-mix(in srgb, var(--icod-danger) 35%, transparent)}
+.icod-msg.is-info{background:color-mix(in srgb, var(--icod-accent) 10%, var(--icod-bg));color:var(--icod-accent)}
+
+/* ===== Bouton ===== */
+.icod-submit{
+	display:block;width:100%;
+	min-height:54px;
+	padding:14px 20px;
+	font-size:1.05rem;font-weight:800;letter-spacing:.2px;
+	color:var(--icod-accent-ink);
+	background:linear-gradient(180deg, color-mix(in srgb, var(--icod-accent) 92%, #fff), var(--icod-accent));
+	border:0;border-radius:var(--icod-radius-sm);
+	cursor:pointer;touch-action:manipulation;
+	box-shadow:0 4px 14px color-mix(in srgb, var(--icod-accent) 35%, transparent);
+	transition:transform .1s, filter .15s;
+}
+.icod-submit:hover{filter:brightness(1.05)}
+.icod-submit:active{transform:translateY(1px)}
+.icod-submit:focus-visible{outline:3px solid color-mix(in srgb, var(--icod-accent) 45%, transparent);outline-offset:2px}
+.icod-submit[disabled]{opacity:.65;cursor:wait}
+
+/* ===== Réassurance ===== */
+.icod-reassurance{
+	display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;
+	margin:14px 0 0;font-size:.78rem;color:var(--icod-muted);text-align:center;
+}
+
+/* ===== Succès ===== */
+.icod-success{text-align:center;padding:28px 16px}
+.icod-success h3{margin:0 0 10px;font-size:1.3rem;color:var(--icod-success)}
+.icod-success p{margin:0 0 18px;color:var(--icod-muted)}
+.icod-new-order{
+	display:inline-block;padding:10px 22px;
+	border:1.5px solid var(--icod-accent);border-radius:var(--icod-radius-sm);
+	color:var(--icod-accent);font-weight:700;text-decoration:none;
+}
+
+/* ===== Barre collante mobile ===== */
+.icod-sticky{
+	position:fixed;inset-inline:0;bottom:0;z-index:9990;
+	display:none;align-items:center;justify-content:space-between;gap:12px;
+	padding:10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+	background:var(--icod-bg);
+	border-top:1.5px solid var(--icod-border);
+	box-shadow:0 -4px 16px rgba(16,24,40,.10);
+	max-width:640px;margin-inline:auto;
+}
+.icod-sticky-total{font-size:.85rem;color:var(--icod-muted);line-height:1.2}
+.icod-sticky-total strong{display:block;font-size:1.15rem;color:var(--icod-accent)}
+.icod-sticky .icod-submit{
+	width:auto;min-height:46px;padding:10px 22px;font-size:.95rem;box-shadow:none;
+}
+/* Visible seulement sur petit écran, uniquement quand le formulaire défilele hors de vue */
+@media (max-width:767px){
+	.icod-sticky.is-visible{display:flex}
+	/* Marge basse pour ne pas masquer le bouton inline */
+	.icod-root.has-sticky .icod-reassurance{margin-bottom:86px}
+}
+/* Empiler les boutons sur très petits écrans */
+@media (max-width:360px){
+	.icod-sticky{flex-direction:column;align-items:stretch;text-align:center}
+	.icod-sticky .icod-submit{width:100%}
+}
+
+/* Utilitaires */
+.icod-hidden{display:none!important}
+
+/* Préférence de mouvement réduit */
+@media (prefers-reduced-motion:reduce){
+	.icod-root *{transition:none!important;animation:none!important}
+}
