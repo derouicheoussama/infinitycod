@@ -3,6 +3,9 @@
  * Paniers abandonnés : sessions incomplètes et récupération.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Orders;

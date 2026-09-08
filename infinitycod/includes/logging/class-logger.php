@@ -7,6 +7,9 @@
  * ni données clients (les messages sont rédigés par le code appelant).
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Logging;

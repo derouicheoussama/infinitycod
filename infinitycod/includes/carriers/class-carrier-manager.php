@@ -3,6 +3,9 @@
  * Gestionnaire des transporteurs : catalogue, configuration, colis, tracking.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Carriers;

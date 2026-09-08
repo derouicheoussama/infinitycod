@@ -3,6 +3,9 @@
  * Page admin : Wilayas, communes et bureaux — tarifs de livraison.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Admin\Pages;

@@ -3,6 +3,9 @@
  * Statistiques P&L : agrégations sur les commandes COD.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Stats;

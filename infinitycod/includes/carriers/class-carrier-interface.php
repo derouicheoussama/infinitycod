@@ -3,6 +3,9 @@
  * Contrat commun à tous les connecteurs transporteurs.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Carriers;

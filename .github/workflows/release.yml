@@ -33,6 +33,13 @@ jobs:
         with:
           node-version: 20
 
+      - name: PHP 8.2 + sodium
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: sodium
+          coverage: none
+
       - name: Dépendances
         run: npm ci || npm install
 
@@ -45,8 +52,14 @@ jobs:
       - name: Autoloader
         run: node tools/smoke.js
 
+      - name: Harnais d'activation (PHP réel + sodium)
+        run: php tools/test-activation.php
+
       - name: Audits qualité
         run: node tools/audit.js && node tools/audit-settings.js
+
+      - name: Attribution check
+        run: node tools/check-attribution.js
 
       - name: Scan secrets
         run: |
@@ -55,6 +68,12 @@ jobs:
       - name: Build (zip + sha256 + manifest)
         run: node tools/build.js
 
+      - name: Signature du manifest update.json (Ed25519)
+        env:
+          INFINITYCOD_SIGNING_KEY: ${{ secrets.INFINITYCOD_SIGNING_KEY }}
+        if: env.INFINITYCOD_SIGNING_KEY != ''
+        run: node tools/sign-update.js
+
       - name: Release interne (dépôt privé des sources)
         uses: softprops/action-gh-release@v2
         with:
@@ -62,6 +81,7 @@ jobs:
             dist/infinitycod.zip
             dist/infinitycod.zip.sha256
             dist/update.json
+            dist/update.json.sig
           generate_release_notes: true
 
       - name: Release publique (dépôt des mises à jour clients)
@@ -78,3 +98,4 @@ jobs:
             dist/infinitycod.zip
             dist/infinitycod.zip.sha256
             dist/update.json
+            dist/update.json.sig

@@ -3,6 +3,9 @@
  * Bouclier anti-fraude : honeypot, tempo, fingerprint, rate-limit, blacklist.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\AntiFraud;

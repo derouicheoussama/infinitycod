@@ -3,6 +3,9 @@
  * Page admin : Transporteurs — connexions, expédition, import bureaux.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Admin\Pages;

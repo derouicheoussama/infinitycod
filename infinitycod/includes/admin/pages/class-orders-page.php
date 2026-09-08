@@ -3,6 +3,9 @@
  * Page admin : tableur des commandes COD.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Admin\Pages;

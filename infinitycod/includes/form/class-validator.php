@@ -3,6 +3,9 @@
  * Validation des saisies client — normes algériennes.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Form;

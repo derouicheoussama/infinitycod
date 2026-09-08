@@ -6,6 +6,9 @@
  * téléchargeable SANS secrets (aucune clé, aucun token).
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Admin\Pages;

@@ -7,6 +7,9 @@
  * sauvegarde locale, historique.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Admin\Pages;

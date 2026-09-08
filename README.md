@@ -49,3 +49,10 @@ docs/                 Documentation produit
 - Licences : activation via infinitycoder.app (clé INFINITY-DEV pour le développement)
 
 © Infinity Coder — Oussama Derouiche. Licence GPL-2.0-or-later (code), données géographiques open data.
+
+## Developer
+
+**Derouiche Oussama**
+- Website : https://derouicheoussama.com
+- GitHub : https://github.com/derouicheoussama
+- Product : InfinityCod — © Derouiche Oussama

@@ -1,4 +1,13 @@
 /**
+ * InfinityCod — Interface admin
+ *
+ * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @license GPL-2.0-or-later
+ * @link https://derouicheoussama.com
+ */
+/**
  * InfinityCod — JS admin : recherche live + sauvegarde AJAX des communes.
  * Vanilla JS, aucune dépendance.
  */

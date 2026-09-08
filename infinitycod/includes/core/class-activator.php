@@ -3,6 +3,9 @@
  * Activation / désactivation : tables, seed géographique, réglages.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Core;

@@ -10,6 +10,9 @@
  * Canaux : stable (défaut, /releases/latest) et beta (prereleases récentes).
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\License;
@@ -19,6 +22,49 @@ use InfinityCod\Core\Settings;
 defined( 'ABSPATH' ) || exit;
 
 class Updater {
+
+	/**
+	 * Clé PUBLIQUE Ed25519 de vérification des manifests (base64).
+	 *
+	 * La clé privée de signature n existe QUE côté CI/serveur
+	 * (GitHub Secrets) — jamais dans le plugin (§118-119).
+	 */
+	const SIGNING_PUBLIC_KEY = 'beDoIoaR5hZvEA2U93fiu80Bzg2uz78MT0n0EydFEKk=';
+
+	/**
+	 * Vérifie la signature Ed25519 d'un manifest signé.
+	 *
+	 * @param string $raw_json Corps JSON brut du manifest.
+	 * @param string $sig_b64  Signature détachée (base64).
+	 * @return bool
+	 */
+	public static function verify_manifest_signature( $raw_json, $sig_b64 ) {
+		$sig = base64_decode( (string) $sig_b64, true );
+		$pk  = base64_decode( self::SIGNING_PUBLIC_KEY, true );
+
+		if ( false === $sig || 64 !== strlen( $sig ) || false === $pk ) {
+			return false;
+		}
+
+		if ( function_exists( 'sodium_crypto_sign_detached_verify' ) ) {
+			try {
+				return sodium_crypto_sign_detached_verify( (string) $raw_json, $sig, $pk );
+			} catch ( \SodiumException $e ) {
+				return false;
+			}
+		}
+
+		if ( class_exists( 'Paragonie_Sodium_Compat' ) ) {
+			try {
+				return \Paragonie_Sodium_Compat::crypto_sign_detached_verify( (string) $raw_json, $sig, $pk );
+			} catch ( \Exception $e ) {
+				return false;
+			}
+		}
+
+		return false;
+	}
+
 
 	/**
 	 * Dépôt PUBLIC des releases (« proprietaire/depot »).
@@ -297,6 +343,17 @@ class Updater {
 				$mres = wp_remote_get( $url, $args );
 				$mraw = is_wp_error( $mres ) ? '' : (string) wp_remote_retrieve_body( $mres );
 				$mdec = json_decode( $mraw, true );
+
+				// Signature Ed25519 (update.json.sig) : si présente, elle doit être valide.
+				$sres = wp_remote_get( $url . '.sig', $args );
+				$sig  = is_wp_error( $sres ) ? '' : trim( (string) wp_remote_retrieve_body( $sres ) );
+
+				if ( '' !== $sig && ! self::verify_manifest_signature( $mraw, $sig ) ) {
+					\InfinityCod\Logging\Logger::log( 'security', 'Manifest signature INVALIDE — manifest ignoré (mise à jour non proposée).' );
+					set_transient( 'icod_update_gh', array( 'unreachable' => 1, 'reason' => 'bad_signature' ), 30 * MINUTE_IN_SECONDS );
+					return null;
+				}
+
 				if ( is_array( $mdec ) && ! empty( $mdec['version'] ) && ! empty( $mdec['sha256'] ) ) {
 					$manifest = $mdec;
 				}

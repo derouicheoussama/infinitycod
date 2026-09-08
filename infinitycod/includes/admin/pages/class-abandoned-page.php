@@ -3,6 +3,9 @@
  * Page admin : paniers abandonnés — relance manuelle wa.me et historique.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Admin\Pages;

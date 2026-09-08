@@ -3,6 +3,9 @@
  * Réglages du plugin avec valeurs par défaut centralisées.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Core;

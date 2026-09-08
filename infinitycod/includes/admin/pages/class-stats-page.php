@@ -3,6 +3,9 @@
  * Page admin : Statistiques P&L — KPI, graphique 30 j, répartitions.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Admin\Pages;

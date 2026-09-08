@@ -3,6 +3,9 @@
  * Base commune des connecteurs : HTTP, normalisation des statuts.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Carriers;

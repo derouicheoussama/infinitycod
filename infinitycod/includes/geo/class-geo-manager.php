@@ -3,6 +3,9 @@
  * Accès aux données géographiques : wilayas, communes, bureaux stopdesk.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Geo;

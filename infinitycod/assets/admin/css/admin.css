@@ -1,3 +1,11 @@
+/*!
+ * InfinityCod
+ * Developer: Derouiche Oussama
+ * Copyright: © Derouiche Oussama
+ * Website: https://derouicheoussama.com
+ * License: GPL-2.0-or-later
+ */
+
 /**
  * InfinityCod — Styles admin (responsive, mobile-first).
  * Préfixe isolé .icod- pour éviter tout conflit de thème.
@@ -307,3 +315,5 @@
 	.icod-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
 	.icod-tabs .nav-tab{white-space:nowrap;flex:none}
 }
+.icod-about-dev{font-size:13px;margin:0 0 6px}
+.icod-about-dev strong{font-size:12px;text-transform:uppercase;color:#646970;letter-spacing:.3px}

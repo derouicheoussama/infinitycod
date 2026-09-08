@@ -6,6 +6,9 @@
  * Sources : meta produit `_icod_offers` prioritaire, sinon réglage global.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Form;

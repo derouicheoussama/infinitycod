@@ -9,6 +9,9 @@
  * Webhook  : en-tête « Signature » = hash_hmac('sha256', corps brut, clé secrète)
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Payment;

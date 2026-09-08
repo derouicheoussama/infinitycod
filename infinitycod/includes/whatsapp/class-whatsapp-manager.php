@@ -6,6 +6,9 @@
  * (dans ce dernier cas les messages sont journalisés et prêts à ouvrir).
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Whatsapp;

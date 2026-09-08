@@ -3,6 +3,9 @@
  * Page admin : À propos — informations, statut système, mise à jour.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Admin\Pages;
@@ -134,7 +137,12 @@ class AboutPage {
 							<a class="button" href="https://infinitycoder.app" target="_blank" rel="noopener">🌐 <?php esc_html_e( 'Site officiel', 'infinitycod' ); ?></a>
 							<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=license' ) ); ?>">🔑 <?php esc_html_e( 'Licence', 'infinitycod' ); ?></a>
 						</p>
-						<p class="icod-sub">
+						<p class="icod-about-dev">
+							<strong><?php esc_html_e( 'Développé par', 'infinitycod' ); ?></strong><br />
+							Derouiche Oussama<br />
+							<a href="https://derouicheoussama.com" target="_blank" rel="noopener">derouicheoussama.com</a> ·
+							<a href="https://github.com/derouicheoussama" target="_blank" rel="noopener">GitHub</a>
+						</p>
 							<?php printf( /* translators: %s : date. */ esc_html__( 'Installé le %s par Infinity Coder (Oussama Derouiche).', 'infinitycod' ), esc_html( mysql2date( 'd/m/Y', get_option( 'infinitycod_installed_at', current_time( 'mysql' ) ) ) ) ); ?>
 						</p>
 					</div>

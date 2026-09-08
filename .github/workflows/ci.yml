@@ -20,6 +20,13 @@ jobs:
         with:
           node-version: 20
 
+      - name: PHP 8.2 + sodium
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: sodium
+          coverage: none
+
       - name: Dépendances
         run: npm ci || npm install
 
@@ -31,6 +38,9 @@ jobs:
 
       - name: Audit réglages (couverture champs + clés + anti-corruption)
         run: node tools/audit.js && node tools/audit-settings.js
+
+      - name: Attribution check
+        run: node tools/check-attribution.js
 
       - name: Scan secrets (patterns)
         run: |

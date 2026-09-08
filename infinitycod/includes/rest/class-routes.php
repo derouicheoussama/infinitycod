@@ -7,6 +7,9 @@
  * côté serveur — jamais dans le navigateur.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Rest;

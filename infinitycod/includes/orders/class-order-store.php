@@ -6,6 +6,9 @@
  * jamais influer sur prix produit, remise ni frais de livraison.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Orders;

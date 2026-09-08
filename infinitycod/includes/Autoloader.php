@@ -3,6 +3,9 @@
  * Autoloader PSR-4 pour le namespace InfinityCod\.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod;

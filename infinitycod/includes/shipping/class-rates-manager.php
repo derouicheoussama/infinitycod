@@ -3,6 +3,9 @@
  * Calcul des frais de livraison : commune > wilaya > défaut global.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Shipping;

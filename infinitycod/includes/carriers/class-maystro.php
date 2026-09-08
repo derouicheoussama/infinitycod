@@ -3,6 +3,9 @@
  * Connecteur Maystro Delivery.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Carriers;

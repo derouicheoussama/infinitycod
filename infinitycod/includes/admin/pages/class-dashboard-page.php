@@ -3,6 +3,9 @@
  * Page admin : tableau de bord — indicateurs clés du jour, semaine, mois.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Admin\Pages;

@@ -3,6 +3,9 @@
  * Désinstallation : supprime les données seulement si le marchand l'a demandé.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;

@@ -283,4 +283,19 @@ update_option( 'infinitycod_settings', array_merge( (array) get_option( 'infinit
   }
   echo '   OK migre vers ' . $migrated;
 
+echo "10) Signature Ed25519 du manifest...";
+$signing_private = base64_decode( trim( (string) file_get_contents( dirname( __DIR__ ) . '/.tools/signing-private.key' ) ) );
+$manifest_raw = json_encode( array( 'version' => '9.9.9', 'sha256' => str_repeat( 'a', 64 ) ) );
+if ( ! function_exists( 'sodium_crypto_sign_detached_sign' ) || ! $signing_private ) {
+  echo '   - sodium absent : test ignoré' . PHP_EOL;
+} else {
+  $sig_ok = sodium_crypto_sign_detached_sign( $manifest_raw, $signing_private );
+  $v_ok   = \InfinityCod\License\Updater::verify_manifest_signature( $manifest_raw, base64_encode( $sig_ok ) );
+  $tampered = $manifest_raw;
+  $tampered[0] = $tampered[0] === '{' ? '[' : '{';
+  $v_bad  = \InfinityCod\License\Updater::verify_manifest_signature( $tampered, base64_encode( $sig_ok ) );
+  echo ( $v_ok && ! $v_bad ) ? '   OK signature valide acceptée, manifest falsifié rejeté' . PHP_EOL : '   X ECHEC signature' . PHP_EOL;
+  if ( ! ( $v_ok && ! $v_bad ) ) { exit( 1 ); }
+}
+
 echo "\n=== TOUS LES TESTS PASSENT ===\n";

@@ -50,3 +50,7 @@ La base de données reste compatible : les migrations sont non destructives.
 
 - Secret `RELEASES_TOKEN` sur le dépôt privé (publication croisée vers le dépôt public)
 - Dépôt public `derouicheoussama/infinitycod-releases` existant
+
+---
+
+Developer : **Derouiche Oussama** — https://derouicheoussama.com — © Derouiche Oussama

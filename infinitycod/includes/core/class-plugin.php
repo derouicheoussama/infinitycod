@@ -3,6 +3,9 @@
  * Classe principale du plugin — orchestration des modules.
  *
  * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
  */
 
 namespace InfinityCod\Core;

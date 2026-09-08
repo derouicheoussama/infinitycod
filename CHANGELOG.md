@@ -128,3 +128,9 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 
 ### Security
 - Audit complet : ABSPATH sur tous les fichiers, 0 eval/exec/system/unserialize, 0 AJAX nopriv, capability manage_woocommerce sur tous les handlers, $wpdb->prepare systématique.
+
+## 2.1.0 — 2026-09-08
+
+### Added
+- **Signature cryptographique Ed25519 du manifest de mise à jour** : la CI signe `update.json` (clé privée en GitHub Secret — jamais dans le plugin), le plugin vérifie la signature via sodium/sodium_compat avant d'accepter un SHA-256. Manifest falsifié = mise à jour non proposée + log sécurité.
+- **Attribution professionnelle complète** (§107-129) : headers auteur/copyright sur les 42 fichiers PHP, attribution JS/CSS, header plugin `Author: Derouiche Oussama` + `https://derouicheoussama.com`, constantes centralisées, section Developer (À propos, README, docs), contrôle `tools/check-attribution.js` intégré à CI et `npm run check`.

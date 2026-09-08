@@ -1,5 +1,11 @@
 /**
- * InfinityCod — Formulaire COD front (vanilla JS, ~14 Ko).
+ * InfinityCod — Formulaire COD front
+ *
+ * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @license GPL-2.0-or-later
+ * @link https://derouicheoussama.com (vanilla JS, ~14 Ko).
  * Cascade wilaya→commune→bureau, prix temps réel (serveur), anti-fraude passif,
  * barre collante mobile, suivi des paniers abandonnés.
  */
