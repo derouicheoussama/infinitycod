@@ -212,3 +212,8 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 
 ### Added
 - Badge de version dans le titre de chaque page admin.
+
+## 2.6.1 — 2026-09-08
+
+### Fixed
+- **Harnais auto-suffisant en CI** : la fixture WordPress minimale est créée tout en haut du script d'activation — plus aucune dépendance au dossier .tools gitignoré (les runs échoués de l'historique venaient de là).
