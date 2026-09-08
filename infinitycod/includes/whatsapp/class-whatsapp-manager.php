@@ -178,6 +178,10 @@ class WhatsappManager {
 	 * @return true|\WP_Error
 	 */
 	public function send( $to, $message ) {
+		if ( ! \InfinityCod\License\LicenseManager::is_premium() ) {
+			return new \WP_Error( 'icod_license', __( 'WhatsApp automatique nécessite une licence Premium InfinityCod.', 'infinitycod' ) );
+		}
+
 		$gateway = Settings::get( 'whatsapp_gateway', 'wame' );
 
 		if ( 'cloud' === $gateway ) {

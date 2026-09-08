@@ -58,7 +58,8 @@ final class Autoloader {
 
 		$dir = self::$root;
 		foreach ( $parts as $part ) {
-			$dir .= strtolower( $part ) . '/';
+			// Namespace en kebab : AntiFraud → anti-fraud, Admin → admin.
+			$dir .= strtolower( preg_replace( '/(?<!^)[A-Z]/', '-$0', $part ) ) . '/';
 		}
 
 		foreach ( array( 'class-' . $name . '.php', 'class-' . $plain . '.php' ) as $file ) {

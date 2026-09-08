@@ -37,6 +37,10 @@ class OffersEngine {
 	 * @return array<int, float>
 	 */
 	public static function tiers_for_product( $product_id ) {
+		if ( ! \InfinityCod\License\LicenseManager::is_premium() ) {
+			return array(); // Offres par quantité : fonctionnalité Premium.
+		}
+
 		$custom = get_post_meta( (int) $product_id, '_icod_offers', true );
 
 		if ( is_string( $custom ) && '' !== $custom ) {

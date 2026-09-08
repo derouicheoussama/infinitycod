@@ -134,6 +134,10 @@ class CarrierManager {
 	 * @return AbstractCarrier|null
 	 */
 	public function factory( $code ) {
+		if ( ! \InfinityCod\License\LicenseManager::is_premium() ) {
+			return null; // Transporteurs intégrés : fonctionnalité Premium.
+		}
+
 		if ( ! $this->is_configured( $code ) ) {
 			return null;
 		}

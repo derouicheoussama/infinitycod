@@ -1,0 +1,1562 @@
+# Copyright (C) 2026 Infinity Coder
+# This file is distributed under the GPL-2.0-or-later license.
+msgid ""
+msgstr ""
+"Project-Id-Version: InfinityCod 1.0.0\n"
+"Report-Msgid-Bugs-To: https://infinitycoder.app\n"
+"POT-Creation-Date: 2026-09-08 10:00+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Domain: infinitycod\n"
+
+#: includes/admin/class-admin-manager.php:76
+#: includes/admin/class-admin-manager.php:77
+msgid "Tableau de bord"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:85
+#: includes/admin/class-admin-manager.php:86
+#: includes/admin/class-admin-manager.php:206
+#: includes/admin/class-admin-manager.php:206
+msgid "Commandes COD"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:94
+#: includes/admin/class-admin-manager.php:95
+#: includes/admin/pages/class-abandoned-page.php:37
+#: includes/admin/pages/class-abandoned-page.php:37
+msgid "Paniers abandonnés"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:103
+#: includes/admin/class-admin-manager.php:104
+msgid "Wilayas & Tarifs"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:112
+#: includes/admin/class-admin-manager.php:113
+#: includes/admin/class-admin-manager.php:241
+#: includes/admin/class-admin-manager.php:241
+msgid "Transporteurs"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:121
+#: includes/admin/class-admin-manager.php:122
+#: includes/admin/class-admin-manager.php:255
+#: includes/admin/class-admin-manager.php:255
+msgid "Statistiques P&L"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:130
+#: includes/admin/pages/class-settings-page.php:45
+#: includes/admin/pages/class-settings-page.php:45
+msgid "Réglages InfinityCod"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:131
+msgid "Réglages"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:168
+#: includes/form/class-form-manager.php:341
+msgid "Chargement…"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:169
+msgid "Une erreur est survenue."
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:170
+msgid "Enregistré ✓"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:171
+msgid "Confirmer ?"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:172
+msgid "Hérite"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:189
+#: includes/admin/class-admin-manager.php:189
+#: includes/admin/pages/class-dashboard-page.php:80
+#: includes/admin/pages/class-dashboard-page.php:80
+msgid "InfinityCod — Tableau de bord"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:190
+#: includes/admin/class-admin-manager.php:190
+msgid "Le tableau de bord arrive avec la phase Commandes."
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:207
+#: includes/admin/class-admin-manager.php:207
+msgid "Le gestionnaire de commandes arrive avec la phase Commandes."
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:242
+#: includes/admin/class-admin-manager.php:242
+msgid "Les intégrations transporteurs arrivent avec la phase Livraison."
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:256
+#: includes/admin/class-admin-manager.php:256
+msgid "Fonctionnalité Premium"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:257
+#: includes/admin/class-admin-manager.php:257
+msgid "Les statistiques P&L (CA, taux de confirmation et de retour par wilaya, transporteur et produit) nécessitent une licence Premium."
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:259
+#: includes/admin/class-admin-manager.php:259
+msgid "Activer une licence"
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:271
+#: includes/admin/class-admin-manager.php:271
+msgid "Les statistiques arrivent avec la phase Stats."
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:330
+#: includes/admin/class-admin-manager.php:330
+#: includes/admin/class-admin-manager.php:378
+#: includes/admin/class-admin-manager.php:378
+msgid "Accès refusé."
+msgstr ""
+
+#: includes/admin/class-admin-manager.php:399
+#: includes/admin/class-admin-manager.php:464
+msgid "Blacklist manuelle (dashboard)"
+msgstr ""
+
+#: includes/admin/class-product-meta-box.php:34
+msgid "InfinityCod — Offres par quantité"
+msgstr ""
+
+#: includes/admin/class-product-meta-box.php:61
+#: includes/admin/class-product-meta-box.php:61
+msgid "Paliers de remise par quantité pour ce produit. Format : quantité=remise%, séparés par des virgules. Exemple : 2=10, 3=15, 5=20"
+msgstr ""
+
+#: includes/admin/class-product-meta-box.php:69
+#: includes/admin/class-product-meta-box.php:69
+msgid "Paliers personnalisés actifs"
+msgstr ""
+
+#: includes/admin/class-product-meta-box.php:88
+#: includes/admin/class-product-meta-box.php:88
+msgid "Paliers globaux actuels : %s (modifiables via le filtre infinitycod_offers_global_tiers)."
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:41
+#: includes/admin/pages/class-abandoned-page.php:41
+msgid "Ouverts"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:43
+#: includes/admin/pages/class-abandoned-page.php:43
+msgid "sessions incomplètes"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:46
+#: includes/admin/pages/class-abandoned-page.php:46
+msgid "Récupérés"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:48
+#: includes/admin/pages/class-abandoned-page.php:48
+msgid "devenus commandes"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:51
+#: includes/admin/pages/class-abandoned-page.php:51
+msgid "Relance automatique"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:57
+#: includes/admin/pages/class-abandoned-page.php:57
+msgid "%1$d min · %2$d relance(s) max"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:67
+#: includes/admin/pages/class-abandoned-page.php:67
+msgid "Sessions récentes"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:72
+#: includes/admin/pages/class-abandoned-page.php:72
+#: includes/admin/pages/class-carriers-page.php:168
+#: includes/admin/pages/class-carriers-page.php:168
+msgid "Client"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:73
+#: includes/admin/pages/class-abandoned-page.php:73
+#: includes/admin/pages/class-carriers-page.php:170
+#: includes/admin/pages/class-carriers-page.php:170
+msgid "Produit"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:74
+#: includes/admin/pages/class-abandoned-page.php:74
+msgid "Progression"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:75
+#: includes/admin/pages/class-abandoned-page.php:75
+msgid "Panier"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:76
+#: includes/admin/pages/class-abandoned-page.php:76
+msgid "Relances"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:77
+#: includes/admin/pages/class-abandoned-page.php:77
+#: includes/admin/pages/class-dashboard-page.php:112
+#: includes/admin/pages/class-dashboard-page.php:112
+msgid "Statut"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:78
+#: includes/admin/pages/class-abandoned-page.php:78
+msgid "Mise à jour"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:79
+#: includes/admin/pages/class-abandoned-page.php:79
+msgid "Action"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:101
+#: includes/whatsapp/class-whatsapp-manager.php:132
+msgid "votre article"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:105
+#: includes/admin/pages/class-abandoned-page.php:105
+msgid "Relancer"
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:111
+#: includes/admin/pages/class-abandoned-page.php:111
+msgid "Aucun panier abandonné pour le moment."
+msgstr ""
+
+#: includes/admin/pages/class-abandoned-page.php:120
+#: includes/admin/pages/class-abandoned-page.php:120
+msgid "Derniers messages WhatsApp"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:46
+#: includes/admin/pages/class-carriers-page.php:46
+msgid "Configuration enregistrée."
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:50
+#: includes/admin/pages/class-carriers-page.php:50
+msgid "Connexions API"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:51
+#: includes/admin/pages/class-carriers-page.php:51
+msgid "Créer des colis"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:84
+#: includes/admin/pages/class-carriers-page.php:84
+msgid "Activé"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:94
+msgid "API ID"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:95
+msgid "Jeton API (token)"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:96
+msgid "Clé API"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:97
+msgid "User GUID (optionnel)"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:98
+msgid "URL de l‘instance"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:110
+#: includes/admin/pages/class-carriers-page.php:110
+msgid "Tester la connexion"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:113
+#: includes/admin/pages/class-carriers-page.php:113
+msgid "📥 Importer les bureaux Stopdesk"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:120
+#: includes/admin/pages/class-carriers-page.php:120
+msgid "Enregistrer les connexions"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:153
+#: includes/admin/pages/class-carriers-page.php:153
+msgid "Commandes confirmées à expédier"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:155
+#: includes/admin/pages/class-carriers-page.php:155
+msgid "Créez le colis directement chez le transporteur — le numéro de suivi est récupéré automatiquement et la commande passe en « Expédiée »."
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:156
+#: includes/admin/pages/class-carriers-page.php:156
+msgid "Synchroniser les suivis maintenant"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:160
+#: includes/admin/pages/class-carriers-page.php:160
+msgid "Aucun transporteur configuré : renseignez vos clés API dans l‘onglet « Connexions API »."
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:169
+#: includes/admin/pages/class-carriers-page.php:169
+#: includes/admin/pages/class-orders-page.php:144
+#: includes/admin/pages/class-orders-page.php:144
+msgid "Destination"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:171
+#: includes/admin/pages/class-carriers-page.php:171
+msgid "Montant"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:172
+#: includes/admin/pages/class-carriers-page.php:172
+msgid "Expédier via"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:181
+#: includes/admin/pages/class-geo-page.php:194
+#: includes/admin/pages/class-geo-page.php:194
+#: includes/admin/pages/class-orders-page.php:196
+msgid "Bureau"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:181
+#: includes/admin/pages/class-orders-page.php:196
+msgid "Domicile"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:191
+#: includes/admin/pages/class-carriers-page.php:191
+msgid "Créer le colis"
+msgstr ""
+
+#: includes/admin/pages/class-carriers-page.php:199
+#: includes/admin/pages/class-carriers-page.php:199
+msgid "Aucune commande confirmée en attente d‘expédition 🎉"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:29
+msgid "7 derniers jours"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:30
+msgid "30 derniers jours"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:87
+#: includes/admin/pages/class-dashboard-page.php:87
+#: includes/admin/pages/class-stats-page.php:79
+#: includes/admin/pages/class-stats-page.php:79
+msgid "commandes"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:89
+#: includes/admin/pages/class-dashboard-page.php:89
+msgid "À confirmer + en cours :"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:90
+#: includes/admin/pages/class-dashboard-page.php:90
+msgid "Livrées :"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:91
+#: includes/admin/pages/class-dashboard-page.php:91
+msgid "CA confirmé :"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:93
+#: includes/admin/pages/class-dashboard-page.php:93
+msgid "Taux de confirmation :"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:104
+#: includes/admin/pages/class-dashboard-page.php:104
+msgid "Dernières commandes"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:110
+#: includes/admin/pages/class-dashboard-page.php:110
+#: includes/admin/pages/class-geo-page.php:117
+#: includes/admin/pages/class-geo-page.php:117
+msgid "Wilaya"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:111
+#: includes/admin/pages/class-dashboard-page.php:111
+#: includes/admin/pages/class-orders-page.php:145
+#: includes/admin/pages/class-orders-page.php:145
+msgid "Total"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:125
+#: includes/admin/pages/class-dashboard-page.php:125
+msgid "Pas encore de commande. Partagez une fiche produit contenant le formulaire !"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:130
+#: includes/admin/pages/class-dashboard-page.php:130
+msgid "Toutes les commandes"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:135
+#: includes/admin/pages/class-dashboard-page.php:135
+msgid "Top wilayas (30 jours)"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:144
+#: includes/admin/pages/class-dashboard-page.php:144
+msgid "Aucune donnée"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:150
+#: includes/admin/pages/class-dashboard-page.php:150
+msgid "Activité anti-fraude"
+msgstr ""
+
+#: includes/admin/pages/class-dashboard-page.php:159
+#: includes/admin/pages/class-dashboard-page.php:159
+msgid "Aucune activité suspecte 🎉"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:43
+#: includes/admin/pages/class-geo-page.php:43
+msgid "Wilayas & Tarifs de livraison"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:46
+#: includes/admin/pages/class-geo-page.php:46
+msgid "Tarifs enregistrés avec succès."
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:50
+#: includes/admin/pages/class-geo-page.php:50
+msgid "Tarifs par wilaya"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:51
+#: includes/admin/pages/class-geo-page.php:51
+msgid "Communes"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:52
+#: includes/admin/pages/class-geo-page.php:52
+#: includes/admin/pages/class-geo-page.php:238
+#: includes/admin/pages/class-geo-page.php:238
+msgid "Bureaux Stopdesk"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:89
+#: includes/admin/pages/class-geo-page.php:89
+msgid "Tarifs par défaut"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:90
+#: includes/admin/pages/class-geo-page.php:90
+msgid "Appliqués aux wilayas sans tarif personnalisé (laisser vide un champ de wilaya = hériter de ces valeurs)."
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:93
+#: includes/admin/pages/class-geo-page.php:93
+#: includes/admin/pages/class-geo-page.php:118
+#: includes/admin/pages/class-geo-page.php:118
+msgid "Domicile (DA)"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:97
+#: includes/admin/pages/class-geo-page.php:97
+#: includes/admin/pages/class-geo-page.php:119
+#: includes/admin/pages/class-geo-page.php:119
+msgid "Stopdesk (DA)"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:101
+#: includes/admin/pages/class-geo-page.php:101
+msgid "Livraison gratuite à partir de (qté)"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:109
+#: includes/admin/pages/class-geo-page.php:109
+msgid "Rechercher une wilaya…"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:110
+#: includes/admin/pages/class-geo-page.php:110
+msgid "Vide = hérite du défaut"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:116
+#: includes/admin/pages/class-geo-page.php:116
+msgid "Code"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:120
+#: includes/admin/pages/class-geo-page.php:120
+#: includes/admin/pages/class-geo-page.php:195
+#: includes/admin/pages/class-geo-page.php:195
+msgid "Active"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:121
+#: includes/admin/pages/class-geo-page.php:121
+#: includes/form/class-form-manager.php:345
+msgid "Gratuite"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:146
+#: includes/admin/pages/class-geo-page.php:146
+msgid "Enregistrer les tarifs"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:169
+#: includes/admin/pages/class-geo-page.php:169
+msgid "— Choisir une wilaya —"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:176
+#: includes/admin/pages/class-geo-page.php:176
+msgid "Afficher"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:178
+#: includes/admin/pages/class-geo-page.php:178
+msgid "%d communes"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:184
+#: includes/admin/pages/class-geo-page.php:184
+msgid "Rechercher une commune…"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:185
+#: includes/admin/pages/class-geo-page.php:185
+msgid "Vide = hérite du tarif wilaya"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:191
+#: includes/admin/pages/class-geo-page.php:191
+#: includes/form/class-form-manager.php:207
+#: includes/form/class-form-manager.php:207
+msgid "Commune"
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:217
+#: includes/admin/pages/class-geo-page.php:217
+msgid "Aucune commune trouvée pour cette wilaya."
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:219
+#: includes/admin/pages/class-geo-page.php:219
+msgid "Choisissez une wilaya pour gérer ses communes : prix spécifiques, activation, présence de bureau."
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:244
+#: includes/admin/pages/class-geo-page.php:244
+msgid "%d bureaux enregistrés."
+msgstr ""
+
+#: includes/admin/pages/class-geo-page.php:255
+#: includes/admin/pages/class-geo-page.php:255
+msgid "Aucun bureau pour le moment. Les bureaux seront importés automatiquement depuis les API Yalidine et ZR Express dans l‘onglet Transporteurs (clés API requises)."
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:62
+#: includes/admin/pages/class-orders-page.php:62
+msgid "Action appliquée."
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:71
+#: includes/admin/pages/class-orders-page.php:71
+msgid "Tous"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:82
+#: includes/admin/pages/class-orders-page.php:82
+msgid "Toutes"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:91
+#: includes/admin/pages/class-orders-page.php:91
+msgid "Recherche (nom, téléphone)"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:95
+#: includes/admin/pages/class-orders-page.php:95
+msgid "Du"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:99
+#: includes/admin/pages/class-orders-page.php:99
+msgid "Au"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:103
+#: includes/admin/pages/class-orders-page.php:103
+msgid "Filtrer"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:104
+#: includes/admin/pages/class-orders-page.php:104
+msgid "Réinitialiser"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:114
+#: includes/admin/pages/class-orders-page.php:114
+msgid "Action groupée"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:116
+#: includes/admin/pages/class-orders-page.php:116
+msgid "Actions groupées"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:117
+#: includes/admin/pages/class-orders-page.php:117
+msgid "→ Confirmer"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:118
+#: includes/admin/pages/class-orders-page.php:118
+msgid "→ Sans réponse"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:119
+#: includes/admin/pages/class-orders-page.php:119
+msgid "→ Annuler"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:120
+#: includes/admin/pages/class-orders-page.php:120
+msgid "→ Marquer livrée"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:121
+#: includes/admin/pages/class-orders-page.php:121
+msgid "→ Marquer retournée"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:122
+#: includes/admin/pages/class-orders-page.php:122
+msgid "→ Blacklister les téléphones"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:124
+#: includes/admin/pages/class-orders-page.php:124
+msgid "Appliquer"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:125
+#: includes/admin/pages/class-orders-page.php:125
+msgid "Export CSV"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:130
+#: includes/admin/pages/class-orders-page.php:130
+msgid "%d commande(s)"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:147
+#: includes/admin/pages/class-orders-page.php:147
+#: includes/admin/pages/class-orders-page.php:202
+#: includes/admin/pages/class-orders-page.php:202
+msgid "Risque"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:148
+#: includes/admin/pages/class-orders-page.php:148
+#: includes/admin/pages/class-orders-page.php:211
+#: includes/admin/pages/class-orders-page.php:211
+msgid "Date"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:149
+#: includes/admin/pages/class-orders-page.php:149
+#: includes/admin/pages/class-orders-page.php:214
+#: includes/admin/pages/class-orders-page.php:214
+msgid "Transporteur"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:150
+#: includes/admin/pages/class-orders-page.php:150
+msgid "Actions"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:159
+#: includes/admin/pages/class-orders-page.php:159
+msgid "Aucune commande pour ces filtres."
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:204
+#: includes/admin/pages/class-orders-page.php:204
+msgid "Élevé"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:206
+#: includes/admin/pages/class-orders-page.php:206
+msgid "Moyen"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:208
+#: includes/admin/pages/class-orders-page.php:208
+msgid "Faible"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:227
+#: includes/admin/pages/class-orders-page.php:227
+msgid "Confirmer"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:230
+#: includes/admin/pages/class-orders-page.php:230
+msgid "Expédiée"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:233
+#: includes/admin/pages/class-orders-page.php:233
+msgid "Annuler"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:241
+#: includes/admin/pages/class-orders-page.php:241
+msgid "Coordonnées"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:248
+#: includes/admin/pages/class-orders-page.php:248
+msgid "Bureau :"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:252
+#: includes/admin/pages/class-orders-page.php:252
+msgid "Montants"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:257
+#: includes/admin/pages/class-orders-page.php:257
+msgid "Sous-total : %1$s DA / Remise : %2$s DA / Livraison : %3$s DA / Total : %4$s DA"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:267
+#: includes/admin/pages/class-orders-page.php:267
+msgid "Suivi"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:281
+#: includes/admin/pages/class-orders-page.php:281
+msgid "Voir dans WooCommerce"
+msgstr ""
+
+#: includes/admin/pages/class-orders-page.php:283
+#: includes/admin/pages/class-orders-page.php:283
+msgid "Blacklister"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:48
+#: includes/admin/pages/class-settings-page.php:48
+msgid "Réglages enregistrés."
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:52
+#: includes/admin/pages/class-settings-page.php:52
+msgid "Formulaire"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:53
+#: includes/admin/pages/class-settings-page.php:53
+msgid "Anti-fraude"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:54
+#: includes/admin/pages/class-settings-page.php:54
+msgid "WhatsApp"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:55
+#: includes/admin/pages/class-settings-page.php:55
+msgid "Licence"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:56
+#: includes/admin/pages/class-settings-page.php:56
+#: includes/admin/pages/class-settings-page.php:344
+#: includes/admin/pages/class-settings-page.php:344
+msgid "Avancé"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:85
+#: includes/admin/pages/class-settings-page.php:85
+msgid "Enregistrer"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:108
+#: includes/admin/pages/class-settings-page.php:108
+msgid "Licence InfinityCod"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:110
+#: includes/admin/pages/class-settings-page.php:110
+msgid "La version gratuite inclut le formulaire COD, les 58 wilayas et 1541 communes, les tarifs de livraison et l‘anti-fraude. La licence Premium débloque : WhatsApp automatique, transporteurs intégrés (création de colis + suivi), statistiques P&L et offres par quantité."
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:114
+#: includes/admin/pages/class-settings-page.php:114
+msgid "Statut :"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:120
+#: includes/admin/pages/class-settings-page.php:120
+msgid "expire le %s"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:129
+#: includes/admin/pages/class-settings-page.php:129
+msgid "Clé de licence"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:134
+#: includes/admin/pages/class-settings-page.php:134
+msgid "Activer la licence"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:170
+#: includes/admin/pages/class-settings-page.php:170
+msgid "Apparence du formulaire"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:173
+#: includes/admin/pages/class-settings-page.php:173
+msgid "Titre du formulaire"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:177
+#: includes/admin/pages/class-settings-page.php:177
+msgid "Texte du bouton"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:181
+#: includes/admin/pages/class-settings-page.php:181
+msgid "Couleur d‘accent"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:185
+#: includes/admin/pages/class-settings-page.php:185
+msgid "Thème"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:187
+#: includes/admin/pages/class-settings-page.php:187
+msgid "Clair"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:188
+#: includes/admin/pages/class-settings-page.php:188
+msgid "Sombre"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:189
+#: includes/admin/pages/class-settings-page.php:189
+msgid "Automatique (préférence du visiteur)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:193
+#: includes/admin/pages/class-settings-page.php:193
+msgid "Quantité maximale par commande"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:200
+#: includes/admin/pages/class-settings-page.php:200
+msgid "Afficher le sélecteur de quantité"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:204
+#: includes/admin/pages/class-settings-page.php:204
+msgid "Barre récapitulative collante sur mobile"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:219
+#: includes/admin/pages/class-settings-page.php:219
+msgid "Bouclier anti-fraude (Shield)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:220
+#: includes/admin/pages/class-settings-page.php:220
+msgid "Aucun système n‘élimine 100 % des fausses commandes ; ces barrières réduisent fortement les abus sans gêner les vrais clients."
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:224
+#: includes/admin/pages/class-settings-page.php:224
+msgid "Activer le bouclier anti-fraude"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:228
+#: includes/admin/pages/class-settings-page.php:228
+msgid "Exiger un numéro algérien valide (Mobilis, Djezzy, Ooredoo)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:232
+#: includes/admin/pages/class-settings-page.php:232
+msgid "Refuser un numéro ayant déjà une commande en attente"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:237
+#: includes/admin/pages/class-settings-page.php:237
+msgid "Temps minimum de remplissage (secondes)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:241
+#: includes/admin/pages/class-settings-page.php:241
+msgid "Commandes max. par IP et par heure"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:245
+#: includes/admin/pages/class-settings-page.php:245
+msgid "Score de risque bloquant (0-100)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:261
+#: includes/admin/pages/class-settings-page.php:261
+msgid "WhatsApp automatique"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:262
+#: includes/admin/pages/class-settings-page.php:262
+msgid "Envoyez automatiquement des messages aux clients et relancez les paniers abandonnés — ce que les concurrents ne font qu‘en manuel."
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:266
+#: includes/admin/pages/class-settings-page.php:266
+msgid "Activer les messages WhatsApp"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:270
+#: includes/admin/pages/class-settings-page.php:270
+msgid "Relancer automatiquement les paniers abandonnés"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:275
+#: includes/admin/pages/class-settings-page.php:275
+msgid "Passerelle"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:277
+#: includes/admin/pages/class-settings-page.php:277
+msgid "Liens wa.me (ouverture manuelle, gratuit)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:278
+#: includes/admin/pages/class-settings-page.php:278
+msgid "WhatsApp Cloud API (officiel Meta)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:283
+#: includes/admin/pages/class-settings-page.php:283
+msgid "Numéro marchand (format international, ex. 213XXXXXXXXX)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:287
+#: includes/admin/pages/class-settings-page.php:287
+msgid "Cloud API — Token permanent"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:291
+#: includes/admin/pages/class-settings-page.php:291
+msgid "Cloud API — Phone Number ID"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:295
+#: includes/admin/pages/class-settings-page.php:295
+msgid "UltraMsg — Instance"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:299
+#: includes/admin/pages/class-settings-page.php:299
+msgid "UltraMsg — Clé API"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:306
+#: includes/admin/pages/class-settings-page.php:306
+msgid "Messages"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:307
+#: includes/admin/pages/class-settings-page.php:307
+msgid "Variables disponibles : {nom}, {telephone}, {commande}, {total}, {suivi}, {wilaya}, {commune}, {produit}."
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:310
+#: includes/admin/pages/class-settings-page.php:310
+msgid "Commande reçue"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:314
+#: includes/admin/pages/class-settings-page.php:314
+msgid "Commande expédiée"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:318
+#: includes/admin/pages/class-settings-page.php:318
+msgid "Relance panier abandonné"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:324
+#: includes/admin/pages/class-settings-page.php:324
+msgid "Relance paniers : délai avant la 1re relance (minutes)"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:328
+#: includes/admin/pages/class-settings-page.php:328
+msgid "Relance paniers : nombre de relances max"
+msgstr ""
+
+#: includes/admin/pages/class-settings-page.php:348
+#: includes/admin/pages/class-settings-page.php:348
+msgid "Supprimer toutes les données (tables, réglages) à la désinstallation du plugin"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:39
+#: includes/admin/pages/class-stats-page.php:39
+msgid "Module statistiques indisponible."
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:60
+msgid "7 jours"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:60
+msgid "30 jours"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:60
+msgid "90 jours"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:67
+#: includes/admin/pages/class-stats-page.php:67
+msgid "CA encaissé (livrées)"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:72
+#: includes/admin/pages/class-stats-page.php:72
+msgid "CA confirmé"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:77
+#: includes/admin/pages/class-stats-page.php:77
+msgid "Taux de confirmation"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:82
+#: includes/admin/pages/class-stats-page.php:82
+msgid "Taux de retour"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:84
+#: includes/admin/pages/class-stats-page.php:84
+msgid "retours"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:89
+#: includes/admin/pages/class-stats-page.php:89
+msgid "Commandes et CA confirmé"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:95
+#: includes/admin/pages/class-stats-page.php:95
+msgid "Par wilaya"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:100
+#: includes/admin/pages/class-stats-page.php:100
+msgid "Par transporteur"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:104
+#: includes/admin/pages/class-stats-page.php:104
+msgid "Par produit"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:108
+#: includes/admin/pages/class-stats-page.php:108
+msgid "Détails"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:110
+#: includes/admin/pages/class-stats-page.php:110
+msgid "Articles vendus"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:111
+#: includes/admin/pages/class-stats-page.php:111
+msgid "Panier moyen confirmé"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:112
+#: includes/admin/pages/class-stats-page.php:112
+msgid "Frais livraison encaissés"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:113
+#: includes/admin/pages/class-stats-page.php:113
+msgid "Remises accordées"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:114
+#: includes/admin/pages/class-stats-page.php:114
+msgid "Taux de livraison"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:132
+msgid "CA confirmé (DA)"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:142
+#: includes/admin/pages/class-stats-page.php:171
+#: includes/admin/pages/class-stats-page.php:171
+msgid "Commandes"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:172
+#: includes/admin/pages/class-stats-page.php:172
+msgid "Livrées"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:173
+#: includes/admin/pages/class-stats-page.php:173
+msgid "Retours"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:174
+#: includes/admin/pages/class-stats-page.php:174
+msgid "Taux livraison"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:175
+#: includes/admin/pages/class-stats-page.php:175
+msgid "CA livré"
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:189
+#: includes/admin/pages/class-stats-page.php:189
+#: includes/admin/pages/class-stats-page.php:229
+#: includes/admin/pages/class-stats-page.php:229
+msgid "Aucune donnée sur la période."
+msgstr ""
+
+#: includes/admin/pages/class-stats-page.php:209
+#: includes/admin/pages/class-stats-page.php:209
+msgid "Aucun colis expédié sur la période."
+msgstr ""
+
+#: includes/carriers/class-abstract-carrier.php:65
+msgid "Délai dépassé — le serveur du transporteur ne répond pas."
+msgstr ""
+
+#: includes/carriers/class-carrier-manager.php:31
+msgid "Autre société (réseau Ecotrack)"
+msgstr ""
+
+#: includes/carriers/class-carrier-manager.php:170
+msgid "Commande introuvable."
+msgstr ""
+
+#: includes/carriers/class-carrier-manager.php:174
+msgid "Colis déjà créé (%s)."
+msgstr ""
+
+#: includes/carriers/class-carrier-manager.php:179
+msgid "Transporteur non configuré (vérifiez les clés API)."
+msgstr ""
+
+#: includes/carriers/class-carrier-manager.php:194
+#: includes/carriers/class-ecotrack.php:56
+#: includes/carriers/class-maystro.php:59
+#: includes/carriers/class-yalidine.php:69
+msgid "Marchandise"
+msgstr ""
+
+#: includes/carriers/class-carrier-manager.php:197
+msgid "Bureau : %s"
+msgstr ""
+
+#: includes/carriers/class-carrier-manager.php:222
+msgid "Colis créé chez %1$s — suivi %2$s"
+msgstr ""
+
+#: includes/carriers/class-carrier-manager.php:307
+msgid "Yalidine n‘a renvoyé aucun bureau."
+msgstr ""
+
+#: includes/carriers/class-carrier-manager.php:328
+msgid "Format de réponse bureaux non reconnu."
+msgstr ""
+
+#: includes/carriers/class-carrier-manager.php:338
+msgid "%1$d bureaux importés, %2$d communes mises à jour."
+msgstr ""
+
+#: includes/carriers/class-ecotrack.php:35
+msgid "Connexion réussie — jeton Ecotrack accepté"
+msgstr ""
+
+#: includes/carriers/class-ecotrack.php:77
+msgid "Le transporteur n‘a pas renvoyé de numéro de suivi : "
+msgstr ""
+
+#: includes/carriers/class-maystro.php:42
+msgid "Connexion réussie — clé Maystro acceptée"
+msgstr ""
+
+#: includes/carriers/class-maystro.php:84
+msgid "Maystro n‘a pas renvoyé de référence : "
+msgstr ""
+
+#: includes/carriers/class-yalidine.php:46
+msgid "Connexion réussie — %d wilayas récupérées"
+msgstr ""
+
+#: includes/carriers/class-yalidine.php:100
+msgid "Yalidine n‘a pas renvoyé de numéro de suivi : "
+msgstr ""
+
+#: includes/carriers/class-zrexpress.php:43
+msgid "Connexion réussie — %d wilayas"
+msgstr ""
+
+#: includes/carriers/class-zrexpress.php:43
+msgid "Connexion réussie — clé acceptée"
+msgstr ""
+
+#: includes/carriers/class-zrexpress.php:83
+msgid "ZR Express n‘a pas renvoyé de numéro de suivi : "
+msgstr ""
+
+#: includes/core/class-settings.php:42
+msgid "Commandez maintenant — paiement à la livraison"
+msgstr ""
+
+#: includes/core/class-settings.php:43
+msgid "Confirmer la commande"
+msgstr ""
+
+#: includes/core/class-settings.php:69
+msgid "Bonjour {nom} 👋 Merci pour votre commande #{commande} ! Nous vous rappellerons très vite au {telephone} pour la confirmer. Montant à la livraison : {total}."
+msgstr ""
+
+#: includes/core/class-settings.php:70
+msgid "Bonjour {nom}, votre commande #{commande} a été expédiée 📦. Suivi : {suivi}. Merci pour votre confiance !"
+msgstr ""
+
+#: includes/core/class-settings.php:71
+msgid "Bonjour {nom} 👋 Votre commande de {produit} est restée inachevée 🛒. Répondez OUI et nous vous rappelons tout de suite pour la finaliser !"
+msgstr ""
+
+#: includes/form/class-form-manager.php:180
+#: includes/form/class-form-manager.php:180
+msgid "— Choisir —"
+msgstr ""
+
+#: includes/form/class-form-manager.php:188
+#: includes/form/class-form-manager.php:188
+msgid "Nom complet"
+msgstr ""
+
+#: includes/form/class-form-manager.php:193
+#: includes/form/class-form-manager.php:193
+msgid "Téléphone"
+msgstr ""
+
+#: includes/form/class-form-manager.php:201
+#: includes/form/class-form-manager.php:201
+msgid "— Wilaya —"
+msgstr ""
+
+#: includes/form/class-form-manager.php:209
+#: includes/form/class-form-manager.php:209
+#: includes/form/class-form-manager.php:342
+msgid "— Commune —"
+msgstr ""
+
+#: includes/form/class-form-manager.php:215
+#: includes/form/class-form-manager.php:215
+msgid "Mode de livraison"
+msgstr ""
+
+#: includes/form/class-form-manager.php:220
+#: includes/form/class-form-manager.php:220
+msgid "🏠 À domicile"
+msgstr ""
+
+#: includes/form/class-form-manager.php:228
+#: includes/form/class-form-manager.php:228
+msgid "🏢 Au bureau"
+msgstr ""
+
+#: includes/form/class-form-manager.php:235
+#: includes/form/class-form-manager.php:235
+msgid "Bureau de retrait"
+msgstr ""
+
+#: includes/form/class-form-manager.php:237
+#: includes/form/class-form-manager.php:237
+#: includes/form/class-form-manager.php:343
+msgid "— Choisir un bureau —"
+msgstr ""
+
+#: includes/form/class-form-manager.php:243
+#: includes/form/class-form-manager.php:243
+msgid "Quantité"
+msgstr ""
+
+#: includes/form/class-form-manager.php:245
+#: includes/form/class-form-manager.php:245
+msgid "Diminuer"
+msgstr ""
+
+#: includes/form/class-form-manager.php:247
+#: includes/form/class-form-manager.php:247
+msgid "Augmenter"
+msgstr ""
+
+#: includes/form/class-form-manager.php:261
+msgid "🛒 %d articles ou plus : −%s%%"
+msgstr ""
+
+#: includes/form/class-form-manager.php:273
+#: includes/form/class-form-manager.php:273
+msgid "Sous-total"
+msgstr ""
+
+#: includes/form/class-form-manager.php:274
+#: includes/form/class-form-manager.php:274
+msgid "Remise"
+msgstr ""
+
+#: includes/form/class-form-manager.php:275
+#: includes/form/class-form-manager.php:275
+msgid "Livraison"
+msgstr ""
+
+#: includes/form/class-form-manager.php:276
+#: includes/form/class-form-manager.php:276
+msgid "Total à payer à la livraison"
+msgstr ""
+
+#: includes/form/class-form-manager.php:286
+#: includes/form/class-form-manager.php:286
+#: includes/orders/class-order-store.php:143
+msgid "Paiement à la livraison"
+msgstr ""
+
+#: includes/form/class-form-manager.php:287
+#: includes/form/class-form-manager.php:287
+msgid "Livraison 58 wilayas"
+msgstr ""
+
+#: includes/form/class-form-manager.php:288
+#: includes/form/class-form-manager.php:288
+msgid "Vérifiez le colis à la réception"
+msgstr ""
+
+#: includes/form/class-form-manager.php:294
+#: includes/form/class-form-manager.php:294
+msgid "✅ Commande enregistrée !"
+msgstr ""
+
+#: includes/form/class-form-manager.php:296
+#: includes/form/class-form-manager.php:296
+msgid "Passer une autre commande"
+msgstr ""
+
+#: includes/form/class-form-manager.php:344
+msgid "Aucun bureau disponible pour cette wilaya"
+msgstr ""
+
+#: includes/form/class-form-manager.php:346
+#: includes/rest/class-routes.php:302
+msgid "Une erreur est survenue, réessayez."
+msgstr ""
+
+#: includes/form/class-form-manager.php:347
+#: includes/rest/class-routes.php:214
+msgid "Veuillez saisir votre nom complet."
+msgstr ""
+
+#: includes/form/class-form-manager.php:348
+msgid "Numéro algérien invalide (ex. 0555123456)."
+msgstr ""
+
+#: includes/form/class-form-manager.php:349
+msgid "Veuillez choisir votre wilaya."
+msgstr ""
+
+#: includes/form/class-form-manager.php:350
+msgid "Veuillez choisir votre commune."
+msgstr ""
+
+#: includes/form/class-form-manager.php:351
+msgid "Veuillez choisir les options du produit."
+msgstr ""
+
+#: includes/form/class-form-manager.php:352
+#: includes/rest/class-routes.php:237
+msgid "Veuillez choisir un bureau de retrait."
+msgstr ""
+
+#: includes/form/class-form-manager.php:353
+msgid "Envoi en cours…"
+msgstr ""
+
+#: includes/form/class-form-manager.php:354
+msgid "Commande refusée. Si c‘est une erreur, contactez-nous par téléphone."
+msgstr ""
+
+#: includes/form/class-form-manager.php:355
+msgid "Merci ! Votre commande n° {num} a bien été enregistrée. Nous vous appellerons très vite pour la confirmer."
+msgstr ""
+
+#: includes/form/class-form-manager.php:356
+msgid "DA"
+msgstr ""
+
+#: includes/license/class-license-manager.php:90
+msgid "Veuillez saisir votre clé de licence."
+msgstr ""
+
+#: includes/license/class-license-manager.php:102
+msgid "Licence de développement activée."
+msgstr ""
+
+#: includes/license/class-license-manager.php:142
+msgid "Licence activée. Merci %s !"
+msgstr ""
+
+#: includes/license/class-license-manager.php:150
+msgid "Activation refusée (%1$s). %2$s"
+msgstr ""
+
+#: includes/license/class-license-manager.php:225
+msgid "Premium actif"
+msgstr ""
+
+#: includes/license/class-license-manager.php:227
+msgid "Version gratuite"
+msgstr ""
+
+#: includes/orders/class-order-store.php:114
+msgid "Offre quantité (-%s%%)"
+msgstr ""
+
+#: includes/orders/class-order-store.php:124
+msgid "Retrait au bureau — %s"
+msgstr ""
+
+#: includes/orders/class-order-store.php:125
+msgid "Livraison à domicile — %s"
+msgstr ""
+
+#: includes/orders/class-order-store.php:159
+msgid "Commande COD reçue via InfinityCod."
+msgstr ""
+
+#: includes/orders/class-order-store.php:259
+msgid "InfinityCod : %s"
+msgstr ""
+
+#: includes/rest/class-routes.php:171
+msgid "Produit introuvable."
+msgstr ""
+
+#: includes/rest/class-routes.php:218
+msgid "Numéro de téléphone algérien invalide (ex. 0555123456)."
+msgstr ""
+
+#: includes/rest/class-routes.php:225
+msgid "Wilaya non desservie, veuillez en choisir une autre."
+msgstr ""
+
+#: includes/rest/class-routes.php:231
+msgid "Commune introuvable pour cette wilaya."
+msgstr ""
+
+#: includes/rest/class-routes.php:261
+msgid "Impossible d‘enregistrer la commande pour le moment. Contactez-nous directement par téléphone."
+msgstr ""
+
+#: includes/rest/class-routes.php:271
+#: includes/rest/class-routes.php:296
+msgid "Ce produit n‘est plus disponible."
+msgstr ""
+
+#: includes/rest/class-routes.php:297
+msgid "Stock insuffisant pour cette quantité."
+msgstr ""
+
+#: includes/rest/class-routes.php:298
+msgid "Wilaya non desservie."
+msgstr ""
+
+#: includes/rest/class-routes.php:299
+msgid "Aucun tarif de livraison pour cette destination."
+msgstr ""
+
+#: includes/whatsapp/class-whatsapp-manager.php:48
+msgid "Toutes les 15 minutes (InfinityCod)"
+msgstr ""
+
+#: includes/whatsapp/class-whatsapp-manager.php:182
+msgid "WhatsApp automatique nécessite une licence Premium InfinityCod."
+msgstr ""
+
+#: includes/whatsapp/class-whatsapp-manager.php:213
+msgid "WhatsApp Cloud API incomplet (token ou phone ID manquant)."
+msgstr ""
+
+#: includes/whatsapp/class-whatsapp-manager.php:259
+msgid "UltraMsg incomplet (instance ou clé manquante)."
+msgstr ""
+
+#: infinitycod.php:47
+#: infinitycod.php:47
+msgid "InfinityCod :"
+msgstr ""
+
+#: infinitycod.php:48
+#: infinitycod.php:48
+msgid "WooCommerce doit être installé et activé pour utiliser le plugin."
+msgstr ""

@@ -249,6 +249,18 @@ class AdminManager {
 	 * @return void
 	 */
 	public function render_stats() {
+		if ( ! \InfinityCod\License\LicenseManager::is_premium() ) {
+			printf(
+				'<div class="wrap icod-wrap"><h1>%1$s</h1><div class="icod-card"><h2>%2$s</h2><p>%3$s</p><p><a class="button button-primary" href="%4$s">%5$s</a></p></div></div>',
+				esc_html__( 'Statistiques P&L', 'infinitycod' ),
+				esc_html__( 'Fonctionnalité Premium', 'infinitycod' ),
+				esc_html__( 'Les statistiques P&L (CA, taux de confirmation et de retour par wilaya, transporteur et produit) nécessitent une licence Premium.', 'infinitycod' ),
+				esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=license' ) ),
+				esc_html__( 'Activer une licence', 'infinitycod' )
+			);
+			return;
+		}
+
 		if ( class_exists( __NAMESPACE__ . '\\Pages\\StatsPage' ) ) {
 			( new Pages\StatsPage() )->render();
 			return;

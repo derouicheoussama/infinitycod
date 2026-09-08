@@ -26,10 +26,11 @@ class SettingsPage {
 	public function __construct() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- navigation par onglet.
 		$tab       = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'form';
-		$this->tab = in_array( $tab, array( 'form', 'fraud', 'whatsapp', 'advanced' ), true ) ? $tab : 'form';
+		$this->tab = in_array( $tab, array( 'form', 'fraud', 'whatsapp', 'license', 'advanced' ), true ) ? $tab : 'form';
 		// phpcs:enable
 
 		add_action( 'admin_post_icod_save_settings', array( $this, 'handle_save' ) );
+		add_action( 'admin_post_icod_activate_license', array( $this, 'handle_license' ) );
 	}
 
 	/**
@@ -51,8 +52,13 @@ class SettingsPage {
 				<a href="?page=infinitycod-settings" class="nav-tab <?php echo 'form' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Formulaire', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=fraud" class="nav-tab <?php echo 'fraud' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Anti-fraude', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=whatsapp" class="nav-tab <?php echo 'whatsapp' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'WhatsApp', 'infinitycod' ); ?></a>
+				<a href="?page=infinitycod-settings&tab=license" class="nav-tab <?php echo 'license' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Licence', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=advanced" class="nav-tab <?php echo 'advanced' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Avancé', 'infinitycod' ); ?></a>
 			</nav>
+
+			<?php if ( 'license' === $this->tab ) : ?>
+				<?php $this->tab_license(); ?>
+			<?php else : ?>
 
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="icod_save_settings" />
@@ -79,8 +85,78 @@ class SettingsPage {
 					<button type="submit" class="button button-primary button-hero"><?php esc_html_e( 'Enregistrer', 'infinitycod' ); ?></button>
 				</p>
 			</form>
+			<?php endif; ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Onglet licence : activation de clé.
+	 *
+	 * @return void
+	 */
+	private function tab_license() {
+		$license = \InfinityCod\License\LicenseManager::stored();
+		$premium = \InfinityCod\License\LicenseManager::is_premium();
+		$msg     = isset( $_GET['icod_msg'] ) ? sanitize_text_field( rawurldecode( wp_unslash( $_GET['icod_msg'] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		?>
+		<?php if ( $msg ) : ?>
+			<div class="notice <?php echo $premium ? 'notice-success' : 'notice-error'; ?>"><p><?php echo esc_html( $msg ); ?></p></div>
+		<?php endif; ?>
+
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Licence InfinityCod', 'infinitycod' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'La version gratuite inclut le formulaire COD, les 58 wilayas et 1541 communes, les tarifs de livraison et l‘anti-fraude. La licence Premium débloque : WhatsApp automatique, transporteurs intégrés (création de colis + suivi), statistiques P&L et offres par quantité.', 'infinitycod' ); ?>
+			</p>
+
+			<p>
+				<strong><?php esc_html_e( 'Statut :', 'infinitycod' ); ?></strong>
+				<span class="icod-status <?php echo $premium ? 'icod-status-delivered' : 'icod-status-pending'; ?>"><?php echo esc_html( \InfinityCod\License\LicenseManager::status_label() ); ?></span>
+				<?php if ( ! empty( $license['client'] ) ) : ?>
+					— <?php echo esc_html( $license['client'] ); ?>
+				<?php endif; ?>
+				<?php if ( ! empty( $license['expires_at'] ) ) : ?>
+					· <?php printf( /* translators: %s : date. */ esc_html__( 'expire le %s', 'infinitycod' ), esc_html( $license['expires_at'] ) ); ?>
+				<?php endif; ?>
+			</p>
+
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<input type="hidden" name="action" value="icod_activate_license" />
+				<?php wp_nonce_field( 'icod_activate_license' ); ?>
+				<div class="icod-grid icod-grid-full">
+					<label>
+						<span><?php esc_html_e( 'Clé de licence', 'infinitycod' ); ?></span>
+						<input type="text" name="icod_license_key" class="regular-text" dir="ltr" placeholder="INFINITY-XXXX-XXXX-XXXX" />
+					</label>
+				</div>
+				<p class="icod-submit">
+					<button type="submit" class="button button-primary"><?php esc_html_e( 'Activer la licence', 'infinitycod' ); ?></button>
+				</p>
+			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Traite l'activation de licence.
+	 *
+	 * @return void
+	 */
+	public function handle_license() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_activate_license' );
+
+		$key = isset( $_POST['icod_license_key'] ) ? sanitize_text_field( wp_unslash( $_POST['icod_license_key'] ) ) : '';
+
+		$manager = new \InfinityCod\License\LicenseManager();
+		$result  = $manager->activate( $key );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=license&icod_msg=' . rawurlencode( $result['message'] ) ) );
+		exit;
 	}
 
 	/**
