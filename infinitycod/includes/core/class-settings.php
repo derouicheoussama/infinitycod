@@ -101,6 +101,15 @@ class Settings {
 			'menu_badge'            => 1,    // Badge commandes en attente sur le menu.
 			'auto_update'           => 0,    // Mise à jour automatique du plugin.
 
+			// Paiement en ligne (Chargily Pay — CIB / Edahabia).
+			'payment_enabled'       => 0,
+			'payment_mode'          => 'chargily',   // passerelle active.
+			'chargily_mode'         => 'test',       // test | live.
+			'chargily_secret'       => '',           // Clé secrète API.
+			'payment_label'         => __( '💳 Payer maintenant en ligne (CIB / Edahabia)', 'infinitycod' ),
+			'cod_label'             => __( '💵 Paiement à la livraison', 'infinitycod' ),
+			'payment_return_text'   => __( 'Merci ! Votre paiement a bien été reçu et votre commande est confirmée. Nous vous contacterons très vite.', 'infinitycod' ),
+
 			// Mises à jour via GitHub.
 			'github_repo'           => 'derouicheoussama/infinitycod', // proprietaire/depot.
 			'github_token'          => '',   // Requis pour un dépôt privé (lecture seule).

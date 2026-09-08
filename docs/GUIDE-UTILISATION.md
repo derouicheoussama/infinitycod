@@ -81,3 +81,13 @@ Fiche produit → métabox **InfinityCod — Offres** : paliers au format `2=10,
 - Construire le zip : `node tools/build.js`
 
 © Infinity Coder — Oussama Derouiche, 2026.
+
+## 10. Paiement en ligne (CIB / Edahabia — Chargily Pay)
+
+**Réglages → Paiement** : activez « Payer maintenant en ligne » pour proposer dans le formulaire un choix entre paiement à la livraison et paiement immédiat par carte CIB/Edahabia via **Chargily Pay**.
+
+1. Créez un compte sur chargily.com et récupérez votre **clé secrète**
+2. Choisissez l'environnement (Test pour vos essais, Production pour encaisser) et collez la clé
+3. Le webhook est pré-rempli : `votre-site/wp-json/infinitycod/v1/chargily/webhook`
+
+Fonctionnement : le client choisit « Payer en ligne » → commande créée → redirection vers la page de paiement Chargily → retour sur le site avec **vérification du statut auprès de l'API** (anti-falsification) → commande marquée **Payée 💳** et passée en « Confirmée ». Un webhook signé (HMAC) confirme le paiement même si le client ferme son navigateur.

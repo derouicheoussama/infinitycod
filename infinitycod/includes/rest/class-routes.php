@@ -95,6 +95,16 @@ class Routes {
 
 		register_rest_route(
 			self::NAMESPACE_V1,
+			'/chargily/webhook',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'chargily_webhook' ),
+				'permission_callback' => '__return_true', // authentifiée par signature HMAC.
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE_V1,
 			'/abandoned',
 			array(
 				'methods'             => 'POST',
@@ -233,6 +243,7 @@ class Routes {
 
 		$mode     = ( isset( $body['mode'] ) && 'desk' === $body['mode'] ) ? RatesManager::MODE_DESK : RatesManager::MODE_HOME;
 		$stopdesk = isset( $body['stopdesk'] ) ? sanitize_text_field( $body['stopdesk'] ) : '';
+		$payment  = ( isset( $body['payment'] ) && 'online' === $body['payment'] && InfinityCodPaymentPaymentManager::enabled() ) ? 'online' : 'cod';
 		if ( RatesManager::MODE_DESK === $mode && '' === $stopdesk ) {
 			return new \WP_Error( 'icod_desk', __( 'Veuillez choisir un bureau de retrait.', 'infinitycod' ), array( 'status' => 400 ) );
 		}
@@ -284,6 +295,7 @@ class Routes {
 			'commune'      => $commune_name,
 			'mode'         => $mode,
 			'stopdesk'     => $stopdesk,
+			'payment'      => $payment,
 			'note'         => isset( $body['note'] ) ? $body['note'] : '',
 			'fraud_score'  => isset( $assessment['score'] ) ? $assessment['score'] : 0,
 			'fraud_flags'  => isset( $assessment['flags'] ) ? $assessment['flags'] : array(),
@@ -302,7 +314,23 @@ class Routes {
 			return new \WP_Error( 'icod_' . $code, isset( $messages[ $code ] ) ? $messages[ $code ] : __( 'Une erreur est survenue, réessayez.', 'infinitycod' ), array( 'status' => 400 ) );
 		}
 
-		// 5. Le panier abandonné éventuel est considéré récupéré.
+		// 5. Paiement en ligne : création du checkout Chargily et redirection.
+		if ( 'online' === $payment ) {
+			$pay  = infinitycod()->module( 'payment' );
+			$res2 = $pay ? $pay->create_checkout( $result, $body ) : array( 'ok' => false );
+
+			if ( ! empty( $res2['ok'] ) ) {
+				return rest_ensure_response( array(
+					'ok'       => true,
+					'redirect' => $res2['redirect'],
+					'order_id' => (int) $result['order_id'],
+					'total'    => (float) $result['total'],
+				) );
+			}
+			// Échec checkout : la commande reste COD (dégradation propre).
+		}
+
+		// 6. Le panier abandonné éventuel est considéré récupéré.
 		if ( class_exists( '\\InfinityCod\\Orders\\Abandoned' ) ) {
 			\InfinityCod\Orders\Abandoned::mark_recovered_by_phone( $phone );
 		}
@@ -370,6 +398,21 @@ class Routes {
 		}
 
 		return rest_ensure_response( array( 'ok' => true ) );
+	}
+
+	/**
+	 * POST /chargily/webhook — notifications de paiement (signature HMAC).
+	 *
+	 * @param WP_REST_Request $request Requête.
+	 * @return WP_REST_Response
+	 */
+	public function chargily_webhook( $request ) {
+		$raw  = (string) $request->get_body();
+		$sig  = (string) $request->get_header( 'signature' );
+		$pay  = infinitycod()->module( 'payment' );
+		$ok   = $pay ? $pay->handle_webhook( $raw, $sig ) : false;
+
+		return rest_ensure_response( array( 'ok' => $ok ) );
 	}
 
 	/**

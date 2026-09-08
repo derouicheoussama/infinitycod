@@ -175,6 +175,7 @@ class OrderStore {
 				'commune'       => $commune,
 				'delivery_mode' => $mode,
 				'stopdesk'      => isset( $data['stopdesk'] ) ? sanitize_text_field( $data['stopdesk'] ) : '',
+				'payment'       => ( isset( $data['payment'] ) && 'online' === $data['payment'] ) ? 'online' : 'cod',
 				'subtotal'      => $subtotal,
 				'discount'      => $discount_amount,
 				'shipping'      => $shipping_price,

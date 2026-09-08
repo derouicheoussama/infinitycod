@@ -189,7 +189,7 @@
 }
 textarea.icod-input{height:auto;min-height:76px;padding:12px 14px;line-height:1.5;resize:vertical}
 /* Icônes intégrées (nom / téléphone) */
-.icod-input-name,.icod-input-phone{padding-inline-start:44px!important;background-repeat:no-repeat!important;background-size:19px 19px}
+.icod-input-name,.icod-input-phone{padding-inline-start:44px!important;background-repeat:no-repeat!important;background-size:19px 19px!important}
 .icod-input-name{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23767d87' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5'/%3E%3C/svg%3E")!important;background-position:left 13px center!important}
 .icod-input-phone{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23767d87' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.27a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7a2 2 0 0 1 1.7 2z'/%3E%3C/svg%3E")!important;background-position:left 13px center!important}
 .icod-root[dir="rtl"] .icod-input-name,.icod-root[dir="rtl"] .icod-input-phone{background-position:right 13px center!important;padding-inline-start:14px!important;padding-inline-end:44px!important}

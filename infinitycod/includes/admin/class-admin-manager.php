@@ -21,6 +21,13 @@ class AdminManager {
 	private $pages = array();
 
 	/**
+	 * Pages à hooks précoces (admin-post / AJAX enregistrés pour chaque requête).
+	 *
+	 * @var array
+	 */
+	private $hooked_pages = array();
+
+	/**
 	 * Hooks admin.
 	 *
 	 * @return void
@@ -28,6 +35,14 @@ class AdminManager {
 	public function register() {
 		add_action( 'admin_menu', array( $this, 'menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
+
+		// IMPORTANT : ces pages enregistrent des handlers admin_post dans
+		// leur constructeur. Ils doivent donc exister dès le chargement du
+		// plugin — y compris quand admin-post.php reçoit le POST de
+		// sauvegarde (la page n'est PAS rendue dans ce cas). C'était la
+		// cause du bug « les réglages ne s'enregistrent pas ».
+		$this->hooked_pages['settings'] = new Pages\SettingsPage();
+		$this->hooked_pages['about']    = new Pages\AboutPage();
 		add_action( 'admin_post_icod_save_wilayas', array( $this, 'handle_wilayas_save' ) );
 		add_action( 'wp_ajax_icod_save_commune', array( $this, 'handle_commune_save' ) );
 		add_action( 'admin_post_icod_orders_bulk', array( $this, 'handle_orders_bulk' ) );
@@ -342,7 +357,10 @@ class AdminManager {
 	 * @return void
 	 */
 	public function render_settings() {
-		( new Pages\SettingsPage() )->render();
+		if ( ! isset( $this->hooked_pages['settings'] ) ) {
+			$this->hooked_pages['settings'] = new Pages\SettingsPage();
+		}
+		$this->hooked_pages['settings']->render();
 	}
 
 	/**
@@ -351,7 +369,10 @@ class AdminManager {
 	 * @return void
 	 */
 	public function render_about() {
-		( new Pages\AboutPage() )->render();
+		if ( ! isset( $this->hooked_pages['about'] ) ) {
+			$this->hooked_pages['about'] = new Pages\AboutPage();
+		}
+		$this->hooked_pages['about']->render();
 	}
 
 	/**

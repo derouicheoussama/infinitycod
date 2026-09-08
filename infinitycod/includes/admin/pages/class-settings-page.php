@@ -26,7 +26,7 @@ class SettingsPage {
 	public function __construct() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- navigation par onglet.
 		$tab       = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'form';
-		$this->tab = in_array( $tab, array( 'form', 'fraud', 'whatsapp', 'license', 'advanced' ), true ) ? $tab : 'form';
+		$this->tab = in_array( $tab, array( 'form', 'fraud', 'whatsapp', 'payment', 'license', 'advanced' ), true ) ? $tab : 'form';
 		// phpcs:enable
 
 		add_action( 'admin_post_icod_save_settings', array( $this, 'handle_save' ) );
@@ -52,6 +52,7 @@ class SettingsPage {
 				<a href="?page=infinitycod-settings" class="nav-tab <?php echo 'form' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Formulaire', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=fraud" class="nav-tab <?php echo 'fraud' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Anti-fraude', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=whatsapp" class="nav-tab <?php echo 'whatsapp' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'WhatsApp', 'infinitycod' ); ?></a>
+				<a href="?page=infinitycod-settings&tab=payment" class="nav-tab <?php echo 'payment' === $this->tab ? 'nav-tab-active' : ''; ?>" ><?php esc_html_e( 'Paiement', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=license" class="nav-tab <?php echo 'license' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Licence', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=advanced" class="nav-tab <?php echo 'advanced' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Avancé', 'infinitycod' ); ?></a>
 			</nav>
@@ -73,6 +74,9 @@ class SettingsPage {
 					case 'whatsapp':
 						$this->tab_whatsapp();
 						break;
+					case 'payment':
+						$this->tab_payment();
+						break;
 					case 'advanced':
 						$this->tab_advanced();
 						break;
@@ -86,6 +90,65 @@ class SettingsPage {
 				</p>
 			</form>
 			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Onglet paiement en ligne (Chargily Pay v2 — CIB / Edahabia).
+	 *
+	 * @return void
+	 */
+	private function tab_payment() {
+		?>
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Paiement en ligne — Chargily Pay (CIB / Edahabia)', 'infinitycod' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'Permet au client de payer immédiatement par carte CIB ou Edahabia via Chargily Pay. Sans cela, le formulaire reste en paiement à la livraison classique. Créez votre compte sur chargily.com, puis copiez votre clé secrète ici.', 'infinitycod' ); ?>
+			</p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[payment_enabled]" value="1" <?php checked( (int) Settings::get( 'payment_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Activer le paiement en ligne dans le formulaire', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Environnement', 'infinitycod' ); ?></span>
+					<select name="icod[chargily_mode]">
+						<option value="test" <?php selected( Settings::get( 'chargily_mode' ), 'test' ); ?>><?php esc_html_e( 'Test (clés de test)', 'infinitycod' ); ?></option>
+						<option value="live" <?php selected( Settings::get( 'chargily_mode' ), 'live' ); ?>><?php esc_html_e( 'Production (argent réel)', 'infinitycod' ); ?></option>
+					</select>
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Clé secrète API', 'infinitycod' ); ?></span>
+					<input type="password" name="icod[chargily_secret]" value="<?php echo esc_attr( Settings::get( 'chargily_secret' ) ); ?>" dir="ltr" autocomplete="new-password" placeholder="sk_live_… / sk_test_…" />
+				</label>
+			</div>
+			<p class="description" style="margin-top:10px">
+				<?php esc_html_e( 'Webhook automatique :', 'infinitycod' ); ?>
+				<code><?php echo esc_html( rest_url( 'infinitycod/v1/chargily/webhook' ) ); ?></code>
+			</p>
+		</div>
+
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Affichage dans le formulaire', 'infinitycod' ); ?></h2>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Libellé — paiement à la livraison', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[cod_label]" value="<?php echo esc_attr( Settings::get( 'cod_label' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Libellé — paiement en ligne', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[payment_label]" value="<?php echo esc_attr( Settings::get( 'payment_label' ) ); ?>" />
+				</label>
+			</div>
+			<div class="icod-grid icod-grid-full">
+				<label>
+					<span><?php esc_html_e( 'Message affiché au client après un paiement réussi', 'infinitycod' ); ?></span>
+					<textarea name="icod[payment_return_text]" rows="2" class="large-text"><?php echo esc_textarea( Settings::get( 'payment_return_text' ) ); ?></textarea>
+				</label>
+			</div>
 		</div>
 		<?php
 	}
@@ -483,12 +546,12 @@ class SettingsPage {
 		$clean = array();
 
 		// Textes.
-		foreach ( array( 'form_title', 'form_subtitle', 'button_text', 'phone_placeholder', 'label_name', 'label_phone', 'label_wilaya', 'label_commune', 'label_note', 'success_title' ) as $text_key ) {
+		foreach ( array( 'form_title', 'form_subtitle', 'button_text', 'phone_placeholder', 'label_name', 'label_phone', 'label_wilaya', 'label_commune', 'label_note', 'success_title', 'cod_label', 'payment_label' ) as $text_key ) {
 			if ( isset( $raw[ $text_key ] ) ) {
 				$clean[ $text_key ] = sanitize_text_field( $raw[ $text_key ] );
 			}
 		}
-		foreach ( array( 'msg_order_received', 'msg_order_shipped', 'msg_abandoned', 'success_text' ) as $textarea_key ) {
+		foreach ( array( 'msg_order_received', 'msg_order_shipped', 'msg_abandoned', 'success_text', 'payment_return_text' ) as $textarea_key ) {
 			if ( isset( $raw[ $textarea_key ] ) ) {
 				$clean[ $textarea_key ] = sanitize_textarea_field( $raw[ $textarea_key ] );
 			}
@@ -505,6 +568,9 @@ class SettingsPage {
 		}
 		if ( isset( $raw['form_preset'] ) && in_array( $raw['form_preset'], array( 'modern', 'elegant', 'sunset', 'ocean', 'minimal' ), true ) ) {
 			$clean['form_preset'] = $raw['form_preset'];
+		}
+		if ( isset( $raw['chargily_mode'] ) && in_array( $raw['chargily_mode'], array( 'test', 'live' ), true ) ) {
+			$clean['chargily_mode'] = $raw['chargily_mode'];
 		}
 		if ( isset( $raw['whatsapp_gateway'] ) && in_array( $raw['whatsapp_gateway'], array( 'wame', 'cloud', 'ultramsg' ), true ) ) {
 			$clean['whatsapp_gateway'] = $raw['whatsapp_gateway'];
@@ -526,7 +592,7 @@ class SettingsPage {
 		}
 
 		// Cases à cocher (absent = 0).
-		foreach ( array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'menu_badge', 'auto_update', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
+		foreach ( array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'menu_badge', 'auto_update', 'payment_enabled', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
 			$clean[ $toggle_key ] = empty( $raw[ $toggle_key ] ) ? 0 : 1;
 		}
 
@@ -536,7 +602,7 @@ class SettingsPage {
 				$clean[ $id_key ] = preg_replace( '/[^0-9a-zA-Z_\-.\/]/', '', $raw[ $id_key ] );
 			}
 		}
-		foreach ( array( 'whatsapp_cloud_token', 'whatsapp_ultramsg_key', 'github_token' ) as $secret_key ) {
+		foreach ( array( 'whatsapp_cloud_token', 'whatsapp_ultramsg_key', 'github_token', 'chargily_secret' ) as $secret_key ) {
 			if ( isset( $raw[ $secret_key ] ) ) {
 				$clean[ $secret_key ] = sanitize_text_field( $raw[ $secret_key ] );
 			}

@@ -44,6 +44,7 @@ final class Plugin {
 		'shield'    => '\\InfinityCod\\AntiFraud\\Shield',
 		'orders'    => '\\InfinityCod\\Orders\\OrderStore',
 		'form'      => '\\InfinityCod\\Form\\FormManager',
+		'payment'   => '\\InfinityCod\\Payment\\PaymentManager',
 		'rest'      => '\\InfinityCod\\Rest\\Routes',
 		'carriers'  => '\\InfinityCod\\Carriers\\CarrierManager',
 		'whatsapp'  => '\\InfinityCod\\Whatsapp\\WhatsappManager',

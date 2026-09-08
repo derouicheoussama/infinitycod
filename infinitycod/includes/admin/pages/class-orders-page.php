@@ -195,7 +195,7 @@ class OrdersPage {
 				<?php echo esc_html( $row['wilaya_name'] ); ?>
 				<span class="icod-sub"><?php echo esc_html( $row['commune'] . ' · ' . ( 'desk' === $row['delivery_mode'] ? __( 'Bureau', 'infinitycod' ) : __( 'Domicile', 'infinitycod' ) ) ); ?></span>
 			</td>
-			<td data-label="<?php esc_attr_e( 'Total', 'infinitycod' ); ?>"><strong><?php echo esc_html( number_format_i18n( (float) $row['total'], 2 ) ); ?> DA</strong></td>
+			<td data-label="<?php esc_attr_e( 'Total', 'infinitycod' ); ?>"><strong><?php echo esc_html( number_format_i18n( (float) $row['total'], 2 ) ); ?> DA</strong><?php if ( ! empty( $row['paid'] ) ) : ?> <span title="<?php esc_attr_e( 'Payé en ligne', 'infinitycod' ); ?>">💳</span><?php endif; ?></td>
 			<td data-label="<?php esc_attr_e( 'Statut', 'infinitycod' ); ?>">
 				<span class="icod-status icod-status-<?php echo esc_attr( $status ); ?>"><?php echo esc_html( $label ); ?></span>
 			</td>
@@ -249,6 +249,11 @@ class OrdersPage {
 						<?php endif; ?>
 					</div>
 					<div>
+						<?php if ( ! empty( $row['paid'] ) ) : ?>
+							<p><span class="icod-status icod-status-confirmed">💳 <?php esc_html_e( 'Payé en ligne (CIB/Edahabia)', 'infinitycod' ); ?></span><?php if ( $row['paid_at'] ) : ?> <span class="icod-sub"><?php echo esc_html( mysql2date( 'd/m/Y H:i', $row['paid_at'] ) ); ?></span><?php endif; ?></p>
+						<?php elseif ( 'online' === $row['payment'] ) : ?>
+							<p><span class="icod-status icod-status-no_answer">⏳ <?php esc_html_e( 'Paiement en ligne non finalisé', 'infinitycod' ); ?></span></p>
+						<?php endif; ?>
 						<h4><?php esc_html_e( 'Montants', 'infinitycod' ); ?></h4>
 						<p>
 							<?php

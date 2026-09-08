@@ -41,3 +41,12 @@ Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
 - **Mises à jour encore plus directes** : vérification horaire dédiée (cron `infinitycod_update_check`) en plus du cycle natif WordPress de 12 h — une release GitHub apparaît chez les clients en quelques heures maximum. Nouvelle option **« Mise à jour automatique »** : le plugin s'installe tout seul dès qu'une version est publiée (filtre `auto_update_plugin`).
 - **Interface admin** : badge rouge de commandes en attente sur le menu InfinityCod (option désactivable), crédit Infinity Coder en pied de page sur les écrans du plugin, page À propos affichant la dernière version publiée et sa source (GitHub / factexpert.online).
 - **Nouveaux réglages formulaire** : indication du champ téléphone, largeur du formulaire (400-900 px), titre et texte de succès personnalisés (variable {num}).
+
+## 1.3.0 — 2026-09-08
+
+### Corrigé
+- **Réglages non enregistrés** (bug critique) : les handlers admin_post des pages Réglages et À propos étaient enregistrés dans leur constructeur, appelé uniquement au rendu — jamais quand admin-post.php recevait le POST. Les pages sont maintenant instanciées dès le chargement du plugin. C'était la cause exacte du rapport « les réglages ne s'enregistrent pas ».
+- **Icônes des champs nom/téléphone trop grandes** : `background-size` passait sans `!important` et était écrasé par les styles des thèmes.
+
+### Ajouté
+- **Paiement en ligne Chargily Pay v2 (CIB / Edahabia)** : choix COD / paiement immédiat dans le formulaire, création de checkout (API pay.chargily.net, mode test/production), redirection client, confirmation par vérification API au retour + webhook signé HMAC-SHA256 (`/wp-json/infinitycod/v1/chargily/webhook`), commande marquée **Payée 💳** (flag + WooCommerce payment_complete + statut COD confirmé), page de retour personnalisable. Colonnes DB `payment/checkout_id/paid/paid_at` (migration automatique). Réglages → onglet Paiement.

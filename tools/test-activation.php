@@ -187,7 +187,7 @@ infinitycod()->boot();
 echo "   Boot OK ✓ (" . count( $GLOBALS['__wpdb_log'] ) . " requêtes simulées)\n";
 
 echo "4) Instanciation directe de chaque module…\n";
-foreach ( array( 'geo', 'rates', 'shield', 'orders', 'form', 'rest', 'carriers', 'whatsapp', 'stats', 'admin', 'license' ) as $slug ) {
+foreach ( array( 'geo', 'rates', 'shield', 'orders', 'form', 'payment', 'rest', 'carriers', 'whatsapp', 'stats', 'admin', 'license' ) as $slug ) {
 	$module = infinitycod()->module( $slug );
 	if ( null === $module ) {
 		echo "   ⚠ [{$slug}] module introuvable\n";

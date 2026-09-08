@@ -125,6 +125,7 @@ class FormManager {
 		$show_note        = (bool) Settings::get( 'show_note', 0 );
 		$show_offers      = (bool) Settings::get( 'show_offers', 1 );
 		$show_reassurance = (bool) Settings::get( 'show_reassurance', 1 );
+		$payment_online   = infinitycod()->module( 'payment' ) ? \InfinityCod\Payment\PaymentManager::enabled() : false;
 
 		$ts  = time();
 		$sig = Shield::sign_timestamp( $ts );
@@ -290,6 +291,29 @@ class FormManager {
 									<label for="icod-note-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( $label_note ); ?></label>
 									<textarea name="icod_note" id="icod-note-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-note" rows="2" maxlength="500"></textarea>
 								</div>
+							<?php endif; ?>
+
+							<?php if ( $payment_online ) : ?>
+								<fieldset class="icod-mode icod-pay">
+									<legend><?php esc_html_e( 'Méthode de paiement', 'infinitycod' ); ?></legend>
+									<div class="icod-mode-grid">
+										<label class="icod-mode-option">
+											<input type="radio" name="icod_payment" value="cod" class="icod-pay-radio" checked />
+											<span class="icod-mode-box">
+												<span class="icod-mode-title"><?php echo esc_html( Settings::get( 'cod_label' ) ); ?></span>
+												<span class="icod-mode-sub"><?php esc_html_e( 'Vous payez en recevant le colis', 'infinitycod' ); ?></span>
+											</span>
+										</label>
+										<label class="icod-mode-option">
+											<input type="radio" name="icod_payment" value="online" class="icod-pay-radio" />
+											<span class="icod-mode-box">
+												<span class="icod-mode-title"><?php echo esc_html( Settings::get( 'payment_label' ) ); ?></span>
+												<span class="icod-mode-sub"><?php esc_html_e( 'Paiement sécurisé CIB / Edahabia', 'infinitycod' ); ?></span>
+											</span>
+										</label>
+									</div>
+								</fieldset>
+								<input type="hidden" name="icod_payment_default" value="cod" />
 							<?php endif; ?>
 
 							<?php if ( $offers_tiers ) : ?>

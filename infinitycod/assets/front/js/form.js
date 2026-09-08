@@ -415,6 +415,8 @@
 			var communeFr = communeSelect.value;
 			var communeAr = arOption ? (arOption.getAttribute('data-ar') || '') : '';
 
+			var payRadio = el(form, 'input[name="icod_payment"]:checked');
+
 			api('submit', {
 				product_id: state.productId,
 				variation_id: state.variationId,
@@ -426,6 +428,7 @@
 				commune_ar: communeAr,
 				mode: currentMode(),
 				stopdesk: currentMode() === 'desk' ? deskSelect.value : '',
+				payment: payRadio ? payRadio.value : 'cod',
 				note: (el(form, '.icod-note') || { value: '' }).value.trim(),
 				honeypot: el(form, '.icod-hp').value,
 				ts: el(form, '[name="icod_ts"]').value,
@@ -444,7 +447,16 @@
 						showMsg(I18N.blocked, 'error');
 					} else {
 						showMsg(json.message || I18N.error, 'error');
+						submitBtn.disabled = false;   // le bouton reste actif pour réessayer
+						submitBtn.textContent = originalLabel;
 					}
+					return;
+				}
+
+				// Paiement en ligne : redirection vers le checkout Chargily.
+				if (json.redirect) {
+					submitBtn.textContent = '…';
+					window.location.href = json.redirect;
 					return;
 				}
 
