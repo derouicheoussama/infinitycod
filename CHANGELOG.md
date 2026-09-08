@@ -217,3 +217,9 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 
 ### Fixed
 - **Harnais auto-suffisant en CI** : la fixture WordPress minimale est créée tout en haut du script d'activation — plus aucune dépendance au dossier .tools gitignoré (les runs échoués de l'historique venaient de là).
+
+## 2.6.2 — 2026-09-09
+
+### Fixed
+- **Boutons des pages Mises à jour et Diagnostics morts** (redirection vers admin-post.php) : leurs handlers `admin_post` étaient enregistrés dans le constructeur des pages, appelé seulement au rendu — jamais quand admin-post.php recevait le POST. Toutes les pages à handlers sont maintenant instanciées au chargement du plugin.
+- **Test anti-régression** : le harnais vérifie désormais que les 15 handlers `admin_post` et les 7 handlers `wp_ajax` sont enregistrés dès le boot — ce bug ne peut plus repasser.

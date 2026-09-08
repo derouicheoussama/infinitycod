@@ -14,172 +14,172 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Domain: infinitycod\n"
 
-#: includes/admin/class-admin-manager.php:87
-#: includes/admin/class-admin-manager.php:87
-#: includes/admin/class-admin-manager.php:284
+#: includes/admin/class-admin-manager.php:89
+#: includes/admin/class-admin-manager.php:89
+#: includes/admin/class-admin-manager.php:286
 msgid "Réglages"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:92
-#: includes/admin/class-admin-manager.php:92
+#: includes/admin/class-admin-manager.php:94
+#: includes/admin/class-admin-manager.php:94
 #: includes/admin/pages/class-stats-page.php:145
 #: includes/admin/pages/class-stats-page.php:174
 msgid "Commandes"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:113
-#: includes/admin/class-admin-manager.php:113
+#: includes/admin/class-admin-manager.php:115
+#: includes/admin/class-admin-manager.php:115
 msgid "Site web"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:118
-#: includes/admin/class-admin-manager.php:118
+#: includes/admin/class-admin-manager.php:120
+#: includes/admin/class-admin-manager.php:120
 msgid "Nouveautés"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:192
-#: includes/admin/class-admin-manager.php:192
+#: includes/admin/class-admin-manager.php:194
+#: includes/admin/class-admin-manager.php:194
 msgid "InfinityCod v%1$s — développé avec ❤️ par Infinity Coder (Oussama Derouiche)"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:229
-#: includes/admin/class-admin-manager.php:230
+#: includes/admin/class-admin-manager.php:231
+#: includes/admin/class-admin-manager.php:232
 msgid "Tableau de bord"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:238
-#: includes/admin/class-admin-manager.php:239
-#: includes/admin/class-admin-manager.php:386
-#: includes/admin/class-admin-manager.php:386
+#: includes/admin/class-admin-manager.php:240
+#: includes/admin/class-admin-manager.php:241
+#: includes/admin/class-admin-manager.php:388
+#: includes/admin/class-admin-manager.php:388
 msgid "Commandes COD"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:247
-#: includes/admin/class-admin-manager.php:248
+#: includes/admin/class-admin-manager.php:249
+#: includes/admin/class-admin-manager.php:250
 #: includes/admin/pages/class-abandoned-page.php:40
 #: includes/admin/pages/class-abandoned-page.php:40
 msgid "Paniers abandonnés"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:256
-#: includes/admin/class-admin-manager.php:257
+#: includes/admin/class-admin-manager.php:258
+#: includes/admin/class-admin-manager.php:259
 msgid "Wilayas & Tarifs"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:265
-#: includes/admin/class-admin-manager.php:266
-#: includes/admin/class-admin-manager.php:421
-#: includes/admin/class-admin-manager.php:421
+#: includes/admin/class-admin-manager.php:267
+#: includes/admin/class-admin-manager.php:268
+#: includes/admin/class-admin-manager.php:423
+#: includes/admin/class-admin-manager.php:423
 msgid "Transporteurs"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:274
-#: includes/admin/class-admin-manager.php:275
-#: includes/admin/class-admin-manager.php:435
-#: includes/admin/class-admin-manager.php:435
+#: includes/admin/class-admin-manager.php:276
+#: includes/admin/class-admin-manager.php:277
+#: includes/admin/class-admin-manager.php:437
+#: includes/admin/class-admin-manager.php:437
 msgid "Statistiques P&L"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:283
+#: includes/admin/class-admin-manager.php:285
 #: includes/admin/pages/class-settings-page.php:48
 #: includes/admin/pages/class-settings-page.php:48
 msgid "Réglages InfinityCod"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:292
-#: includes/admin/class-admin-manager.php:293
+#: includes/admin/class-admin-manager.php:294
+#: includes/admin/class-admin-manager.php:295
 #: includes/admin/pages/class-updates-page.php:63
 #: includes/admin/pages/class-updates-page.php:63
 msgid "Mises à jour"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:301
-#: includes/admin/class-admin-manager.php:302
+#: includes/admin/class-admin-manager.php:303
+#: includes/admin/class-admin-manager.php:304
 msgid "Diagnostics"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:310
+#: includes/admin/class-admin-manager.php:312
 #: includes/admin/pages/class-about-page.php:63
 #: includes/admin/pages/class-about-page.php:63
 msgid "À propos d‘InfinityCod"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:311
+#: includes/admin/class-admin-manager.php:313
 msgid "À propos"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:348
+#: includes/admin/class-admin-manager.php:350
 #: includes/form/class-form-manager.php:543
 msgid "Chargement…"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:349
+#: includes/admin/class-admin-manager.php:351
 msgid "Une erreur est survenue."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:350
+#: includes/admin/class-admin-manager.php:352
 msgid "Enregistré ✓"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:351
+#: includes/admin/class-admin-manager.php:353
 msgid "Confirmer ?"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:352
+#: includes/admin/class-admin-manager.php:354
 msgid "Hérite"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:369
-#: includes/admin/class-admin-manager.php:369
+#: includes/admin/class-admin-manager.php:371
+#: includes/admin/class-admin-manager.php:371
 #: includes/admin/pages/class-dashboard-page.php:130
 #: includes/admin/pages/class-dashboard-page.php:130
 msgid "InfinityCod — Tableau de bord"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:370
-#: includes/admin/class-admin-manager.php:370
+#: includes/admin/class-admin-manager.php:372
+#: includes/admin/class-admin-manager.php:372
 msgid "Le tableau de bord arrive avec la phase Commandes."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:387
-#: includes/admin/class-admin-manager.php:387
+#: includes/admin/class-admin-manager.php:389
+#: includes/admin/class-admin-manager.php:389
 msgid "Le gestionnaire de commandes arrive avec la phase Commandes."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:422
-#: includes/admin/class-admin-manager.php:422
+#: includes/admin/class-admin-manager.php:424
+#: includes/admin/class-admin-manager.php:424
 msgid "Les intégrations transporteurs arrivent avec la phase Livraison."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:436
-#: includes/admin/class-admin-manager.php:436
+#: includes/admin/class-admin-manager.php:438
+#: includes/admin/class-admin-manager.php:438
 msgid "Fonctionnalité Premium"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:437
-#: includes/admin/class-admin-manager.php:437
+#: includes/admin/class-admin-manager.php:439
+#: includes/admin/class-admin-manager.php:439
 msgid "Les statistiques P&L (CA, taux de confirmation et de retour par wilaya, transporteur et produit) nécessitent une licence Premium."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:439
-#: includes/admin/class-admin-manager.php:439
+#: includes/admin/class-admin-manager.php:441
+#: includes/admin/class-admin-manager.php:441
 msgid "Activer une licence"
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:451
-#: includes/admin/class-admin-manager.php:451
+#: includes/admin/class-admin-manager.php:453
+#: includes/admin/class-admin-manager.php:453
 msgid "Les statistiques arrivent avec la phase Stats."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:549
-#: includes/admin/class-admin-manager.php:549
-#: includes/admin/class-admin-manager.php:607
-#: includes/admin/class-admin-manager.php:607
+#: includes/admin/class-admin-manager.php:551
+#: includes/admin/class-admin-manager.php:551
+#: includes/admin/class-admin-manager.php:609
+#: includes/admin/class-admin-manager.php:609
 msgid "Accès refusé."
 msgstr ""
 
-#: includes/admin/class-admin-manager.php:628
-#: includes/admin/class-admin-manager.php:693
+#: includes/admin/class-admin-manager.php:630
+#: includes/admin/class-admin-manager.php:695
 msgid "Blacklist manuelle (dashboard)"
 msgstr ""
 

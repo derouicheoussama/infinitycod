@@ -228,6 +228,55 @@ echo "3) Boot complet…\n";
 infinitycod()->boot();
 echo "   Boot OK ✓ (" . count( $GLOBALS['__wpdb_log'] ) . " requêtes simulées)\n";
 
+echo "3b) Handlers admin_post enregistrés au boot…\n";
+$required_actions = array(
+	'admin_post_icod_save_settings',
+	'admin_post_icod_activate_license',
+	'admin_post_icod_check_update',
+	'admin_post_icod_save_updates',
+	'admin_post_icod_check_updates_now',
+	'admin_post_icod_rollback',
+	'admin_post_icod_diagnostics_download',
+	'admin_post_icod_test_updater',
+	'admin_post_icod_save_wilayas',
+	'admin_post_icod_rates_export',
+	'admin_post_icod_rates_import',
+	'admin_post_icod_orders_bulk',
+	'admin_post_icod_orders_export',
+	'admin_post_icod_carrier_save',
+);
+$missing_handlers = array();
+foreach ( $required_actions as $required_action ) {
+	$found = false;
+	foreach ( $GLOBALS['__actions'] as $recorded ) {
+		if ( ( $recorded[0] ?? '' ) === $required_action ) { $found = true; break; }
+	}
+	if ( ! $found ) { $missing_handlers[] = $required_action; }
+}
+
+// Handlers AJAX (wp_ajax_) : même exigence de registre précoce.
+$required_ajax = array(
+	'wp_ajax_icod_save_commune',
+	'wp_ajax_icod_order_status',
+	'wp_ajax_icod_order_blacklist',
+	'wp_ajax_icod_carrier_test',
+	'wp_ajax_icod_parcel_create',
+	'wp_ajax_icod_sync_tracking',
+	'wp_ajax_icod_import_offices',
+);
+foreach ( $required_ajax as $ajax_action ) {
+	$found = false;
+	foreach ( $GLOBALS['__actions'] as $recorded ) {
+		if ( ( $recorded[0] ?? '' ) === $ajax_action ) { $found = true; break; }
+	}
+	if ( ! $found ) { $missing_handlers[] = $ajax_action; }
+}
+if ( $missing_handlers ) {
+	echo '   ✗ HANDLERS MANQUANTS : ' . implode( ', ', $missing_handlers ) . "\n";
+	exit( 1 );
+}
+	echo '   ✓ ' . count( $required_actions ) . ' handlers admin_post enregistrés\n';
+
 echo "4) Instanciation directe de chaque module…\n";
 foreach ( array( 'i18n', 'logger', 'geo', 'rates', 'shield', 'orders', 'form', 'payment', 'rest', 'carriers', 'whatsapp', 'stats', 'admin', 'license' ) as $slug ) {
 	$module = infinitycod()->module( $slug );

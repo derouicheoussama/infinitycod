@@ -44,8 +44,10 @@ class AdminManager {
 		// plugin — y compris quand admin-post.php reçoit le POST de
 		// sauvegarde (la page n'est PAS rendue dans ce cas). C'était la
 		// cause du bug « les réglages ne s'enregistrent pas ».
-		$this->hooked_pages['settings'] = new Pages\SettingsPage();
-		$this->hooked_pages['about']    = new Pages\AboutPage();
+		$this->hooked_pages['settings']   = new Pages\SettingsPage();
+		$this->hooked_pages['about']      = new Pages\AboutPage();
+		$this->hooked_pages['updates']    = new Pages\UpdatesPage();
+		$this->hooked_pages['diagnostics'] = new Pages\DiagnosticsPage();
 		add_action( 'admin_post_icod_save_wilayas', array( $this, 'handle_wilayas_save' ) );
 		add_action( 'admin_post_icod_rates_export', array( $this, 'handle_rates_export' ) );
 		add_action( 'admin_post_icod_rates_import', array( $this, 'handle_rates_import' ) );
