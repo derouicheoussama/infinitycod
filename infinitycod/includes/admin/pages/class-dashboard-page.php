@@ -8,6 +8,7 @@
 namespace InfinityCod\Admin\Pages;
 
 use InfinityCod\Core\Schema;
+use InfinityCod\Core\Settings;
 use InfinityCod\Orders\OrderStore;
 
 defined( 'ABSPATH' ) || exit;
@@ -77,9 +78,73 @@ class DashboardPage {
 		$frauds  = $wpdb->get_results( "SELECT * FROM {$logs} ORDER BY created_at DESC LIMIT 6", ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
 
 		$statuses = OrderStore::STATUSES;
+
+		// Checklist de démarrage.
+		$carriers_mod  = infinitycod()->module( 'carriers' );
+		$carrier_ready = false;
+		foreach ( \InfinityCod\Carriers\CarrierManager::catalog() as $entry ) {
+			if ( $carriers_mod && $carriers_mod->is_configured( $entry['code'] ) ) {
+				$carrier_ready = true;
+				break;
+			}
+		}
+
+		$payment_mod = infinitycod()->module( 'payment' );
+		$wa_ready    = (bool) Settings::get( 'whatsapp_enabled' );
+		$pay_ready   = $payment_mod ? \InfinityCod\Payment\PaymentManager::enabled() : false;
+		$has_orders  = ( $wpdb->get_var( "SELECT COUNT(*) FROM {$orders}" ) > 0 ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
+
+		$checklist = array(
+			array(
+				'label' => __( 'Personnaliser le formulaire', 'infinitycod' ),
+				'done'  => 'modern' !== Settings::get( 'form_preset' ) || Settings::get( 'form_title' ) !== Settings::defaults()['form_title'],
+				'link'  => admin_url( 'admin.php?page=infinitycod-settings&tab=form' ),
+			),
+			array(
+				'label' => __( 'Connecter un transporteur (expédition en 1 clic)', 'infinitycod' ),
+				'done'  => $carrier_ready,
+				'link'  => admin_url( 'admin.php?page=infinitycod-carriers' ),
+			),
+			array(
+				'label' => __( 'Activer WhatsApp automatique', 'infinitycod' ),
+				'done'  => $wa_ready,
+				'link'  => admin_url( 'admin.php?page=infinitycod-settings&tab=whatsapp' ),
+			),
+			array(
+				'label' => __( 'Activer le paiement en ligne (CIB / Edahabia)', 'infinitycod' ),
+				'done'  => $pay_ready,
+				'link'  => admin_url( 'admin.php?page=infinitycod-settings&tab=payment' ),
+			),
+			array(
+				'label' => __( 'Recevoir votre première commande', 'infinitycod' ),
+				'done'  => $has_orders,
+				'link'  => admin_url( 'admin.php?page=infinitycod-orders' ),
+			),
+		);
+		$done_count = count( array_filter( wp_list_pluck( $checklist, 'done' ) ) );
 		?>
 		<div class="wrap icod-wrap">
 			<h1 class="icod-title"><?php esc_html_e( 'InfinityCod — Tableau de bord', 'infinitycod' ); ?></h1>
+
+			<?php if ( $done_count < count( $checklist ) ) : ?>
+			<div class="icod-card icod-checklist-card">
+				<div class="icod-checklist-head">
+					<h2><?php esc_html_e( 'Configuration', 'infinitycod' ); ?></h2>
+					<span class="icod-checklist-progress"><?php printf( esc_html__( '%1$s / %2$s terminé', 'infinitycod' ), $done_count, count( $checklist ) ); ?></span>
+				</div>
+				<ul class="icod-checklist">
+					<?php foreach ( $checklist as $item ) : ?>
+						<li>
+							<span><?php echo $item['done'] ? '<span class="icod-checklist-done">✓</span> ' : '<span class="icod-checklist-todo">○</span> '; ?></span>
+							<span class="icod-checklist-label <?php echo $item['done'] ? 'done' : ''; ?>"><?php echo esc_html( $item['label'] ); ?></span>
+							<?php if ( ! $item['done'] ) : ?>
+								<a class="button button-small" href="<?php echo esc_url( $item['link'] ); ?>"><?php esc_html_e( 'Configurer', 'infinitycod' ); ?></a>
+							<?php endif; ?>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+			<?php endif; ?>
 
 			<div class="icod-kpi-grid">
 				<?php foreach ( $periods as $key => $label ) : ?>

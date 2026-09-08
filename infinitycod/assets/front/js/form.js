@@ -469,9 +469,38 @@
 				if (successTitle && I18N.successTitle) {
 					successTitle.textContent = I18N.successTitle.replace('{num}', json.order_id);
 				}
+
 				form.closest('.icod-card').classList.add('icod-hidden');
 				success.hidden = false;
 				success.classList.remove('icod-hidden');
+
+				// Montant de la commande.
+				var meta = el(root, '[data-icod-success-meta]');
+				if (meta && json.total) {
+					meta.hidden = false;
+					meta.textContent = '#' + json.order_id + ' · ' + money(json.total);
+				}
+
+				// Upsell : cartes produits suggérées.
+				var upsell = el(root, '[data-icod-upsell]');
+				if (upsell && upsell.querySelector('.icod-upsell-item')) {
+					upsell.classList.remove('icod-hidden');
+					var restart = el(root, '[data-icod-restart]');
+					if (restart) { restart.classList.add('icod-hidden'); }
+				}
+
+				// Redirection personnalisée après commande.
+				var redirectUrl = root.getAttribute('data-redirect');
+				var redirectDelay = parseInt(root.getAttribute('data-redirect-delay'), 10) || 0;
+				if (redirectUrl) {
+					var note = el(root, '[data-icod-redirect-note]');
+					if (note) {
+						note.classList.remove('icod-hidden');
+						note.textContent = I18N.redirecting.replace('{s}', redirectDelay);
+					}
+					window.setTimeout(function () { window.location.href = redirectUrl; }, redirectDelay * 1000);
+				}
+
 				if (sticky) { sticky.classList.remove('is-visible'); }
 				success.scrollIntoView({ behavior: 'smooth', block: 'center' });
 

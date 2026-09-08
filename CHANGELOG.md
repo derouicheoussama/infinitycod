@@ -65,3 +65,10 @@ Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
 - **Publication 100 % automatique** : un simple `git push --tags` construit le zip et le publie sur le dépôt public des releases (secret RELEASES_TOKEN configuré via CI, script tools/set-releases-secret.js). Plus aucune commande manuelle.
 - **Mise à jour automatique activée par défaut** chez les clients (désactivable dans Réglages → Avancé).
 - Le serveur d'activation des licences est désormais un champ modifiable (Réglages → Avancé) au lieu d'être figé dans le code.
+
+## 1.5.0 — 2026-09-08
+
+### Ajouté
+- **Onglet « Commande »** dans les réglages : message de remerciement personnalisé (titre + texte, variable {num}), **redirection personnalisée après la commande** (url + délai 3-60 s, pendant lequel le client voit le remerciement et les upsells), **upsell** : jusqu'à 3 produits suggérés (photo, prix, bouton Commander) affichés sur l'écran de succès.
+- Écran de succès enrichi : numéro de commande + montant total affichés.
+- **UX admin** : checklist de configuration avec progression sur le tableau de bord (transporteur, WhatsApp, paiement, première commande), mini-cartes KPI (en attente / confirmées / expédiées / livrées) au-dessus du tableur des commandes, bouton « Enregistrer » toujours visible (sticky) sur les longues pages de réglages.

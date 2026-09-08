@@ -161,6 +161,12 @@ class FormManager {
 
 		$max_width = max( 400, min( 900, (int) Settings::get( 'form_max_width', 680 ) ) );
 
+		// Après commande : redirection + upsell.
+		$redirect_on    = (bool) Settings::get( 'redirect_enabled' ) && Settings::get( 'redirect_url' );
+		$redirect_delay = max( 3, min( 60, (int) Settings::get( 'redirect_delay', 8 ) ) );
+		$upsell_enabled = (bool) Settings::get( 'upsell_enabled' );
+		$upsell_ids     = array_slice( array_filter( array_map( 'absint', (array) Settings::get( 'upsell_ids', array() ) ) ), 0, 3 );
+
 		ob_start();
 		?>
 		<div class="icod-root icod-theme-<?php echo esc_attr( $theme ); ?>"
@@ -170,6 +176,8 @@ class FormManager {
 			data-unit-price="<?php echo esc_attr( $product->get_price() ); ?>"
 			data-qty-max="<?php echo esc_attr( (int) Settings::get( 'qty_max', 20 ) ); ?>"
 			data-sticky="<?php echo esc_attr( (int) Settings::get( 'sticky_bar', 1 ) ); ?>"
+			data-redirect="<?php echo $redirect_on ? esc_attr( Settings::get( 'redirect_url' ) ) : ''; ?>"
+			data-redirect-delay="<?php echo $redirect_on ? (int) $redirect_delay : 0; ?>"
 			style="max-width:<?php echo (int) $max_width; ?>px"
 			dir="<?php echo $rtl ? 'rtl' : 'ltr'; ?>">
 
@@ -367,7 +375,35 @@ class FormManager {
 			<div class="icod-success icod-hidden" data-icod-success hidden>
 				<h3 data-icod-success-title><?php echo esc_html( Settings::get( 'success_title' ) ); ?></h3>
 				<p data-icod-success-text></p>
+				<p class="icod-success-meta" data-icod-success-meta hidden></p>
+
+				<?php if ( $upsell_enabled && $upsell_ids ) : ?>
+					<div class="icod-upsell icod-hidden" data-icod-upsell>
+						<p class="icod-upsell-title"><?php echo esc_html( Settings::get( 'upsell_title' ) ); ?></p>
+						<div class="icod-upsell-grid">
+							<?php
+							foreach ( $upsell_ids as $upsell_id ) :
+								$upsell_product = wc_get_product( $upsell_id );
+								if ( ! $upsell_product || ! $upsell_product->is_purchasable() ) {
+									continue;
+								}
+								$image_url = wp_get_attachment_image_url( $upsell_product->get_image_id(), 'woocommerce_thumbnail' );
+								?>
+								<a class="icod-upsell-item" href="<?php echo esc_url( $upsell_product->get_permalink() ); ?>">
+									<?php if ( $image_url ) : ?>
+										<img src="<?php echo esc_url( $image_url ); ?>" alt="" loading="lazy" />
+									<?php endif; ?>
+									<span class="icod-upsell-name"><?php echo esc_html( $upsell_product->get_name() ); ?></span>
+									<span class="icod-upsell-price"><?php echo wp_kses_post( wc_price( $upsell_product->get_price() ) ); ?></span>
+									<span class="icod-upsell-cta"><?php esc_html_e( 'Commander', 'infinitycod' ); ?> →</span>
+								</a>
+							<?php endforeach; ?>
+						</div>
+					</div>
+				<?php endif; ?>
+
 				<a class="icod-new-order" href="#" data-icod-restart><?php esc_html_e( 'Passer une autre commande', 'infinitycod' ); ?></a>
+				<p class="icod-redirect-note icod-hidden" data-icod-redirect-note></p>
 			</div>
 		</div>
 		<?php
@@ -467,6 +503,7 @@ class FormManager {
 				'blocked'        => __( 'Commande refusée. Si c‘est une erreur, contactez-nous par téléphone.', 'infinitycod' ),
 				'successTitle'   => Settings::get( 'success_title' ),
 				'successText'    => Settings::get( 'success_text' ),
+				'redirecting'    => __( 'Vous allez être redirigé dans {s} secondes…', 'infinitycod' ),
 				'da'             => __( 'DA', 'infinitycod' ),
 			),
 		) );

@@ -62,6 +62,13 @@ class OrdersPage {
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Action appliquée.', 'infinitycod' ); ?></p></div>
 			<?php endif; ?>
 
+			<div class="icod-mini-grid">
+				<div class="icod-mini"><strong class="icod-mini-pending"><?php echo (int) ( $counts_by_status['pending'] ?? 0 ); ?></strong><span><?php esc_html_e( 'En attente', 'infinitycod' ); ?></span></div>
+				<div class="icod-mini"><strong><?php echo (int) ( $counts_by_status['confirmed'] ?? 0 ); ?></strong><span><?php esc_html_e( 'Confirmées', 'infinitycod' ); ?></span></div>
+				<div class="icod-mini"><strong><?php echo (int) ( $counts_by_status['shipped'] ?? 0 ); ?></strong><span><?php esc_html_e( 'Expédiées', 'infinitycod' ); ?></span></div>
+				<div class="icod-mini"><strong><?php echo (int) ( $counts_by_status['delivered'] ?? 0 ); ?></strong><span><?php esc_html_e( 'Livrées', 'infinitycod' ); ?></span></div>
+			</div>
+
 			<form method="get" class="icod-orders-filters icod-card">
 				<input type="hidden" name="page" value="infinitycod-orders" />
 				<div class="icod-filters-grid">

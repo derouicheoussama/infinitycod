@@ -26,7 +26,7 @@ class SettingsPage {
 	public function __construct() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- navigation par onglet.
 		$tab       = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'form';
-		$this->tab = in_array( $tab, array( 'form', 'fraud', 'whatsapp', 'payment', 'license', 'advanced' ), true ) ? $tab : 'form';
+		$this->tab = in_array( $tab, array( 'form', 'order', 'fraud', 'whatsapp', 'payment', 'license', 'advanced' ), true ) ? $tab : 'form';
 		// phpcs:enable
 
 		add_action( 'admin_post_icod_save_settings', array( $this, 'handle_save' ) );
@@ -50,6 +50,7 @@ class SettingsPage {
 
 			<nav class="nav-tab-wrapper icod-tabs">
 				<a href="?page=infinitycod-settings" class="nav-tab <?php echo 'form' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Formulaire', 'infinitycod' ); ?></a>
+				<a href="?page=infinitycod-settings&tab=order" class="nav-tab <?php echo 'order' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Commande', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=fraud" class="nav-tab <?php echo 'fraud' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Anti-fraude', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=whatsapp" class="nav-tab <?php echo 'whatsapp' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'WhatsApp', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=payment" class="nav-tab <?php echo 'payment' === $this->tab ? 'nav-tab-active' : ''; ?>" ><?php esc_html_e( 'Paiement', 'infinitycod' ); ?></a>
@@ -68,6 +69,9 @@ class SettingsPage {
 
 				<?php
 				switch ( $this->tab ) {
+					case 'order':
+						$this->tab_order();
+						break;
 					case 'fraud':
 						$this->tab_fraud();
 						break;
@@ -316,21 +320,6 @@ class SettingsPage {
 		</div>
 
 		<div class="icod-card">
-			<h2><?php esc_html_e( 'Message de succès', 'infinitycod' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'Affiché après la commande. Variable disponible : {num} (numéro de commande).', 'infinitycod' ); ?></p>
-			<div class="icod-grid icod-grid-full">
-				<label>
-					<span><?php esc_html_e( 'Titre', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[success_title]" value="<?php echo esc_attr( Settings::get( 'success_title' ) ); ?>" class="regular-text" />
-				</label>
-				<label>
-					<span><?php esc_html_e( 'Texte', 'infinitycod' ); ?></span>
-					<textarea name="icod[success_text]" rows="2" class="large-text"><?php echo esc_textarea( Settings::get( 'success_text' ) ); ?></textarea>
-				</label>
-			</div>
-		</div>
-
-		<div class="icod-card">
 			<h2><?php esc_html_e( 'Libellés des champs', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Personnalisez le texte affiché devant chaque champ (utile en arabe ou pour votre ton de marque).', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
@@ -554,7 +543,7 @@ class SettingsPage {
 		$clean = array();
 
 		// Textes.
-		foreach ( array( 'form_title', 'form_subtitle', 'button_text', 'phone_placeholder', 'label_name', 'label_phone', 'label_wilaya', 'label_commune', 'label_note', 'success_title', 'cod_label', 'payment_label' ) as $text_key ) {
+		foreach ( array( 'form_title', 'form_subtitle', 'button_text', 'phone_placeholder', 'label_name', 'label_phone', 'label_wilaya', 'label_commune', 'label_note', 'success_title', 'upsell_title', 'cod_label', 'payment_label' ) as $text_key ) {
 			if ( isset( $raw[ $text_key ] ) ) {
 				$clean[ $text_key ] = sanitize_text_field( $raw[ $text_key ] );
 			}
@@ -580,6 +569,17 @@ class SettingsPage {
 		if ( isset( $raw['chargily_mode'] ) && in_array( $raw['chargily_mode'], array( 'test', 'live' ), true ) ) {
 			$clean['chargily_mode'] = $raw['chargily_mode'];
 		}
+
+		// Redirection après commande.
+		if ( isset( $raw['redirect_url'] ) ) {
+			$clean['redirect_url'] = esc_url_raw( trim( (string) $raw['redirect_url'] ) );
+		}
+
+		// Upsell : 3 IDs de produits maximum.
+		if ( isset( $raw['upsell_ids'] ) && is_array( $raw['upsell_ids'] ) ) {
+			$ids = array_values( array_unique( array_filter( array_map( 'absint', $raw['upsell_ids'] ) ) ) );
+			$clean['upsell_ids'] = array_slice( $ids, 0, 3 );
+		}
 		if ( isset( $raw['whatsapp_gateway'] ) && in_array( $raw['whatsapp_gateway'], array( 'wame', 'cloud', 'ultramsg' ), true ) ) {
 			$clean['whatsapp_gateway'] = $raw['whatsapp_gateway'];
 		}
@@ -588,6 +588,7 @@ class SettingsPage {
 		foreach ( array(
 			'qty_max'              => array( 1, 999 ),
 			'form_max_width'       => array( 400, 900 ),
+			'redirect_delay'       => array( 3, 60 ),
 			'min_submit_seconds'   => array( 0, 60 ),
 			'max_per_ip_hour'      => array( 1, 100 ),
 			'min_fraud_score_block' => array( 0, 100 ),
@@ -600,7 +601,7 @@ class SettingsPage {
 		}
 
 		// Cases à cocher (absent = 0).
-		foreach ( array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'menu_badge', 'auto_update', 'payment_enabled', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
+		foreach ( array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'menu_badge', 'auto_update', 'payment_enabled', 'redirect_enabled', 'upsell_enabled', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
 			$clean[ $toggle_key ] = empty( $raw[ $toggle_key ] ) ? 0 : 1;
 		}
 

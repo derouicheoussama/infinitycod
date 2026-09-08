@@ -139,6 +139,7 @@ function is_singular( $t = '' ) { return false; }
 function did_action( $h ) { return 0; }
 function wp_remote_get( ...$a ) { return new WP_Error_Stub( 'http', 'offline' ); }
 function wp_update_plugins() {}
+function wp_list_pluck( $list, $field ) { $out = array(); foreach ( $list as $item ) { $out[] = is_object( $item ) ? $item->$field : $item[$field]; } return $out; }
 function get_site_transient( $k ) { return false; }
 function set_site_transient( $k, $v, $e = 0 ) { return true; }
 function delete_transient( $k ) {}

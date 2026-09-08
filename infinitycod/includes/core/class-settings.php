@@ -46,6 +46,15 @@ class Settings {
 			'form_max_width'        => 680,  // px, 400-900.
 			'success_title'         => __( '✅ Commande enregistrée !', 'infinitycod' ),
 			'success_text'          => __( 'Merci ! Votre commande n° {num} a bien été enregistrée. Nous vous appellerons très vite pour la confirmer.', 'infinitycod' ),
+
+			// Après commande : redirection + upsell.
+			'redirect_enabled'      => 0,
+			'redirect_url'          => '',
+			'redirect_delay'        => 8,    // secondes, 3-60.
+			'upsell_enabled'        => 0,
+			'upsell_title'          => __( 'Ajoutez ces produits à votre prochaine commande 👇', 'infinitycod' ),
+			'upsell_ids'            => array(),  // Jusqu'à 3 IDs de produits.
+
 			'show_qty_selector'     => 1,
 			'qty_min'               => 1,
 			'qty_max'               => 20,

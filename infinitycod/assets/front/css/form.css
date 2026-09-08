@@ -405,3 +405,30 @@ select.icod-input{
 @media (prefers-reduced-motion:reduce){
 	.icod-root *{transition:none!important;animation:none!important}
 }
+
+/* ===== Succès v1.5 : montant, upsell, redirection ===== */
+.icod-success-meta{margin:0 0 14px;font-weight:800;color:var(--icod-text)}
+.icod-upsell{
+	margin:4px 0 16px;padding:14px;
+	border:1.5px dashed var(--icod-accent);
+	border-radius:var(--icod-radius-sm);
+	background:color-mix(in srgb, var(--icod-accent) 6%, var(--icod-bg));
+	text-align:start;
+}
+.icod-upsell-title{margin:0 0 10px;font-weight:700;font-size:.92rem}
+.icod-upsell-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.icod-upsell-item{
+	display:flex;flex-direction:column;gap:6px;padding:10px;
+	background:var(--icod-bg);
+	border:1px solid var(--icod-border)!important;
+	border-radius:var(--icod-radius-sm)!important;
+	color:var(--icod-text)!important;
+	text-decoration:none!important;text-align:center;
+	transition:transform .12s, box-shadow .12s;
+}
+.icod-upsell-item:hover{transform:translateY(-2px);box-shadow:var(--icod-shadow)}
+.icod-upsell-item img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px}
+.icod-upsell-name{font-weight:600;font-size:.84rem;line-height:1.3}
+.icod-upsell-price{color:var(--icod-accent);font-weight:800}
+.icod-upsell-cta{font-size:.78rem;font-weight:700;color:var(--icod-accent)}
+.icod-redirect-note{font-size:.8rem;color:var(--icod-muted);margin:12px 0 0}
