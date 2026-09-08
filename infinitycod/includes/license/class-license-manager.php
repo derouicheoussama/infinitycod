@@ -1,7 +1,7 @@
 <?php
 /**
  * Licence : activation et vérification auprès du serveur Infinity Coder
- * (protocole compatible avec le serveur de licences factexpert.online).
+ * (protocole du serveur de licences Infinity Coder).
  *
  * Produit gratuit de base ; la licence débloque WhatsApp automatique,
  * transporteurs, statistiques P&L et offres avancées.
@@ -28,7 +28,7 @@ class LicenseManager {
 		 *
 		 * @param string $url Url par défaut.
 		 */
-		return apply_filters( 'infinitycod_license_server_url', (string) \InfinityCod\Core\Settings::get( 'license_server', 'https://factexpert.online/api.php' ) );
+		return apply_filters( 'infinitycod_license_server_url', (string) \InfinityCod\Core\Settings::get( 'license_server', 'https://infinitycoder.app/api.php' ) );
 	}
 
 	/**

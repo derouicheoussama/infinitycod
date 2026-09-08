@@ -8,7 +8,7 @@
     "lint": "node tools/lint-php.js",
     "smoke": "node tools/smoke.js",
     "pot": "node tools/make-pot.js",
-    "check": "node tools/lint-php.js && node tools/smoke.js"
+    "check": "node tools/lint-php.js && node tools/smoke.js && node tools/audit.js && node tools/audit-settings.js"
   },
   "devDependencies": {
     "libsodium-wrappers": "^0.8.4",

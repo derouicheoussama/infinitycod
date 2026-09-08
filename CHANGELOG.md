@@ -91,3 +91,13 @@ Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
 - **Position du formulaire sur la fiche produit** (Réglages → Formulaire) : avant/après résumé, après le prix, après la description courte, avant/après le bouton ajouter au panier, fin de fiche.
 - **Commande via WhatsApp** (Réglages → WhatsApp) : bouton optionnel dans le formulaire — la commande est créée normalement puis WhatsApp s'ouvre pré-rempli vers votre numéro avec le résumé (template personnalisable : {num}, {nom}, {telephone}, {produit}, {total}, {wilaya}, {commune}).
 - **Restrictions anti-abus étendues** (Réglages → Anti-fraude) : horaires d'ouverture des commandes (ex. 9h-22h), limites 24 h par **IP**, par **téléphone** et par **email** (nouveau champ email facultatif activable, intégré à la commande WooCommerce et à la blacklist).
+
+## 1.7.0 — 2026-09-08
+
+### Modifié
+- **Suppression totale de factexpert.online** : aucune référence restante dans le code, la documentation ou le README. Le serveur d'activation des licences pointe par défaut vers `infinitycoder.app` et reste modifiable dans Réglages → Avancé.
+- **Interface admin repensée** : onglets avec accent vert, cartes à en-tête accentué et ombre douce, **interrupteurs modernes** (style iOS, RTL inclus), focus verts InfinityCod sur tous les champs, bouton « Enregistrer » repensé, onglets défilables sur mobile.
+- **Nouveau réglage** : icône de l'en-tête du formulaire (emoji, par défaut 🛒).
+
+### Qualité
+- **Audits automatiques intégrés** (`npm run check`) : chaque champ de réglages est vérifié côté sauvegarde ET valeurs par défaut (73 champs), chaque clé `Settings::get()` doit avoir un défaut (80 clés), scan anti-corruption de namespaces et de variables échappées sur tous les fichiers PHP.

@@ -39,6 +39,7 @@ class Settings {
 			'free_shipping_qty'     => 0,    // 0 = désactivé.
 
 			// Formulaire.
+			'form_icon'             => '🛒',
 			'form_title'            => __( 'Commandez maintenant — paiement à la livraison', 'infinitycod' ),
 			'form_subtitle'         => __( 'Remplissez le formulaire, nous vous appelons pour confirmer.', 'infinitycod' ),
 			'button_text'           => __( 'Confirmer la commande', 'infinitycod' ),
@@ -141,7 +142,7 @@ class Settings {
 			'releases_repo'         => 'derouicheoussama/infinitycod-releases', // Dépôt PUBLIC des zips (sans token).
 			'github_repo'           => 'derouicheoussama/infinitycod', // Dépôt privé des sources.
 			'github_token'          => '',   // Seulement si releases_repo est vide (dépôt privé).
-			'license_server'        => 'https://factexpert.online/api.php', // API d'activation des licences.
+			'license_server'        => 'https://infinitycoder.app/api.php', // API d'activation des licences.
 		);
 	}
 

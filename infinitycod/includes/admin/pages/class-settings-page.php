@@ -259,6 +259,10 @@ class SettingsPage {
 					<input type="text" name="icod[form_title]" value="<?php echo esc_attr( Settings::get( 'form_title' ) ); ?>" class="regular-text" />
 				</label>
 				<label>
+					<span><?php esc_html_e( 'Icône de l’en-tête (emoji)', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[form_icon]" value="<?php echo esc_attr( Settings::get( 'form_icon' ) ); ?>" maxlength="8" />
+				</label>
+				<label>
 					<span><?php esc_html_e( 'Sous-titre (facultatif)', 'infinitycod' ); ?></span>
 					<input type="text" name="icod[form_subtitle]" value="<?php echo esc_attr( Settings::get( 'form_subtitle' ) ); ?>" class="regular-text" />
 				</label>
@@ -703,7 +707,7 @@ class SettingsPage {
 		$clean = array();
 
 		// Textes.
-		foreach ( array( 'form_title', 'form_subtitle', 'button_text', 'phone_placeholder', 'label_name', 'label_phone', 'label_wilaya', 'label_commune', 'label_note', 'success_title', 'upsell_title', 'cod_label', 'payment_label', 'label_email', 'wa_order_label' ) as $text_key ) {
+		foreach ( array( 'form_title', 'form_subtitle', 'form_icon', 'button_text', 'phone_placeholder', 'label_name', 'label_phone', 'label_wilaya', 'label_commune', 'label_note', 'success_title', 'upsell_title', 'cod_label', 'payment_label', 'label_email', 'wa_order_label' ) as $text_key ) {
 			if ( isset( $raw[ $text_key ] ) ) {
 				$clean[ $text_key ] = sanitize_text_field( $raw[ $text_key ] );
 			}

@@ -204,7 +204,7 @@ class FormManager {
 
 			<section class="icod-card" aria-labelledby="icod-form-title">
 				<header class="icod-head">
-					<span class="icod-head-icon" aria-hidden="true">🛒</span>
+					<span class="icod-head-icon" aria-hidden="true"><?php echo esc_html( Settings::get( 'form_icon', '🛒' ) ); ?></span>
 					<div class="icod-head-text">
 						<h2 class="icod-form-title" id="icod-form-title"><?php echo esc_html( $title ); ?></h2>
 						<?php if ( Settings::get( 'form_subtitle' ) ) : ?>

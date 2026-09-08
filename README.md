@@ -46,6 +46,6 @@ docs/                 Documentation produit
 ## Liens
 
 - Site : https://infinitycoder.app
-- Serveur de licences : factexpert.online (partagé avec FactExpert)
+- Licences : activation via infinitycoder.app (clé INFINITY-DEV pour le développement)
 
 © Infinity Coder — Oussama Derouiche. Licence GPL-2.0-or-later (code), données géographiques open data.

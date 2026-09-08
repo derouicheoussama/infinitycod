@@ -218,3 +218,92 @@
 .icod-mini-pending{color:#b32d2e}
 /* Bouton Enregistrer toujours visible en bas des longues pages */
 .icod-wrap form > .icod-submit{position:sticky;bottom:0;z-index:20;background:#f0f0f1;padding:14px 0;margin:0;border-top:1px solid #dcdcde}
+
+/* ============================================================
+   UI v1.7 — Design professionnel InfinityCod
+   ============================================================ */
+
+/* Onglets : accent vert sur l'onglet actif */
+.icod-tabs .nav-tab{border-radius:6px 6px 0 0;margin-inline-end:4px;border-bottom:2px solid transparent}
+.icod-tabs .nav-tab-active{border-top:2px solid #0e7a4f;border-inline:2px solid #d0d5da;border-bottom:2px solid #f0f0f1;color:#0e7a4f;font-weight:600}
+
+/* Cartes : coins plus doux, ombre douce, en-tête accentué */
+.icod-card{border-radius:10px;transition:box-shadow .15s ease}
+.icod-card:hover{box-shadow:0 3px 16px rgba(16,24,40,.08)}
+.icod-card > h2{
+	position:relative;
+	padding-inline-start:14px;
+	padding-bottom:10px;
+	border-bottom:1px solid #f0f0f1;
+	margin-bottom:14px;
+}
+.icod-card > h2::before{
+	content:"";
+	position:absolute;
+	inset-inline-start:0;
+	top:3px;
+	bottom:14px;
+	width:4px;
+	border-radius:2px;
+	background:linear-gradient(180deg,#0e7a4f,#1971c2);
+}
+.icod-kpi-card > h2::before{display:none}
+
+/* Bascules style interrupteur */
+.icod-toggle{display:flex;align-items:center;gap:12px;font-size:13.5px}
+.icod-toggle input[type=checkbox]{
+	appearance:none;
+	-webkit-appearance:none;
+	width:44px;height:24px;flex:none;
+	border-radius:99px;
+	background:#c9cdd1;
+	position:relative;cursor:pointer;
+	transition:background .2s ease;
+	margin:0;
+	box-shadow:none;
+}
+.icod-toggle input[type=checkbox]::before{
+	content:"";
+	position:absolute;
+	width:18px;height:18px;border-radius:50%;
+	background:#fff;top:3px;inset-inline-start:3px;
+	transition:transform .2s ease;
+	box-shadow:0 1px 3px rgba(0,0,0,.3);
+}
+.icod-toggle input[type=checkbox]:checked{background:#0e7a4f}
+.icod-toggle input[type=checkbox]:checked::before{transform:translateX(20px)}
+[dir=rtl] .icod-toggle input[type=checkbox]:checked::before{transform:translateX(-20px)}
+.icod-toggle input[type=checkbox]:focus-visible{outline:2px solid #0e7a4f;outline-offset:2px}
+.icod-toggle-danger input[type=checkbox]:checked{background:#b32d2e}
+
+/* Champs : focus vert InfinityCod */
+.icod-wrap .icod-grid input:focus,
+.icod-wrap .icod-grid select:focus,
+.icod-wrap .icod-grid textarea:focus,
+.icod-wrap .icod-filters-grid input:focus,
+.icod-wrap .icod-filters-grid select:focus,
+.icod-wrap .icod-defaults-grid input:focus{
+	border-color:#0e7a4f!important;
+	box-shadow:0 0 0 2px rgba(14,122,79,.18)!important;
+	outline:none;
+}
+
+/* Bouton Enregistrer pro */
+.icod-wrap form > .icod-submit .button-primary,
+.icod-wrap .icod-submit .button-primary{
+	min-height:44px;padding:0 32px;font-size:14px;font-weight:600;border-radius:8px;
+	background:#0e7a4f;border-color:#0e7a4f;
+	box-shadow:0 2px 8px rgba(14,122,79,.3);
+	transition:transform .1s, box-shadow .15s;
+}
+.icod-wrap form > .icod-submit .button-primary:hover{background:#0c6b45;border-color:#0c6b45;box-shadow:0 4px 12px rgba(14,122,79,.4)}
+.icod-wrap form > .icod-submit .button-primary:active{transform:translateY(1px)}
+
+/* Description : respiration */
+.icod-card .description{margin-bottom:12px}
+
+/* Responsive onglets : scroll horizontal au lieu de wrap moche */
+@media (max-width:782px){
+	.icod-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+	.icod-tabs .nav-tab{white-space:nowrap;flex:none}
+}
