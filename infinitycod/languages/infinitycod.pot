@@ -622,8 +622,8 @@ msgstr ""
 
 #: includes/admin/pages/class-dashboard-page.php:144
 #: includes/admin/pages/class-dashboard-page.php:144
-#: includes/license/class-updater.php:168
-#: includes/license/class-updater.php:168
+#: includes/license/class-updater.php:175
+#: includes/license/class-updater.php:175
 msgid "Configurer"
 msgstr ""
 
@@ -2588,143 +2588,143 @@ msgstr ""
 msgid "Version gratuite"
 msgstr ""
 
-#: includes/license/class-updater.php:165
-#: includes/license/class-updater.php:165
+#: includes/license/class-updater.php:172
+#: includes/license/class-updater.php:172
 msgid "InfinityCod — mises à jour indisponibles :"
 msgstr ""
 
-#: includes/license/class-updater.php:166
-#: includes/license/class-updater.php:166
+#: includes/license/class-updater.php:173
+#: includes/license/class-updater.php:173
 msgid "le dépôt GitHub est privé et aucun token n‘est configuré. Créez un dépôt public « releases » ou collez un token GitHub dans les réglages."
 msgstr ""
 
-#: includes/license/class-updater.php:472
-#: includes/license/class-updater.php:472
+#: includes/license/class-updater.php:560
+#: includes/license/class-updater.php:560
 msgid "Ce que fait InfinityCod"
 msgstr ""
 
-#: includes/license/class-updater.php:473
-#: includes/license/class-updater.php:473
+#: includes/license/class-updater.php:561
+#: includes/license/class-updater.php:561
 msgid "Formulaire COD one-page mobile-first : 5 thèmes, mode sombre, RTL arabe."
 msgstr ""
 
-#: includes/license/class-updater.php:474
-#: includes/license/class-updater.php:474
+#: includes/license/class-updater.php:562
+#: includes/license/class-updater.php:562
 msgid "58 wilayas + 1541 communes officielles (noms français et arabes)."
 msgstr ""
 
-#: includes/license/class-updater.php:475
-#: includes/license/class-updater.php:475
+#: includes/license/class-updater.php:563
+#: includes/license/class-updater.php:563
 msgid "Bouclier anti-fraude : score de risque, blacklist, doublons, limitation par IP."
 msgstr ""
 
-#: includes/license/class-updater.php:476
-#: includes/license/class-updater.php:476
+#: includes/license/class-updater.php:564
+#: includes/license/class-updater.php:564
 msgid "Dashboard commandes avec filtres, actions groupées et export Excel."
 msgstr ""
 
-#: includes/license/class-updater.php:477
-#: includes/license/class-updater.php:477
+#: includes/license/class-updater.php:565
+#: includes/license/class-updater.php:565
 msgid "Transporteurs intégrés : Yalidine, ZR Express, Maystro, Noest, E-COM, DHD — colis en 1 clic et suivi automatique."
 msgstr ""
 
-#: includes/license/class-updater.php:478
-#: includes/license/class-updater.php:478
+#: includes/license/class-updater.php:566
+#: includes/license/class-updater.php:566
 msgid "WhatsApp automatique et relance des paniers abandonnés."
 msgstr ""
 
-#: includes/license/class-updater.php:479
-#: includes/license/class-updater.php:479
+#: includes/license/class-updater.php:567
+#: includes/license/class-updater.php:567
 msgid "Paiement en ligne CIB / Edahabia via Chargily Pay."
 msgstr ""
 
-#: includes/license/class-updater.php:480
-#: includes/license/class-updater.php:480
+#: includes/license/class-updater.php:568
+#: includes/license/class-updater.php:568
 msgid "Offres par quantité et statistiques P&L par wilaya, transporteur et produit."
 msgstr ""
 
-#: includes/license/class-updater.php:484
-#: includes/license/class-updater.php:484
+#: includes/license/class-updater.php:572
+#: includes/license/class-updater.php:572
 msgid "Téléversez le zip via Extensions → Ajouter → Téléverser, puis activez."
 msgstr ""
 
-#: includes/license/class-updater.php:485
-#: includes/license/class-updater.php:485
+#: includes/license/class-updater.php:573
+#: includes/license/class-updater.php:573
 msgid "Les 58 wilayas et 1541 communes sont importées automatiquement."
 msgstr ""
 
-#: includes/license/class-updater.php:486
-#: includes/license/class-updater.php:486
+#: includes/license/class-updater.php:574
+#: includes/license/class-updater.php:574
 msgid "InfinityCod → Wilayas & Tarifs : définissez vos tarifs domicile / stopdesk."
 msgstr ""
 
-#: includes/license/class-updater.php:487
-#: includes/license/class-updater.php:487
+#: includes/license/class-updater.php:575
+#: includes/license/class-updater.php:575
 msgid "Réglages → Formulaire : personnalisez le thème, les libellés, l‘upsell et la redirection."
 msgstr ""
 
-#: includes/license/class-updater.php:490
-#: includes/license/class-updater.php:490
+#: includes/license/class-updater.php:578
+#: includes/license/class-updater.php:578
 msgid "Le formulaire apparaît où ?"
 msgstr ""
 
-#: includes/license/class-updater.php:490
-#: includes/license/class-updater.php:490
+#: includes/license/class-updater.php:578
+#: includes/license/class-updater.php:578
 msgid "Automatiquement (position réglable). Shortcode : [infinitycod_form] ou [infinitycod_form id=\"123\"]."
 msgstr ""
 
-#: includes/license/class-updater.php:491
-#: includes/license/class-updater.php:491
+#: includes/license/class-updater.php:579
+#: includes/license/class-updater.php:579
 msgid "Compatibilité des thèmes ?"
 msgstr ""
 
-#: includes/license/class-updater.php:491
-#: includes/license/class-updater.php:491
+#: includes/license/class-updater.php:579
+#: includes/license/class-updater.php:579
 msgid "Oui : styles isolés et renforcés (Astra, Flatsome, WoodMart, Divi…), mode sombre et RTL inclus."
 msgstr ""
 
-#: includes/license/class-updater.php:492
-#: includes/license/class-updater.php:492
+#: includes/license/class-updater.php:580
+#: includes/license/class-updater.php:580
 msgid "Comment fonctionnent les mises à jour ?"
 msgstr ""
 
-#: includes/license/class-updater.php:492
-#: includes/license/class-updater.php:492
+#: includes/license/class-updater.php:580
+#: includes/license/class-updater.php:580
 msgid "Vérification horaire via GitHub ; mise à jour en 1 clic ou automatique ; intégrité SHA-256 vérifiée et sauvegarde créée avant installation."
 msgstr ""
 
-#: includes/license/class-updater.php:493
-#: includes/license/class-updater.php:493
+#: includes/license/class-updater.php:581
+#: includes/license/class-updater.php:581
 msgid "Le paiement en ligne est-il sécurisé ?"
 msgstr ""
 
-#: includes/license/class-updater.php:493
-#: includes/license/class-updater.php:493
+#: includes/license/class-updater.php:581
+#: includes/license/class-updater.php:581
 msgid "Le client paie sur la page sécurisée Chargily ; la confirmation est vérifiée par API et par webhook signé."
 msgstr ""
 
-#: includes/license/class-updater.php:511
-#: includes/license/class-updater.php:511
+#: includes/license/class-updater.php:599
+#: includes/license/class-updater.php:599
 msgid "La solution de paiement à la livraison tout-en-un pensée pour l‘Algérie."
 msgstr ""
 
-#: includes/license/class-updater.php:592
+#: includes/license/class-updater.php:683
 msgid "InfinityCod : téléchargement du package impossible. Votre version actuelle reste installée. "
 msgstr ""
 
-#: includes/license/class-updater.php:599
+#: includes/license/class-updater.php:690
 msgid "InfinityCod : mise à jour annulée — la vérification d‘intégrité SHA-256 a échoué. Votre version actuelle reste installée."
 msgstr ""
 
-#: includes/license/class-updater.php:679
+#: includes/license/class-updater.php:770
 msgid "InfinityCod %1$s requiert PHP %2$s+. Votre serveur utilise PHP %3$s. Mise à jour bloquée, votre version actuelle reste installée."
 msgstr ""
 
-#: includes/license/class-updater.php:693
+#: includes/license/class-updater.php:784
 msgid "InfinityCod %1$s requiert WordPress %2$s+. Votre site utilise WordPress %3$s. Mise à jour bloquée."
 msgstr ""
 
-#: includes/license/class-updater.php:828
+#: includes/license/class-updater.php:919
 msgid "Aucune sauvegarde trouvée pour cette version."
 msgstr ""
 

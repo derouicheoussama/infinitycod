@@ -201,3 +201,14 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 
 ### Improved
 - **Miniature du produit dans l'en-tête du formulaire** (comme les meilleurs formulaires COD) — l'image renforce la confiance et réduit les abandons.
+
+## 2.6.0 — 2026-09-08
+
+### Fixed
+- **Détection des mises à jour sur /wp-admin/plugins.php** : 3ᵉ voie de vérification via le feed Atom public `github.com/{repo}/releases.atom` — fonctionne même quand api.github.com est bloqué ou rate-limité par l'hébergeur. Chaîne : API GitHub → Atom public → (jamais de serveur intermédiaire).
+
+### Improved
+- **Interface admin repensée** : bannière de page en dégradé de marque, onglets pilules avec accent, cartes premium avec ombres douces, tableaux à en-têtes colorés, KPI en dégradé, hover states soignés — look SaaS premium cohérent sur toutes les pages.
+
+### Added
+- Badge de version dans le titre de chaque page admin.

@@ -317,3 +317,96 @@
 }
 .icod-about-dev{font-size:13px;margin:0 0 6px}
 .icod-about-dev strong{font-size:12px;text-transform:uppercase;color:#646970;letter-spacing:.3px}
+
+/* ============================================================
+   DESIGN SYSTEM v2.6 — apparence premium SaaS
+   ============================================================ */
+
+/* Bannière de page : dégradé de marque, titre blanc */
+.icod-wrap > .icod-title,
+.icod-wrap .icod-title{
+	background:linear-gradient(120deg,#0e7a4f 0%,#1971c2 100%);
+	color:#fff!important;
+	padding:18px 24px;
+	border-radius:12px;
+	box-shadow:0 6px 20px rgba(14,122,79,.25);
+	margin-bottom:18px;
+	font-size:22px;
+	font-weight:700;
+}
+.icod-wrap > .icod-title::before{
+	content:"🛒";
+	margin-inline-end:12px;
+	font-size:24px;
+}
+
+/* Onglets : pilules modernes */
+.icod-tabs{display:flex;flex-wrap:wrap;gap:6px;border:0!important;margin-bottom:20px}
+.icod-tabs .nav-tab{
+	border:1px solid #dcdcde!important;
+	border-radius:99px!important;
+	background:#fff;
+	padding:6px 18px;
+	margin:0!important;
+	font-weight:600;
+	transition:all .15s ease;
+}
+.icod-tabs .nav-tab:hover{border-color:#0e7a4f!important;color:#0e7a4f}
+.icod-tabs .nav-tab-active,
+.icod-tabs .nav-tab-active:hover{
+	background:linear-gradient(120deg,#0e7a4f,#12855c)!important;
+	color:#fff!important;
+	border-color:#0e7a4f!important;
+	box-shadow:0 3px 10px rgba(14,122,79,.3);
+}
+
+/* Cartes premium */
+.icod-card{
+	border-radius:14px;
+	border:1px solid #e2e6ea;
+	box-shadow:0 2px 10px rgba(16,24,40,.05);
+	transition:box-shadow .2s ease, transform .15s ease;
+	overflow:hidden;
+	position:relative;
+}
+.icod-card:hover{box-shadow:0 6px 24px rgba(16,24,40,.1)}
+
+/* Tableaux : en-têtes colorés */
+.icod-wrap .wp-list-table thead th,
+.icod-wrap .wp-list-table thead td{
+	background:linear-gradient(180deg,#f8faf9,#f0f4f2)!important;
+	border-bottom:2px solid #0e7a4f33;
+	font-weight:700;
+	text-transform:uppercase;
+	font-size:11px;
+	letter-spacing:.4px;
+	color:#3c434a;
+}
+.icod-wrap .wp-list-table tbody tr:hover{background:#f4faf7}
+
+/* KPI : chiffres en dégradé */
+.icod-kpi-value{
+	background:linear-gradient(120deg,#0e7a4f,#1971c2);
+	-webkit-background-clip:text;
+	background-clip:text;
+	-webkit-text-fill-color:transparent;
+}
+.icod-kpi-card{border-radius:14px}
+.icod-kpi-card:hover{transform:translateY(-2px)}
+
+/* Statuts : légèrement plus grands */
+.icod-status{font-size:12px;padding:4px 12px}
+
+/* Notices arrondies */
+.icod-wrap .notice{border-radius:10px}
+
+/* Boutons secondaires cohérents */
+.icod-wrap .button{border-radius:8px}
+.icod-wrap .button:hover{border-color:#0e7a4f;color:#0e7a4f}
+
+/* Barre collante Enregistrer : fond blanc dégradé */
+.icod-wrap form > .icod-submit{
+	background:linear-gradient(180deg,#fff,#f6f8f8);
+	backdrop-filter:blur(4px);
+	border-top:1px solid #e2e6ea;
+}

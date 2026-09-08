@@ -32,6 +32,13 @@ class Updater {
 	const SIGNING_PUBLIC_KEY = 'beDoIoaR5hZvEA2U93fiu80Bzg2uz78MT0n0EydFEKk=';
 
 	/**
+	 * Intercepteur HTTP actif pendant un téléchargement de package.
+	 *
+	 * @var bool
+	 */
+	private static $http_intercept = true;
+
+	/**
 	 * Empreinte SHA-256 du package en attente de téléchargement.
 	 *
 	 * @var string
@@ -280,17 +287,94 @@ class Updater {
 	}
 
 	/**
-	 * Infos de la dernière version disponible — source unique : GitHub.
+	 * Infos de la dernière version disponible — 3 voies GitHub, jamais de
+	 * serveur intermédiaire :
+	 *   1. api.github.com  (précis, token si dépôt privé)
+	 *   2. github.com/{repo}/releases.atom  (public, passe quand l'API est bloquée)
 	 *
 	 * @return array|null version, download_url, homepage, changelog, sha256.
 	 */
 	private function remote() {
 		try {
-			return $this->remote_github();
+			$github = $this->remote_github();
+			if ( $github ) {
+				return $github;
+			}
+			return $this->remote_atom();
 		} catch ( \Throwable $e ) {
 			\InfinityCod\Logging\Logger::log( 'error', 'remote : ' . $e->getMessage() );
 			return null;
 		}
+	}
+
+	/**
+	 * Repli via le feed Atom public de github.com (host github.com, pas
+	 * api.github.com) — fonctionne même quand l'API est bloquée par
+	 * l'hébergeur. Public : aucun token requis.
+	 *
+	 * @return array|null
+	 */
+	private function remote_atom() {
+		self::$http_intercept = false;
+		$repo = self::releases_repo();
+		if ( '' === $repo ) {
+			return null;
+		}
+
+		$cached = get_transient( 'icod_update_atom' );
+		if ( false !== $cached ) {
+			return is_array( $cached ) ? $cached : null;
+		}
+
+		$response = wp_remote_get(
+			'https://github.com/' . $repo . '/releases.atom',
+			array(
+				'timeout' => 10,
+				'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
+			)
+		);
+
+		$status = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
+		$body   = is_wp_error( $response ) ? '' : (string) wp_remote_retrieve_body( $response );
+
+		$tag = '';
+		if ( $status >= 200 && $status < 300 && preg_match( '/releases\/tag\/([^<"<]+)/', $body, $idm ) ) {
+			$tag = trim( $idm[1] );
+		}
+
+		$version = ltrim( $tag, 'vV' );
+		if ( '' === $version || ! preg_match( '/^\d+\.\d+\.\d+$/', $version ) ) {
+			set_transient( 'icod_update_atom', array( 'unreachable' => 1, 'reason' => 'no_release' ), 30 * MINUTE_IN_SECONDS );
+			return null;
+		}
+
+		$download = 'https://github.com/' . $repo . '/releases/download/' . $tag . '/infinitycod.zip';
+
+		// update.json compagnon (best effort — donne le SHA-256 sans API).
+		$sha256 = '';
+		$mres   = wp_remote_get( 'https://github.com/' . $repo . '/releases/download/' . $tag . '/update.json', array(
+			'timeout' => 10,
+			'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
+		) );
+		if ( ! is_wp_error( $mres ) && (int) wp_remote_retrieve_response_code( $mres ) === 200 ) {
+			$mdec = json_decode( wp_remote_retrieve_body( $mres ), true );
+			if ( is_array( $mdec ) && ! empty( $mdec['sha256'] ) ) {
+				$sha256 = (string) $mdec['sha256'];
+			}
+		}
+
+		$data = array(
+			'version'      => $version,
+			'download_url' => $download,
+			'homepage'     => 'https://github.com/' . $repo . '/releases/tag/' . $tag,
+			'changelog'    => '',
+			'sha256'       => $sha256,
+			'source'       => 'atom',
+		);
+
+		set_transient( 'icod_update_atom', $data, 2 * HOUR_IN_SECONDS );
+		self::$http_intercept = true;
+		return $data;
 	}
 
 	/**
@@ -299,6 +383,7 @@ class Updater {
 	 * @return array|null version, download_url, homepage, changelog, sha256.
 	 */
 	private function remote_github() {
+		self::$http_intercept = false; // Nos propres fetches ne doivent pas être interceptés.
 		$repo  = self::releases_repo();
 		$token = '';
 
@@ -357,6 +442,7 @@ class Updater {
 				'reason'      => 404 === $status ? 'private_or_empty' : 'network',
 				'repo'        => $repo,
 			), 30 * MINUTE_IN_SECONDS );
+			self::$http_intercept = true;
 			return null;
 		}
 
@@ -407,6 +493,7 @@ class Updater {
 		}
 
 		set_transient( 'icod_update_gh', $data, 2 * HOUR_IN_SECONDS );
+		self::$http_intercept = true;
 		return $data;
 	}
 
@@ -417,6 +504,7 @@ class Updater {
 	 */
 	public static function clear_cache() {
 		delete_transient( 'icod_update_gh' );
+		delete_transient( 'icod_update_atom' );
 	}
 
 	/**
@@ -563,6 +651,9 @@ class Updater {
 	 * @return array|\WP_Error|false Réponse simulée ou valeur inchangée.
 	 */
 	public function intercept_download( $pre, $args, $url ) {
+		if ( ! self::$http_intercept ) {
+			return $pre; // Fetch interne : ne pas intercepter.
+		}
 		if ( ! is_string( $url ) || false === strpos( $url, '/releases/download/' ) ) {
 			return $pre;
 		}
