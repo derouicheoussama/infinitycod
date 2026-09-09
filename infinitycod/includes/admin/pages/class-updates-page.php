@@ -29,6 +29,8 @@ class UpdatesPage {
 		add_action( 'admin_post_icod_save_updates', array( $this, 'handle_save_settings' ) );
 		add_action( 'admin_post_icod_check_updates_now', array( $this, 'handle_check_now' ) );
 		add_action( 'admin_post_icod_rollback', array( $this, 'handle_rollback' ) );
+		add_action( 'admin_post_icod_force_install', array( $this, 'handle_force_install' ) );
+		add_action( 'admin_post_icod_upload_zip', array( $this, 'handle_upload_zip' ) );
 	}
 
 	/**
@@ -64,6 +66,15 @@ class UpdatesPage {
 
 			<?php if ( 'checked' === $msg ) : ?>
 				<div class="notice notice-info is-dismissible"><p><?php esc_html_e( 'Vérification effectuée.', 'infinitycod' ); ?></p></div>
+			<?php endif; ?>
+			<?php if ( 'install-ok' === $msg ) : ?>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Installation terminée : InfinityCod a été remplacé par la version choisie. Vos données sont intactes.', 'infinitycod' ); ?></p></div>
+			<?php endif; ?>
+			<?php if ( 'install-fail' === $msg ) : ?>
+				<div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Installation impossible : la release n’a pas pu être récupérée depuis GitHub. Utilisez l’installation manuelle par zip ci-dessous.', 'infinitycod' ); ?></p></div>
+			<?php endif; ?>
+			<?php if ( 'upload-fail' === $msg ) : ?>
+				<div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Téléversement impossible : vérifiez que le fichier est un zip InfinityCod valide et réessayez.', 'infinitycod' ); ?></p></div>
 			<?php endif; ?>
 			<?php if ( 'rollback-ok' === $msg ) : ?>
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Rollback effectué — version restaurée avec succès.', 'infinitycod' ); ?></p></div>
@@ -146,8 +157,29 @@ class UpdatesPage {
 					</form>
 					<?php if ( $has_update ) : ?>
 						<a class="button button-primary" href="<?php echo esc_url( $upgrade_url ); ?>">⬆ <?php esc_html_e( 'Mettre à jour vers', 'infinitycod' ); ?> <?php echo esc_html( $latest ); ?></a>
+					<?php elseif ( $latest ) : ?>
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block" onsubmit="return confirm('<?php echo esc_js( __( 'Installer la dernière release GitHub même si le plugin semble à jour ?', 'infinitycod' ) ); ?>');">
+							<input type="hidden" name="action" value="icod_force_install" />
+							<?php wp_nonce_field( 'icod_force_install' ); ?>
+							<button type="submit" class="button button-secondary" title="<?php esc_attr_e( 'Télécharge la dernière release depuis GitHub et remplace les fichiers du plugin (réglages et données conservés).', 'infinitycod' ); ?>">⬇ <?php esc_html_e( 'Forcer l’installation de', 'infinitycod' ); ?> <?php echo esc_html( $latest ); ?></button>
+						</form>
 					<?php endif; ?>
 				</div>
+
+				<details class="icod-updates-manual" <?php echo ! $latest ? 'open' : ''; ?>>
+					<summary><?php esc_html_e( 'Installation manuelle (zip) — solution de secours', 'infinitycod' ); ?></summary>
+					<p class="description">
+						<?php esc_html_e( 'Si votre hébergeur bloque GitHub ou que la détection échoue : téléchargez infinitycod.zip depuis la page des releases, puis téléversez-le ici. Le plugin est remplacé sans perte : réglages, commandes et tarifs sont conservés.', 'infinitycod' ); ?>
+					</p>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
+						<input type="hidden" name="action" value="icod_upload_zip" />
+						<?php wp_nonce_field( 'icod_upload_zip' ); ?>
+						<p>
+							<input type="file" name="icod_zip" accept=".zip" required />
+							<button type="submit" class="button button-primary"><?php esc_html_e( 'Installer ce zip (remplace la version actuelle)', 'infinitycod' ); ?></button>
+						</p>
+					</form>
+				</details>
 			</div>
 
 			<div class="icod-card">
@@ -346,5 +378,107 @@ class UpdatesPage {
 
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=rollback-ok' ) );
 		exit;
+	}
+
+	/**
+	 * Installation forcée : télécharge la dernière release GitHub et remplace
+	 * le plugin, même quand la détection ne propose pas de mise à jour
+	 * (cas « déjà à jour », cache négatif, hébergeur capricieux).
+	 *
+	 * @return void
+	 */
+	public function handle_force_install() {
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_force_install' );
+
+		Updater::clear_cache();
+
+		$updater = new Updater();
+		$remote  = $updater->latest();
+
+		if ( empty( $remote['download_url'] ) ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=install-fail' ) );
+			exit;
+		}
+
+		$installed = $this->install_package( $remote['download_url'] );
+
+		\InfinityCod\Logging\Logger::log( 'update', 'Installation forcée v' . ( isset( $remote['version'] ) ? $remote['version'] : '?' ) . ' : ' . ( is_wp_error( $installed ) ? $installed->get_error_message() : 'success' ) );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=' . ( is_wp_error( $installed ) ? 'install-fail' : 'install-ok' ) ) );
+		exit;
+	}
+
+	/**
+	 * Installation manuelle : remplace le plugin par le zip téléversé.
+	 *
+	 * @return void
+	 */
+	public function handle_upload_zip() {
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_upload_zip' );
+
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput -- $_FILES échappe à la sanitization classique.
+		if ( empty( $_FILES['icod_zip'] ) || ! isset( $_FILES['icod_zip']['error'] ) || UPLOAD_ERR_OK !== (int) $_FILES['icod_zip']['error'] ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=upload-fail' ) );
+			exit;
+		}
+		$upload = wp_handle_upload(
+			$_FILES['icod_zip'],
+			array(
+				'test_form' => false,
+				'mimes'     => array( 'zip' => 'application/zip|application/x-zip-compressed|application/x-zip' ),
+			)
+		);
+		// phpcs:enable
+
+		if ( ! is_array( $upload ) || empty( $upload['file'] ) ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=upload-fail' ) );
+			exit;
+		}
+
+		$installed = $this->install_package( $upload['file'] );
+
+		// Nettoyage du fichier temporaire, quelle que soit l'issue.
+		if ( file_exists( $upload['file'] ) ) {
+			wp_delete_file( $upload['file'] );
+		}
+
+		\InfinityCod\Logging\Logger::log( 'update', 'Installation manuelle zip : ' . ( is_wp_error( $installed ) ? $installed->get_error_message() : 'success' ) );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=' . ( is_wp_error( $installed ) ? 'upload-fail' : 'install-ok' ) ) );
+		exit;
+	}
+
+	/**
+	 * Exécute Plugin_Upgrader::install() en mode « remplacement » (WP 5.5+).
+	 *
+	 * @param string $package Chemin local ou URL du zip.
+	 * @return true|WP_Error
+	 */
+	private function install_package( $package ) {
+		if ( ! function_exists( 'wp_handle_upload' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-ajax-upgrader-skin.php';
+
+		$upgrader = new \Plugin_Upgrader( new \WP_Ajax_Upgrader_Skin() );
+		$result   = $upgrader->install( $package, array( 'overwrite' => true ) );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		if ( ! is_array( $result ) || empty( $result['destination_name'] ) ) {
+			return new \WP_Error( 'icod_install', __( 'Résultat d’installation inattendu.', 'infinitycod' ) );
+		}
+
+		return true;
 	}
 }
