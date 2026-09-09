@@ -53,6 +53,7 @@ final class Plugin {
 		'carriers'  => '\\InfinityCod\\Carriers\\CarrierManager',
 		'whatsapp'  => '\\InfinityCod\\Whatsapp\\WhatsappManager',
 		'stats'     => '\\InfinityCod\\Stats\\Pnl',
+		'tracking'  => '\\InfinityCod\\Tracking\\PixelManager',
 		'admin'     => '\\InfinityCod\\Admin\\AdminManager',
 		'license'   => '\\InfinityCod\\License\\LicenseManager',
 	);

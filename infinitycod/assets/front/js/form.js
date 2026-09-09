@@ -609,6 +609,11 @@
 				var sdTotal = el(root, '[data-sd-total]');
 				if (sdTotal) { sdTotal.textContent = money(json.total || state.unitPrice * (qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1)); }
 
+				// Pixels : événement Purchase (Meta/TikTok/Snapchat, dédupliqué avec la CAPI).
+				if (window.icodFirePurchase) {
+					window.icodFirePurchase(json.order_id, json.total, '', phoneInput.value.trim());
+				}
+
 				form.closest('.icod-card').classList.add('icod-hidden');
 				success.hidden = false;
 				success.classList.remove('icod-hidden');

@@ -154,6 +154,18 @@ class Settings {
 			'chargily_secret'       => '',           // Clé secrète API.
 			'payment_label'         => __( '💳 Payer maintenant en ligne (CIB / Edahabia)', 'infinitycod' ),
 			'cod_label'             => __( '💵 Paiement à la livraison', 'infinitycod' ),
+
+			// Tracking : pixels publicitaires + Conversions API.
+			'pixel_fb_enabled'      => 0,
+			'pixel_fb_id'           => '',
+			'pixel_fb_capi_token'   => '',           // Conversions API (2026).
+			'pixel_fb_test_code'    => '',           // Code d'événements de test Meta.
+			'pixel_tiktok_enabled'  => 0,
+			'pixel_tiktok_id'       => '',
+			'pixel_snap_enabled'    => 0,
+			'pixel_snap_id'         => '',
+			'pixel_consent_required' => 0,           // Charger seulement après consentement.
+			'pixel_sitewide'        => 0,            // Pixels sur tout le site ou fiches produit.
 			'payment_return_text'   => __( 'Merci ! Votre paiement a bien été reçu et votre commande est confirmée. Nous vous contacterons très vite.', 'infinitycod' ),
 
 			// Mises à jour via GitHub.

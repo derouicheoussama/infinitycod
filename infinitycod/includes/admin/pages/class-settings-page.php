@@ -29,7 +29,7 @@ class SettingsPage {
 	public function __construct() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- navigation par onglet.
 		$tab       = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'form';
-		$this->tab = in_array( $tab, array( 'form', 'order', 'fraud', 'whatsapp', 'payment', 'license', 'advanced' ), true ) ? $tab : 'form';
+		$this->tab = in_array( $tab, array( 'form', 'order', 'fraud', 'whatsapp', 'tracking', 'payment', 'license', 'advanced' ), true ) ? $tab : 'form';
 		// phpcs:enable
 
 		add_action( 'admin_post_icod_save_settings', array( $this, 'handle_save' ) );
@@ -58,6 +58,7 @@ class SettingsPage {
 				<a href="?page=infinitycod-settings&tab=order" class="nav-tab <?php echo 'order' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Commande', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=fraud" class="nav-tab <?php echo 'fraud' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Anti-fraude', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=whatsapp" class="nav-tab <?php echo 'whatsapp' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'WhatsApp', 'infinitycod' ); ?></a>
+				<a href="?page=infinitycod-settings&tab=tracking" class="nav-tab <?php echo 'tracking' === $this->tab ? 'nav-tab-active' : ''; ?>">🎯 <?php esc_html_e( 'Tracking', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=payment" class="nav-tab <?php echo 'payment' === $this->tab ? 'nav-tab-active' : ''; ?>" ><?php esc_html_e( 'Paiement', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=license" class="nav-tab <?php echo 'license' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Licence', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=advanced" class="nav-tab <?php echo 'advanced' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Avancé', 'infinitycod' ); ?></a>
@@ -82,6 +83,9 @@ class SettingsPage {
 						break;
 					case 'whatsapp':
 						$this->tab_whatsapp();
+						break;
+					case 'tracking':
+						$this->tab_tracking();
 						break;
 					case 'payment':
 						$this->tab_payment();
@@ -128,6 +132,79 @@ class SettingsPage {
 			return;
 		}
 		echo '</div>';
+	}
+
+	/**
+	 * Onglet Tracking : pixels Meta / TikTok / Snapchat + Conversions API.
+	 *
+	 * @return void
+	 */
+	private function tab_tracking() {
+		?>
+		<div class="icod-card">
+			<h2><?php esc_html_e( '🎯 Pixels publicitaires', 'infinitycod' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'Mesurez votre funnel COD sur Meta (Facebook/Instagram), TikTok et Snapchat. Événements envoyés : ViewContent, InitiateCheckout (début du formulaire) et Purchase (commande enregistrée, avec le montant réel).', 'infinitycod' ); ?>
+			</p>
+
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Meta Pixel (Facebook / Instagram) — ID (15-16 chiffres)', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[pixel_fb_id]" dir="ltr" placeholder="1234567890123456" value="<?php echo esc_attr( Settings::get( 'pixel_fb_id' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'TikTok Pixel — ID', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[pixel_tiktok_id]" dir="ltr" placeholder="CXXXXXXXXXXXXXXXXXXX" value="<?php echo esc_attr( Settings::get( 'pixel_tiktok_id' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Snapchat Pixel — UUID', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[pixel_snap_id]" dir="ltr" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" value="<?php echo esc_attr( Settings::get( 'pixel_snap_id' ) ); ?>" />
+				</label>
+			</div>
+
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[pixel_fb_enabled]" value="1" <?php checked( (int) Settings::get( 'pixel_fb_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Activer le pixel Meta (Facebook / Instagram)', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[pixel_tiktok_enabled]" value="1" <?php checked( (int) Settings::get( 'pixel_tiktok_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Activer le pixel TikTok', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[pixel_snap_enabled]" value="1" <?php checked( (int) Settings::get( 'pixel_snap_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Activer le pixel Snapchat', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Conversions API Meta — exigences 2026', 'infinitycod' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'La Conversions API (CAPI) envoie la commande directement depuis votre serveur vers Meta : plus fiable que le navigateur (bloqueurs, iOS). InfinityCod applique automatiquement les exigences Meta 2026 : event_id de déduplication navigateur/serveur, téléphone haché en SHA-256 (advanced matching), cookies first-party _fbp/_fbc transférés, action_source « website ». Récupérez votre token dans Events Manager → Paramètres → Conversions API → Générer le token d’accès.', 'infinitycod' ); ?>
+			</p>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Token d’accès Conversions API (secret)', 'infinitycod' ); ?></span>
+					<input type="password" name="icod[pixel_fb_capi_token]" dir="ltr" autocomplete="new-password" value="<?php echo esc_attr( Settings::get( 'pixel_fb_capi_token' ) ); ?>" class="regular-text" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Code d’événements de test (optionnel, Events Manager)', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[pixel_fb_test_code]" dir="ltr" placeholder="TEST12345" value="<?php echo esc_attr( Settings::get( 'pixel_fb_test_code', '' ) ); ?>" />
+				</label>
+			</div>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[pixel_sitewide]" value="1" <?php checked( (int) Settings::get( 'pixel_sitewide' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Charger les pixels sur tout le site (retargeting) — sinon uniquement sur les fiches produit', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[pixel_consent_required]" value="1" <?php checked( (int) Settings::get( 'pixel_consent_required' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Consentement requis : ne charger les pixels qu’après window.icodConsent = true ou un cookie icod_consent=1 (posé par votre bandeau cookies)', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
@@ -1084,6 +1161,18 @@ cod-toggle-danger">
 			'cod_label'          => array( 'tab' => 'payment', 'type' => 'text' ),
 			'payment_label'      => array( 'tab' => 'payment', 'type' => 'text' ),
 			'payment_return_text' => array( 'tab' => 'payment', 'type' => 'textarea' ),
+
+			// ——— Onglet Tracking ———
+			'pixel_fb_enabled'       => array( 'tab' => 'tracking', 'type' => 'toggle' ),
+			'pixel_fb_id'            => array( 'tab' => 'tracking', 'type' => 'id' ),
+			'pixel_fb_capi_token'    => array( 'tab' => 'tracking', 'type' => 'secret' ),
+			'pixel_fb_test_code'     => array( 'tab' => 'tracking', 'type' => 'id' ),
+			'pixel_tiktok_enabled'   => array( 'tab' => 'tracking', 'type' => 'toggle' ),
+			'pixel_tiktok_id'        => array( 'tab' => 'tracking', 'type' => 'id' ),
+			'pixel_snap_enabled'     => array( 'tab' => 'tracking', 'type' => 'toggle' ),
+			'pixel_snap_id'          => array( 'tab' => 'tracking', 'type' => 'id' ),
+			'pixel_consent_required' => array( 'tab' => 'tracking', 'type' => 'toggle' ),
+			'pixel_sitewide'         => array( 'tab' => 'tracking', 'type' => 'toggle' ),
 
 			// ——— Onglet Avancé ———
 			'github_repo'          => array( 'tab' => 'advanced', 'type' => 'id' ),
