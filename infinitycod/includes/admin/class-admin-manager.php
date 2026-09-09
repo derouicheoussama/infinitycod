@@ -229,7 +229,7 @@ class AdminManager {
 		add_submenu_page(
 			'infinitycod',
 			__( 'Tableau de bord', 'infinitycod' ),
-			__( 'Tableau de bord', 'infinitycod' ),
+			'📊 ' . __( 'Tableau de bord', 'infinitycod' ),
 			'manage_woocommerce',
 			'infinitycod',
 			array( $this, 'render_dashboard' )
@@ -238,7 +238,7 @@ class AdminManager {
 		add_submenu_page(
 			'infinitycod',
 			__( 'Commandes COD', 'infinitycod' ),
-			__( 'Commandes COD', 'infinitycod' ),
+			'📦 ' . __( 'Commandes COD', 'infinitycod' ),
 			'manage_woocommerce',
 			'infinitycod-orders',
 			array( $this, 'render_orders' )
@@ -247,7 +247,7 @@ class AdminManager {
 		add_submenu_page(
 			'infinitycod',
 			__( 'Paniers abandonnés', 'infinitycod' ),
-			__( 'Paniers abandonnés', 'infinitycod' ),
+			'🛒 ' . __( 'Paniers abandonnés', 'infinitycod' ),
 			'manage_woocommerce',
 			'infinitycod-abandoned',
 			array( $this, 'render_abandoned' )
@@ -256,7 +256,7 @@ class AdminManager {
 		add_submenu_page(
 			'infinitycod',
 			__( 'Wilayas & Tarifs', 'infinitycod' ),
-			__( 'Wilayas & Tarifs', 'infinitycod' ),
+			'🗺️ ' . __( 'Wilayas & Tarifs', 'infinitycod' ),
 			'manage_woocommerce',
 			'infinitycod-geo',
 			array( $this, 'render_geo' )
@@ -265,7 +265,7 @@ class AdminManager {
 		add_submenu_page(
 			'infinitycod',
 			__( 'Transporteurs', 'infinitycod' ),
-			__( 'Transporteurs', 'infinitycod' ),
+			'🚚 ' . __( 'Transporteurs', 'infinitycod' ),
 			'manage_woocommerce',
 			'infinitycod-carriers',
 			array( $this, 'render_carriers' )
@@ -274,7 +274,7 @@ class AdminManager {
 		add_submenu_page(
 			'infinitycod',
 			__( 'Statistiques P&L', 'infinitycod' ),
-			__( 'Statistiques P&L', 'infinitycod' ),
+			'📈 ' . __( 'Statistiques P&L', 'infinitycod' ),
 			'manage_woocommerce',
 			'infinitycod-stats',
 			array( $this, 'render_stats' )
@@ -283,7 +283,7 @@ class AdminManager {
 		add_submenu_page(
 			'infinitycod',
 			__( 'Réglages InfinityCod', 'infinitycod' ),
-			__( 'Réglages', 'infinitycod' ),
+			'⚙️ ' . __( 'Réglages', 'infinitycod' ),
 			'manage_woocommerce',
 			'infinitycod-settings',
 			array( $this, 'render_settings' )
@@ -292,7 +292,7 @@ class AdminManager {
 		add_submenu_page(
 			'infinitycod',
 			__( 'Mises à jour', 'infinitycod' ),
-			__( 'Mises à jour', 'infinitycod' ),
+			'🔄 ' . __( 'Mises à jour', 'infinitycod' ),
 			'manage_woocommerce',
 			'infinitycod-updates',
 			array( $this, 'render_updates' )
@@ -301,7 +301,7 @@ class AdminManager {
 		add_submenu_page(
 			'infinitycod',
 			__( 'Diagnostics', 'infinitycod' ),
-			__( 'Diagnostics', 'infinitycod' ),
+			'🩺 ' . __( 'Diagnostics', 'infinitycod' ),
 			'manage_woocommerce',
 			'infinitycod-diagnostics',
 			array( $this, 'render_diagnostics' )
@@ -310,7 +310,7 @@ class AdminManager {
 		add_submenu_page(
 			'infinitycod',
 			__( 'À propos d‘InfinityCod', 'infinitycod' ),
-			__( 'À propos', 'infinitycod' ),
+			'ℹ️ ' . __( 'À propos', 'infinitycod' ),
 			'manage_woocommerce',
 			'infinitycod-about',
 			array( $this, 'render_about' )

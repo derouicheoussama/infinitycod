@@ -493,3 +493,214 @@
 .icod-wrap textarea:focus {
 	box-shadow: 0 0 0 2px rgba(14,122,79,.15)!important;
 }
+
+/* ============================================================
+   THÈME BLEU v2.9 — menu icônes, sidebar, animations fluides
+   Palette : #0078d4 (bleu) · #0d0d1a (dark) · #f5f5f5 (light)
+   ============================================================ */
+
+/* --- Variables InfinityCod bleu --- */
+:root {
+	--icod-blue: #0078d4;
+	--icod-blue-hover: #106ebe;
+	--icod-blue-light: #e3f0fb;
+	--icod-blue-dark: #0d0d1a;
+	--icod-radius: 10px;
+	--icod-transition: all .25s cubic-bezier(.4,0,.2,1);
+}
+
+/* --- Menu admin WordPress : InfinityCod en bleu --- */
+#adminmenu #toplevel_page_infinitycod .wp-menu-image {
+	color: #0078d4 !important;
+}
+#adminmenu #toplevel_page_infinitycod.wp-has-current-submenu .wp-menu-image,
+#adminmenu #toplevel_page_infinitycod:hover .wp-menu-image {
+	color: #0078d4 !important;
+}
+#adminmenu #toplevel_page_infinitycod .wp-submenu {
+	border-left: 3px solid #0078d4;
+}
+
+/* --- Titres de pages : bannière dégradée bleue --- */
+.icod-wrap > .icod-title {
+	background: linear-gradient(135deg, #0078d4 0%, #106ebe 50%, #005a9e 100%);
+	color: #fff !important;
+	padding: 20px 28px;
+	border-radius: 12px;
+	box-shadow: 0 4px 16px rgba(0,120,212,.25);
+	margin-bottom: 20px;
+	font-size: 22px;
+	font-weight: 700;
+	position: relative;
+	overflow: hidden;
+}
+.icod-wrap > .icod-title::after {
+	content: "";
+	position: absolute;
+	top: -50%; right: -10%;
+	width: 200px; height: 200%;
+	background: rgba(255,255,255,.08);
+	transform: rotate(20deg);
+	border-radius: 50%;
+}
+
+/* --- Onglets : pilules bleues avec icons --- */
+.icod-tabs .nav-tab {
+	border: 1.5px solid #d0d5da !important;
+	border-radius: 8px !important;
+	background: #fff;
+	padding: 8px 20px;
+	margin: 0 4px 4px 0 !important;
+	font-weight: 600;
+	font-size: 13px;
+	color: #3c434a !important;
+	transition: all .25s cubic-bezier(.4,0,.2,1);
+}
+.icod-tabs .nav-tab:hover {
+	border-color: #0078d4 !important;
+	color: #0078d4 !important;
+	background: #e3f0fb;
+	transform: translateY(-1px);
+}
+.icod-tabs .nav-tab-active,
+.icod-tabs .nav-tab-active:hover {
+	background: linear-gradient(135deg, #0078d4, #106ebe) !important;
+	color: #fff !important;
+	border-color: #0078d4 !important;
+	box-shadow: 0 4px 14px rgba(0,120,212,.3);
+	font-weight: 700;
+}
+
+/* --- Cartes premium bleues --- */
+.icod-card {
+	border-radius: 12px !important;
+	border: 1px solid #e0e6eb !important;
+	box-shadow: 0 2px 8px rgba(0,120,212,.06) !important;
+	transition: box-shadow .25s ease, border-color .25s ease;
+}
+.icod-card:hover {
+	box-shadow: 0 6px 24px rgba(0,120,212,.12) !important;
+	border-color: #b8d4e8 !important;
+}
+
+/* En-tête de carte avec barre bleue */
+.icod-card > h2 {
+	position: relative;
+	padding-inline-start: 14px;
+	padding-bottom: 12px;
+	border-bottom: 1.5px solid #e8ecf0 !important;
+	margin-bottom: 16px !important;
+	font-size: 15px !important;
+	font-weight: 700 !important;
+	color: #1a1a2a !important;
+}
+.icod-card > h2::before {
+	content: "";
+	position: absolute;
+	inset-inline-start: 0;
+	top: 2px;
+	bottom: 14px;
+	width: 4px;
+	border-radius: 3px;
+	background: linear-gradient(180deg, #0078d4, #106ebe);
+}
+
+/* --- Toggle switches bleu --- */
+.icod-toggle input[type=checkbox]:checked {
+	background: #0078d4 !important;
+}
+.icod-toggle input[type=checkbox]:checked::before {
+	transform: translateX(20px);
+}
+[dir=rtl] .icod-toggle input[type=checkbox]:checked::before {
+	transform: translateX(-20px);
+}
+
+/* --- Focus bleu --- */
+.icod-wrap input:focus,
+.icod-wrap select:focus,
+.icod-wrap textarea:focus {
+	border-color: #0078d4 !important;
+	box-shadow: 0 0 0 3px rgba(0,120,212,.15) !important;
+	outline: none;
+}
+
+/* --- Boutons bleu --- */
+.icod-wrap .button-primary {
+	background: linear-gradient(135deg, #0078d4, #106ebe) !important;
+	border: none !important;
+	border-radius: 8px !important;
+	text-shadow: none !important;
+	box-shadow: 0 3px 12px rgba(0,120,212,.25) !important;
+	font-weight: 700 !important;
+	transition: all .2s ease !important;
+}
+.icod-wrap .button-primary:hover {
+	background: linear-gradient(135deg, #106ebe, #005a9e) !important;
+	box-shadow: 0 5px 18px rgba(0,120,212,.35) !important;
+	transform: translateY(-1px);
+}
+
+/* --- Tableaux bleu --- */
+.icod-wrap .wp-list-table thead th,
+.icod-wrap .wp-list-table thead td {
+	background: linear-gradient(180deg, #f0f5fa, #e6eef5) !important;
+	border-bottom: 2px solid #0078d4;
+	color: #1a1a2a;
+	font-weight: 700;
+	text-transform: uppercase;
+	font-size: 11px;
+	letter-spacing: .5px;
+}
+.icod-wrap .wp-list-table tbody tr:hover {
+	background: #f0f5fa;
+}
+
+/* --- KPI : dégradé bleu --- */
+.icod-kpi-value {
+	background: linear-gradient(120deg, #0078d4, #106ebe);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	font-size: 2.6rem;
+}
+.icod-kpi-card:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 8px 28px rgba(0,120,212,.12) !important;
+}
+
+/* --- Animations d'entrée --- */
+@keyframes icod-fade-in {
+	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+.icod-card {
+	animation: icod-fade-in .3s ease both;
+}
+.icod-card:nth-child(2) { animation-delay: .05s }
+.icod-card:nth-child(3) { animation-delay: .1s }
+
+/* --- Icônes des menus avec labels --- */
+.icod-preset-label,
+.icod-preset-swatch {
+	transition: all .2s ease;
+}
+.icod-preset:hover .icod-preset-swatch {
+	transform: scale(1.08);
+	box-shadow: 0 3px 12px rgba(0,0,0,.15);
+}
+
+/* --- Menu badge bleu --- */
+#adminmenu #toplevel_page_infinitycod .awaiting-mod {
+	background: #0078d4 !important;
+}
+
+/* --- Responsive --- */
+@media (max-width: 782px) {
+	.icod-wrap > .icod-title {
+		padding: 14px 18px;
+		font-size: 18px;
+	}
+	.icod-kpi-value { font-size: 2rem; }
+	.icod-card { padding: 14px !important; }
+}
