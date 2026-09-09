@@ -41,6 +41,41 @@
 		};
 	}
 
+	/* Détection du pays du visiteur, sans appel réseau :
+	   1. région de la langue navigateur (ar-DZ, fr_MA…) ;
+	   2. fuseau horaire (Africa/Casablanca → MA). */
+	var TZ_COUNTRY = {
+		algiers: 'DZ', casablanca: 'MA', tunis: 'TN', cairo: 'EG',
+		riyadh: 'SA', dubai: 'AE', abu_dhabi: 'AE', kuwait: 'KW',
+		baghdad: 'IQ', tripoli: 'LY', khartoum: 'SD', doha: 'QA',
+		muscat: 'OM', manama: 'BH', amman: 'JO', damascus: 'SY',
+		sanaa: 'YE', nouakchott: 'MR'
+	};
+
+	function detectVisitorCountry() {
+		try {
+			var lang = navigator.language || (navigator.languages && navigator.languages[0]) || '';
+			var m = String(lang).match(/[-_]([A-Za-z]{2})\b/);
+			if (m) { return m[1].toUpperCase(); }
+		} catch (e) { /* ignoré */ }
+		try {
+			var tz = (Intl.DateTimeFormat().resolvedOptions().timeZone) || '';
+			var city = String(tz).split('/').pop().toLowerCase().replace(/_/g, '_');
+			return TZ_COUNTRY[city] || '';
+		} catch (e) { return ''; }
+		return '';
+	}
+
+	/* Exemples de numéro local par pays (placeholder du champ téléphone). */
+	var PHONE_HINTS = {
+		DZ: '0555 12 34 56', MA: '0612 34 56 78', TN: '20 123 456',
+		EG: '0100 123 4567', SA: '0501 234 567', AE: '050 123 4567',
+		KW: '5123 4567', QA: '3312 3456', OM: '7123 4567',
+		BH: '3312 3456', JO: '07 9123 4567', LB: '71 123 456',
+		IQ: '07XX XXX XXXX', LY: '09X XXX XXXX', SD: '09X XXX XXXX',
+		SY: '09XX XXX XXX', YE: '07XX XXX XXX', MR: '2X XX XX XX'
+	};
+
 	function api(path, body) {
 		var options = { method: body ? 'POST' : 'GET', credentials: 'same-origin' };
 		if (body) {
@@ -127,6 +162,12 @@
 			if (unitEl) { unitEl.textContent = money(state.unitPrice); }
 			var subtotalEl = el(root, '[data-summary-subtotal]');
 			if (subtotalEl && !state.quote) { subtotalEl.textContent = money(state.unitPrice * currentQty()); }
+		}
+
+		/* Placeholder téléphone adapté au pays de livraison. */
+		function applyPhoneHint(countryCode) {
+			var hint = PHONE_HINTS[countryCode] || PHONE_HINTS[icodFront.defaultCountry] || PHONE_HINTS.DZ;
+			if (phoneInput) { phoneInput.setAttribute('placeholder', hint); }
 		}
 
 		updateHeadPrice();
@@ -236,8 +277,27 @@
 				communeSelect.innerHTML = '<option value="">' + I18N.chooseCommune + '</option>';
 				communeSelect.disabled = true;
 				setCommuneFree(false);
+				applyPhoneHint(cc);
 				refreshQuote();
 			});
+
+			/* Détection du pays du visiteur : fuseau horaire puis langue du
+			   navigateur. Ne remplace jamais un choix déjà fait. */
+			var detected = detectVisitorCountry();
+			if (detected && detected !== countrySelect.value) {
+				var matchOption = els(countrySelect, 'option').some(function (option) {
+					return option.value === detected;
+				});
+				if (matchOption) {
+					countrySelect.value = detected;
+					if (typeof window.Event === 'function') {
+						countrySelect.dispatchEvent(new window.Event('change', { bubbles: false }));
+					}
+				}
+			}
+			applyPhoneHint(countrySelect.value || icodFront.defaultCountry);
+		} else {
+			applyPhoneHint(icodFront.defaultCountry);
 		}
 
 		wilayaSelect.addEventListener('change', function () {

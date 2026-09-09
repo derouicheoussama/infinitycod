@@ -184,6 +184,7 @@ class FormManager {
 		$country_select = '';
 		if ( count( $countries ) > 1 ) {
 			$catalog = \InfinityCod\Core\Activator::countries_catalog();
+			$default_country = Settings::default_country();
 			$country_options = '';
 			foreach ( $countries as $cc ) {
 				$label = isset( $catalog[ $cc ] ) ? $catalog[ $cc ]['fr'] . ' — ' . $catalog[ $cc ]['ar'] : $cc;
@@ -191,7 +192,7 @@ class FormManager {
 					'<option value="%1$s"%3$s>%2$s</option>',
 					esc_attr( $cc ),
 					esc_html( $label ),
-					'DZ' === $cc ? ' selected' : ''
+					$default_country === $cc ? ' selected' : ''
 				);
 			}
 			$country_select = '<div class="icod-field"><label>' . esc_html__( 'Pays', 'infinitycod' ) . '</label><div class="icod-input-wrap">' . self::field_icon( 'map' ) . '<select id="icod-country" class="icod-input icod-country">' . $country_options . '</select></div></div>';
@@ -750,6 +751,7 @@ class FormManager {
 			'rtl'      => \InfinityCod\Core\I18n::is_rtl(),
 			'currency' => Settings::currency(),
 			'da'       => Settings::currency_label(),
+			'defaultCountry' => Settings::default_country(),
 			'i18n'     => array(
 				'loading'        => __( 'Chargement…', 'infinitycod' ),
 				'chooseCommune'  => __( '— Commune —', 'infinitycod' ),

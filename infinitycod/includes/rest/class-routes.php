@@ -310,8 +310,11 @@ class Routes {
 			return new \WP_Error( 'icod_name', __( 'Veuillez saisir votre nom complet.', 'infinitycod' ), array( 'status' => 400 ) );
 		}
 
-		if ( null === $phone || ( \InfinityCod\Core\Settings::get( 'phone_strict', 1 ) && ! Validator::is_valid_phone( $body['phone'] ) ) ) {
-			return new \WP_Error( 'icod_phone', __( 'Numéro de téléphone algérien invalide (ex. 0555123456).', 'infinitycod' ), array( 'status' => 400 ) );
+		// Validation souple ici (longueur) ; la règle stricte algérienne est
+		// appliquée après résolution du pays de livraison.
+		$phone_digits = isset( $body['phone'] ) ? preg_replace( '/\D/', '', (string) $body['phone'] ) : '';
+		if ( null === $phone || strlen( $phone_digits ) < 6 || strlen( $phone_digits ) > 15 ) {
+			return new \WP_Error( 'icod_phone', __( 'Numéro de téléphone invalide.', 'infinitycod' ), array( 'status' => 400 ) );
 		}
 
 		$geo        = infinitycod()->module( 'geo' );
@@ -330,6 +333,12 @@ class Routes {
 		}
 		if ( $is_foreign && '' === trim( $commune_name ) ) {
 			return new \WP_Error( 'icod_commune', __( 'Veuillez indiquer votre ville.', 'infinitycod' ), array( 'status' => 400 ) );
+		}
+
+		// Règle stricte algérienne (Mobilis/Djezzy/Ooredoo) : uniquement pour
+		// une livraison en Algérie, et si le marchand l'a activée.
+		if ( ! $is_foreign && Settings::get( 'phone_strict', 1 ) && ! Validator::is_valid_phone( isset( $body['phone'] ) ? $body['phone'] : '' ) ) {
+			return new \WP_Error( 'icod_phone', __( 'Numéro de téléphone algérien invalide (ex. 0555123456).', 'infinitycod' ), array( 'status' => 400 ) );
 		}
 
 		$mode     = ( isset( $body['mode'] ) && 'desk' === $body['mode'] ) ? RatesManager::MODE_DESK : RatesManager::MODE_HOME;

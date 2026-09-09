@@ -170,7 +170,8 @@ class Settings {
 			// Marché arabe : devise + multi-pays (Premium) + miroir perso.
 			'currency'              => 'DZD',        // Code ISO de la devise.
 			'currency_position'     => 'right',      // right | left.
-			'countries'             => array( 'DZ' ),// Pays actifs (au-delà de DZ : Premium).
+			'default_country'       => 'DZ',         // Pays principal (détecté à l'installation).
+			'countries'             => array( 'DZ' ),// Pays actifs (au-delà du principal : Premium).
 			'custom_update_url'     => '',           // Miroir perso update.json (optionnel).
 			'payment_return_text'   => __( 'Merci ! Votre paiement a bien été reçu et votre commande est confirmée. Nous vous contacterons très vite.', 'infinitycod' ),
 
@@ -224,22 +225,34 @@ class Settings {
 	}
 
 	/**
-	 * Pays actifs. Hors Premium : Algérie uniquement (les autres pays du
-	 * catalogue sont une option Premium).
+	 * Pays principal du site (détecté à l'installation, modifiable).
+	 *
+	 * @return string Code ISO à 2 lettres.
+	 */
+	public static function default_country() {
+		$code = strtoupper( (string) self::get( 'default_country', 'DZ' ) );
+		return preg_match( '/^[A-Z]{2}$/', $code ) ? $code : 'DZ';
+	}
+
+	/**
+	 * Pays actifs. Hors Premium : le pays principal uniquement (détecté à
+	 * l'installation). Premium : multi-pays simultanés, pays principal
+	 * toujours inclus.
 	 *
 	 * @return array<string> Codes ISO à 2 lettres.
 	 */
 	public static function active_countries() {
-		$countries = (array) self::get( 'countries', array( 'DZ' ) );
+		$default   = self::default_country();
+		$countries = (array) self::get( 'countries', array( $default ) );
 		$countries = array_values( array_unique( array_filter( array_map( 'strtoupper', array_map( 'sanitize_text_field', $countries ) ) ) ) );
 
-		if ( ! in_array( 'DZ', $countries, true ) ) {
-			array_unshift( $countries, 'DZ' );
+		if ( ! in_array( $default, $countries, true ) ) {
+			array_unshift( $countries, $default );
 		}
 
 		$premium = class_exists( '\\InfinityCod\\License\\LicenseManager' ) && \InfinityCod\License\LicenseManager::is_premium();
 		if ( ! $premium ) {
-			return array( 'DZ' );
+			return array( $default );
 		}
 
 		return $countries;

@@ -1251,6 +1251,7 @@ cod-toggle-danger">
 			// ——— Onglet Avancé ———
 			'currency'             => array( 'tab' => 'advanced', 'type' => 'enum', 'choices' => array( 'DZD', 'MAD', 'TND', 'EGP', 'SAR', 'AED', 'QAR', 'KWD', 'JOD', 'IQD', 'LYD', 'OMR', 'BHD', 'MRU', 'SDG', 'SYP', 'YER', 'EUR', 'USD' ) ),
 			'currency_position'    => array( 'tab' => 'advanced', 'type' => 'enum', 'choices' => array( 'right', 'left' ) ),
+			'default_country'      => array( 'tab' => 'advanced', 'type' => 'country' ),
 			'countries'            => array( 'tab' => 'advanced', 'type' => 'countries' ),
 			'custom_update_url'    => array( 'tab' => 'advanced', 'type' => 'url' ),
 			'github_repo'          => array( 'tab' => 'advanced', 'type' => 'id' ),
@@ -1330,7 +1331,8 @@ cod-toggle-danger">
 					}
 					break;
 				case 'countries':
-					// Multi-pays : option Premium. Hors Premium, Algérie seule.
+					// Multi-pays simultané : option Premium. Hors Premium,
+					// le pays principal (détecté) est préservé.
 					$codes = array();
 					if ( is_array( $value ) ) {
 						foreach ( $value as $code ) {
@@ -1341,7 +1343,13 @@ cod-toggle-danger">
 						}
 					}
 					$premium = \InfinityCod\License\LicenseManager::is_premium();
-					$clean[ $key ] = $premium ? array_values( array_unique( $codes ) ) : array( 'DZ' );
+					$clean[ $key ] = $premium ? array_values( array_unique( $codes ) ) : array( Settings::default_country() );
+					break;
+				case 'country':
+					$code = strtoupper( sanitize_text_field( (string) $value ) );
+					if ( preg_match( '/^[A-Z]{2}$/', $code ) ) {
+						$clean[ $key ] = $code;
+					}
 					break;
 				case 'id':
 					$clean[ $key ] = preg_replace( '/[^0-9a-zA-Z_\-.\/]/', '', (string) $value );
