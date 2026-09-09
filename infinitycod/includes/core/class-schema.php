@@ -61,6 +61,8 @@ class Schema {
 			price_home decimal(10,2) NOT NULL DEFAULT -1,
 			price_desk decimal(10,2) NOT NULL DEFAULT -1,
 			free_shipping tinyint(1) NOT NULL DEFAULT 0,
+			delivery_days varchar(50) NOT NULL DEFAULT '',
+			min_order decimal(10,2) NOT NULL DEFAULT 0,
 			PRIMARY KEY (code)
 		) $collate;";
 

@@ -156,6 +156,8 @@ class GeoPage {
 								<th><?php esc_html_e( 'Wilaya', 'infinitycod' ); ?></th>
 								<th><?php esc_html_e( 'Domicile (DA)', 'infinitycod' ); ?></th>
 								<th><?php esc_html_e( 'Stopdesk (DA)', 'infinitycod' ); ?></th>
+								<th><?php esc_html_e( 'Délai (jours)', 'infinitycod' ); ?></th>
+								<th><?php esc_html_e( 'Min (DA)', 'infinitycod' ); ?></th>
 								<th class="icod-col-check"><?php esc_html_e( 'Active', 'infinitycod' ); ?></th>
 								<th class="icod-col-check"><?php esc_html_e( 'Gratuite', 'infinitycod' ); ?></th>
 							</tr>

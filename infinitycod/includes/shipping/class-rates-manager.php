@@ -107,17 +107,42 @@ class RatesManager {
 	}
 
 	/**
-	 * Seuil restant avant livraison gratuite par montant (0 = gratuit déjà atteint ou désactivé).
+	 * Délai de livraison estimé pour une wilaya.
 	 *
-	 * @param float $subtotal Sous-total courant.
-	 * @return float
+	 * @param string $wilaya_code Code wilaya.
+	 * @return string Ex: « 2-4 jours » ou vide.
 	 */
-	public function free_remaining( $subtotal ) {
-		if ( ! Settings::get( 'free_amount_enabled' ) ) {
+	public function delivery_estimate( $wilaya_code ) {
+		global $wpdb;
+		$table = Schema::table( 'wilayas' );
+		return (string) $wpdb->get_var( $wpdb->prepare( "SELECT delivery_days FROM {$table} WHERE code = %s", $wilaya_code ) );
+	}
+
+	/**
+	 * Montant minimum de commande pour une wilaya.
+	 *
+	 * @param string $wilaya_code Code wilaya.
+	 * @return float 0 si pas de minimum.
+	 */
+	public function min_order( $wilaya_code ) {
+		global $wpdb;
+		$table = Schema::table( 'wilayas' );
+		return (float) $wpdb->get_var( $wpdb->prepare( "SELECT min_order FROM {$table} WHERE code = %s", $wilaya_code ) );
+	}
+
+	/**
+	 * Poids total d'une ligne de commande (produit x quantité).
+	 *
+	 * @param int $product_id Produit ou variation.
+	 * @param int $quantity   Quantité.
+	 * @return float Poids en kg.
+	 */
+	public static function order_weight( $product_id, $quantity ) {
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
 			return 0.0;
 		}
-		$threshold = (float) Settings::get( 'free_amount_threshold', 0 );
-		return max( 0, $threshold - (float) $subtotal );
+		return (float) $product->get_weight() * max( 1, (int) $quantity );
 	}
 
 	/**
@@ -137,18 +162,17 @@ class RatesManager {
 	}
 
 	/**
-	 * Poids total d'une ligne de commande (produit x quantité).
+	 * Montant restant avant livraison gratuite par montant.
 	 *
-	 * @param int $product_id Produit ou variation.
-	 * @param int $quantity   Quantité.
-	 * @return float Poids en kg.
+	 * @param float $subtotal Sous-total.
+	 * @return float 0 si gratuit déjà atteint ou désactivé.
 	 */
-	public static function order_weight( $product_id, $quantity ) {
-		$product = wc_get_product( $product_id );
-		if ( ! $product ) {
+	public function free_remaining( $subtotal ) {
+		if ( ! Settings::get( 'free_amount_enabled' ) ) {
 			return 0.0;
 		}
-		return (float) $product->get_weight() * max( 1, (int) $quantity );
+		$threshold = (float) Settings::get( 'free_amount_threshold', 0 );
+		return max( 0, $threshold - (float) $subtotal );
 	}
 
 	/**
