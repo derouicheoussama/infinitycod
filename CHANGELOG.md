@@ -244,3 +244,19 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 - **Thème bleu InfinityCod** (#0078d4) appliqué à toute l'interface admin : bannières dégradées, onglets pilules, boutons, focus, toggle switches, tableaux, KPI, badges — palette bleu + dark navy + blanc de la charte graphique.
 - Icônes 📊📦🛒🗺️🚚📈⚙️🔄🩺ℹ️ sur chaque entrée de menu admin.
 - Animations d'entrée des cartes (fade-in décalé), hover effects sur les boutons et cartes, focus rings bleus.
+
+# 3.0.0 — WordPress.org Ready
+
+Version stable, sécurisée et conforme aux standards WordPress.org.
+
+Toutes les fonctionnalités :
+- Formulaire COD (8 thèmes, RTL, dark mode)
+- 58 wilayas + 1541 communes
+- Anti-fraude Shield
+- Transporteurs (7 API)
+- WhatsApp automatique
+- Paiement CIB/Edahabia (Chargily)
+- Statistiques P&L
+- Offres quantité
+- Mises à jour auto GitHub
+- Diagnostics + Logs + Rollback
