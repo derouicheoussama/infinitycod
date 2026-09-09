@@ -410,3 +410,86 @@
 	backdrop-filter:blur(4px);
 	border-top:1px solid #e2e6ea;
 }
+
+/* ============================================================
+   UX FLUIDE v2.8 — transitions, hover, responsive premium
+   ============================================================ */
+
+/* Transitions douces sur TOUS les éléments interactifs */
+.icod-wrap input[type=text],
+.icod-wrap input[type=number],
+.icod-wrap input[type=email],
+.icod-wrap input[type=url],
+.icod-wrap input[type=password],
+.icod-wrap select,
+.icod-wrap textarea {
+	transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.icod-wrap .button {
+	transition: all .15s ease;
+	border-radius: 6px!important;
+}
+.icod-wrap .button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+.icod-wrap .button:active {
+	transform: translateY(0);
+	box-shadow: none;
+}
+
+/* Cartes : hover subtil + ombre portée */
+.icod-card {
+	transition: box-shadow .2s ease, border-color .2s ease;
+}
+.icod-card:hover {
+	border-color: #c8cdd4;
+}
+
+/* Badge de version dans le titre */
+.icod-version-chip {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 99px;
+	font-size: 11px;
+	font-weight: 600;
+	background: rgba(255,255,255,.2);
+	color: inherit;
+	vertical-align: middle;
+	margin-inline-start: 8px;
+}
+
+/* Tabs : scroll propre sur mobile */
+@media (max-width: 782px) {
+	.icod-tabs {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+	.icod-tabs::-webkit-scrollbar { display: none; }
+	.icod-tabs .nav-tab {
+		white-space: nowrap;
+		padding: 8px 16px;
+		font-size: 13px;
+	}
+}
+
+/* Tableaux : responsive scroll wrapper */
+@media (max-width: 782px) {
+	.icod-table-scroll {
+		border: 1px solid #e2e6ea;
+		border-radius: 8px;
+	}
+}
+
+/* Espacement cohérent entre cartes */
+.icod-wrap .icod-card + .icod-card {
+	margin-top: 16px;
+}
+
+/* Champs : focus ring doux */
+.icod-wrap input:focus,
+.icod-wrap select:focus,
+.icod-wrap textarea:focus {
+	box-shadow: 0 0 0 2px rgba(14,122,79,.15)!important;
+}
