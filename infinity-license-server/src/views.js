@@ -1,4 +1,24 @@
+import zlib from 'node:zlib';
 import { esc } from './core.js';
+
+export function secureHeaders(res) {
+	res.setHeader('X-Frame-Options', 'DENY');
+	res.setHeader('X-Content-Type-Options', 'nosniff');
+	res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+	res.setHeader("Permissions-Policy", 'camera=(), microphone=(), geolocation=()');
+	res.setHeader('Content-Security-Policy', "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://www.paypal.com");
+}
+
+export function secureSend(req, res, code, html) {
+	secureHeaders(res);
+	const accept = String(req.headers['accept-encoding'] || '');
+	if (html.length > 600 && accept.includes('gzip')) {
+		res.writeHead(code, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Encoding': 'gzip' });
+		return res.end(zlib.gzipSync(Buffer.from(html, 'utf8')));
+	}
+	res.writeHead(code, { 'Content-Type': 'text/html; charset=utf-8' });
+	res.end(html);
+}
 
 /* ---------- Design system Ocean Blue (inline, zéro dépendance) ---------- */
 export const CSS = `
@@ -50,6 +70,8 @@ code,.mono{font-family:ui-monospace,Consolas,monospace;font-size:.95em}
 `;
 
 /* ---------- Layout dashboard ---------- */
+/* Le CSS de base (CSS) + ADMIN_CSS sont servis via /assets/admin.css (cache navigateur).
+   La structure responsive (sidebar off-canvas, burger, bell) vit dans ADMIN_CSS. */
 export function layout(req, admin, title, content, active = '') {
 	const menu = [
 		['Dashboard', '/admin', '📊'],
@@ -70,35 +92,27 @@ export function layout(req, admin, title, content, active = '') {
 		if (!href) return `<li class="sep">${esc(label)}</li>`;
 		return `<li><a href="${href}" class="${active === href ? 'on' : ''}">${icon} ${esc(label)}</a></li>`;
 	}).join('');
-	const notifs = admin ? String(admin.notifications_count || 0) : '';
-	return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(title)} — Infinity License</title><style>${CSS}
-.app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
-.side{background:var(--navy);color:#cfe0f2;padding:18px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
-.side .brand{padding:0 20px 14px;font-weight:800;color:#fff;font-size:16px;display:flex;gap:9px;align-items:center}
-.side .brand .dot{width:12px;height:12px;border-radius:50%;background:conic-gradient(var(--blue2),#fff,var(--blue2))}
-.side ul{list-style:none;margin:0;padding:0}
-.side li.sep{padding:14px 20px 5px;font-size:10.5px;letter-spacing:.12em;color:#6f8aa8;text-transform:uppercase}
-.side li a{display:block;padding:8px 20px;color:#cfe0f2;font-weight:600;font-size:13.5px}
-.side li a:hover{background:rgba(255,255,255,.06);text-decoration:none}
-.side li a.on{background:var(--blue);color:#fff;border-radius:0}
-.main{padding:22px 26px}
-.top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
-.top h1{margin:0;font-size:21px}
-.top form{display:flex;gap:8px}
-.top input[name=q]{min-width:260px}
-@media(max-width:900px){.app{grid-template-columns:1fr}.side{position:relative;height:auto}.side ul{display:flex;flex-wrap:wrap;padding:0 10px}.side li.sep{width:100%}}
-</style></head><body data-theme="light">
+	const unread = Number(admin.unread || 0);
+	return `<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(title)} — Infinity License</title><link rel="stylesheet" href="/assets/admin.css"></head><body>
+<div id="side-overlay"></div>
 <div class="app">
-<aside class="side"><div class="brand"><span class="dot"></span> Infinity License</div><ul>${nav}</ul></aside>
+<aside class="side"><div class="brand"><span class="dot"></span> Infinity License <button id="theme-toggle" class="theme-btn" title="Light / Dark">🌗</button></div><ul>${nav}</ul></aside>
 <main class="main">
 <div class="top">
+<div class="side-toggle-cell"><button id="side-toggle" class="burger" aria-label="Menu">☰</button></div>
 <h1>${esc(title)}</h1>
-<form action="/admin/search" method="get"><input name="q" placeholder="Search license, email, domain, order…" value=""><button class="btn sm">Search</button></form>
-<div><span class="badge b-ok">● ${esc(admin.role)}</span> <form method="post" action="/logout" style="display:inline">${csrfField(admin)}<button class="btn sm">Logout</button></form></div>
+<form action="/admin/search" method="get"><input name="q" placeholder="Search license, email, domain, order…"><button class="btn sm">Search</button></form>
+<div class="top-actions">
+<a class="bell" href="/admin/notifications" title="Notifications">🔔${unread ? `<span class="cnt">${unread}</span>` : ''}</a>
+<span class="badge b-ok">● ${esc(admin.role)}</span>
+<form method="post" action="/logout" style="display:inline">${csrfField(admin)}<button class="btn sm">Logout</button></form>
+</div>
 </div>
 ${content}
-</main></div></body></html>`;
+</main></div>
+<script src="/assets/admin.js" defer></script>
+</body></html>`;
 }
 
 export function csrfField(admin) {
@@ -106,8 +120,7 @@ export function csrfField(admin) {
 }
 
 export function page(req, admin, res, code, title, content, active = '') {
-	res.writeHead(code, { 'Content-Type': 'text/html; charset=utf-8' });
-	res.end(layout(req, admin, title, content, active));
+	secureSend(req, res, code, layout(req, admin, title, content, active));
 }
 
 /* ---------- Aperçu SVG (line/bar) sans dépendance ---------- */
@@ -126,9 +139,8 @@ export function svgBars(data, { width = 640, height = 160, color = '#1877c2' } =
 }
 
 /* ---------- Pages publiques ---------- */
-export function publicShell(res, code, title, content) {
-	res.writeHead(code, { 'Content-Type': 'text/html; charset=utf-8' });
-	res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+export function publicShell(req, res, code, title, content) {
+	secureSend(req, res, code,`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)} — Infinity License</title><style>${CSS}
 .nav{background:var(--navy);color:#fff;padding:14px 6vw;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
 .nav .brand{font-weight:800;font-size:17px;display:flex;gap:9px;align-items:center;margin-right:auto}
@@ -164,7 +176,7 @@ ${content}
 <footer>© ${new Date().getFullYear()} Infinity License — Derouiche Oussama · Infinity Coder</footer></body></html>`);
 }
 
-export function landingPage(res, products, plans) {
+export function landingPage(req, res, products, plans) {
 	const prodCards = products.map((p) => `
 	<a class="prod" href="/products/${esc(p.slug)}" style="color:inherit;text-decoration:none">
 		<div class="emoji">${esc(p.logo_emoji)}</div><h3>${esc(p.name)}</h3>
@@ -181,7 +193,7 @@ export function landingPage(res, products, plans) {
 		<a class="btn primary" href="/checkout?plan=${pl.id}">Buy now</a>
 	</div>`).join('');
 
-	publicShell(res, 200, 'Professional WordPress Plugins', `
+	publicShell(req, res, 200, 'Professional WordPress Plugins', `
 <div class="hero">
 	<h1>Professional WordPress Plugins for Modern Businesses</h1>
 	<p>InfinityCOD and a growing suite of premium plugins built for cash-on-delivery commerce across the Arab market. One license server, one dashboard, zero friction.</p>
@@ -198,18 +210,18 @@ export function landingPage(res, products, plans) {
 </section>`);
 }
 
-export function productsPage(res, products) {
+export function productsPage(req, res, products) {
 	const cards = products.map((p) => `
 	<a class="prod" href="/products/${esc(p.slug)}" style="color:inherit;text-decoration:none">
 		<div class="emoji">${esc(p.logo_emoji)}</div><h3>${esc(p.name)} <span class="badge b-ok">v${esc(p.version)}</span></h3>
 		<p class="muted" style="margin:0">${esc(p.tagline)}</p></a>`).join('');
-	publicShell(res, 200, 'Products', `<section><h2 class="sec-title">Products</h2><p class="sec-sub">The Infinity suite.</p><div class="grid-products">${cards}</div></section>`);
+	publicShell(req, res, 200, 'Products', `<section><h2 class="sec-title">Products</h2><p class="sec-sub">The Infinity suite.</p><div class="grid-products">${cards}</div></section>`);
 }
 
-export function productPage(res, product, plans, releases) {
+export function productPage(req, res, product, plans, releases) {
 	const features = JSON.parse(product.features || '[]').map((f) => `<li>✅ ${esc(f)}</li>`).join('');
 	const rel = releases.map((r) => `<tr><td class="mono">v${esc(r.version)}</td><td><span class="badge b-${r.status}">${r.status}</span> <span class="badge">${r.channel}</span></td><td>${esc(r.created_at)}</td><td>${r.downloads}</td></tr>`).join('');
-	publicShell(res, 200, product.name, `
+	publicShell(req, res, 200, product.name, `
 <div class="hero"><h1>${esc(product.logo_emoji)} ${esc(product.name)}</h1><p>${esc(product.tagline)}</p>
 <div class="cta"><a class="cta-primary" href="/checkout?product=${esc(product.slug)}">Buy Now</a><a class="cta-ghost" href="${esc(product.docs_url || '#')}">Documentation</a></div></div>
 <section><div style="max-width:860px;margin:0 auto">
@@ -220,8 +232,8 @@ export function productPage(res, product, plans, releases) {
 </div></section>`);
 }
 
-export function checkoutPage(res, plan, product, err = '', values = {}) {
-	publicShell(res, err ? 400 : 200, 'Checkout', `
+export function checkoutPage(req, res, plan, product, err = '', values = {}) {
+	publicShell(req, res, err ? 400 : 200, 'Checkout', `
 <section style="max-width:640px;margin:0 auto">
 <h2 class="sec-title">Checkout</h2><p class="sec-sub">${esc(product?.name || '')} — ${esc(plan.name)} · $${plan.price} (${esc(plan.currency)}) · ${plan.sites_limit} site(s)</p>
 <div class="card">
@@ -241,8 +253,8 @@ ${err ? `<div class="notice err">${esc(err)}</div>` : ''}
 </form></div></section>`);
 }
 
-export function checkoutDone(res, order, licenseKey, email) {
-	publicShell(res, 200, 'Order received', `
+export function checkoutDone(req, res, order, licenseKey, email) {
+	publicShell(req, res, 200, 'Order received', `
 <section style="max-width:640px;margin:0 auto;text-align:center">
 <h2 class="sec-title">🎉 Order ${esc(order.reference)} placed</h2>
 <p class="sec-sub">Your license key has been generated${licenseKey ? ' and is shown below' : ' and will be emailed to ' + esc(email) + ' once payment is validated'}.</p>

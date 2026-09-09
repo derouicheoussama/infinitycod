@@ -22,16 +22,25 @@ export function currentAdmin(req) {
 		db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
 		return null;
 	}
+	// Session glissante : prolongée à chaque activité si moins de la moitié du TTL reste.
+	const half = new Date(Date.now() + (config.SESSION_TTL_HOURS * 3600 * 1000) / 2).toISOString().replace('T', ' ').slice(0, 19);
+	if (row.expires_at < half) {
+		const extended = new Date(Date.now() + config.SESSION_TTL_HOURS * 3600 * 1000).toISOString().replace('T', ' ').slice(0, 19);
+		db.prepare('UPDATE sessions SET expires_at = ? WHERE token = ?').run(extended, token);
+	}
 	return row;
 }
 
-export function createSession(res, adminId, ip) {
+export async function createSession(req, res, adminId, ip) {
 	const token = uid(32);
 	const csrf = uid(16);
 	const expires = new Date(Date.now() + config.SESSION_TTL_HOURS * 3600 * 1000).toISOString().replace('T', ' ').slice(0, 19);
 	db.prepare('INSERT INTO sessions(token,admin_id,csrf,created_at,expires_at,ip) VALUES(?,?,?,?,?,?)').run(token, adminId, csrf, now(), expires, ip);
 	db.prepare('UPDATE admins SET last_login = ? WHERE id = ?').run(now(), adminId);
-	res.setHeader('Set-Cookie', `${COOKIE}=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${config.SESSION_TTL_HOURS * 3600}`);
+	// Secure dès que la requête est HTTPS (direct ou derrière un proxy TLS).
+	const isHttps = req && ((req.socket && req.socket.encrypted) || req.headers['x-forwarded-proto'] === 'https');
+	const secure = isHttps ? '; Secure' : '';
+	res.setHeader('Set-Cookie', `${COOKIE}=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${config.SESSION_TTL_HOURS * 3600}${secure}`);
 	return { token, csrf };
 }
 
@@ -59,7 +68,7 @@ export function recordLoginAttempt(ip, email) {
 }
 
 /** HTML des pages d'authentification (setup + login), rendues par views. */
-export function handleAuthRoutes(req, res, url, body, ip, renderHtml) {
+export async function handleAuthRoutes(req, res, url, body, ip, renderHtml) {
 	const pathn = url.pathname;
 
 	if (pathn === '/setup' && !adminsExist()) {
@@ -75,7 +84,7 @@ export function handleAuthRoutes(req, res, url, body, ip, renderHtml) {
 			.run(String(email).toLowerCase(), String(name), hashPassword(password), 'super_admin', now());
 		const admin = db.prepare('SELECT * FROM admins WHERE email = ?').get(String(email).toLowerCase());
 		audit(admin, 'admin.created', email, 'First super admin', ip);
-		createSession(res, admin.id, ip);
+		await createSession(req, res, admin.id, ip);
 		res.writeHead(302, { Location: '/admin' });
 		return res.end();
 	}
@@ -98,7 +107,7 @@ export function handleAuthRoutes(req, res, url, body, ip, renderHtml) {
 			securityLite('ADMIN_LOGIN_FAILED', `Failed login for ${email}`, ip);
 			return renderHtml(res, 401, loginPage('Invalid credentials.'));
 		}
-		createSession(res, admin.id, ip);
+		await createSession(req, res, admin.id, ip);
 		audit(admin, 'admin.login', admin.email, '', ip);
 		res.writeHead(302, { Location: '/admin' });
 		return res.end();

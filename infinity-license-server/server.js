@@ -1,6 +1,7 @@
 // Infinity License Server — point d'entrée (HTTP natif, zéro dépendance).
 import http from 'node:http';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { config, ensureStorage } from './src/config.js';
 import { seed } from './src/seed.js';
 import { handleApi } from './src/api.js';
@@ -9,11 +10,35 @@ import * as admin from './src/admin.js';
 import { landingPage, productsPage, productPage, checkoutPage, checkoutDone } from './src/views.js';
 import { db } from './src/db.js';
 import { json, esc } from './src/core.js';
+import { adminCss, ADMIN_JS, assetEtag } from './src/assets.js';
 
 ensureStorage();
 seed();
 
 const PORT = config.PORT;
+
+/* ---------- Headers de sécurité + compression ---------- */
+function secureHeaders(res) {
+	res.setHeader('X-Frame-Options', 'DENY');
+	res.setHeader('X-Content-Type-Options', 'nosniff');
+	res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+	res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+	res.setHeader('Content-Security-Policy',
+		"default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://www.paypal.com");
+}
+
+import { secureSend as sendHtml } from './src/views.js';
+
+function sendAsset(req, res, name, content, type) {
+	secureHeaders(res);
+	const etag = assetEtag(name, content);
+	if (req.headers['if-none-match'] === etag) {
+		res.writeHead(304, { ETag: etag });
+		return res.end();
+	}
+	res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'public, max-age=3600', ETag: etag });
+	res.end(content);
+}
 
 /* ---------- Parsing helpers ---------- */
 function parseBody(req) {
@@ -53,6 +78,8 @@ const server = http.createServer(async (req, res) => {
 	}
 });
 
+function redirect302(res, loc) { res.writeHead(302, { Location: loc }); res.end(); }
+
 async function handle(req, res) {
 	const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 	const ip = req.socket.remoteAddress || '';
@@ -69,12 +96,27 @@ async function handle(req, res) {
 	if (req.method === 'POST') body = await parseBody(req);
 
 	// Auth publiques (setup / login / logout).
-	const handled = handleAuthRoutes(req, res, url, body, ip, (res2, code, html) => {
-		res2.writeHead(code, { 'Content-Type': 'text/html; charset=utf-8' });
-		res2.end(html);
-		return true;
-	});
+	const handled = await handleAuthRoutes(req, res, url, body, ip, (res2, code, html) => sendHtml(req, res2, code, html));
 	if (handled) return;
+
+	// Assets statiques mis en cache (CSS + JS du dashboard).
+	if (url.pathname === '/assets/admin.css') return sendAsset(req, res, 'css', adminCss(), 'text/css; charset=utf-8');
+	if (url.pathname === '/assets/admin.js') return sendAsset(req, res, 'js', ADMIN_JS, 'text/javascript; charset=utf-8');
+
+	// Notifications : page dédiée + marquage lu (admin uniquement).
+	if (url.pathname === '/admin/notifications') {
+		const a0 = currentAdmin(req);
+		if (!a0) { res.writeHead(302, { Location: '/login' }); return res.end(); }
+		if (req.method === 'POST') {
+			if (body.csrf !== a0.csrf) return json(res, 403, { error: 'CSRF' });
+			db.prepare('UPDATE notifications SET read = 1').run();
+			return redirect302(res, '/admin/notifications');
+		}
+		const rows = db.prepare('SELECT * FROM notifications ORDER BY id DESC LIMIT 100').all();
+		const unread = db.prepare('SELECT COUNT(*) c FROM notifications WHERE read = 0').get().c;
+		return sendHtml(req, res, 200, admin.adminNotificationsView(a0, rows, unread, body));
+	}
+
 
 	if (url.pathname === '/setup' && adminsExist()) { res.writeHead(302, { Location: '/login' }); return res.end(); }
 
@@ -82,11 +124,11 @@ async function handle(req, res) {
 	if (url.pathname === '/') {
 		const products = db.prepare("SELECT * FROM products WHERE status='PUBLISHED' ORDER BY id").all();
 		const plans = db.prepare("SELECT * FROM plans WHERE status='ACTIVE' ORDER BY sort").all();
-		return landingPage(res, products, plans);
+		return landingPage(req, res, products, plans);
 	}
 	if (url.pathname === '/products') {
 		const products = db.prepare("SELECT * FROM products WHERE status='PUBLISHED' ORDER BY id").all();
-		return productsPage(res, products);
+		return productsPage(req, res, products);
 	}
 	const prodMatch = url.pathname.match(/^\/products\/([a-z0-9-]+)$/);
 	if (prodMatch) {
@@ -94,21 +136,21 @@ async function handle(req, res) {
 		if (!product) { res.writeHead(404); return res.end('Not found'); }
 		const plans = db.prepare("SELECT * FROM plans WHERE status='ACTIVE' ORDER BY sort").all();
 		const releases = db.prepare("SELECT * FROM releases WHERE product_id = ? AND status='PUBLISHED' ORDER BY id DESC LIMIT 10").all(product.id);
-		return productPage(res, product, plans, releases);
+		return productPage(req, res, product, plans, releases);
 	}
 	if (url.pathname === '/checkout' && req.method === 'GET') {
 		const planId = Number(url.searchParams.get('plan') || 0);
 		const plan = db.prepare('SELECT * FROM plans WHERE id = ?').get(planId);
 		if (!plan) { res.writeHead(404); return res.end('Plan not found'); }
 		const product = db.prepare('SELECT * FROM products WHERE id = ?').get(plan.product_id || Number(url.searchParams.get('product') || 0) || (db.prepare('SELECT id FROM products LIMIT 1').get() || {}).id);
-		return checkoutPage(res, plan, product);
+		return checkoutPage(req, res, plan, product);
 	}
 	if (url.pathname === '/checkout' && req.method === 'POST') {
 		const plan = db.prepare('SELECT * FROM plans WHERE id = ?').get(Number(body.plan_id || 0));
 		if (!plan) { res.writeHead(404); return res.end('Plan not found'); }
 		const product = db.prepare('SELECT * FROM products WHERE id = ?').get(plan.product_id || Number(body.product_id || 0));
 		if (!body.email || !body.first_name || !body.last_name) {
-			return checkoutPage(res, plan, product, 'First name, last name and a valid email are required.', body);
+			return checkoutPage(req, res, plan, product, 'First name, last name and a valid email are required.', body);
 		}
 		const email = String(body.email).toLowerCase().trim();
 		let customer = db.prepare('SELECT * FROM customers WHERE email = ?').get(email);
@@ -123,20 +165,36 @@ async function handle(req, res) {
 			.run(reference, customer.id, product ? product.id : null, plan.id, plan.price, plan.currency, 'PENDING', body.payment_method || 'manual', new Date().toISOString().replace('T', ' ').slice(0, 19));
 		const order = db.prepare('SELECT * FROM orders WHERE reference = ?').get(reference);
 		db.prepare('INSERT INTO notifications(ts,type,message) VALUES(?,?,?)').run(new Date().toISOString().replace('T', ' ').slice(0, 19), 'order', `New order ${reference} ($${plan.price}) from ${email}`);
-		return checkoutDone(res, order, '', email);
+		return checkoutDone(req, res, order, '', email);
 	}
 
 	// Dashboard admin (protégé).
 	if (url.pathname.startsWith('/admin')) {
+		const p = url.pathname;
 		const adminRow = currentAdmin(req);
+		if (adminRow) {
+			adminRow.unread = db.prepare('SELECT COUNT(*) c FROM notifications WHERE read = 0').get().c;
+		}
 		if (!adminRow) { res.writeHead(302, { Location: adminsExist() ? '/login' : '/setup' }); return res.end(); }
+
+		// Rôles : support/viewer = lecture seule ; emails/settings/admins/sécurité = admin+.
+		const WRITE_ROLES = ['super_admin', 'admin', 'sales'];
+		const ADMIN_ROLES = ['super_admin', 'admin'];
+		if (req.method === 'POST' && p !== '/logout' && !WRITE_ROLES.includes(adminRow.role)) {
+			return json(res, 403, { error: 'Read-only role (' + adminRow.role + ').' });
+		}
+		if (req.method === 'POST' && ['/admin/settings', '/admin/admins'].includes(p) && !ADMIN_ROLES.includes(adminRow.role)) {
+			return json(res, 403, { error: 'Administrators only.' });
+		}
+		if (req.method === 'POST' && ['/admin/security', '/admin/emails'].includes(p) && !ADMIN_ROLES.includes(adminRow.role)) {
+			return json(res, 403, { error: 'Administrators only.' });
+		}
 
 		// CSRF sur tous les POST admin.
 		if (req.method === 'POST' && body.csrf !== adminRow.csrf) {
 			return json(res, 403, { error: 'CSRF token invalid' });
 		}
 
-		const p = url.pathname;
 		switch (p) {
 			case '/admin': return admin.adminOverview(req, res, adminRow);
 			case '/admin/products': return admin.adminProducts(req, res, adminRow, url, body);

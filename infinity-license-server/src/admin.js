@@ -271,13 +271,13 @@ function licenseDetail(req, res, admin, id, body) {
 	const actions = `
 <div class="card"><h2>Actions</h2><form method="post">${cf(admin)}<input type="hidden" name="id" value="${id}">
 <div class="toolbar">
-<button name="do" value="suspend" class="btn sm danger" onclick="return confirm('Suspend this license?')">Suspend</button>
+<button name="do" value="suspend" class="btn sm danger" data-confirm="Suspend this license?">Suspend</button>
 <button name="do" value="resume" class="btn sm">Resume</button>
-<button name="do" value="revoke" class="btn sm danger" onclick="return confirm('REVOKE this license? This is serious.')">Revoke</button>
+<button name="do" value="revoke" class="btn sm danger" data-confirm="REVOKE this license? This is serious.">Revoke</button>
 </div>
 <div class="grid"><div><label>Extend (days)</label><div class="toolbar" style="margin:0"><input name="days" type="number" value="365"><button name="do" value="extend" class="btn sm">Extend</button></div></div>
 <div><label>Activation limit</label><div class="toolbar" style="margin:0"><input name="activation_limit" type="number" value="${lic.activation_limit}"><button name="do" value="limit" class="btn sm">Save</button></div></div></div>
-<p><button name="do" value="regenerate" class="btn danger" onclick="return confirm('Regenerate the key? The old key stops working immediately.')">Regenerate key</button>
+<p><button name="do" value="regenerate" class="btn danger" data-confirm="Regenerate the key? The old key stops working immediately.">Regenerate key</button>
 <button name="do" value="reveal" class="btn">Reveal full key (audited)</button></p></form></div>`;
 
 	page(req, admin, res, 200, `License ${lic.key_preview}`, `
@@ -330,11 +330,11 @@ export function adminInstallations(req, res, admin, url, body) {
 <p>Installation ID: <span class="mono">${esc(install.installation_id)}</span></p></div>
 <div class="card"><h2>Remote control</h2><form method="post">${cf(admin)}
 <div class="toolbar">
-<button name="do" value="block" class="btn sm danger" onclick="return confirm('Block this installation?')">Block</button>
+<button name="do" value="block" class="btn sm danger" data-confirm="Block this installation?">Block</button>
 <button name="do" value="unblock" class="btn sm">Unblock</button>
 <button name="do" value="disable" class="btn sm">Disable</button>
 <button name="do" value="reactivate" class="btn sm">Reactivate</button>
-<button name="do" value="delete" class="btn sm danger" onclick="return confirm('Delete installation record?')">Delete</button>
+<button name="do" value="delete" class="btn sm danger" data-confirm="Delete installation record?">Delete</button>
 </div></form></div></div>
 <div class="card"><h2>Timeline</h2>${table(['Event', 'Detail', 'Date', 'IP'], timeline.map((t) => `<tr><td><strong>${esc(t.event)}</strong></td><td>${esc(t.detail)}</td><td>${fmtDate(t.created_at)}</td><td class="mono">${esc(t.ip)}</td></tr>`))}</div>`, '/admin/installations');
 	}
@@ -620,3 +620,13 @@ import { allSettings as _allSettings, setSetting as _setSetting } from './db.js'
 function requireSettings() { return { allSettings: _allSettings, setSetting: _setSetting }; }
 import * as coreMod from './core.js';
 function requireCore() { return coreMod; }
+
+/* ---------- Notifications (cloche du topbar) ---------- */
+export function adminNotificationsView(admin, rows, unread) {
+	const list = rows.map((n) => `<tr><td>${n.read ? '📖' : '🔔'}</td><td>${esc(n.type)}</td><td>${esc(n.message)}</td><td>${fmtDate(n.ts)}</td></tr>`).join('');
+	const content = `
+	<div class="card"><form method="post">${csrfField(admin)}
+	<p><strong>${unread}</strong> notification(s) non lue(s). <button class="btn sm primary" name="do" value="read">Tout marquer comme lu</button></p></form></div>
+	<div class="card">${table(['', 'Type', 'Message', 'Date'], list)}</div>`;
+	return layout(null, { ...admin, unread }, 'Notifications', content, '/admin');
+}
