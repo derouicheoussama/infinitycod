@@ -288,26 +288,32 @@ class Updater {
 
 	/**
 	 * Infos de la dernière version disponible — 4 voies, toujours depuis le
-	 * dépôt GitHub (aucun serveur intermédiaire) :
-	 *   1. api.github.com  (précis, token si dépôt privé)
-	 *   2. github.com/{repo}/releases.atom  (public, passe quand l'API est bloquée)
-	 *   3. raw.githubusercontent.com/{repo}/main/latest/update.json  (miroir fichiers)
-	 *   4. cdn.jsdelivr.net/gh/{repo}@main/latest/update.json  (CDN officiel de
-	 *      GitHub, passe quand les domaines github.com sont bloqués par l'hébergeur)
+	 * dépôt GitHub (aucun serveur intermédiaire). Sur les hébergements
+	 * partagés, l'API api.github.com est vite limitée en quota (403) :
+	 * l'ordre privilégie donc les miroirs CDN, l'API restant le dernier
+	 * recours (sauf canal beta, qui exige l'API) :
+	 *   1. raw.githubusercontent.com/{repo}/main/latest/update.json
+	 *   2. cdn.jsdelivr.net/gh/{repo}@main/latest/update.json
+	 *   3. github.com/{repo}/releases.atom
+	 *   4. api.github.com (précis, token si dépôt privé)
 	 *
 	 * @return array|null version, download_url, homepage, changelog, sha256.
 	 */
 	private function remote() {
 		try {
-			$github = $this->remote_github();
-			if ( $github ) {
-				return $github;
+			$tiers = ( 'beta' === self::channel() )
+				? array( 'api', 'atom', 'mirror' )
+				: array( 'mirror', 'atom', 'api' );
+
+			foreach ( $tiers as $tier ) {
+				$data = ( 'api' === $tier )
+					? $this->remote_github()
+					: ( ( 'atom' === $tier ) ? $this->remote_atom() : $this->remote_mirror() );
+				if ( $data ) {
+					return $data;
+				}
 			}
-			$atom = $this->remote_atom();
-			if ( $atom ) {
-				return $atom;
-			}
-			return $this->remote_mirror();
+			return null;
 		} catch ( \Throwable $e ) {
 			\InfinityCod\Logging\Logger::log( 'error', 'remote : ' . $e->getMessage() );
 			return null;
@@ -524,11 +530,16 @@ class Updater {
 			}
 		}
 
+		// 403 = quota API dépassé (partagé) : pas la peine d'insister sur
+		// l'API, les miroirs/atom prennent le relais — cache négatif court.
+		$reason = ( 404 === $status ) ? 'private_or_empty' : ( ( 403 === $status ) ? 'rate_limited' : 'network' );
+		$ttl    = ( 403 === $status ) ? 10 * MINUTE_IN_SECONDS : 30 * MINUTE_IN_SECONDS;
+
 		set_transient( 'icod_update_gh', array(
 			'unreachable' => 1,
-			'reason'      => 404 === $status ? 'private_or_empty' : 'network',
+			'reason'      => $reason,
 			'repo'        => implode( ' → ', $tried ),
-		), 30 * MINUTE_IN_SECONDS );
+		), $ttl );
 		self::$http_intercept = true;
 		return null;
 	}

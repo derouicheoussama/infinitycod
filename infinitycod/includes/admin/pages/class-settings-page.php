@@ -136,12 +136,36 @@ class SettingsPage {
 	 * @return void
 	 */
 	private function tab_payment() {
+		$pay_on = (int) Settings::get( 'payment_enabled' ) ? 'Actif' : 'Inactif';
 		?>
 		<div class="icod-card">
 			<h2><?php esc_html_e( 'Paiement en ligne — Chargily Pay (CIB / Edahabia)', 'infinitycod' ); ?></h2>
 			<p class="description">
 				<?php esc_html_e( 'Permet au client de payer immédiatement par carte CIB ou Edahabia via Chargily Pay. Sans cela, le formulaire reste en paiement à la livraison classique. Créez votre compte sur chargily.com, puis copiez votre clé secrète ici.', 'infinitycod' ); ?>
 			</p>
+			<div class="icod-paystrip">
+				<div class="icod-paystrip-item <?php echo (int) Settings::get( 'payment_enabled' ) ? 'icod-paystrip-on' : ''; ?>">
+					<?php echo \InfinityCod\Form\FormManager::payment_logo( 'cib' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
+					<span>CIB <?php echo (int) Settings::get( 'payment_enabled' ) ? '· actif' : '· inactif'; ?></span>
+				</div>
+				<div class="icod-paystrip-item <?php echo (int) Settings::get( 'payment_enabled' ) ? 'icod-paystrip-on' : ''; ?>">
+					<?php echo \InfinityCod\Form\FormManager::payment_logo( 'edahabia' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
+					<span>Edahabia <?php echo (int) Settings::get( 'payment_enabled' ) ? '· actif' : '· inactif'; ?></span>
+				</div>
+				<div class="icod-paystrip-item icod-paystrip-on">
+					<?php echo \InfinityCod\Form\FormManager::payment_logo( 'cash' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
+					<span>Espèces à la livraison · toujours actif</span>
+				</div>
+				<div class="icod-paystrip-item">
+					<?php echo \InfinityCod\Form\FormManager::payment_logo( 'baridimob' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
+					<span>BaridiMob · virement manuel (bientôt)</span>
+				</div>
+				<div class="icod-paystrip-item">
+					<?php echo \InfinityCod\Form\FormManager::payment_logo( 'ccp' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
+					<span>CCP · virement manuel (bientôt)</span>
+				</div>
+			</div>
+			<p class="description" style="margin-top:8px"><em><?php esc_html_e( 'Statut actuel :', 'infinitycod' ); ?> <strong><?php echo esc_html( (int) Settings::get( 'payment_enabled' ) ? 'Paiement en ligne activé' : 'COD uniquement' ); ?></strong></em></p>
 			<div class="icod-toggles">
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[payment_enabled]" value="1" <?php checked( (int) Settings::get( 'payment_enabled' ), 1 ); ?> />
@@ -572,8 +596,31 @@ class SettingsPage {
 			</div>
 		</div>
 
-		<div class="icod-card">
-			<h2><?php esc_html_e( 'Libellés des champs', 'infinitycod' ); ?></h2>
+			<div class="icod-card">
+				<h2><?php esc_html_e( 'Écran de remerciement', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Le style de la fenêtre de remerciement affichée après une commande réussie — chaque style présente le récapitulatif détaillé (n°, produit, livraison, total).', 'infinitycod' ); ?></p>
+				<div class="icod-preset-grid">
+					<?php
+					$success_styles = array(
+						'classic'     => array( 'label' => __( 'Classique', 'infinitycod' ), 'icon' => '✓' ),
+						'confetti'    => array( 'label' => __( 'Confettis', 'infinitycod' ), 'icon' => '🎉' ),
+						'minimal'     => array( 'label' => __( 'Minimal', 'infinitycod' ), 'icon' => '◦' ),
+						'ticket'      => array( 'label' => __( 'Ticket', 'infinitycod' ), 'icon' => '🎟️' ),
+						'celebration' => array( 'label' => __( 'Célébration', 'infinitycod' ), 'icon' => '🥳' ),
+					);
+					foreach ( $success_styles as $style_key => $style ) :
+						?>
+						<label class="icod-preset">
+							<input type="radio" name="icod[success_style]" value="<?php echo esc_attr( $style_key ); ?>" <?php checked( Settings::get( 'success_style', 'classic' ), $style_key ); ?> />
+							<span class="icod-preset-swatch" style="background:linear-gradient(135deg,#1d5fa8,#0e7a4f);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px"><?php echo esc_html( $style['icon'] ); ?></span>
+							<span class="icod-preset-label"><?php echo esc_html( $style['label'] ); ?></span>
+						</label>
+					<?php endforeach; ?>
+				</div>
+			</div>
+
+			<div class="icod-card">
+				<h2><?php esc_html_e( 'Libellés des champs', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Personnalisez le texte affiché devant chaque champ (utile en arabe ou pour votre ton de marque).', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
 				<label>
@@ -978,6 +1025,9 @@ cod-toggle-danger">
 		// Énumérations.
 		if ( isset( $raw['form_theme'] ) && in_array( $raw['form_theme'], array( 'light', 'dark', 'auto' ), true ) ) {
 			$clean['form_theme'] = $raw['form_theme'];
+		}
+		if ( isset( $raw['success_style'] ) && in_array( $raw['success_style'], array( 'classic', 'confetti', 'minimal', 'ticket', 'celebration' ), true ) ) {
+			$clean['success_style'] = $raw['success_style'];
 		}
 		if ( isset( $raw['form_preset'] ) && in_array( $raw['form_preset'], array( 'modern', 'elegant', 'sunset', 'ocean', 'minimal' ), true ) ) {
 			$clean['form_preset'] = $raw['form_preset'];

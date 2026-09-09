@@ -658,3 +658,77 @@ select.icod-input{
 }
 .icod-root[dir="rtl"] .icod-form-title{font-weight:800;letter-spacing:0}
 .icod-root[dir="rtl"] .icod-head-price{align-items:flex-start}
+
+/* ===== Écran de remerciement : 5 styles ===== */
+.icod-success{text-align:center;padding:34px 26px;animation:icod-success-in .5s cubic-bezier(.22,1,.36,1) both}
+@keyframes icod-success-in{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.icod-success-icon{width:74px;height:74px;margin:0 auto 16px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--icod-success,#0e7a4f);color:#fff;font-size:34px;font-weight:800;animation:icod-check-pop .5s .15s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes icod-check-pop{from{transform:scale(0)}to{transform:scale(1)}}
+.icod-success h3{margin:0 0 6px;font-size:1.25rem}
+.icod-success-recap{
+	max-width:400px;margin:18px auto 0;padding:14px 18px;
+	border:1.5px solid var(--icod-border);border-radius:var(--icod-radius-sm);
+	background:var(--icod-surface);text-align:start;
+}
+.icod-success-num{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:8px;margin-bottom:8px;border-bottom:1.5px dashed var(--icod-border)}
+.icod-success-num strong{font-size:1.2rem;color:var(--icod-accent)}
+.icod-success-line{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:.9rem;color:var(--icod-muted)}
+.icod-success-line strong{color:var(--icod-text);font-weight:700;text-align:end}
+.icod-success-total{margin-top:6px;padding-top:8px;border-top:1.5px dashed var(--icod-border);font-weight:800;color:var(--icod-text)}
+.icod-success-total strong{color:var(--icod-accent);font-size:1.15rem}
+.icod-success p{color:var(--icod-muted);font-size:.92rem}
+
+/* — Confettis : pluie animée — */
+.icod-success-confetti{position:relative;overflow:hidden}
+.icod-success-confetti::before{
+	content:"";position:absolute;inset:0;pointer-events:none;
+	background-image:
+		radial-gradient(circle 4px at 12% 20%,#e8590c 98%,transparent),
+		radial-gradient(circle 3px at 28% 70%,#1971c2 98%,transparent),
+		radial-gradient(circle 4px at 45% 30%,#0e7a4f 98%,transparent),
+		radial-gradient(circle 3px at 62% 80%,#d6336c 98%,transparent),
+		radial-gradient(circle 4px at 78% 25%,#f0b429 98%,transparent),
+		radial-gradient(circle 3px at 90% 60%,#6d28d9 98%,transparent);
+	animation:icod-confetti-rain 2.6s linear infinite;
+}
+@keyframes icod-confetti-rain{
+	from{background-position:0 -60px,0 -120px,0 -40px,0 -100px,0 -80px,0 -140px}
+	to{background-position:0 320px,0 340px,0 300px,0 360px,0 330px,0 350px}
+}
+
+/* — Minimal : épuré — */
+.icod-success-minimal .icod-success-icon{background:transparent;color:var(--icod-success,#0e7a4f);border:3px solid var(--icod-success,#0e7a4f);width:64px;height:64px;font-size:30px}
+.icod-success-minimal .icod-success-recap{border-style:solid;border-width:0 0 0 3px;background:transparent;padding:8px 0 8px 16px}
+
+/* — Ticket : reçu perforé — */
+.icod-success-ticket .icod-success-recap{
+	background:repeating-linear-gradient(45deg,var(--icod-surface),var(--icod-surface) 12px,#f6f7f7 12px,#f6f7f7 24px);
+	position:relative;
+}
+.icod-success-ticket .icod-success-recap::before,
+.icod-success-ticket .icod-success-recap::after{
+	content:"";position:absolute;top:50%;width:22px;height:22px;border-radius:50%;
+	background:var(--icod-bg,#fff);border:1.5px solid var(--icod-border);
+}
+.icod-success-ticket .icod-success-recap::before{left:-13px;transform:translateY(-50%)}
+.icod-success-ticket .icod-success-recap::after{right:-13px;transform:translateY(-50%)}
+.icod-success-ticket .icod-success-num strong{font-variant-numeric:tabular-nums;letter-spacing:.06em}
+
+/* — Célébration : dégradé + emojis flottants — */
+.icod-success-celebration{position:relative}
+.icod-success-celebration::before{
+	content:"🎉 ✨ 🥳 ✨ 🎉";
+	position:absolute;inset:0;pointer-events:none;
+	font-size:1.3rem;opacity:.5;
+	animation:icod-float-emojis 5s ease-in-out infinite;
+}
+@keyframes icod-float-emojis{
+	0%,100%{transform:translateY(0) scale(1)}
+	50%{transform:translateY(-14px) scale(1.08)}
+}
+.icod-success-celebration .icod-success-icon{background:linear-gradient(135deg,#d6336c,#f0b429);width:80px;height:80px;font-size:38px}
+
+/* ===== Logos moyens de paiement ===== */
+.icod-paylogos{display:flex;gap:6px;margin-top:8px}
+.icod-paylogo{display:block;border-radius:6px;box-shadow:0 1px 4px rgba(16,24,40,.12)}
+.icod-mode-box{align-items:flex-start}

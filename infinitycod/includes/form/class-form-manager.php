@@ -370,22 +370,24 @@ class FormManager {
 							<?php if ( $payment_online ) : ?>
 								<fieldset class="icod-mode icod-pay">
 									<legend><?php esc_html_e( 'Méthode de paiement', 'infinitycod' ); ?></legend>
-									<div class="icod-mode-grid">
-										<label class="icod-mode-option">
-											<input type="radio" name="icod_payment" value="cod" class="icod-pay-radio" checked />
-											<span class="icod-mode-box">
-												<span class="icod-mode-title"><?php echo esc_html( Settings::get( 'cod_label' ) ); ?></span>
-												<span class="icod-mode-sub"><?php esc_html_e( 'Vous payez en recevant le colis', 'infinitycod' ); ?></span>
-											</span>
-										</label>
-										<label class="icod-mode-option">
-											<input type="radio" name="icod_payment" value="online" class="icod-pay-radio" />
-											<span class="icod-mode-box">
-												<span class="icod-mode-title"><?php echo esc_html( Settings::get( 'payment_label' ) ); ?></span>
-												<span class="icod-mode-sub"><?php esc_html_e( 'Paiement sécurisé CIB / Edahabia', 'infinitycod' ); ?></span>
-											</span>
-										</label>
-									</div>
+										<div class="icod-mode-grid">
+											<label class="icod-mode-option">
+												<input type="radio" name="icod_payment" value="cod" class="icod-pay-radio" checked />
+												<span class="icod-mode-box">
+													<span class="icod-mode-title"><?php echo esc_html( Settings::get( 'cod_label' ) ); ?></span>
+													<span class="icod-mode-sub"><?php esc_html_e( 'Vous payez en recevant le colis', 'infinitycod' ); ?></span>
+													<span class="icod-paylogos"><?php echo self::payment_logo( 'cash' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?></span>
+												</span>
+											</label>
+											<label class="icod-mode-option">
+												<input type="radio" name="icod_payment" value="online" class="icod-pay-radio" />
+												<span class="icod-mode-box">
+													<span class="icod-mode-title"><?php echo esc_html( Settings::get( 'payment_label' ) ); ?></span>
+													<span class="icod-mode-sub"><?php esc_html_e( 'Paiement sécurisé CIB / Edahabia', 'infinitycod' ); ?></span>
+													<span class="icod-paylogos"><?php echo self::payment_logo( 'cib' ) . self::payment_logo( 'edahabia' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG internes. ?></span>
+												</span>
+											</label>
+										</div>
 								</fieldset>
 								<input type="hidden" name="icod_payment_default" value="cod" />
 							<?php endif; ?>
@@ -462,8 +464,17 @@ class FormManager {
 				</form>
 			</section>
 
-			<div class="icod-success icod-hidden" data-icod-success hidden>
+			<div class="icod-success icod-success-<?php echo esc_attr( Settings::get( 'success_style', 'classic' ) ); ?> icod-hidden" data-icod-success hidden>
+				<div class="icod-success-icon" aria-hidden="true"><span>✓</span></div>
 				<h3 data-icod-success-title><?php echo esc_html( Settings::get( 'success_title' ) ); ?></h3>
+
+				<div class="icod-success-recap">
+					<div class="icod-success-num"><span><?php esc_html_e( 'N° de commande', 'infinitycod' ); ?></span><strong data-sd-num>—</strong></div>
+					<div class="icod-success-line"><span><?php esc_html_e( 'Produit', 'infinitycod' ); ?></span><strong data-sd-product>—</strong></div>
+					<div class="icod-success-line"><span><?php esc_html_e( 'Livraison', 'infinitycod' ); ?></span><strong data-sd-mode>—</strong></div>
+					<div class="icod-success-line icod-success-total"><span><?php esc_html_e( 'Total à payer', 'infinitycod' ); ?></span><strong data-sd-total>—</strong></div>
+				</div>
+
 				<p data-icod-success-text></p>
 				<p class="icod-success-meta" data-icod-success-meta hidden></p>
 
@@ -499,6 +510,64 @@ class FormManager {
 		<?php
 
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Logos SVG des moyens de paiement algériens (style officiel simplifié).
+	 *
+	 * @param string $method cash|cib|edahabia|baridimob|ccp.
+	 * @return string SVG inline.
+	 */
+	public static function payment_logo( $method ) {
+		$common = 'class="icod-paylogo" role="img" width="52" height="33" viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"';
+
+		switch ( $method ) {
+			case 'cib':
+				return '<svg ' . $common . '>'
+					. '<rect x="1" y="1" width="62" height="38" rx="6" fill="#ffffff" stroke="#d8dde3"/>'
+					. '<path d="M1 12 L63 4 L63 12 L1 20 Z" fill="#0f4d8f"/>'
+					. '<path d="M1 22 L63 14 L63 20 L1 28 Z" fill="#f7b600"/>'
+					. '<text x="32" y="35" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="10" fill="#0f4d8f">CIB</text>'
+					. '</svg>';
+
+			case 'edahabia':
+				return '<svg ' . $common . '>'
+					. '<rect x="1" y="1" width="62" height="38" rx="6" fill="#c99a2e"/>'
+					. '<rect x="1" y="1" width="62" height="38" rx="6" fill="url(#icod-gold)" stroke="#a67c1e"/>'
+					. '<defs><linearGradient id="icod-gold" x1="0" y1="0" x2="0" y2="1">'
+					. '<stop offset="0" stop-color="#e8c25a"/><stop offset="1" stop-color="#b8891f"/>'
+					. '</linearGradient></defs>'
+					. '<path d="M32 8 l2.2 4.4 4.8 .7 -3.5 3.4 .8 4.8 -4.3 -2.3 -4.3 2.3 .8 -4.8 -3.5 -3.4 4.8 -.7 Z" fill="#fff"/>'
+					. '<text x="32" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="9" fill="#ffffff">Edahabia</text>'
+					. '</svg>';
+
+			case 'baridimob':
+				return '<svg ' . $common . '>'
+					. '<rect x="1" y="1" width="62" height="38" rx="6" fill="#ffffff" stroke="#d8dde3"/>'
+					. '<rect x="1" y="1" width="62" height="9" rx="6" fill="#f7b600"/>'
+					. '<rect x="24" y="13" width="16" height="22" rx="3" fill="none" stroke="#0f4d8f" stroke-width="2.4"/>'
+					. '<path d="M29 17 l6 6 M35 17 l-6 6" stroke="#0f4d8f" stroke-width="2"/>'
+					. '<text x="13.5" y="29" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="8" fill="#0f4d8f">B</text>'
+					. '<text x="50" y="29" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="8" fill="#0f4d8f">M</text>'
+					. '</svg>';
+
+			case 'ccp':
+				return '<svg ' . $common . '>'
+					. '<rect x="1" y="1" width="62" height="38" rx="6" fill="#ffffff" stroke="#d8dde3"/>'
+					. '<rect x="1" y="26" width="62" height="13" rx="6" fill="#0f4d8f"/>'
+					. '<text x="32" y="18" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="12" fill="#0f4d8f">CCP</text>'
+					. '<text x="32" y="35" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" fill="#ffffff">Algérie Poste</text>'
+					. '</svg>';
+
+			case 'cash':
+			default:
+				return '<svg ' . $common . '>'
+					. '<rect x="1" y="1" width="62" height="38" rx="6" fill="#e5f2e9" stroke="#0e7a4f"/>'
+					. '<rect x="10" y="11" width="44" height="22" rx="3" fill="#ffffff" stroke="#0e7a4f" stroke-width="1.5"/>'
+					. '<circle cx="32" cy="22" r="6.5" fill="#e5f2e9" stroke="#0e7a4f" stroke-width="1.5"/>'
+					. '<text x="32" y="25.5" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="7.5" fill="#0e7a4f">DA</text>'
+					. '</svg>';
+		}
 	}
 
 	/**

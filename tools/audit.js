@@ -29,7 +29,7 @@ const handledToggleBlock = tabTogglesBlock
 const handledNum = [...sp.matchAll(/'([a-z_0-9]+)'\s+=> array\(/g)].map(m => m[1]);
 
 const handled = new Set([...handledText, ...handledToggleBlock, ...handledNum,
-  'accent_color', 'form_theme', 'whatsapp_gateway', 'chargily_mode', 'form_preset', 'form_position',
+  'accent_color', 'form_theme', 'whatsapp_gateway', 'chargily_mode', 'form_preset', 'form_position', 'success_style',
   'redirect_url', 'upsell_ids', 'whatsapp_number', 'whatsapp_phone_id', 'whatsapp_ultramsg_instance',
   'github_repo', 'releases_repo', 'license_server', 'whatsapp_cloud_token', 'whatsapp_ultramsg_key',
   'github_token', 'chargily_secret',

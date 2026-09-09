@@ -385,15 +385,15 @@ class REST_Request_Stub extends WP_REST_Request {	public function get_json_param
 echo "12) Flux de mise à jour — scénario complet (§58)...";
 
 
-// Réponse API simulée : release v9.9.9 avec zip + manifest.
+// Réponse simulée : manifest update.json v9.9.9 (format servi par les miroirs raw/jsDelivr).
 $release_body = json_encode( array(
-	'tag_name' => 'v9.9.9',
-	'name' => 'InfinityCod 9.9.9',
-	'html_url' => 'https://github.com/derouicheoussama/infinitycod-releases/releases/tag/v9.9.9',
-	'body' => 'Changelog de test.',
-	'assets' => array(
-		array( 'name' => 'infinitycod.zip', 'browser_download_url' => 'https://github.com/derouicheoussama/infinitycod-releases/releases/download/v9.9.9/infinitycod.zip' ),
-	),
+	'name'         => 'InfinityCod 9.9.9',
+	'slug'         => 'infinitycod',
+	'version'      => '9.9.9',
+	'requires'     => '6.0',
+	'requires_php' => '7.4',
+	'download_url' => 'https://github.com/derouicheoussama/infinitycod-releases/releases/download/v9.9.9/infinitycod.zip',
+	'sha256'       => '',
 ) );
 
 $GLOBALS['__http_mock'] = array( array( 'code' => 200, 'body' => $release_body ) );
@@ -409,7 +409,8 @@ if ( ! $remote_flow || '9.9.9' !== $remote_flow['version'] ) {
 	echo '   X DEBUG last-url : ' . ( $GLOBALS['__last_url'] ?? '(aucune)' ) . "\n";
 	exit( 1 );
 }
-echo '   ✓ v9.9.9 détectée (download: ' . ( false !== strpos( $remote_flow['download_url'], '/releases/download/' ) ? 'asset OK' : 'MANQUANT' ) . ')' . PHP_EOL;
+$dl_ok = ( false !== strpos( $remote_flow['download_url'], '/releases/download/' ) || false !== strpos( $remote_flow['download_url'], '/latest/infinitycod.zip' ) );
+echo '   ✓ v9.9.9 détectée (download: ' . ( $dl_ok ? 'OK' : 'MANQUANT' ) . ')' . PHP_EOL;
 
 // Injection dans la transient WordPress.
 $flow_transient = new stdClass();

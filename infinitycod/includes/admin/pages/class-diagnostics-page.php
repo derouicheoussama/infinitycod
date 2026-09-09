@@ -166,6 +166,7 @@ class DiagnosticsPage {
 		$reason_labels = array(
 			'private_or_empty' => __( 'dépôt privé sans token, ou aucune release publiée', 'infinitycod' ),
 			'network'          => __( 'serveur injoignable (réseau restreint ou limite de débit GitHub)', 'infinitycod' ),
+			'rate_limited'     => __( 'quota API GitHub atteint (403) — les miroirs CDN prennent le relais', 'infinitycod' ),
 			'no_package'       => __( 'release publiée sans package zip', 'infinitycod' ),
 			'bad_signature'    => __( 'signature du manifest invalide — mise à jour refusée par sécurité', 'infinitycod' ),
 		);

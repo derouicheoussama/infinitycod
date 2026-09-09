@@ -591,6 +591,24 @@
 					successTitle.textContent = I18N.successTitle.replace('{num}', json.order_id);
 				}
 
+				// Récapitulatif détaillé dans l'écran de remerciement.
+				var sdNum = el(root, '[data-sd-num]');
+				if (sdNum) { sdNum.textContent = '#' + json.order_id; }
+				var sdProduct = el(root, '[data-sd-product]');
+				if (sdProduct) {
+					var productName = '';
+					var headTitle = el(root, '.icod-summary-product-name');
+					if (headTitle) { productName = headTitle.textContent; }
+					sdProduct.textContent = productName + ' ×' + (qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1);
+				}
+				var sdMode = el(root, '[data-sd-mode]');
+				if (sdMode) {
+					var deskName = currentMode() === 'desk' && deskSelect ? deskSelect.value : '';
+					sdMode.textContent = (currentMode() === 'desk' ? '🏢 Bureau' : '🏠 Domicile') + (deskName ? ' — ' + deskName : '');
+				}
+				var sdTotal = el(root, '[data-sd-total]');
+				if (sdTotal) { sdTotal.textContent = money(json.total || state.unitPrice * (qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1)); }
+
 				form.closest('.icod-card').classList.add('icod-hidden');
 				success.hidden = false;
 				success.classList.remove('icod-hidden');

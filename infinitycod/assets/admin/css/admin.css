@@ -840,3 +840,21 @@ body.icod-modal-open{overflow:hidden}
 .icod-probe-table td:first-child{width:45%}
 .icod-probe-ok{color:#0e7a4f;font-weight:600}
 .icod-probe-ko{color:#b32d2e;font-weight:600;overflow-wrap:anywhere}
+
+/* --- Paiement : bande des moyens algériens --- */
+.icod-paystrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.icod-paystrip-item{display:flex;flex-direction:column;align-items:center;gap:6px;background:#f6f7f7;border:1px solid #e2e4e7;border-radius:10px;padding:12px;text-align:center;font-size:12px;color:#50575e}
+.icod-paystrip-item span{line-height:1.35}
+.icod-paystrip-on{border-color:#0e7a4f;background:#f0f9f3}
+.icod-paystrip-on span::first-line{color:#0e7a4f;font-weight:700}
+.icod-paylogo{border-radius:6px}
+
+/* --- Réglages : bouton Enregistrer toujours accessible --- */
+.icod-wrap form .icod-submit{
+	position:sticky;bottom:10px;z-index:20;
+	display:flex;justify-content:flex-end;
+	margin-bottom:0!important;padding:8px 0;
+	background:linear-gradient(to top,rgba(240,240,241,.96) 65%,rgba(240,240,241,0));
+	border-radius:8px;
+}
+.icod-wrap form .icod-submit .button-hero{box-shadow:0 4px 18px rgba(0,0,0,.22)!important}
