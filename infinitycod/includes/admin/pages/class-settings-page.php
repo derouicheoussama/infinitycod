@@ -36,6 +36,7 @@ class SettingsPage {
 		add_action( 'admin_post_icod_activate_license', array( $this, 'handle_license' ) );
 		add_action( 'admin_post_icod_verify_license', array( $this, 'handle_license_verify' ) );
 		add_action( 'admin_post_icod_deactivate_license', array( $this, 'handle_license_deactivate' ) );
+		add_action( 'admin_post_icod_save_paypal', array( $this, 'handle_paypal_settings' ) );
 	}
 
 	/**
@@ -372,6 +373,12 @@ class SettingsPage {
 		<?php if ( $msg ) : ?>
 			<div class="notice <?php echo $ok ? 'notice-success' : 'notice-error'; ?>"><p><?php echo esc_html( $msg ); ?></p></div>
 		<?php endif; ?>
+		<?php if ( '1' === ( isset( $_GET['paypal_ok'] ) ? sanitize_text_field( wp_unslash( $_GET['paypal_ok'] ) ) : '' ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+			<div class="notice notice-success"><p>
+				<strong><?php esc_html_e( 'Paiement PayPal envoyé, merci !', 'infinitycod' ); ?></strong>
+				<?php esc_html_e( 'Votre clé de licence vous est envoyée par email (référence de votre installation jointe au paiement). Collez-la ci-dessous pour activer Pro.', 'infinitycod' ); ?>
+			</p></div>
+		<?php endif; ?>
 
 		<div class="icod-card">
 			<h2><?php esc_html_e( 'Licence InfinityCod', 'infinitycod' ); ?></h2>
@@ -499,6 +506,116 @@ class SettingsPage {
 				</p>
 			</form>
 		</div>
+
+		<?php
+		// ——— Achat Pro via PayPal (visible sans licence, si configuré) ———
+		$paypal_email    = Settings::get( 'paypal_email', '' );
+		$paypal_on       = (int) Settings::get( 'paypal_enabled' ) && is_email( $paypal_email );
+		$paypal_currency = Settings::get( 'paypal_currency', 'USD' );
+		$install_ref     = \InfinityCod\License\LicenseManager::install_id();
+
+		if ( ! $premium && $paypal_on ) :
+			$plans = array(
+				'personal' => array(
+					'name'  => __( 'Personal', 'infinitycod' ),
+					'price' => (float) Settings::get( 'paypal_price_personal', 39 ),
+					'desc'  => __( '1 site · WhatsApp, transporteurs, P&L, offres', 'infinitycod' ),
+				),
+				'business' => array(
+					'name'  => __( 'Business', 'infinitycod' ),
+					'price' => (float) Settings::get( 'paypal_price_business', 79 ),
+					'desc'  => __( '3 sites · tout Personal + support prioritaire', 'infinitycod' ),
+					'star'  => true,
+				),
+				'agency'   => array(
+					'name'  => __( 'Agency', 'infinitycod' ),
+					'price' => (float) Settings::get( 'paypal_price_agency', 149 ),
+					'desc'  => __( '10 sites · tout Business + multi-pays', 'infinitycod' ),
+				),
+			);
+			$return_url = admin_url( 'admin.php?page=infinitycod-settings&tab=license&paypal_ok=1' );
+			?>
+			<div class="icod-card">
+				<h2>💳 <?php esc_html_e( 'Passer à InfinityCod Pro — paiement PayPal sécurisé', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Payez par PayPal, recevez votre clé par email, collez-la ci-dessus : Pro est actif immédiatement, sans réinstallation.', 'infinitycod' ); ?></p>
+				<div class="icod-pricing">
+					<?php foreach ( $plans as $plan_key => $plan ) : ?>
+						<div class="icod-pricing-card<?php echo ! empty( $plan['star'] ) ? ' icod-pricing-star' : ''; ?>">
+							<?php if ( ! empty( $plan['star'] ) ) : ?>
+								<span class="icod-pricing-badge"><?php esc_html_e( 'Recommandé', 'infinitycod' ); ?></span>
+							<?php endif; ?>
+							<h3><?php echo esc_html( $plan['name'] ); ?></h3>
+							<p class="icod-pricing-price">
+								<?php echo esc_html( number_format_i18n( $plan['price'], 2 ) ); ?>
+								<span><?php echo esc_html( $paypal_currency ); ?></span>
+							</p>
+							<p class="icod-pricing-desc"><?php echo esc_html( $plan['desc'] ); ?></p>
+							<form method="post" action="<?php echo esc_url( 'https://www.paypal.com/cgi-bin/webscr' ); ?>" target="_blank" rel="noopener">
+								<input type="hidden" name="cmd" value="_xclick" />
+								<input type="hidden" name="business" value="<?php echo esc_attr( $paypal_email ); ?>" />
+								<input type="hidden" name="item_name" value="<?php echo esc_attr( 'InfinityCod Pro — ' . $plan['name'] . ' (site ' . $install_ref . ')' ); ?>" />
+								<input type="hidden" name="custom" value="<?php echo esc_attr( $install_ref ); ?>" />
+								<input type="hidden" name="amount" value="<?php echo esc_attr( number_format( $plan['price'], 2, '.', '' ) ); ?>" />
+								<input type="hidden" name="currency_code" value="<?php echo esc_attr( $paypal_currency ); ?>" />
+								<input type="hidden" name="no_shipping" value="1" />
+								<input type="hidden" name="charset" value="utf-8" />
+								<input type="hidden" name="return" value="<?php echo esc_attr( $return_url ); ?>" />
+								<input type="hidden" name="cancel_return" value="<?php echo esc_attr( $return_url ); ?>" />
+								<button type="submit" class="button button-primary button-hero">
+									<?php esc_html_e( 'Payer avec', 'infinitycod' ); ?>
+									<span class="icod-paypal-word" dir="ltr"><span class="icod-paypal-pay">Pay</span><span class="icod-paypal-pal">Pal</span></span>
+								</button>
+							</form>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		<?php endif; ?>
+
+		<?php if ( current_user_can( 'manage_options' ) ) : ?>
+			<div class="icod-card">
+				<h2>⚙️ <?php esc_html_e( 'Vente Pro via PayPal — configuration vendeur', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Renseignez votre email PayPal et vos tarifs : les cartes d‘achat apparaissent automatiquement pour vos clients sans licence. La référence unique de leur installation est jointe au paiement pour identifier l‘acheteur.', 'infinitycod' ); ?></p>
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+					<input type="hidden" name="action" value="icod_save_paypal" />
+					<?php wp_nonce_field( 'icod_save_paypal' ); ?>
+					<div class="icod-toggles">
+						<label class="icod-toggle">
+							<input type="checkbox" name="icod[paypal_enabled]" value="1" <?php checked( (int) Settings::get( 'paypal_enabled' ), 1 ); ?> />
+							<span><?php esc_html_e( 'Afficher les cartes d‘achat PayPal aux clients sans licence', 'infinitycod' ); ?></span>
+						</label>
+					</div>
+					<div class="icod-grid">
+						<label>
+							<span><?php esc_html_e( 'Email PayPal du vendeur', 'infinitycod' ); ?></span>
+							<input type="email" name="icod[paypal_email]" dir="ltr" value="<?php echo esc_attr( $paypal_email ); ?>" class="regular-text" />
+						</label>
+						<label>
+							<span><?php esc_html_e( 'Devise de vente', 'infinitycod' ); ?></span>
+							<select name="icod[paypal_currency]">
+								<option value="USD" <?php selected( $paypal_currency, 'USD' ); ?>><?php esc_html_e( 'USD — Dollar', 'infinitycod' ); ?></option>
+								<option value="EUR" <?php selected( $paypal_currency, 'EUR' ); ?>><?php esc_html_e( 'EUR — Euro', 'infinitycod' ); ?></option>
+							</select>
+						</label>
+						<label>
+							<span><?php esc_html_e( 'Prix Personal', 'infinitycod' ); ?></span>
+							<input type="text" name="icod[paypal_price_personal]" dir="ltr" value="<?php echo esc_attr( Settings::get( 'paypal_price_personal', 39 ) ); ?>" />
+						</label>
+						<label>
+							<span><?php esc_html_e( 'Prix Business', 'infinitycod' ); ?></span>
+							<input type="text" name="icod[paypal_price_business]" dir="ltr" value="<?php echo esc_attr( Settings::get( 'paypal_price_business', 79 ) ); ?>" />
+						</label>
+						<label>
+							<span><?php esc_html_e( 'Prix Agency', 'infinitycod' ); ?></span>
+							<input type="text" name="icod[paypal_price_agency]" dir="ltr" value="<?php echo esc_attr( Settings::get( 'paypal_price_agency', 149 ) ); ?>" />
+						</label>
+					</div>
+					<p class="icod-submit">
+						<button type="submit" class="button button-primary"><?php esc_html_e( 'Enregistrer la configuration PayPal', 'infinitycod' ); ?></button>
+					</p>
+				</form>
+			</div>
+		<?php endif; ?>
 
 		<div class="icod-card icod-lic-faq">
 			<h2><?php esc_html_e( 'Questions fréquentes', 'infinitycod' ); ?></h2>
@@ -1297,6 +1414,14 @@ cod-toggle-danger">
 			'currency_position'    => array( 'tab' => 'advanced', 'type' => 'enum', 'choices' => array( 'right', 'left' ) ),
 			'default_country'      => array( 'tab' => 'advanced', 'type' => 'country' ),
 			'countries'            => array( 'tab' => 'advanced', 'type' => 'countries' ),
+
+			// ——— Vente PayPal (configurée depuis l'onglet Licence) ———
+			'paypal_enabled'        => array( 'tab' => 'license', 'type' => 'toggle' ),
+			'paypal_email'          => array( 'tab' => 'license', 'type' => 'email' ),
+			'paypal_currency'       => array( 'tab' => 'license', 'type' => 'enum', 'choices' => array( 'USD', 'EUR' ) ),
+			'paypal_price_personal' => array( 'tab' => 'license', 'type' => 'price' ),
+			'paypal_price_business' => array( 'tab' => 'license', 'type' => 'price' ),
+			'paypal_price_agency'   => array( 'tab' => 'license', 'type' => 'price' ),
 			'custom_update_url'    => array( 'tab' => 'advanced', 'type' => 'url' ),
 			'github_repo'          => array( 'tab' => 'advanced', 'type' => 'id' ),
 			'releases_repo'        => array( 'tab' => 'advanced', 'type' => 'id' ),
@@ -1325,7 +1450,45 @@ cod-toggle-danger">
 
 		check_admin_referer( 'icod_save_settings' );
 
-		$raw    = isset( $_POST['icod'] ) && is_array( $_POST['icod'] ) ? wp_unslash( $_POST['icod'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitisé champ par champ.
+		$raw   = isset( $_POST['icod'] ) && is_array( $_POST['icod'] ) ? wp_unslash( $_POST['icod'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitisé champ par champ.
+		$clean = $this->sanitize_fields( $raw, $this->tab );
+
+		Settings::set( $clean );
+
+		$tab = isset( $_POST['tab'] ) ? sanitize_key( wp_unslash( $_POST['tab'] ) ) : 'form';
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=' . $tab . '&icod_msg=saved' ) );
+		exit;
+	}
+
+	/**
+	 * Sauvegarde de la configuration vendeur PayPal (onglet Licence).
+	 *
+	 * @return void
+	 */
+	public function handle_paypal_settings() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_save_paypal' );
+
+		$raw   = isset( $_POST['icod'] ) && is_array( $_POST['icod'] ) ? wp_unslash( $_POST['icod'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitisé champ par champ.
+		$clean = $this->sanitize_fields( $raw, 'license' );
+
+		Settings::set( $clean );
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=license&icod_msg=paypal-saved' ) );
+		exit;
+	}
+
+	/**
+	 * Nettoie un POST selon le schéma déclaratif, borné à un onglet.
+	 *
+	 * @param array  $raw Données brutes.
+	 * @param string $tab Onglet courant (les toggles de cet onglet only).
+	 * @return array
+	 */
+	private function sanitize_fields( array $raw, string $tab ) {
 		$clean  = array();
 		$schema = $this->settings_schema();
 
@@ -1334,7 +1497,7 @@ cod-toggle-danger">
 
 			// Toggles : uniquement ceux de l'onglet soumis.
 			if ( 'toggle' === $type ) {
-				if ( $def['tab'] === $this->tab ) {
+				if ( $def['tab'] === $tab ) {
 					$clean[ $key ] = empty( $raw[ $key ] ) ? 0 : 1;
 				}
 				continue;
@@ -1367,6 +1530,14 @@ cod-toggle-danger">
 					break;
 				case 'url':
 					$clean[ $key ] = esc_url_raw( trim( (string) $value ) );
+					break;
+				case 'email':
+					$email         = sanitize_email( $value );
+					$clean[ $key ] = is_email( $email ) ? $email : '';
+					break;
+				case 'price':
+					$price         = round( (float) str_replace( ',', '.', (string) $value ), 2 );
+					$clean[ $key ] = max( 0, min( 100000, $price ) );
 					break;
 				case 'ids':
 					if ( is_array( $value ) ) {
@@ -1404,10 +1575,6 @@ cod-toggle-danger">
 			}
 		}
 
-		Settings::set( $clean );
-
-		$tab = isset( $_POST['tab'] ) ? sanitize_key( wp_unslash( $_POST['tab'] ) ) : 'form';
-		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=' . $tab . '&icod_msg=saved' ) );
-		exit;
+		return $clean;
 	}
 }

@@ -879,3 +879,19 @@ body.icod-modal-open{overflow:hidden}
 .icod-notice-ok{background:#e5f2e9;border:1px solid #b7dfc5;border-left-width:4px;border-radius:8px;padding:9px 14px;margin:0 0 14px;font-size:13px;color:#0e7a4f;font-weight:600}
 .icod-country-main{background:#f0f9f3;border-radius:8px;padding:6px 10px;margin-bottom:4px}
 .icod-country-main-label{color:#0e7a4f}
+
+/* --- Licence : cartes d'achat PayPal Pro --- */
+.icod-pricing{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:12px}
+.icod-pricing-card{position:relative;background:#fff;border:2px solid #dcdcde;border-radius:12px;padding:20px 18px;text-align:center;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.icod-pricing-card:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(0,0,0,.10);border-color:#1d5fa8}
+.icod-pricing-card h3{margin:0 0 6px;font-size:15px}
+.icod-pricing-price{font-size:30px;font-weight:800;color:#1d2327;margin:0 0 6px;line-height:1.1}
+.icod-pricing-price span{font-size:14px;font-weight:700;color:#8c8f94;margin-inline-start:4px}
+.icod-pricing-desc{font-size:12.5px;color:#50575e;margin:0 0 14px;min-height:34px}
+.icod-pricing-star{border-color:#f0b429;background:linear-gradient(180deg,#fffdf5,#fff)}
+.icod-pricing-star:hover{border-color:#f0b429}
+.icod-pricing-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#f0b429;color:#3d2e00;font-size:10.5px;font-weight:800;padding:3px 12px;border-radius:99px;letter-spacing:.03em;white-space:nowrap}
+.icod-paypal-word{font-weight:800;font-style:italic;margin-inline-start:4px}
+.icod-paypal-pay{color:#003087}
+.icod-paypal-pal{color:#009cde}
+.button-hero .icod-paypal-word{font-size:1.05em}

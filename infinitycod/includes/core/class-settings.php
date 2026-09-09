@@ -173,6 +173,14 @@ class Settings {
 			'default_country'       => 'DZ',         // Pays principal (détecté à l'installation).
 			'countries'             => array( 'DZ' ),// Pays actifs (au-delà du principal : Premium).
 			'custom_update_url'     => '',           // Miroir perso update.json (optionnel).
+
+			// Vente de la licence Pro via PayPal (régie par le marchand-vendeur).
+			'paypal_enabled'        => 0,
+			'paypal_email'          => '',           // Email PayPal du vendeur.
+			'paypal_currency'       => 'USD',        // USD | EUR.
+			'paypal_price_personal' => 39,
+			'paypal_price_business' => 79,
+			'paypal_price_agency'   => 149,
 			'payment_return_text'   => __( 'Merci ! Votre paiement a bien été reçu et votre commande est confirmée. Nous vous contacterons très vite.', 'infinitycod' ),
 
 			// Mises à jour via GitHub.
