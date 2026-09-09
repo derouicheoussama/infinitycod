@@ -287,10 +287,13 @@ class Updater {
 	}
 
 	/**
-	 * Infos de la dernière version disponible — 3 voies GitHub, jamais de
-	 * serveur intermédiaire :
+	 * Infos de la dernière version disponible — 4 voies, toujours depuis le
+	 * dépôt GitHub (aucun serveur intermédiaire) :
 	 *   1. api.github.com  (précis, token si dépôt privé)
 	 *   2. github.com/{repo}/releases.atom  (public, passe quand l'API est bloquée)
+	 *   3. raw.githubusercontent.com/{repo}/main/latest/update.json  (miroir fichiers)
+	 *   4. cdn.jsdelivr.net/gh/{repo}@main/latest/update.json  (CDN officiel de
+	 *      GitHub, passe quand les domaines github.com sont bloqués par l'hébergeur)
 	 *
 	 * @return array|null version, download_url, homepage, changelog, sha256.
 	 */
@@ -300,7 +303,11 @@ class Updater {
 			if ( $github ) {
 				return $github;
 			}
-			return $this->remote_atom();
+			$atom = $this->remote_atom();
+			if ( $atom ) {
+				return $atom;
+			}
+			return $this->remote_mirror();
 		} catch ( \Throwable $e ) {
 			\InfinityCod\Logging\Logger::log( 'error', 'remote : ' . $e->getMessage() );
 			return null;
@@ -375,6 +382,90 @@ class Updater {
 		set_transient( 'icod_update_atom', $data, 2 * HOUR_IN_SECONDS );
 		self::$http_intercept = true;
 		return $data;
+	}
+
+	/**
+	 * Repli miroir : lit update.json publié sur la branche main du dépôt
+	 * public (dossier latest/) via raw.githubusercontent.com puis le CDN
+	 * jsDelivr — domaine différent de github.com, conçu pour les hébergeurs
+	 * qui bloquent GitHub. Le zip est téléchargé au même endroit, l'empreinte
+	 * SHA-256 (et la signature Ed25519 si présente) restent vérifiées.
+	 *
+	 * @return array|null
+	 */
+	private function remote_mirror() {
+		self::$http_intercept = false;
+		$repo = self::releases_repo();
+		if ( '' === $repo ) {
+			return null;
+		}
+
+		$cached = get_transient( 'icod_update_mirror' );
+		if ( false !== $cached ) {
+			return is_array( $cached ) ? $cached : null;
+		}
+
+		$mirrors = array(
+			'raw'      => 'https://raw.githubusercontent.com/' . $repo . '/main/latest/',
+			'jsdelivr' => 'https://cdn.jsdelivr.net/gh/' . $repo . '@main/latest/',
+		);
+
+		foreach ( $mirrors as $kind => $base ) {
+			$response = wp_remote_get(
+				$base . 'update.json',
+				array(
+					'timeout' => 10,
+					'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
+				)
+			);
+
+			if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+				continue;
+			}
+
+			$raw    = (string) wp_remote_retrieve_body( $response );
+			$mirror = json_decode( $raw, true );
+
+			if ( ! is_array( $mirror ) || empty( $mirror['version'] ) ) {
+				continue;
+			}
+
+			// Signature Ed25519 du manifest : si présente, elle doit être valide.
+			$sres = wp_remote_get(
+				$base . 'update.json.sig',
+				array(
+					'timeout' => 10,
+					'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
+				)
+			);
+			$sig = is_wp_error( $sres ) ? '' : trim( (string) wp_remote_retrieve_body( $sres ) );
+
+			if ( '' !== $sig && ! self::verify_manifest_signature( $raw, $sig ) ) {
+				\InfinityCod\Logging\Logger::log( 'security', 'Signature du manifest miroir INVALIDE — miroir ignoré.' );
+				set_transient( 'icod_update_mirror', array( 'unreachable' => 1, 'reason' => 'bad_signature' ), 30 * MINUTE_IN_SECONDS );
+				self::$http_intercept = true;
+				return null;
+			}
+
+			$data = array(
+				'version'      => (string) $mirror['version'],
+				'download_url' => $base . 'infinitycod.zip',
+				'homepage'     => 'https://github.com/' . $repo . '/releases',
+				'changelog'    => '',
+				'sha256'       => isset( $mirror['sha256'] ) ? (string) $mirror['sha256'] : '',
+				'requires_php' => isset( $mirror['requires_php'] ) ? (string) $mirror['requires_php'] : '7.4',
+				'requires'     => isset( $mirror['requires'] ) ? (string) $mirror['requires'] : '6.0',
+				'source'       => 'mirror-' . $kind,
+			);
+
+			set_transient( 'icod_update_mirror', $data, 2 * HOUR_IN_SECONDS );
+			self::$http_intercept = true;
+			return $data;
+		}
+
+		set_transient( 'icod_update_mirror', array( 'unreachable' => 1, 'reason' => 'network' ), 30 * MINUTE_IN_SECONDS );
+		self::$http_intercept = true;
+		return null;
 	}
 
 	/**
@@ -505,6 +596,7 @@ class Updater {
 	public static function clear_cache() {
 		delete_transient( 'icod_update_gh' );
 		delete_transient( 'icod_update_atom' );
+		delete_transient( 'icod_update_mirror' );
 	}
 
 	/**
@@ -645,9 +737,9 @@ class Updater {
 	}
 
 	/**
-	 * Intercepte le téléchargement d'un asset InfinityCod : vérifie
-	 * l'intégrité SHA-256 quand une empreinte est attendue, et gère
-	 * l'authentification d'un dépôt privé (auth puis S3 sans auth).
+	 * Intercepte le téléchargement d'un package InfinityCod (asset GitHub
+	 * officiel ou miroir fichiers) : vérifie l'intégrité SHA-256 quand une
+	 * empreinte est attendue, et gère l'authentification d'un dépôt privé.
 	 *
 	 * @param false|array|\WP_Error $pre  Valeur de court-circuit.
 	 * @param array                 $args Arguments HTTP.
@@ -658,19 +750,20 @@ class Updater {
 		if ( ! self::$http_intercept ) {
 			return $pre; // Fetch interne : ne pas intercepter.
 		}
-		if ( ! is_string( $url ) || false === strpos( $url, '/releases/download/' ) ) {
+		if ( ! is_string( $url ) ) {
 			return $pre;
 		}
 
-		$repos  = array_filter( array( self::releases_repo(), self::github_repo() ) );
-		$match  = '';
-		foreach ( $repos as $repo ) {
-			if ( false !== strpos( $url, 'github.com/' . $repo . '/' ) ) {
-				$match = $repo;
-				break;
-			}
-		}
-		if ( '' === $match ) {
+		$repos = array_filter( array( self::releases_repo(), self::github_repo() ) );
+
+		// Asset GitHub officiel (releases/download) ?
+		$is_asset = false !== strpos( $url, '/releases/download/' ) && '' !== $this->match_repo( $url, $repos, 'github.com/' );
+
+		// Miroirs fichiers (branche latest/) : raw.githubusercontent.com / jsDelivr.
+		$is_mirror = '' !== $this->match_repo( $url, $repos, 'raw.githubusercontent.com/' )
+			|| '' !== $this->match_repo( $url, $repos, 'cdn.jsdelivr.net/gh/' );
+
+		if ( ! $is_asset && ! $is_mirror ) {
 			return $pre;
 		}
 
@@ -680,8 +773,17 @@ class Updater {
 		}
 
 		$busy = true;
-		$bytes = $this->fetch_package_auth( $url, self::github_token() );
-		$busy  = false;
+		if ( $is_mirror ) {
+			// Miroir : téléchargement direct, sans authentification.
+			$response = wp_remote_get( $url, array( 'timeout' => 120, 'redirection' => 3, 'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ) ) );
+			$bytes    = is_wp_error( $response ) ? $response : (string) wp_remote_retrieve_body( $response );
+			if ( ! is_wp_error( $bytes ) && '' === $bytes ) {
+				$bytes = new \WP_Error( 'icod_download_empty', __( 'Réponse vide du miroir.', 'infinitycod' ) );
+			}
+		} else {
+			$bytes = $this->fetch_package_auth( $url, self::github_token() );
+		}
+		$busy = false;
 
 		if ( is_wp_error( $bytes ) ) {
 			return new \WP_Error( 'icod_download_failed', __( 'InfinityCod : téléchargement du package impossible. Votre version actuelle reste installée. ', 'infinitycod' ) . $bytes->get_error_message() );
@@ -701,6 +803,23 @@ class Updater {
 			'body'     => $bytes,
 			'response' => array( 'code' => 200, 'message' => 'OK' ),
 		);
+	}
+
+	/**
+	 * Le domaine+repo est-il présent dans l'URL ? Retourne le repo correspondant.
+	 *
+	 * @param string $url    Url examinée.
+	 * @param array  $repos  Repos autorisés.
+	 * @param string $domain Préfixe de domaine (github.com/, raw.githubusercontent.com/…).
+	 * @return string Repo trouvé ou ''.
+	 */
+	private function match_repo( $url, $repos, $domain ) {
+		foreach ( $repos as $repo ) {
+			if ( false !== strpos( $url, $domain . $repo . '/' ) ) {
+				return (string) $repo;
+			}
+		}
+		return '';
 	}
 
 	/**

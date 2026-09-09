@@ -128,6 +128,14 @@ class AdminManager {
 	 * @return void
 	 */
 	public function welcome_redirect() {
+		// Lien « Ne plus afficher » de l'écran Bienvenue.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- action de préférence personnelle, sans conséquence sensible.
+		if ( isset( $_GET['page'], $_GET['icod_hide_welcome'] ) && 'infinitycod-welcome' === $_GET['page'] ) {
+			delete_transient( 'icod_welcome' );
+			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod' ) );
+			exit;
+		}
+
 		if ( ! get_transient( 'icod_welcome' ) ) {
 			return;
 		}
@@ -142,7 +150,7 @@ class AdminManager {
 			return;
 		}
 
-		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-welcome' ) );
 		exit;
 	}
 
@@ -314,6 +322,17 @@ class AdminManager {
 			'manage_woocommerce',
 			'infinitycod-about',
 			array( $this, 'render_about' )
+		);
+
+		// Écran de bienvenue : caché du menu (parent null), affiché après
+		// l'activation et accessible depuis « À propos ».
+		add_submenu_page(
+			null,
+			__( 'Bienvenue dans InfinityCod', 'infinitycod' ),
+			__( 'Bienvenue', 'infinitycod' ),
+			'manage_woocommerce',
+			'infinitycod-welcome',
+			array( $this, 'render_welcome' )
 		);
 	}
 
@@ -500,6 +519,18 @@ class AdminManager {
 			$this->hooked_pages['about'] = new Pages\AboutPage();
 		}
 		$this->hooked_pages['about']->render();
+	}
+
+	/**
+	 * Écran de bienvenue (page cachée — pas d'entrée de menu).
+	 *
+	 * @return void
+	 */
+	public function render_welcome() {
+		if ( ! isset( $this->hooked_pages['welcome'] ) ) {
+			$this->hooked_pages['welcome'] = new Pages\WelcomePage();
+		}
+		$this->hooked_pages['welcome']->render();
 	}
 
 	/**

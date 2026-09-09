@@ -104,6 +104,33 @@ class SettingsPage {
 	}
 
 	/**
+	 * Ouvre une zone « Premium verrouillé » : contenu grisé et non interactif
+	 * tant qu'aucune licence active. Sans effet quand la licence est active.
+	 *
+	 * @return void
+	 */
+	private function premium_gate_open() {
+		if ( \InfinityCod\License\LicenseManager::is_premium() ) {
+			return;
+		}
+		$link = admin_url( 'admin.php?page=infinitycod-settings&tab=license' );
+		echo '<div class="icod-premium-notice">★ <strong>' . esc_html__( 'Fonctionnalité Premium', 'infinitycod' ) . '</strong> — ' . esc_html__( 'activez votre licence pour utiliser cette section.', 'infinitycod' ) . ' <a href="' . esc_url( $link ) . '">' . esc_html__( 'Activer maintenant', 'infinitycod' ) . '</a></div>';
+		echo '<div class="icod-premium-locked">';
+	}
+
+	/**
+	 * Ferme la zone « Premium verrouillé » ouverte par premium_gate_open().
+	 *
+	 * @return void
+	 */
+	private function premium_gate_close() {
+		if ( \InfinityCod\License\LicenseManager::is_premium() ) {
+			return;
+		}
+		echo '</div>';
+	}
+
+	/**
 	 * Onglet paiement en ligne (Chargily Pay v2 — CIB / Edahabia).
 	 *
 	 * @return void
@@ -530,9 +557,9 @@ class SettingsPage {
 					<input type="checkbox" name="icod[show_note]" value="1" <?php checked( (int) Settings::get( 'show_note' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Champ « Note » libre pour le client', 'infinitycod' ); ?></span>
 				</label>
-				<label class="icod-toggle">
-					<input type="checkbox" name="icod[show_offers]" value="1" <?php checked( (int) Settings::get( 'show_offers' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Afficher les paliers d‘offres par quantité', 'infinitycod' ); ?></span>
+				<label class="icod-toggle<?php echo \InfinityCod\License\LicenseManager::is_premium() ? '' : ' icod-premium-locked icod-premium-item'; ?>">
+					<input type="checkbox" name="icod[show_offers]" value="1" <?php checked( (int) Settings::get( 'show_offers' ), 1 ); ?> <?php disabled( ! \InfinityCod\License\LicenseManager::is_premium() ); ?> />
+					<span><?php esc_html_e( 'Afficher les paliers d‘offres par quantité', 'infinitycod' ); ?> <span class="icod-premium-mini">★ Premium</span></span>
 				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[show_reassurance]" value="1" <?php checked( (int) Settings::get( 'show_reassurance' ), 1 ); ?> />
@@ -621,6 +648,7 @@ class SettingsPage {
 			</div>
 		</div>
 
+		<?php $this->premium_gate_open(); ?>
 		<div class="icod-card">
 			<h2><?php esc_html_e( 'Upsell — produits suggérés', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Jusqu‘à 3 produits proposés sur l‘écran de succès (photo, prix, bouton Commander). Le client les commande via leur fiche produit.', 'infinitycod' ); ?></p>
@@ -657,9 +685,10 @@ class SettingsPage {
 					<?php
 				endforeach;
 				?>
+				</div>
 			</div>
-		</div>
-		<?php
+			<?php $this->premium_gate_close(); ?>
+			<?php
 	}
 
 	/**
@@ -743,6 +772,7 @@ class SettingsPage {
 	 * @return void
 	 */
 	private function tab_whatsapp() {
+		$this->premium_gate_open();
 		?>
 		<div class="icod-card">
 			<h2><?php esc_html_e( 'WhatsApp automatique', 'infinitycod' ); ?></h2>
@@ -829,18 +859,19 @@ class SettingsPage {
 					<textarea name="icod[msg_abandoned]" rows="3" class="large-text"><?php echo esc_textarea( Settings::get( 'msg_abandoned' ) ); ?></textarea>
 				</label>
 			</div>
-			<div class="icod-grid">
-				<label>
-					<span><?php esc_html_e( 'Relance paniers : délai avant la 1re relance (minutes)', 'infinitycod' ); ?></span>
-					<input type="number" min="5" max="1440" name="icod[abandoned_delay]" value="<?php echo esc_attr( Settings::get( 'abandoned_delay' ) ); ?>" />
-				</label>
-				<label>
-					<span><?php esc_html_e( 'Relance paniers : nombre de relances max', 'infinitycod' ); ?></span>
-					<input type="number" min="1" max="5" name="icod[abandoned_max]" value="<?php echo esc_attr( Settings::get( 'abandoned_max' ) ); ?>" />
-				</label>
+				<div class="icod-grid">
+					<label>
+						<span><?php esc_html_e( 'Relance paniers : délai avant la 1re relance (minutes)', 'infinitycod' ); ?></span>
+						<input type="number" min="5" max="1440" name="icod[abandoned_delay]" value="<?php echo esc_attr( Settings::get( 'abandoned_delay' ) ); ?>" />
+					</label>
+					<label>
+						<span><?php esc_html_e( 'Relance paniers : nombre de relances max', 'infinitycod' ); ?></span>
+						<input type="number" min="1" max="5" name="icod[abandoned_max]" value="<?php echo esc_attr( Settings::get( 'abandoned_max' ) ); ?>" />
+					</label>
+				</div>
 			</div>
-		</div>
-		<?php
+			<?php
+		$this->premium_gate_close();
 	}
 
 	/**
@@ -886,6 +917,10 @@ class SettingsPage {
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[auto_update]" value="1" <?php checked( (int) Settings::get( 'auto_update' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Mise à jour automatique du plugin (sans clic, dès qu‘une version GitHub est publiée)', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[license_lock_form]" value="1" <?php checked( (int) Settings::get( 'license_lock_form' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Verrouiller le formulaire COD tant qu‘aucune licence n‘est activée (les visiteurs ne voient pas le formulaire ; recommandé uniquement pour une distribution commerciale)', 'infinitycod' ); ?></span>
 				</label>
 				<div class="icod-grid">
 					<label>
@@ -998,7 +1033,7 @@ cod-toggle-danger">
 			'fraud'    => array( 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'restrict_hours_enabled' ),
 			'whatsapp' => array( 'whatsapp_enabled', 'abandoned_enabled', 'wa_order_enabled' ),
 			'payment'  => array( 'payment_enabled' ),
-			'advanced' => array( 'menu_badge', 'auto_update', 'log_enabled', 'delete_on_uninstall' ),
+			'advanced' => array( 'menu_badge', 'auto_update', 'license_lock_form', 'log_enabled', 'delete_on_uninstall' ),
 		);
 		$scope_toggles = isset( $tab_toggles[ $this->tab ] ) ? $tab_toggles[ $this->tab ] : array();
 

@@ -141,6 +141,7 @@ class Settings {
 			'wizard_done'           => 0,
 			'menu_badge'            => 1,    // Badge commandes en attente sur le menu.
 			'auto_update'           => 1,    // Mise à jour automatique du plugin (activée par défaut).
+			'license_lock_form'     => 0,    // Verrouille le formulaire sans licence (distribution commerciale).
 			'update_channel'        => 'stable', // stable | beta.
 			'log_enabled'           => 1,    // Journal InfinityCod.
 			'backup_retention'      => 3,    // Sauvegardes conservées (1-10).

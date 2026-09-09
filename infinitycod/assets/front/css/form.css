@@ -509,3 +509,6 @@ select.icod-input{
 
 /* Barre livraison gratuite : respiration */
 .icod-freebar{margin-bottom:12px}
+
+/* Verrou licence : note visible par l'administrateur uniquement. */
+.icod-form-locked-admin{background:#fff8e6;border:1px dashed #f0b429;border-radius:8px;padding:10px 14px;font-size:13px;color:#6b4e00}

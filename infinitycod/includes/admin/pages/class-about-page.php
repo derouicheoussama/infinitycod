@@ -89,6 +89,37 @@ class AboutPage {
 				</div>
 			</div>
 
+			<div class="icod-card">
+				<h2><?php esc_html_e( 'Nos plugins', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Les outils Infinity Coder pour les boutiques algériennes.', 'infinitycod' ); ?></p>
+				<div class="icod-plugins-grid">
+					<a class="icod-plugin-tile" href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod' ) ); ?>">
+						<span class="icod-plugin-icon">🛒</span>
+						<span class="icod-plugin-body">
+							<span class="icod-plugin-name">InfinityCod <em class="icod-plugin-version">v<?php echo esc_html( INFINITYCOD_VERSION ); ?></em></span>
+							<span class="icod-plugin-desc"><?php esc_html_e( 'COD Algérie : formulaire de commande, 58 wilayas, tarifs domicile/stopdesk, anti-fraude, transporteurs, WhatsApp, statistiques P&L.', 'infinitycod' ); ?></span>
+							<span class="icod-plugin-badge icod-plugin-badge-active"><?php esc_html_e( 'Installé · actif', 'infinitycod' ); ?></span>
+						</span>
+					</a>
+					<a class="icod-plugin-tile" href="https://infinitycoder.app" target="_blank" rel="noopener">
+						<span class="icod-plugin-icon">🧾</span>
+						<span class="icod-plugin-body">
+							<span class="icod-plugin-name">FactExpert Connect</span>
+							<span class="icod-plugin-desc"><?php esc_html_e( 'Connecteurs transporteurs, facturation et suivi pour boutiques algériennes — la suite logistique d‘Infinity Coder.', 'infinitycod' ); ?></span>
+							<span class="icod-plugin-badge"><?php esc_html_e( 'À découvrir', 'infinitycod' ); ?></span>
+						</span>
+					</a>
+					<a class="icod-plugin-tile icod-plugin-tile-more" href="https://infinitycoder.app" target="_blank" rel="noopener">
+						<span class="icod-plugin-icon">∞</span>
+						<span class="icod-plugin-body">
+							<span class="icod-plugin-name"><?php esc_html_e( 'Tous nos plugins', 'infinitycod' ); ?></span>
+							<span class="icod-plugin-desc"><?php esc_html_e( 'Nouveautés, mises à jour et offres sur infinitycoder.app.', 'infinitycod' ); ?></span>
+							<span class="icod-plugin-badge"><?php esc_html_e( 'infinitycoder.app', 'infinitycod' ); ?></span>
+						</span>
+					</a>
+				</div>
+			</div>
+
 			<div class="icod-dashboard-cols">
 				<div class="icod-card">
 					<h2><?php esc_html_e( 'Statut du système', 'infinitycod' ); ?></h2>
@@ -131,21 +162,23 @@ class AboutPage {
 						</ul>
 					</div>
 
-					<div class="icod-card">
-						<h2><?php esc_html_e( 'Liens', 'infinitycod' ); ?></h2>
-						<p class="icod-about-links">
-							<a class="button" href="https://infinitycoder.app" target="_blank" rel="noopener">🌐 <?php esc_html_e( 'Site officiel', 'infinitycod' ); ?></a>
-							<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=license' ) ); ?>">🔑 <?php esc_html_e( 'Licence', 'infinitycod' ); ?></a>
-						</p>
-						<p class="icod-about-dev">
-							<strong><?php esc_html_e( 'Développé par', 'infinitycod' ); ?></strong><br />
-							Derouiche Oussama<br />
-							<a href="https://derouicheoussama.com" target="_blank" rel="noopener">derouicheoussama.com</a> ·
-							<a href="https://github.com/derouicheoussama" target="_blank" rel="noopener">GitHub</a>
-						</p>
-							<?php printf( /* translators: %s : date. */ esc_html__( 'Installé le %s par Infinity Coder (Oussama Derouiche).', 'infinitycod' ), esc_html( mysql2date( 'd/m/Y', get_option( 'infinitycod_installed_at', current_time( 'mysql' ) ) ) ) ); ?>
-						</p>
-					</div>
+						<div class="icod-card">
+							<h2><?php esc_html_e( 'Liens', 'infinitycod' ); ?></h2>
+							<p class="icod-about-links">
+								<a class="button" href="https://infinitycoder.app" target="_blank" rel="noopener">🌐 <?php esc_html_e( 'Site officiel', 'infinitycod' ); ?></a>
+								<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=license' ) ); ?>">🔑 <?php esc_html_e( 'Licence', 'infinitycod' ); ?></a>
+								<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-welcome' ) ); ?>">🎉 <?php esc_html_e( 'Écran de bienvenue', 'infinitycod' ); ?></a>
+							</p>
+							<p class="icod-about-dev">
+								<strong><?php esc_html_e( 'Développé par', 'infinitycod' ); ?></strong><br />
+								Derouiche Oussama<br />
+								<a href="https://derouicheoussama.com" target="_blank" rel="noopener">derouicheoussama.com</a> ·
+								<a href="https://github.com/derouicheoussama" target="_blank" rel="noopener">GitHub</a>
+							</p>
+							<p>
+								<?php printf( /* translators: %s : date. */ esc_html__( 'Installé le %s par Infinity Coder (Oussama Derouiche).', 'infinitycod' ), esc_html( mysql2date( 'd/m/Y', get_option( 'infinitycod_installed_at', current_time( 'mysql' ) ) ) ) ); ?>
+							</p>
+						</div>
 				</div>
 			</div>
 		</div>

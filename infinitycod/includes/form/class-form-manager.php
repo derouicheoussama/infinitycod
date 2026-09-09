@@ -112,6 +112,16 @@ class FormManager {
 	 * @return string HTML (vide si produit indisponible).
 	 */
 	public function render( $product_id, $custom_title = '', $custom_button = '' ) {
+		// Verrou licence : le formulaire est masqué tant qu'aucune licence
+		// n'est active (réglage « distribution commerciale », désactivé par
+		// défaut). L'administrateur voit une explication à la place.
+		if ( Settings::get( 'license_lock_form' ) && ! \InfinityCod\License\LicenseManager::is_premium() ) {
+			if ( current_user_can( 'manage_woocommerce' ) ) {
+				return '<div class="icod-form-locked-admin">' . esc_html__( '🔒 Le formulaire est masqué pour les visiteurs : « Verrouiller le formulaire sans licence » est actif (Réglages → Avancé). Activez votre licence dans Réglages → Licence pour le réafficher.', 'infinitycod' ) . '</div>';
+			}
+			return '';
+		}
+
 		$product = wc_get_product( $product_id );
 
 		if ( ! $product || ! $product->is_purchasable() ) {

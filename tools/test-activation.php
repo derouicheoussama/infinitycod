@@ -176,6 +176,7 @@ function add_submenu_page( ...$a ) { return true; }
 function wp_enqueue_media( ...$a ) { return true; }
 function selected( ...$a ) {}
 function checked( ...$a ) {}
+function disabled( ...$a ) {}
 function dbDelta( $sql ) { $GLOBALS['__wpdb_log'][] = substr( (string) $sql, 0, 60 ) . '…'; return array(); }
 function wc_get_product( $id = 0 ) { return null; }
 

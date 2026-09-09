@@ -99,3 +99,21 @@ jobs:
             dist/infinitycod.zip.sha256
             dist/update.json
             dist/update.json.sig
+
+      - name: Miroir fichiers (main/latest — raw.githubusercontent + jsDelivr)
+        # Alimente le repli « miroir » de l'updater pour les hébergeurs qui
+        # bloquent les domaines github.com : le zip + update.json sont servis
+        # depuis raw.githubusercontent.com et cdn.jsdelivr.net.
+        if: env.RELEASES_TOKEN != ''
+        continue-on-error: true
+        run: |
+          git config --global user.name "infinitycod-release-bot"
+          git config --global user.email "infinitycod-release-bot@users.noreply.github.com"
+          git clone --depth 1 "https://x-access-token:${RELEASES_TOKEN}@github.com/derouicheoussama/infinitycod-releases.git" mirror-repo
+          mkdir -p mirror-repo/latest
+          cp dist/infinitycod.zip dist/infinitycod.zip.sha256 dist/update.json dist/update.json.sig mirror-repo/latest/
+          cd mirror-repo
+          if [ -z "$(git status --porcelain)" ]; then echo "Miroir déjà à jour."; exit 0; fi
+          git add latest
+          git commit -m "Miroir ${GITHUB_REF_NAME}"
+          git push origin main
