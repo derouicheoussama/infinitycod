@@ -495,6 +495,7 @@ class SettingsPage {
 			'rose'   => array( 'label' => __( 'Rose', 'infinitycod' ), 'color' => '#d6336c' ),
 			'royal'  => array( 'label' => __( 'Royal', 'infinitycod' ), 'color' => '#6d28d9' ),
 			'cafe'   => array( 'label' => __( 'Café', 'infinitycod' ), 'color' => '#7c4a21' ),
+			'aqua'   => array( 'label' => __( 'Aqua', 'infinitycod' ), 'color' => '#0891b2' ),
 		);
 		?>
 		<div class="icod-card">
@@ -994,6 +995,117 @@ cod-toggle-danger">
 	 *
 	 * @return void
 	 */
+	/**
+	 * Schéma déclaratif des réglages : UNE seule source de vérité utilisée
+	 * par l'enregistrement. Chaque clé décrit son onglet, son type et ses
+	 * contraintes — impossible d'oublier une clé à la sauvegarde (le bug
+	 * historique des thèmes rose/royal/café jamais enregistrés vient de là).
+	 *
+	 * Types : text, textarea, color, enum(+choices), int(+min/max),
+	 *         url, ids, id, secret, toggle (traité par onglet).
+	 *
+	 * @return array<string, array{tab:string, type:string, ...}>
+	 */
+	private function settings_schema() {
+		return array(
+			// ——— Onglet Formulaire ———
+			'form_title'         => array( 'tab' => 'form', 'type' => 'text' ),
+			'form_subtitle'      => array( 'tab' => 'form', 'type' => 'text' ),
+			'form_icon'          => array( 'tab' => 'form', 'type' => 'text' ),
+			'button_text'        => array( 'tab' => 'form', 'type' => 'text' ),
+			'phone_placeholder'  => array( 'tab' => 'form', 'type' => 'text' ),
+			'label_name'         => array( 'tab' => 'form', 'type' => 'text' ),
+			'label_phone'        => array( 'tab' => 'form', 'type' => 'text' ),
+			'label_wilaya'       => array( 'tab' => 'form', 'type' => 'text' ),
+			'label_commune'      => array( 'tab' => 'form', 'type' => 'text' ),
+			'label_note'         => array( 'tab' => 'form', 'type' => 'text' ),
+			'label_email'        => array( 'tab' => 'form', 'type' => 'text' ),
+			'accent_color'       => array( 'tab' => 'form', 'type' => 'color' ),
+			'form_theme'         => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'light', 'dark', 'auto' ) ),
+			'success_style'      => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'classic', 'confetti', 'minimal', 'ticket', 'celebration' ) ),
+			'form_preset'        => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'modern', 'elegant', 'sunset', 'ocean', 'minimal', 'rose', 'royal', 'cafe', 'aqua' ) ),
+			'form_position'      => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'before_summary', 'after_price', 'after_excerpt', 'before_cart', 'after_cart', 'after_summary', 'end_product' ) ),
+			'form_max_width'     => array( 'tab' => 'form', 'type' => 'int', 'min' => 400, 'max' => 900 ),
+			'qty_max'            => array( 'tab' => 'form', 'type' => 'int', 'min' => 1, 'max' => 999 ),
+			'show_qty_selector'  => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'show_stopdesk'      => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'show_note'          => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'show_offers'        => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'show_reassurance'   => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'show_email'         => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'sticky_bar'         => array( 'tab' => 'form', 'type' => 'toggle' ),
+
+			// ——— Onglet Commande ———
+			'success_title'      => array( 'tab' => 'order', 'type' => 'text' ),
+			'success_text'       => array( 'tab' => 'order', 'type' => 'textarea' ),
+			'upsell_title'       => array( 'tab' => 'order', 'type' => 'text' ),
+			'redirect_enabled'   => array( 'tab' => 'order', 'type' => 'toggle' ),
+			'redirect_url'       => array( 'tab' => 'order', 'type' => 'url' ),
+			'redirect_delay'     => array( 'tab' => 'order', 'type' => 'int', 'min' => 3, 'max' => 60 ),
+			'upsell_enabled'     => array( 'tab' => 'order', 'type' => 'toggle' ),
+			'upsell_ids'         => array( 'tab' => 'order', 'type' => 'ids' ),
+
+			// ——— Onglet Anti-fraude ———
+			'shield_enabled'          => array( 'tab' => 'fraud', 'type' => 'toggle' ),
+			'phone_strict'            => array( 'tab' => 'fraud', 'type' => 'toggle' ),
+			'block_duplicate_phone'   => array( 'tab' => 'fraud', 'type' => 'toggle' ),
+			'restrict_hours_enabled'  => array( 'tab' => 'fraud', 'type' => 'toggle' ),
+			'restrict_hours_from'     => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 23 ),
+			'restrict_hours_to'       => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 23 ),
+			'max_per_ip_day'          => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 100 ),
+			'max_per_ip_hour'         => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 1, 'max' => 100 ),
+			'max_per_phone_day'       => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 20 ),
+			'max_per_email_day'       => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 20 ),
+			'min_submit_seconds'      => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 60 ),
+			'min_fraud_score_block'   => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 100 ),
+
+			// ——— Onglet WhatsApp ———
+			'whatsapp_enabled'         => array( 'tab' => 'whatsapp', 'type' => 'toggle' ),
+			'abandoned_enabled'        => array( 'tab' => 'whatsapp', 'type' => 'toggle' ),
+			'wa_order_enabled'         => array( 'tab' => 'whatsapp', 'type' => 'toggle' ),
+			'whatsapp_gateway'         => array( 'tab' => 'whatsapp', 'type' => 'enum', 'choices' => array( 'wame', 'cloud', 'ultramsg' ) ),
+			'whatsapp_number'          => array( 'tab' => 'whatsapp', 'type' => 'id' ),
+			'whatsapp_phone_id'        => array( 'tab' => 'whatsapp', 'type' => 'id' ),
+			'whatsapp_ultramsg_instance' => array( 'tab' => 'whatsapp', 'type' => 'id' ),
+			'whatsapp_cloud_token'     => array( 'tab' => 'whatsapp', 'type' => 'secret' ),
+			'whatsapp_ultramsg_key'    => array( 'tab' => 'whatsapp', 'type' => 'secret' ),
+			'wa_order_label'           => array( 'tab' => 'whatsapp', 'type' => 'text' ),
+			'msg_wa_order'             => array( 'tab' => 'whatsapp', 'type' => 'textarea' ),
+			'msg_order_received'       => array( 'tab' => 'whatsapp', 'type' => 'textarea' ),
+			'msg_order_shipped'        => array( 'tab' => 'whatsapp', 'type' => 'textarea' ),
+			'msg_abandoned'            => array( 'tab' => 'whatsapp', 'type' => 'textarea' ),
+			'abandoned_delay'          => array( 'tab' => 'whatsapp', 'type' => 'int', 'min' => 5, 'max' => 1440 ),
+			'abandoned_max'            => array( 'tab' => 'whatsapp', 'type' => 'int', 'min' => 1, 'max' => 5 ),
+
+			// ——— Onglet Paiement ———
+			'payment_enabled'    => array( 'tab' => 'payment', 'type' => 'toggle' ),
+			'chargily_mode'      => array( 'tab' => 'payment', 'type' => 'enum', 'choices' => array( 'test', 'live' ) ),
+			'chargily_secret'    => array( 'tab' => 'payment', 'type' => 'secret' ),
+			'cod_label'          => array( 'tab' => 'payment', 'type' => 'text' ),
+			'payment_label'      => array( 'tab' => 'payment', 'type' => 'text' ),
+			'payment_return_text' => array( 'tab' => 'payment', 'type' => 'textarea' ),
+
+			// ——— Onglet Avancé ———
+			'github_repo'          => array( 'tab' => 'advanced', 'type' => 'id' ),
+			'releases_repo'        => array( 'tab' => 'advanced', 'type' => 'id' ),
+			'license_server'       => array( 'tab' => 'advanced', 'type' => 'id' ),
+			'github_token'         => array( 'tab' => 'advanced', 'type' => 'secret' ),
+			'menu_badge'           => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'auto_update'          => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'license_lock_form'    => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'log_enabled'          => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'delete_on_uninstall'  => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'backup_retention'     => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 1, 'max' => 10 ),
+		);
+	}
+
+	/**
+	 * Traite la sauvegarde : le schéma déclaratif filtre et nettoie chaque
+	 * clé selon son type. Les toggles sont bornés à l'onglet soumis (une
+	 * case absente du POST = 0) — les autres onglets sont préservés.
+	 *
+	 * @return void
+	 */
 	public function handle_save() {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
@@ -1001,111 +1113,68 @@ cod-toggle-danger">
 
 		check_admin_referer( 'icod_save_settings' );
 
-		$raw = isset( $_POST['icod'] ) && is_array( $_POST['icod'] ) ? wp_unslash( $_POST['icod'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitisé champ par champ.
+		$raw    = isset( $_POST['icod'] ) && is_array( $_POST['icod'] ) ? wp_unslash( $_POST['icod'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitisé champ par champ.
+		$clean  = array();
+		$schema = $this->settings_schema();
 
-		$clean = array();
+		foreach ( $schema as $key => $def ) {
+			$type = $def['type'];
 
-		// Textes.
-		foreach ( array( 'form_title', 'form_subtitle', 'form_icon', 'button_text', 'phone_placeholder', 'label_name', 'label_phone', 'label_wilaya', 'label_commune', 'label_note', 'success_title', 'upsell_title', 'cod_label', 'payment_label', 'label_email', 'wa_order_label' ) as $text_key ) {
-			if ( isset( $raw[ $text_key ] ) ) {
-				$clean[ $text_key ] = sanitize_text_field( $raw[ $text_key ] );
+			// Toggles : uniquement ceux de l'onglet soumis.
+			if ( 'toggle' === $type ) {
+				if ( $def['tab'] === $this->tab ) {
+					$clean[ $key ] = empty( $raw[ $key ] ) ? 0 : 1;
+				}
+				continue;
 			}
-		}
-		foreach ( array( 'msg_order_received', 'msg_order_shipped', 'msg_abandoned', 'success_text', 'payment_return_text', 'msg_wa_order' ) as $textarea_key ) {
-			if ( isset( $raw[ $textarea_key ] ) ) {
-				$clean[ $textarea_key ] = sanitize_textarea_field( $raw[ $textarea_key ] );
+
+			if ( ! isset( $raw[ $key ] ) ) {
+				continue;
 			}
-		}
+			$value = $raw[ $key ];
 
-		// Couleur.
-		if ( isset( $raw['accent_color'] ) && preg_match( '/^#[0-9a-fA-F]{6}$/', $raw['accent_color'] ) ) {
-			$clean['accent_color'] = $raw['accent_color'];
-		}
-
-		// Énumérations.
-		if ( isset( $raw['form_theme'] ) && in_array( $raw['form_theme'], array( 'light', 'dark', 'auto' ), true ) ) {
-			$clean['form_theme'] = $raw['form_theme'];
-		}
-		if ( isset( $raw['success_style'] ) && in_array( $raw['success_style'], array( 'classic', 'confetti', 'minimal', 'ticket', 'celebration' ), true ) ) {
-			$clean['success_style'] = $raw['success_style'];
-		}
-		if ( isset( $raw['form_preset'] ) && in_array( $raw['form_preset'], array( 'modern', 'elegant', 'sunset', 'ocean', 'minimal' ), true ) ) {
-			$clean['form_preset'] = $raw['form_preset'];
-		}
-		if ( isset( $raw['chargily_mode'] ) && in_array( $raw['chargily_mode'], array( 'test', 'live' ), true ) ) {
-			$clean['chargily_mode'] = $raw['chargily_mode'];
-		}
-		if ( isset( $raw['form_position'] ) && in_array( $raw['form_position'], array( 'before_summary', 'after_price', 'after_excerpt', 'before_cart', 'after_cart', 'after_summary', 'end_product' ), true ) ) {
-			$clean['form_position'] = $raw['form_position'];
-		}
-
-		// Redirection après commande.
-		if ( isset( $raw['redirect_url'] ) ) {
-			$clean['redirect_url'] = esc_url_raw( trim( (string) $raw['redirect_url'] ) );
-		}
-
-		// Upsell : 3 IDs de produits maximum.
-		if ( isset( $raw['upsell_ids'] ) && is_array( $raw['upsell_ids'] ) ) {
-			$ids = array_values( array_unique( array_filter( array_map( 'absint', $raw['upsell_ids'] ) ) ) );
-			$clean['upsell_ids'] = array_slice( $ids, 0, 3 );
-		}
-		if ( isset( $raw['whatsapp_gateway'] ) && in_array( $raw['whatsapp_gateway'], array( 'wame', 'cloud', 'ultramsg' ), true ) ) {
-			$clean['whatsapp_gateway'] = $raw['whatsapp_gateway'];
-		}
-
-		// Numériques.
-		foreach ( array(
-			'qty_max'              => array( 1, 999 ),
-			'form_max_width'       => array( 400, 900 ),
-			'restrict_hours_from'  => array( 0, 23 ),
-			'restrict_hours_to'    => array( 0, 23 ),
-			'max_per_ip_day'       => array( 0, 100 ),
-			'max_per_phone_day'    => array( 0, 20 ),
-			'max_per_email_day'    => array( 0, 20 ),
-			'redirect_delay'       => array( 3, 60 ),
-			'backup_retention'     => array( 1, 10 ),
-			'min_submit_seconds'   => array( 0, 60 ),
-			'max_per_ip_hour'      => array( 1, 100 ),
-			'min_fraud_score_block' => array( 0, 100 ),
-			'abandoned_delay'      => array( 5, 1440 ),
-			'abandoned_max'        => array( 1, 5 ),
-		) as $num_key => $range ) {
-			if ( isset( $raw[ $num_key ] ) ) {
-				$clean[ $num_key ] = max( $range[0], min( $range[1], (int) $raw[ $num_key ] ) );
-			}
-		}
-
-		// Cases à cocher : seulement celles présentes dans le POST de cet onglet.
-		// Les autres sont préservées (chaque onglet gère ses propres toggles).
-		$tab_toggles = array(
-			'form'     => array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'show_email' ),
-			'order'    => array( 'redirect_enabled', 'upsell_enabled' ),
-			'fraud'    => array( 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'restrict_hours_enabled' ),
-			'whatsapp' => array( 'whatsapp_enabled', 'abandoned_enabled', 'wa_order_enabled' ),
-			'payment'  => array( 'payment_enabled' ),
-			'advanced' => array( 'menu_badge', 'auto_update', 'license_lock_form', 'log_enabled', 'delete_on_uninstall' ),
-		);
-		$scope_toggles = isset( $tab_toggles[ $this->tab ] ) ? $tab_toggles[ $this->tab ] : array();
-
-		foreach ( $scope_toggles as $toggle_key ) {
-			$clean[ $toggle_key ] = empty( $raw[ $toggle_key ] ) ? 0 : 1;
-		}
-
-		// Clés / identifiants.
-		foreach ( array( 'whatsapp_number', 'whatsapp_phone_id', 'whatsapp_ultramsg_instance', 'github_repo', 'releases_repo', 'license_server' ) as $id_key ) {
-			if ( isset( $raw[ $id_key ] ) ) {
-				$clean[ $id_key ] = preg_replace( '/[^0-9a-zA-Z_\-.\/]/', '', $raw[ $id_key ] );
-			}
-		}
-		foreach ( array( 'whatsapp_cloud_token', 'whatsapp_ultramsg_key', 'github_token', 'chargily_secret' ) as $secret_key ) {
-			if ( isset( $raw[ $secret_key ] ) ) {
-				$clean[ $secret_key ] = sanitize_text_field( $raw[ $secret_key ] );
+			switch ( $type ) {
+				case 'text':
+					$clean[ $key ] = sanitize_text_field( $value );
+					break;
+				case 'textarea':
+					$clean[ $key ] = sanitize_textarea_field( $value );
+					break;
+				case 'color':
+					if ( preg_match( '/^#[0-9a-fA-F]{6}$/', (string) $value ) ) {
+						$clean[ $key ] = (string) $value;
+					}
+					break;
+				case 'enum':
+					if ( in_array( $value, $def['choices'], true ) ) {
+						$clean[ $key ] = (string) $value;
+					}
+					break;
+				case 'int':
+					$clean[ $key ] = max( (int) $def['min'], min( (int) $def['max'], absint( $value ) ) );
+					break;
+				case 'url':
+					$clean[ $key ] = esc_url_raw( trim( (string) $value ) );
+					break;
+				case 'ids':
+					if ( is_array( $value ) ) {
+						$ids           = array_values( array_unique( array_filter( array_map( 'absint', $value ) ) ) );
+						$clean[ $key ] = array_slice( $ids, 0, isset( $def['max_items'] ) ? (int) $def['max_items'] : 3 );
+					}
+					break;
+				case 'id':
+					$clean[ $key ] = preg_replace( '/[^0-9a-zA-Z_\-.\/]/', '', (string) $value );
+					break;
+				case 'secret':
+					$clean[ $key ] = sanitize_text_field( $value );
+					break;
 			}
 		}
 
 		Settings::set( $clean );
 
-		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=' . ( isset( $_POST['tab'] ) ? sanitize_key( wp_unslash( $_POST['tab'] ) ) : 'form' ) . '&icod_msg=saved' ) );
+		$tab = isset( $_POST['tab'] ) ? sanitize_key( wp_unslash( $_POST['tab'] ) ) : 'form';
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=' . $tab . '&icod_msg=saved' ) );
 		exit;
 	}
 }

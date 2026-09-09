@@ -28,7 +28,10 @@ const handledToggleBlock = tabTogglesBlock
     );
 const handledNum = [...sp.matchAll(/'([a-z_0-9]+)'\s+=> array\(/g)].map(m => m[1]);
 
-const handled = new Set([...handledText, ...handledToggleBlock, ...handledNum,
+// Schéma déclaratif settings_schema() : clés 'x' => array( 'tab' => ..., 'type' => ... ).
+const schemaKeys = [...sp.matchAll(/'([a-z_0-9]+)'\s*=>\s*array\(\s*'tab'/g)].map(m => m[1]);
+
+const handled = new Set([...handledText, ...handledToggleBlock, ...handledNum, ...schemaKeys,
   'accent_color', 'form_theme', 'whatsapp_gateway', 'chargily_mode', 'form_preset', 'form_position', 'success_style',
   'redirect_url', 'upsell_ids', 'whatsapp_number', 'whatsapp_phone_id', 'whatsapp_ultramsg_instance',
   'github_repo', 'releases_repo', 'license_server', 'whatsapp_cloud_token', 'whatsapp_ultramsg_key',

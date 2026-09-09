@@ -732,3 +732,64 @@ select.icod-input{
 .icod-paylogos{display:flex;gap:6px;margin-top:8px}
 .icod-paylogo{display:block;border-radius:6px;box-shadow:0 1px 4px rgba(16,24,40,.12)}
 .icod-mode-box{align-items:flex-start}
+
+/* ===== Icônes dans les champs ===== */
+.icod-input-wrap{position:relative}
+.icod-input-icon{
+	position:absolute;inset-inline-start:12px;top:12px;
+	width:18px;height:18px;
+	color:var(--icod-accent);opacity:.7;pointer-events:none;
+}
+.icod-input-wrap textarea ~ .icod-input-icon,
+.icod-input-wrap .icod-input-icon{pointer-events:none;z-index:1}
+.icod-input-wrap .icod-input,
+.icod-input-wrap select.icod-input{
+	padding-inline-start:40px!important;
+	width:100%;
+}
+.icod-input-wrap.icod-input-wrap-area .icod-input-icon{top:13px}
+.icod-input-wrap.icod-input-wrap-area textarea{min-height:64px}
+.icod-duo{display:grid;grid-template-columns:1fr;gap:0}
+@media (min-width:560px){
+	.icod-duo{grid-template-columns:1fr 1fr;gap:0 12px}
+}
+select.icod-input{
+	appearance:none;-webkit-appearance:none;
+	background-image:linear-gradient(45deg,transparent 50%,var(--icod-muted) 50%),linear-gradient(135deg,var(--icod-muted) 50%,transparent 50%);
+	background-position:calc(100% - 18px) 55%,calc(100% - 13px) 55%;
+	background-size:5px 5px,5px 5px;
+	background-repeat:no-repeat;
+	padding-inline-end:34px!important;
+}
+[dir="rtl"] select.icod-input,
+.icod-root[dir="rtl"] select.icod-input{
+	background-position:18px 55%,13px 55%;
+}
+
+/* ===== Preset Aqua ===== */
+.icod-root[data-preset="aqua"]{
+	--icod-accent:#0891b2;
+	--icod-radius:16px;
+	--icod-radius-sm:11px;
+	--icod-shadow:0 5px 20px rgba(8,145,178,.14);
+	--icod-surface:#f0fafc;
+	--icod-border:#c9e8ef;
+	--icod-head-bg:linear-gradient(135deg,#06b6d4,#0e7490);
+	--icod-head-ink:#ffffff;
+}
+.icod-root.icod-theme-dark[data-preset="aqua"]{--icod-head-bg:linear-gradient(135deg,#155e75,#0891b2)}
+.icod-root.icod-theme-auto[data-preset="aqua"]{--icod-head-bg:linear-gradient(135deg,#155e75,#06b6d4)}
+
+/* ===== Mobile : confort tactile ===== */
+@media (max-width:480px){
+	.icod-form{padding:14px 12px 18px}
+	.icod-input,
+	.icod-chip span,
+	.icod-coupon-input,
+	.icod-coupon-apply{
+		font-size:16px!important;
+	}
+	.icod-field{margin-bottom:14px}
+	.icod-input-wrap .icod-input{min-height:52px}
+	.icod-head-icon{width:42px;height:42px}
+}

@@ -858,3 +858,4 @@ body.icod-modal-open{overflow:hidden}
 	border-radius:8px;
 }
 .icod-wrap form .icod-submit .button-hero{box-shadow:0 4px 18px rgba(0,0,0,.22)!important}
+.icod-saving{opacity:.7;cursor:wait}

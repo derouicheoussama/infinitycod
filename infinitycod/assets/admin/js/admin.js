@@ -440,3 +440,16 @@
 		});
 	}
 })();
+
+/* ===== Anti double-soumission : boutons principaux désactivés au POST ===== */
+document.querySelectorAll('form[action*="admin-post.php"]').forEach(function (form) {
+	form.addEventListener('submit', function () {
+		var button = form.querySelector('.button-primary, .button-hero');
+		if (button && !button.disabled) {
+			window.setTimeout(function () {
+				button.disabled = true;
+				button.classList.add('icod-saving');
+			}, 0);
+		}
+	});
+});
