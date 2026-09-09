@@ -859,3 +859,23 @@ body.icod-modal-open{overflow:hidden}
 }
 .icod-wrap form .icod-submit .button-hero{box-shadow:0 4px 18px rgba(0,0,0,.22)!important}
 .icod-saving{opacity:.7;cursor:wait}
+
+/* --- Tracking : cartes réseaux aux couleurs officielles --- */
+.icod-social-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:12px}
+.icod-social-card{background:#fff;border:1px solid #dcdcde;border-radius:10px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.icod-social-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.09)}
+.icod-social-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f0f0f1}
+.icod-social-head strong{font-size:13.5px}
+.icod-social-logo{flex:none}
+.icod-social-facebook{fill:#1877F2}
+.icod-social-tiktok{fill:#111111}
+.icod-social-snapchat{fill:#FFFC00;stroke:#111;stroke-width:.6}
+.icod-social-id{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.icod-social-id span{font-weight:600;font-size:11.5px;color:#3c434a}
+.icod-social-card[data-brand="facebook"]{border-top:3px solid #1877F2}
+.icod-social-card[data-brand="tiktok"]{border-top:3px solid #25F4EE}
+.icod-social-card[data-brand="snapchat"]{border-top:3px solid #FFFC00}
+.icod-social-note{margin-top:4px}
+.icod-notice-ok{background:#e5f2e9;border:1px solid #b7dfc5;border-left-width:4px;border-radius:8px;padding:9px 14px;margin:0 0 14px;font-size:13px;color:#0e7a4f;font-weight:600}
+.icod-country-main{background:#f0f9f3;border-radius:8px;padding:6px 10px;margin-bottom:4px}
+.icod-country-main-label{color:#0e7a4f}

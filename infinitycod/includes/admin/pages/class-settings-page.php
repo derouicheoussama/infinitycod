@@ -135,57 +135,85 @@ class SettingsPage {
 	}
 
 	/**
+	 * Logos officiels des réseaux publicitaires (SVG simples-icons).
+	 *
+	 * @param string $brand facebook|tiktok|snapchat.
+	 * @return string
+	 */
+	private function social_logo( $brand ) {
+		$paths = array(
+			'facebook' => 'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z',
+			'tiktok'   => 'M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z',
+			'snapchat' => 'M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12 1.033-.301.165-.088.344-.104.46-.104.182 0 .359.029.509.09.45.149.734.479.734.838.015.449-.39.839-1.213 1.168-.089.029-.209.075-.344.134-.45.135-1.139.45-1.139 1.008.015.149.06.299.135.464.027.062 1.626 3.373 5.31 3.985.254.044.439.27.424.509 0 .074-.015.149-.045.225-.24.569-1.273.988-3.146 1.271-.059.091-.12.375-.164.57-.029.179-.074.36-.134.553-.076.271-.27.405-.555.405h-.03c-.135 0-.313-.031-.538-.074-.36-.075-.765-.135-1.273-.135-.3 0-.599.015-.913.074-.6.104-1.123.464-1.723.884-.853.599-1.826 1.288-3.294 1.288-.06 0-.119-.015-.18-.015h-.149c-1.468 0-2.427-.675-3.279-1.288-.599-.42-1.107-.779-1.707-.884-.314-.045-.629-.074-.928-.074-.54 0-.958.089-1.272.149-.211.043-.391.074-.54.074-.374 0-.523-.224-.583-.42-.061-.192-.09-.389-.135-.567-.046-.181-.105-.494-.166-.57-1.918-.222-2.95-.642-3.189-1.226-.031-.063-.049-.137-.049-.215-.015-.253.17-.479.424-.523 3.683-.613 5.278-3.927 5.337-4.066.075-.149.121-.3.121-.464 0-.554-.688-.868-1.137-1.008-.136-.045-.256-.091-.346-.135-1.107-.435-1.257-.93-1.197-1.273.09-.479.674-.793 1.168-.793.146 0 .27.029.383.074.42.194.809.3 1.124.3.24 0 .389-.06.479-.105l-.046-.637c-.105-1.637-.231-3.676.312-4.877C7.392 1.077 10.739.807 11.727.807l.419-.015h.06z',
+		);
+
+		if ( ! isset( $paths[ $brand ] ) ) {
+			return '';
+		}
+
+		return '<svg class="icod-social-logo icod-social-' . esc_attr( $brand ) . '" viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" focusable="false"><path d="' . $paths[ $brand ] . '"/></svg>';
+	}
+
+	/**
 	 * Onglet Tracking : pixels Meta / TikTok / Snapchat + Conversions API.
 	 *
 	 * @return void
 	 */
 	private function tab_tracking() {
+		$brands = array(
+			'facebook' => array(
+				'name'    => __( 'Meta — Facebook & Instagram', 'infinitycod' ),
+				'placeholder' => '1234567890123456',
+				'toggle'  => 'pixel_fb_enabled',
+				'id'      => 'pixel_fb_id',
+				'idlabel' => __( 'ID du Pixel (15-16 chiffres)', 'infinitycod' ),
+			),
+			'tiktok'   => array(
+				'name'    => __( 'TikTok', 'infinitycod' ),
+				'placeholder' => 'CXXXXXXXXXXXXXXXXXXX',
+				'toggle'  => 'pixel_tiktok_enabled',
+				'id'      => 'pixel_tiktok_id',
+				'idlabel' => __( 'ID du Pixel', 'infinitycod' ),
+			),
+			'snapchat' => array(
+				'name'    => __( 'Snapchat', 'infinitycod' ),
+				'placeholder' => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+				'toggle'  => 'pixel_snap_enabled',
+				'id'      => 'pixel_snap_id',
+				'idlabel' => __( 'ID du Pixel (UUID)', 'infinitycod' ),
+			),
+		);
 		?>
-		<div class="icod-card">
-			<h2><?php esc_html_e( '🎯 Pixels publicitaires', 'infinitycod' ); ?></h2>
-			<p class="description">
-				<?php esc_html_e( 'Mesurez votre funnel COD sur Meta (Facebook/Instagram), TikTok et Snapchat. Événements envoyés : ViewContent, InitiateCheckout (début du formulaire) et Purchase (commande enregistrée, avec le montant réel).', 'infinitycod' ); ?>
-			</p>
-
-			<div class="icod-grid">
-				<label>
-					<span><?php esc_html_e( 'Meta Pixel (Facebook / Instagram) — ID (15-16 chiffres)', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[pixel_fb_id]" dir="ltr" placeholder="1234567890123456" value="<?php echo esc_attr( Settings::get( 'pixel_fb_id' ) ); ?>" />
-				</label>
-				<label>
-					<span><?php esc_html_e( 'TikTok Pixel — ID', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[pixel_tiktok_id]" dir="ltr" placeholder="CXXXXXXXXXXXXXXXXXXX" value="<?php echo esc_attr( Settings::get( 'pixel_tiktok_id' ) ); ?>" />
-				</label>
-				<label>
-					<span><?php esc_html_e( 'Snapchat Pixel — UUID', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[pixel_snap_id]" dir="ltr" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" value="<?php echo esc_attr( Settings::get( 'pixel_snap_id' ) ); ?>" />
-				</label>
-			</div>
-
-			<div class="icod-toggles">
-				<label class="icod-toggle">
-					<input type="checkbox" name="icod[pixel_fb_enabled]" value="1" <?php checked( (int) Settings::get( 'pixel_fb_enabled' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Activer le pixel Meta (Facebook / Instagram)', 'infinitycod' ); ?></span>
-				</label>
-				<label class="icod-toggle">
-					<input type="checkbox" name="icod[pixel_tiktok_enabled]" value="1" <?php checked( (int) Settings::get( 'pixel_tiktok_enabled' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Activer le pixel TikTok', 'infinitycod' ); ?></span>
-				</label>
-				<label class="icod-toggle">
-					<input type="checkbox" name="icod[pixel_snap_enabled]" value="1" <?php checked( (int) Settings::get( 'pixel_snap_enabled' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Activer le pixel Snapchat', 'infinitycod' ); ?></span>
-				</label>
-			</div>
+		<div class="icod-social-grid">
+			<?php foreach ( $brands as $key => $brand ) : ?>
+				<div class="icod-social-card" data-brand="<?php echo esc_attr( $key ); ?>">
+					<div class="icod-social-head">
+						<?php echo $this->social_logo( $key ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
+						<strong><?php echo esc_html( $brand['name'] ); ?></strong>
+					</div>
+					<label class="icod-toggle">
+						<input type="checkbox" name="icod[<?php echo esc_attr( $brand['toggle'] ); ?>]" value="1" <?php checked( (int) Settings::get( $brand['toggle'] ), 1 ); ?> />
+						<span><?php esc_html_e( 'Activer ce pixel', 'infinitycod' ); ?></span>
+					</label>
+					<label class="icod-social-id">
+						<span><?php echo esc_html( $brand['idlabel'] ); ?></span>
+						<input type="text" name="icod[<?php echo esc_attr( $brand['id'] ); ?>]" dir="ltr" placeholder="<?php echo esc_attr( $brand['placeholder'] ); ?>" value="<?php echo esc_attr( Settings::get( $brand['id'] ) ); ?>" />
+					</label>
+				</div>
+			<?php endforeach; ?>
 		</div>
+		<p class="description icod-social-note">
+			<?php esc_html_e( 'Événements trackés automatiquement : ViewContent (fiche produit) → InitiateCheckout (début du formulaire) → Purchase (commande confirmée, montant réel en DZD). Aucun code à ajouter sur votre site.', 'infinitycod' ); ?>
+		</p>
 
 		<div class="icod-card">
-			<h2><?php esc_html_e( 'Conversions API Meta — exigences 2026', 'infinitycod' ); ?></h2>
+			<h2>🛡️ <?php esc_html_e( 'Conversions API Meta — exigences 2026', 'infinitycod' ); ?></h2>
 			<p class="description">
 				<?php esc_html_e( 'La Conversions API (CAPI) envoie la commande directement depuis votre serveur vers Meta : plus fiable que le navigateur (bloqueurs, iOS). InfinityCod applique automatiquement les exigences Meta 2026 : event_id de déduplication navigateur/serveur, téléphone haché en SHA-256 (advanced matching), cookies first-party _fbp/_fbc transférés, action_source « website ». Récupérez votre token dans Events Manager → Paramètres → Conversions API → Générer le token d’accès.', 'infinitycod' ); ?>
 			</p>
 			<div class="icod-grid">
 				<label>
-					<span><?php esc_html_e( 'Token d’accès Conversions API (secret)', 'infinitycod' ); ?></span>
+					<span><?php echo $this->social_logo( 'facebook' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?> <?php esc_html_e( 'Token d’accès Conversions API (secret)', 'infinitycod' ); ?></span>
 					<input type="password" name="icod[pixel_fb_capi_token]" dir="ltr" autocomplete="new-password" value="<?php echo esc_attr( Settings::get( 'pixel_fb_capi_token' ) ); ?>" class="regular-text" />
 				</label>
 				<label>
@@ -1046,36 +1074,52 @@ class SettingsPage {
 
 		<div class="icod-card">
 			<h2><?php esc_html_e( 'Pays livrés', 'infinitycod' ); ?> <span class="icod-premium-mini">★ Premium</span></h2>
-			<p class="description"><?php esc_html_e( 'Algérie toujours incluse (58 wilayas + 1541 communes). La licence Premium ajoute les marchés Maroc, Tunisie, Égypte, Arabie Saoudite et Émirats : régions préchargées, ville saisie libre par le client, tarifs à définir par région dans Wilayas & Tarifs.', 'infinitycod' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Votre pays, détecté automatiquement à l‘installation, est toujours actif et affiché en premier. Cochez d‘autres pays pour livrer simultanément (régions préchargées, ville saisie libre).', 'infinitycod' ); ?></p>
 			<div class="icod-toggles">
 				<?php
 				$catalog      = \InfinityCod\Core\Activator::countries_catalog();
 				$active       = Settings::active_countries();
+				$main_country = Settings::default_country();
 				$is_premium_c = \InfinityCod\License\LicenseManager::is_premium();
-				foreach ( $catalog as $code => $country ) :
-					if ( 'DZ' === $code ) {
-						continue;
+
+				// Le pays principal du marchand TOUJOURS en premier.
+				$order = array( $main_country );
+				foreach ( $catalog as $code => $country ) {
+					if ( $code !== $main_country ) {
+						$order[] = $code;
 					}
+				}
+
+				foreach ( $order as $code ) :
+					$country = $catalog[ $code ];
+					$is_main = ( $code === $main_country );
 					?>
-					<label class="icod-toggle">
-						<input type="checkbox" name="icod[countries][]" value="<?php echo esc_attr( $code ); ?>" <?php checked( in_array( $code, $active, true ) ); ?> <?php disabled( ! $is_premium_c ); ?> />
-						<span><?php echo esc_html( $country['fr'] . ' — ' . $country['ar'] . ' (' . count( $country['regions'] ) . ' régions)' ); ?></span>
+					<label class="icod-toggle <?php echo $is_main ? 'icod-country-main' : ''; ?>">
+						<input type="checkbox" name="icod[countries][]" value="<?php echo esc_attr( $code ); ?>"
+							<?php checked( in_array( $code, $active, true ) ); ?>
+							<?php disabled( $is_main || ! $is_premium_c ); ?> />
+						<span>
+							<?php
+							echo esc_html( $country['fr'] . ' — ' . $country['ar'] . ' (' . ( 'DZ' === $code ? '58' : count( $country['regions'] ) ) . ')' );
+							if ( $is_main ) {
+								echo ' <strong class="icod-country-main-label">· ' . esc_html__( 'votre pays, toujours actif', 'infinitycod' ) . '</strong>';
+							}
+							?>
+						</span>
 					</label>
 				<?php endforeach; ?>
-				<label class="icod-toggle">
-					<input type="checkbox" checked disabled />
-					<span><?php esc_html_e( 'Algérie — 58 wilayas, 1541 communes (inclus)', 'infinitycod' ); ?></span>
-				</label>
 			</div>
 			<?php if ( ! $is_premium_c ) : ?>
 				<p class="description">
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=license' ) ); ?>"><?php esc_html_e( '★ Activer une licence Premium pour livrer dans ces pays.', 'infinitycod' ); ?></a>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=license' ) ); ?>"><?php esc_html_e( '★ Activer une licence Premium pour livrer dans plusieurs pays simultanément.', 'infinitycod' ); ?></a>
 				</p>
 			<?php endif; ?>
+			<p class="description"><?php esc_html_e( 'Après activation, activez les régions dans Wilayas & Tarifs et définissez leurs prix. Le champ ville devient libre pour ces pays (saisie directe par le client).', 'infinitycod' ); ?></p>
 		</div>
 
 		<div class="icod-card">
 			<h2><?php esc_html_e( 'Mises à jour via GitHub', 'infinitycod' ); ?></h2>
+			<div class="icod-notice-ok">✅ <?php esc_html_e( 'Automatique — aucune configuration requise. Votre site vérifie GitHub toutes les heures et propose (ou installe) les mises à jour tout seul. Les champs ci-dessous sont optionnels.', 'infinitycod' ); ?></div>
 			<p class="description"><?php esc_html_e( 'Recommandé : créez un dépôt PUBLIC « releases » contenant uniquement les zips — les clients reçoivent les mises à jour sans aucun token, et vos sources restent privées. Si vous laissez ce champ vide, le plugin consulte le dépôt des sources (token alors obligatoire s‘il est privé).', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
 				<label>
