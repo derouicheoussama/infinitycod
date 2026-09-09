@@ -76,6 +76,8 @@ async function handle(req, res) {
 	});
 	if (handled) return;
 
+	if (url.pathname === '/setup' && adminsExist()) { res.writeHead(302, { Location: '/login' }); return res.end(); }
+
 	// Pages publiques du site vitrine.
 	if (url.pathname === '/') {
 		const products = db.prepare("SELECT * FROM products WHERE status='PUBLISHED' ORDER BY id").all();
