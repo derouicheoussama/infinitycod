@@ -184,7 +184,7 @@ class CarriersPage {
 										<span class="icod-sub"><?php echo esc_html( $row['commune'] . ' · ' . ( 'desk' === $row['delivery_mode'] ? __( 'Bureau', 'infinitycod' ) : __( 'Domicile', 'infinitycod' ) ) ); ?></span>
 									</td>
 									<td><?php echo esc_html( $row['product_id'] ? get_the_title( (int) $row['product_id'] ) : '—' ); ?> × <?php echo (int) $row['quantity']; ?></td>
-									<td><?php echo esc_html( number_format_i18n( (float) $row['total'], 0 ) ); ?> DA</td>
+									<td><?php echo esc_html( number_format_i18n( (float) $row['total'], 0 ) ); ?> <?php echo esc_html( \InfinityCod\Core\Settings::currency_label() ); ?></td>
 									<td class="icod-ship-cell">
 										<select class="icod-ship-carrier">
 											<?php foreach ( $usable as $entry ) : ?>

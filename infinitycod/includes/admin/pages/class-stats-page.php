@@ -111,9 +111,9 @@ class StatsPage {
 						<h2><?php esc_html_e( 'Détails', 'infinitycod' ); ?></h2>
 						<ul class="icod-kpi-details">
 							<li><span><?php esc_html_e( 'Articles vendus', 'infinitycod' ); ?></span><strong><?php echo (int) $kpis['items']; ?></strong></li>
-							<li><span><?php esc_html_e( 'Panier moyen confirmé', 'infinitycod' ); ?></span><strong><?php echo esc_html( number_format_i18n( $kpis['avg_order_value'], 2 ) ); ?> DA</strong></li>
-							<li><span><?php esc_html_e( 'Frais livraison encaissés', 'infinitycod' ); ?></span><strong><?php echo esc_html( number_format_i18n( $kpis['shipping_collected'], 0 ) ); ?> DA</strong></li>
-							<li><span><?php esc_html_e( 'Remises accordées', 'infinitycod' ); ?></span><strong>−<?php echo esc_html( number_format_i18n( $kpis['discounts'], 0 ) ); ?> DA</strong></li>
+							<li><span><?php esc_html_e( 'Panier moyen confirmé', 'infinitycod' ); ?></span><strong><?php echo esc_html( number_format_i18n( $kpis['avg_order_value'], 2 ) ); ?> <?php echo esc_html( \InfinityCod\Core\Settings::currency_label() ); ?></strong></li>
+							<li><span><?php esc_html_e( 'Frais livraison encaissés', 'infinitycod' ); ?></span><strong><?php echo esc_html( number_format_i18n( $kpis['shipping_collected'], 0 ) ); ?> <?php echo esc_html( \InfinityCod\Core\Settings::currency_label() ); ?></strong></li>
+							<li><span><?php esc_html_e( 'Remises accordées', 'infinitycod' ); ?></span><strong>−<?php echo esc_html( number_format_i18n( $kpis['discounts'], 0 ) ); ?> <?php echo esc_html( \InfinityCod\Core\Settings::currency_label() ); ?></strong></li>
 							<li><span><?php esc_html_e( 'Taux de livraison', 'infinitycod' ); ?></span><strong><?php echo esc_html( number_format_i18n( $kpis['delivery_rate'], 1 ) ); ?>%</strong></li>
 						</ul>
 					</div>
@@ -179,7 +179,7 @@ class StatsPage {
 			. '</tr></thead><tbody>';
 		foreach ( $rows as $row ) {
 			printf(
-				'<tr><td><strong>%1$s</strong></td><td>%2$d</td><td>%3$d</td><td>%4$d</td><td>%5$s%%</td><td>%6$s DA</td></tr>',
+				'<tr><td><strong>%1$s</strong></td><td>%2$d</td><td>%3$d</td><td>%4$d</td><td>%5$s%%</td><td>%6$s ' . \InfinityCod\Core\Settings::currency_label() . '</td></tr>',
 				esc_html( $row['name'] ),
 				(int) $row['orders'],
 				(int) $row['delivered'],
@@ -222,7 +222,7 @@ class StatsPage {
 		echo '<ul class="icod-top-list">';
 		foreach ( $rows as $row ) {
 			printf(
-				'<li><span>%1$s</span><strong>%2$d cmd · %3$s DA</strong></li>',
+				'<li><span>%1$s</span><strong>%2$d cmd · %3$s ' . \InfinityCod\Core\Settings::currency_label() . '</strong></li>',
 				esc_html( $row['name'] ),
 				(int) $row['orders'],
 				esc_html( number_format_i18n( $row['revenue'], 0 ) )

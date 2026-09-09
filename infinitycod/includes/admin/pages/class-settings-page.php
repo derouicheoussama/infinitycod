@@ -1007,8 +1007,82 @@ class SettingsPage {
 	private function tab_advanced() {
 		?>
 		<div class="icod-card">
+			<h2><?php esc_html_e( 'Devise', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Appliquée partout : formulaire, récapitulatif, commandes WooCommerce, pixels et tableaux de bord. Marché arabe : DZD, MAD, TND, EGP, SAR, AED…', 'infinitycod' ); ?></p>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Devise', 'infinitycod' ); ?></span>
+					<select name="icod[currency]">
+						<?php
+						$currencies = array(
+							'DZD' => __( 'Dinar algérien (DA)', 'infinitycod' ),
+							'MAD' => __( 'Dirham marocain (DH)', 'infinitycod' ),
+							'TND' => __( 'Dinar tunisien (DT)', 'infinitycod' ),
+							'EGP' => __( 'Livre égyptienne (EGP)', 'infinitycod' ),
+							'SAR' => __( 'Riyal saoudien (SAR)', 'infinitycod' ),
+							'AED' => __( 'Dirham des Émirats (AED)', 'infinitycod' ),
+							'QAR' => __( 'Riyal qatari (QAR)', 'infinitycod' ),
+							'KWD' => __( 'Dinar koweïtien (KWD)', 'infinitycod' ),
+							'JOD' => __( 'Dinar jordanien (JOD)', 'infinitycod' ),
+							'IQD' => __( 'Dinar irakien (IQD)', 'infinitycod' ),
+							'LYD' => __( 'Dinar libyen (LYD)', 'infinitycod' ),
+							'OMR' => __( 'Rial omanais (OMR)', 'infinitycod' ),
+							'BHD' => __( 'Dinar de Bahreïn (BHD)', 'infinitycod' ),
+							'MRU' => __( 'Ouguiya mauritanienne (MRU)', 'infinitycod' ),
+							'SDG' => __( 'Livre soudanaise (SDG)', 'infinitycod' ),
+							'SYP' => __( 'Livre syrienne (SYP)', 'infinitycod' ),
+							'YER' => __( 'Rial yéménite (YER)', 'infinitycod' ),
+							'EUR' => __( 'Euro (€)', 'infinitycod' ),
+							'USD' => __( 'Dollar américain ($)', 'infinitycod' ),
+						);
+						foreach ( $currencies as $code => $label ) :
+							?>
+							<option value="<?php echo esc_attr( $code ); ?>" <?php selected( Settings::currency(), $code ); ?>><?php echo esc_html( $label ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Pays livrés', 'infinitycod' ); ?> <span class="icod-premium-mini">★ Premium</span></h2>
+			<p class="description"><?php esc_html_e( 'Algérie toujours incluse (58 wilayas + 1541 communes). La licence Premium ajoute les marchés Maroc, Tunisie, Égypte, Arabie Saoudite et Émirats : régions préchargées, ville saisie libre par le client, tarifs à définir par région dans Wilayas & Tarifs.', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<?php
+				$catalog      = \InfinityCod\Core\Activator::countries_catalog();
+				$active       = Settings::active_countries();
+				$is_premium_c = \InfinityCod\License\LicenseManager::is_premium();
+				foreach ( $catalog as $code => $country ) :
+					if ( 'DZ' === $code ) {
+						continue;
+					}
+					?>
+					<label class="icod-toggle">
+						<input type="checkbox" name="icod[countries][]" value="<?php echo esc_attr( $code ); ?>" <?php checked( in_array( $code, $active, true ) ); ?> <?php disabled( ! $is_premium_c ); ?> />
+						<span><?php echo esc_html( $country['fr'] . ' — ' . $country['ar'] . ' (' . count( $country['regions'] ) . ' régions)' ); ?></span>
+					</label>
+				<?php endforeach; ?>
+				<label class="icod-toggle">
+					<input type="checkbox" checked disabled />
+					<span><?php esc_html_e( 'Algérie — 58 wilayas, 1541 communes (inclus)', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<?php if ( ! $is_premium_c ) : ?>
+				<p class="description">
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=license' ) ); ?>"><?php esc_html_e( '★ Activer une licence Premium pour livrer dans ces pays.', 'infinitycod' ); ?></a>
+				</p>
+			<?php endif; ?>
+		</div>
+
+		<div class="icod-card">
 			<h2><?php esc_html_e( 'Mises à jour via GitHub', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Recommandé : créez un dépôt PUBLIC « releases » contenant uniquement les zips — les clients reçoivent les mises à jour sans aucun token, et vos sources restent privées. Si vous laissez ce champ vide, le plugin consulte le dépôt des sources (token alors obligatoire s‘il est privé).', 'infinitycod' ); ?></p>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Miroir personnalisé (secours ultime) — URL d‘un dossier contenant update.json + infinitycod.zip, consulté avant les miroirs GitHub', 'infinitycod' ); ?></span>
+					<input type="url" name="icod[custom_update_url]" dir="ltr" placeholder="https://mon-cdn.exemple/updates/" value="<?php echo esc_attr( Settings::get( 'custom_update_url', '' ) ); ?>" class="regular-text" />
+				</label>
+			</div>
 			<div class="icod-grid">
 				<label>
 					<span><?php esc_html_e( 'Serveur de licences (API d‘activation)', 'infinitycod' ); ?></span>
@@ -1175,6 +1249,10 @@ cod-toggle-danger">
 			'pixel_sitewide'         => array( 'tab' => 'tracking', 'type' => 'toggle' ),
 
 			// ——— Onglet Avancé ———
+			'currency'             => array( 'tab' => 'advanced', 'type' => 'enum', 'choices' => array( 'DZD', 'MAD', 'TND', 'EGP', 'SAR', 'AED', 'QAR', 'KWD', 'JOD', 'IQD', 'LYD', 'OMR', 'BHD', 'MRU', 'SDG', 'SYP', 'YER', 'EUR', 'USD' ) ),
+			'currency_position'    => array( 'tab' => 'advanced', 'type' => 'enum', 'choices' => array( 'right', 'left' ) ),
+			'countries'            => array( 'tab' => 'advanced', 'type' => 'countries' ),
+			'custom_update_url'    => array( 'tab' => 'advanced', 'type' => 'url' ),
 			'github_repo'          => array( 'tab' => 'advanced', 'type' => 'id' ),
 			'releases_repo'        => array( 'tab' => 'advanced', 'type' => 'id' ),
 			'license_server'       => array( 'tab' => 'advanced', 'type' => 'id' ),
@@ -1250,6 +1328,20 @@ cod-toggle-danger">
 						$ids           = array_values( array_unique( array_filter( array_map( 'absint', $value ) ) ) );
 						$clean[ $key ] = array_slice( $ids, 0, isset( $def['max_items'] ) ? (int) $def['max_items'] : 3 );
 					}
+					break;
+				case 'countries':
+					// Multi-pays : option Premium. Hors Premium, Algérie seule.
+					$codes = array();
+					if ( is_array( $value ) ) {
+						foreach ( $value as $code ) {
+							$code = strtoupper( sanitize_text_field( (string) $code ) );
+							if ( preg_match( '/^[A-Z]{2}$/', $code ) ) {
+								$codes[] = $code;
+							}
+						}
+					}
+					$premium = \InfinityCod\License\LicenseManager::is_premium();
+					$clean[ $key ] = $premium ? array_values( array_unique( $codes ) ) : array( 'DZ' );
 					break;
 				case 'id':
 					$clean[ $key ] = preg_replace( '/[^0-9a-zA-Z_\-.\/]/', '', (string) $value );

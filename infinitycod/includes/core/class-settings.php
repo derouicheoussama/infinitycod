@@ -166,6 +166,12 @@ class Settings {
 			'pixel_snap_id'         => '',
 			'pixel_consent_required' => 0,           // Charger seulement après consentement.
 			'pixel_sitewide'        => 0,            // Pixels sur tout le site ou fiches produit.
+
+			// Marché arabe : devise + multi-pays (Premium) + miroir perso.
+			'currency'              => 'DZD',        // Code ISO de la devise.
+			'currency_position'     => 'right',      // right | left.
+			'countries'             => array( 'DZ' ),// Pays actifs (au-delà de DZ : Premium).
+			'custom_update_url'     => '',           // Miroir perso update.json (optionnel).
 			'payment_return_text'   => __( 'Merci ! Votre paiement a bien été reçu et votre commande est confirmée. Nous vous contacterons très vite.', 'infinitycod' ),
 
 			// Mises à jour via GitHub.
@@ -188,6 +194,55 @@ class Settings {
 			self::$cache = wp_parse_args( $saved, self::defaults() );
 		}
 		return self::$cache;
+	}
+
+	/**
+	 * Code ISO de la devise active.
+	 *
+	 * @return string
+	 */
+	public static function currency() {
+		$code = (string) self::get( 'currency', 'DZD' );
+		return preg_match( '/^[A-Z]{3}$/', $code ) ? $code : 'DZD';
+	}
+
+	/**
+	 * Libellé court de la devise (DA, DH, DT, SAR…).
+	 *
+	 * @return string
+	 */
+	public static function currency_label() {
+		$labels = array(
+			'DZD' => 'DA', 'MAD' => 'DH', 'TND' => 'DT', 'EGP' => 'EGP',
+			'SAR' => 'SAR', 'AED' => 'AED', 'QAR' => 'QAR', 'KWD' => 'KWD',
+			'JOD' => 'JOD', 'IQD' => 'IQD', 'LYD' => 'LYD', 'OMR' => 'OMR',
+			'BHD' => 'BHD', 'MRU' => 'MRU', 'SDG' => 'SDG', 'SYP' => 'SYP',
+			'YER' => 'YER', 'EUR' => '€', 'USD' => '$',
+		);
+		$code   = self::currency();
+		return isset( $labels[ $code ] ) ? $labels[ $code ] : $code;
+	}
+
+	/**
+	 * Pays actifs. Hors Premium : Algérie uniquement (les autres pays du
+	 * catalogue sont une option Premium).
+	 *
+	 * @return array<string> Codes ISO à 2 lettres.
+	 */
+	public static function active_countries() {
+		$countries = (array) self::get( 'countries', array( 'DZ' ) );
+		$countries = array_values( array_unique( array_filter( array_map( 'strtoupper', array_map( 'sanitize_text_field', $countries ) ) ) ) );
+
+		if ( ! in_array( 'DZ', $countries, true ) ) {
+			array_unshift( $countries, 'DZ' );
+		}
+
+		$premium = class_exists( '\\InfinityCod\\License\\LicenseManager' ) && \InfinityCod\License\LicenseManager::is_premium();
+		if ( ! $premium ) {
+			return array( 'DZ' );
+		}
+
+		return $countries;
 	}
 
 	/**

@@ -137,7 +137,12 @@ class FormManager {
 		}
 
 		$geo     = infinitycod()->module( 'geo' );
-		$wilayas = $geo ? $geo->wilayas( true ) : array();
+		$countries = Settings::active_countries();
+		$all_wilayas = $geo ? $geo->wilayas( true ) : array();
+		$wilayas   = array_values( array_filter( $all_wilayas, function ( $w ) use ( $countries ) {
+			$wc = isset( $w['country_code'] ) ? $w['country_code'] : 'DZ';
+			return in_array( $wc, $countries, true );
+		} ) );
 		$theme   = Settings::get( 'form_theme', 'light' );
 		$preset  = Settings::get( 'form_preset', 'modern' );
 		$accent  = Settings::get( 'accent_color', '#0e7a4f' );
@@ -168,10 +173,28 @@ class FormManager {
 		$wilaya_options = '';
 		foreach ( $wilayas as $w ) {
 			$wilaya_options .= sprintf(
-				'<option value="%1$s">%2$s</option>',
+				'<option value="%1$s" data-country="%3$s">%2$s</option>',
 				esc_attr( $w['code'] ),
-				esc_html( $geo->wilaya_label( $w ) )
+				esc_html( $geo->wilaya_label( $w ) ),
+				esc_attr( isset( $w['country_code'] ) ? $w['country_code'] : 'DZ' )
 			);
+		}
+
+		// Sélecteur de pays : affiché uniquement si Premium multi-pays actif.
+		$country_select = '';
+		if ( count( $countries ) > 1 ) {
+			$catalog = \InfinityCod\Core\Activator::countries_catalog();
+			$country_options = '';
+			foreach ( $countries as $cc ) {
+				$label = isset( $catalog[ $cc ] ) ? $catalog[ $cc ]['fr'] . ' — ' . $catalog[ $cc ]['ar'] : $cc;
+				$country_options .= sprintf(
+					'<option value="%1$s"%3$s>%2$s</option>',
+					esc_attr( $cc ),
+					esc_html( $label ),
+					'DZ' === $cc ? ' selected' : ''
+				);
+			}
+			$country_select = '<div class="icod-field"><label>' . esc_html__( 'Pays', 'infinitycod' ) . '</label><div class="icod-input-wrap">' . self::field_icon( 'map' ) . '<select id="icod-country" class="icod-input icod-country">' . $country_options . '</select></div></div>';
 		}
 
 		// Variations : injectées en JSON, le JS résout l'ID selon les attributs.
@@ -310,6 +333,8 @@ class FormManager {
 
 
 
+							<?php echo $country_select; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé. ?>
+
 							<div class="icod-row">
 								<div class="icod-field">
 									<label for="icod-wilaya-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( $label_wilaya ); ?></label>
@@ -329,6 +354,7 @@ class FormManager {
 										<select name="icod_commune" id="icod-commune-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-commune" disabled required data-icod-field="commune">
 											<option value=""><?php esc_html_e( '— Commune —', 'infinitycod' ); ?></option>
 										</select>
+										<input type="text" name="icod_commune_text" id="icod-commune-text-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-commune-text icod-hidden" autocomplete="address-level2" placeholder="<?php esc_attr_e( 'Votre ville', 'infinitycod' ); ?>" />
 									</div>
 								</div>
 							</div>
@@ -722,6 +748,8 @@ class FormManager {
 		wp_localize_script( 'icod-form', 'icodFront', array(
 			'restUrl'  => esc_url_raw( rest_url( 'infinitycod/v1/' ) ),
 			'rtl'      => \InfinityCod\Core\I18n::is_rtl(),
+			'currency' => Settings::currency(),
+			'da'       => Settings::currency_label(),
 			'i18n'     => array(
 				'loading'        => __( 'Chargement…', 'infinitycod' ),
 				'chooseCommune'  => __( '— Commune —', 'infinitycod' ),
@@ -749,7 +777,7 @@ class FormManager {
 				'freeBar'        => Settings::get( 'free_amount_message' ),
 				'freeTarget'     => (float) Settings::get( 'free_amount_threshold', 0 ),
 				'errorEmailFormat' => __( 'Adresse email invalide.', 'infinitycod' ),
-				'da'             => __( 'DA', 'infinitycod' ),
+				'da'             => Settings::currency_label(),
 			),
 		) );
 	}

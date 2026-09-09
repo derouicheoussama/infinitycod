@@ -137,7 +137,7 @@
 		} catch (e) {
 			s = String(v);
 		}
-		return s + ' DA';
+		return s + ' ' + (icodAdmin.currencyLabel || 'DA');
 	}
 
 	function closeModal() {

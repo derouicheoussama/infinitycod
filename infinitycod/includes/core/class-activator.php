@@ -26,6 +26,7 @@ class Activator {
 
 		self::create_tables();
 		self::seed_geo();
+		self::seed_countries();
 		self::seed_settings();
 
 		set_transient( 'icod_welcome', 1, 7 * DAY_IN_SECONDS );
@@ -126,6 +127,95 @@ class Activator {
 	}
 
 	/**
+	 * Catalogue des pays du marché arabe (régions/wilayas équivalentes).
+	 *
+	 * L'Algérie reste complète (58 wilayas + 1541 communes). Les autres pays
+	 * sont livrés au niveau région ; la commune y devient un champ libre.
+	 * L'activation de ces pays est une option Premium.
+	 *
+	 * @return array<string, array{fr:string, ar:string, regions:array<string,string>}>
+	 */
+	public static function countries_catalog() {
+		return array(
+			'DZ' => array( 'fr' => 'Algérie', 'ar' => 'الجزائر', 'regions' => array() ), // 58 wilayas déjà seedées.
+			'MA' => array( 'fr' => 'Maroc', 'ar' => 'المغرب', 'regions' => array(
+				'Tanger-Tétouan-Al Hoceïma' => 'طنجة تطوان الحسيمة',
+				"L'Oriental"                => 'الشرق',
+				'Fès-Meknès'                => 'فاس مكناس',
+				'Rabat-Salé-Kénitra'        => 'الرباط سلا القنيطرة',
+				'Béni Mellal-Khénifra'      => 'بني ملال خنيفرة',
+				'Casablanca-Settat'         => 'الدار البيضاء سطات',
+				'Marrakech-Safi'            => 'مراكش آسفي',
+				'Drâa-Tafilalet'            => 'درعة تافيلالت',
+				'Souss-Massa'               => 'سوس ماسة',
+				'Guelmim-Oued Noun'         => 'كلميم واد نون',
+				'Laâyoune-Sakia El Hamra'   => 'العيون الساقية الحمراء',
+				'Dakhla-Oued Ed-Dahab'      => 'الداخلة وادي الذهب',
+			) ),
+			'TN' => array( 'fr' => 'Tunisie', 'ar' => 'تونس', 'regions' => array(
+				'Tunis' => 'تونس', 'Ariana' => 'أريانة', 'Ben Arous' => 'بن عروس', 'La Manouba' => 'منوبة',
+				'Nabeul' => 'نابل', 'Zaghouan' => 'زغوان', 'Bizerte' => 'بنزرت', 'Béja' => 'باجة',
+				'Jendouba' => 'جندوبة', 'Le Kef' => 'الكاف', 'Siliana' => 'سليانة', 'Sousse' => 'سوسة',
+				'Monastir' => 'المنستير', 'Mahdia' => 'المهدية', 'Sfax' => 'صفاقس', 'Kairouan' => 'القيروان',
+				'Kasserine' => 'القصرين', 'Sidi Bouzid' => 'سيدي بوزيد', 'Gabès' => 'قابس', 'Médenine' => 'مدنين',
+				'Tataouine' => 'تطاوين', 'Gafsa' => 'قفصة', 'Tozeur' => 'توزر', 'Kébili' => 'قبلي',
+			) ),
+			'EG' => array( 'fr' => 'Égypte', 'ar' => 'مصر', 'regions' => array(
+				'Le Caire' => 'القاهرة', 'Alexandrie' => 'الإسكندرية', 'Gizeh' => 'الجيزة', 'Port-Saïd' => 'بورسعيد',
+				'Suez' => 'السويس', 'Louxor' => 'الأقصر', 'Assouan' => 'أسوان', 'Assiout' => 'أسيوط',
+				'Beni Souef' => 'بني سويف', 'Fayoum' => 'الفيوم', 'Menoufia' => 'المنوفية', 'Minya' => 'المنيا',
+				'New Valley' => 'الوادي الجديد', 'Sharqiya' => 'الشرقية', 'Dakahlia' => 'الدقهلية', 'Gharbiya' => 'الغربية',
+				'Qalyubia' => 'القليوبية', 'Kafr El Sheikh' => 'كفر الشيخ', 'Damiette' => 'دمياط', 'Ismailia' => 'الإسماعيلية',
+				'Sinai Nord' => 'شمال سيناء', 'Sinai Sud' => 'جنوب سيناء', 'Sohag' => 'سوهاج', 'Mer Rouge' => 'البحر الأحمر',
+				'Matrouh' => 'مطروح', 'Qena' => 'قنا', 'Beheira' => 'البحيرة',
+			) ),
+			'SA' => array( 'fr' => 'Arabie Saoudite', 'ar' => 'المملكة العربية السعودية', 'regions' => array(
+				'Riyad' => 'الرياض', 'La Mecque' => 'مكة المكرمة', 'Médine' => 'المدينة المنورة', 'Charqiya (Orientale)' => 'الشرقية',
+				'Asir' => 'عسير', 'Tabuk' => 'تبوك', 'Qassim' => 'القصيم', 'Haïl' => 'حائل',
+				'Jouf' => 'الجوف', 'Najran' => 'نجران', 'Bahah' => 'الباحة', 'Jizan' => 'جازان',
+				'Frontières du Nord' => 'الحدود الشمالية',
+			) ),
+			'AE' => array( 'fr' => 'Émirats Arabes Unis', 'ar' => 'الإمارات العربية المتحدة', 'regions' => array(
+				'Abu Dhabi' => 'أبوظبي', 'Dubaï' => 'دبي', 'Charjah' => 'الشارقة', 'Ajman' => 'عجمان',
+				'Umm Al Quwain' => 'أم القيوين', 'Ras Al Khaïmah' => 'رأس الخيمة', 'Foujairah' => 'الفجيرة',
+			) ),
+		);
+	}
+
+	/**
+	 * Insère les régions des pays du marché arabe (une fois par pays).
+	 * Les prix restent à -1 (à configurer) ; inactives par défaut.
+	 *
+	 * @return void
+	 */
+	public static function seed_countries() {
+		global $wpdb;
+
+		$table = Schema::table( 'wilayas' );
+
+		foreach ( self::countries_catalog() as $code => $country ) {
+			if ( 'DZ' === $code || empty( $country['regions'] ) ) {
+				continue;
+			}
+
+			$existing = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE country_code = %s", $code ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			if ( $existing > 0 ) {
+				continue;
+			}
+
+			$rows = array();
+			$i    = 1;
+			foreach ( $country['regions'] as $fr => $ar ) {
+				$region_code = sprintf( '%s-%02d', $code, $i++ );
+				$rows[]      = "('" . esc_sql( $region_code ) . "','" . esc_sql( $code ) . "','" . esc_sql( $fr ) . "','" . esc_sql( $ar ) . "',0,-1,-1,0)";
+			}
+			if ( $rows ) {
+				$wpdb->query( "INSERT INTO {$table} (code, country_code, name_fr, name_ar, active, price_home, price_desk, free_shipping) VALUES " . implode( ',', $rows ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			}
+		}
+	}
+
+	/**
 	 * Lit un fichier JSON du dossier data/.
 	 *
 	 * @param string $file Nom du fichier (ex. 'wilayas.json').
@@ -149,6 +239,7 @@ class Activator {
 		if ( get_option( 'infinitycod_db_version' ) !== INFINITYCOD_DB_VERSION ) {
 			self::create_tables();
 			self::seed_geo();
+			self::seed_countries();
 			update_option( 'infinitycod_db_version', INFINITYCOD_DB_VERSION, true );
 		}
 

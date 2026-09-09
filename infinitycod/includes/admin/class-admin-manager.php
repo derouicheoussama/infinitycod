@@ -417,6 +417,7 @@ class AdminManager {
 		wp_localize_script( 'icod-admin', 'icodAdmin', array(
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			'nonce'   => wp_create_nonce( 'icod_admin' ),
+				'currencyLabel' => Settings::currency_label(),
 			'i18n'    => array(
 				'loading'   => __( 'Chargement…', 'infinitycod' ),
 				'error'     => __( 'Une erreur est survenue.', 'infinitycod' ),

@@ -222,7 +222,7 @@ class OrdersPage {
 				<?php echo esc_html( $row['wilaya_name'] ); ?>
 				<span class="icod-sub"><?php echo esc_html( $row['commune'] . ' · ' . ( 'desk' === $row['delivery_mode'] ? __( 'Bureau', 'infinitycod' ) : __( 'Domicile', 'infinitycod' ) ) ); ?></span>
 			</td>
-			<td data-label="<?php esc_attr_e( 'Total', 'infinitycod' ); ?>"><strong><?php echo esc_html( number_format_i18n( (float) $row['total'], 2 ) ); ?> DA</strong><?php if ( ! empty( $row['paid'] ) ) : ?> <span title="<?php esc_attr_e( 'Payé en ligne', 'infinitycod' ); ?>">💳</span><?php endif; ?></td>
+			<td data-label="<?php esc_attr_e( 'Total', 'infinitycod' ); ?>"><strong><?php echo esc_html( number_format_i18n( (float) $row['total'], 2 ) ); ?> <?php echo esc_html( \InfinityCod\Core\Settings::currency_label() ); ?></strong><?php if ( ! empty( $row['paid'] ) ) : ?> <span title="<?php esc_attr_e( 'Payé en ligne', 'infinitycod' ); ?>">💳</span><?php endif; ?></td>
 			<td data-label="<?php esc_attr_e( 'Statut', 'infinitycod' ); ?>">
 				<span class="icod-status icod-status-<?php echo esc_attr( $status ); ?>"><?php echo esc_html( $label ); ?></span>
 			</td>

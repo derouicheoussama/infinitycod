@@ -14,6 +14,7 @@
 namespace InfinityCod\Orders;
 
 use InfinityCod\Core\Schema;
+use InfinityCod\Core\Settings;
 use InfinityCod\Form\OffersEngine;
 use InfinityCod\Form\Validator;
 use InfinityCod\Shipping\RatesManager;
@@ -178,6 +179,7 @@ class OrderStore {
 		$order->update_meta_data( '_icod_phone', isset( $data['phone'] ) ? $data['phone'] : '' );
 		$order->update_meta_data( '_icod_fraud_score', isset( $data['fraud_score'] ) ? (int) $data['fraud_score'] : 0 );
 
+		$order->set_currency( Settings::currency() );
 		$order->calculate_totals();
 		$order->update_meta_data( '_icod_total', (float) $order->get_total() );
 		$order->save();

@@ -102,7 +102,7 @@ class PixelManager {
 				'id' => (string) Settings::get( 'pixel_snap_id' ),
 			) : null,
 			'consent'   => (int) Settings::get( 'pixel_consent_required' ),
-			'currency'  => 'DZD',
+			'currency'  => Settings::currency(),
 			'product'   => $product_data,
 			'eventId'   => 'icod-' . uniqid(),
 		) );
@@ -162,7 +162,7 @@ class PixelManager {
 			'action_source'    => 'website',
 			'user_data'        => array_filter( $user_data ),
 			'custom_data'      => array(
-				'currency'     => 'DZD',
+				'currency'     => Settings::currency(),
 				'value'        => (float) $order->get_total(),
 				'content_type' => 'product',
 				'content_ids'  => array( (string) $product_id ),

@@ -177,7 +177,7 @@ class Routes {
 		$product_id  = absint( $body['product_id'] );
 		$variation_id = isset( $body['variation_id'] ) ? absint( $body['variation_id'] ) : 0;
 		$quantity    = max( 1, min( 99, isset( $body['quantity'] ) ? absint( $body['quantity'] ) : 1 ) );
-		$wilaya_code = isset( $body['wilaya'] ) ? str_pad( sanitize_text_field( $body['wilaya'] ), 2, '0', STR_PAD_LEFT ) : '';
+		$wilaya_code = isset( $body['wilaya'] ) ? $this->normalize_wilaya_code( sanitize_text_field( $body['wilaya'] ) ) : '';
 		$commune     = isset( $body['commune'] ) ? sanitize_text_field( $body['commune'] ) : '';
 		$mode        = ( isset( $body['mode'] ) && 'desk' === $body['mode'] ) ? RatesManager::MODE_DESK : RatesManager::MODE_HOME;
 
@@ -256,6 +256,24 @@ class Routes {
 	}
 
 	/**
+	 * Normalise un code de région : « 1 » → « 01 » (Algérie), « MA-1 » →
+	 * « MA-01 » (pays du catalogue), rien d'autre n'est altéré.
+	 *
+	 * @param string $code Code brut.
+	 * @return string
+	 */
+	private function normalize_wilaya_code( $code ) {
+		$code = trim( (string) $code );
+		if ( preg_match( '/^([A-Z]{2})-(\d{1,2})$/i', $code, $m ) ) {
+			return strtoupper( $m[1] ) . '-' . str_pad( $m[2], 2, '0', STR_PAD_LEFT );
+		}
+		if ( preg_match( '/^\d{1,2}$/', $code ) ) {
+			return str_pad( $code, 2, '0', STR_PAD_LEFT );
+		}
+		return $code;
+	}
+
+	/**
 	 * Corps effectif de la soumission.
 	 *
 	 * @param \WP_REST_Request $request Requête.
@@ -297,7 +315,7 @@ class Routes {
 		}
 
 		$geo        = infinitycod()->module( 'geo' );
-		$wilaya_code = isset( $body['wilaya'] ) ? str_pad( sanitize_text_field( $body['wilaya'] ), 2, '0', STR_PAD_LEFT ) : '';
+		$wilaya_code = isset( $body['wilaya'] ) ? $this->normalize_wilaya_code( sanitize_text_field( $body['wilaya'] ) ) : '';
 		$wilaya     = $geo ? $geo->wilaya( $wilaya_code ) : null;
 		if ( ! $wilaya || empty( $wilaya['active'] ) ) {
 			return new \WP_Error( 'icod_wilaya', __( 'Wilaya non desservie, veuillez en choisir une autre.', 'infinitycod' ), array( 'status' => 400 ) );
@@ -305,8 +323,13 @@ class Routes {
 
 		$commune_name = isset( $body['commune'] ) ? sanitize_text_field( $body['commune'] ) : '';
 		$commune      = $geo ? $geo->commune( $wilaya_code, $commune_name ) : null;
-		if ( ! $commune || empty( $commune['active'] ) ) {
+		// Hors Algérie (régions sans communes en base) : la commune est un texte libre.
+		$is_foreign   = isset( $wilaya['country_code'] ) && 'DZ' !== $wilaya['country_code'];
+		if ( ! $commune && ! $is_foreign ) {
 			return new \WP_Error( 'icod_commune', __( 'Commune introuvable pour cette wilaya.', 'infinitycod' ), array( 'status' => 400 ) );
+		}
+		if ( $is_foreign && '' === trim( $commune_name ) ) {
+			return new \WP_Error( 'icod_commune', __( 'Veuillez indiquer votre ville.', 'infinitycod' ), array( 'status' => 400 ) );
 		}
 
 		$mode     = ( isset( $body['mode'] ) && 'desk' === $body['mode'] ) ? RatesManager::MODE_DESK : RatesManager::MODE_HOME;

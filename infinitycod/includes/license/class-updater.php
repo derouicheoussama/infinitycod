@@ -421,10 +421,18 @@ class Updater {
 			return is_array( $cached ) ? $cached : null;
 		}
 
-		$mirrors = array(
-			'raw'      => 'https://raw.githubusercontent.com/' . $repo . '/main/latest/',
-			'jsdelivr' => 'https://cdn.jsdelivr.net/gh/' . $repo . '@main/latest/',
-		);
+		// Miroir personnalisé (échappatoire définitive) : une URL quelconque
+		// hébergeant update.json + infinitycod.zip dans le même dossier —
+		// solution de secours quand tous les domaines GitHub sont bloqués.
+		$mirrors = array();
+
+		$custom = trim( (string) Settings::get( 'custom_update_url', '' ) );
+		if ( '' !== $custom && preg_match( '#^https?://#', $custom ) ) {
+			$mirrors['custom'] = rtrim( $custom, '/' ) . '/';
+		}
+
+		$mirrors['raw']      = 'https://raw.githubusercontent.com/' . $repo . '/main/latest/';
+		$mirrors['jsdelivr'] = 'https://cdn.jsdelivr.net/gh/' . $repo . '@main/latest/';
 
 		foreach ( $mirrors as $kind => $base ) {
 			$response = wp_remote_get(

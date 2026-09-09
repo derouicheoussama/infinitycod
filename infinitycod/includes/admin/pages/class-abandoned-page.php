@@ -91,7 +91,7 @@ class AbandonedPage {
 										<span class="icod-progress"><span style="width:<?php echo (int) $row['progress']; ?>%"></span></span>
 										<?php echo (int) $row['progress']; ?>%
 									</td>
-									<td><?php echo esc_html( number_format_i18n( (float) $row['cart_total'], 0 ) ); ?> DA</td>
+									<td><?php echo esc_html( number_format_i18n( (float) $row['cart_total'], 0 ) ); ?> <?php echo esc_html( \InfinityCod\Core\Settings::currency_label() ); ?></td>
 									<td><?php echo (int) $row['reminders_sent']; ?></td>
 									<td><span class="icod-status icod-status-<?php echo esc_attr( $row['status'] ); ?>"><?php echo esc_html( $row['status'] ); ?></span></td>
 									<td><?php echo esc_html( mysql2date( 'd/m H:i', $row['updated_at'] ) ); ?></td>

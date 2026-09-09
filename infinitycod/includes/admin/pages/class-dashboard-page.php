@@ -158,7 +158,7 @@ class DashboardPage {
 						<ul class="icod-kpi-details">
 							<li><?php esc_html_e( 'À confirmer + en cours :', 'infinitycod' ); ?> <strong><?php echo (int) $kpi[ $key ]['good']; ?></strong></li>
 							<li><?php esc_html_e( 'Livrées :', 'infinitycod' ); ?> <strong><?php echo (int) $kpi[ $key ]['delivered']; ?></strong></li>
-							<li><?php esc_html_e( 'CA confirmé :', 'infinitycod' ); ?> <strong><?php echo esc_html( number_format_i18n( $kpi[ $key ]['revenue'], 0 ) ); ?> DA</strong></li>
+							<li><?php esc_html_e( 'CA confirmé :', 'infinitycod' ); ?> <strong><?php echo esc_html( number_format_i18n( $kpi[ $key ]['revenue'], 0 ) ); ?> <?php echo esc_html( \InfinityCod\Core\Settings::currency_label() ); ?></strong></li>
 							<?php if ( $kpi[ $key ]['total'] > 0 ) : ?>
 								<li><?php esc_html_e( 'Taux de confirmation :', 'infinitycod' ); ?>
 									<strong><?php echo esc_html( number_format_i18n( $kpi[ $key ]['good'] / $kpi[ $key ]['total'] * 100, 1 ) ); ?>%</strong>
@@ -187,7 +187,7 @@ class DashboardPage {
 									<tr>
 										<td><strong><?php echo esc_html( $row['customer_name'] ); ?></strong><br /><span class="icod-sub"><?php echo esc_html( $row['phone'] ); ?></span></td>
 										<td><?php echo esc_html( $row['wilaya_name'] ? $row['wilaya_name'] : $row['wilaya_code'] ); ?></td>
-										<td><?php echo esc_html( number_format_i18n( (float) $row['total'], 0 ) ); ?> DA</td>
+										<td><?php echo esc_html( number_format_i18n( (float) $row['total'], 0 ) ); ?> <?php echo esc_html( \InfinityCod\Core\Settings::currency_label() ); ?></td>
 										<td><span class="icod-status icod-status-<?php echo esc_attr( $row['status'] ); ?>"><?php echo esc_html( isset( $statuses[ $row['status'] ] ) ? $statuses[ $row['status'] ] : $row['status'] ); ?></span></td>
 									</tr>
 								<?php endforeach; ?>

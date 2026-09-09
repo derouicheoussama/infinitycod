@@ -171,6 +171,13 @@
 
 		/* --- Cascade wilaya → communes --- */
 		function loadCommunes(wilayaCode) {
+			// Wilaya hors Algérie (code « XX-nn ») : ville en saisie libre.
+			if (/^[A-Z]{2}-\d{2}$/.test(wilayaCode)) {
+				setCommuneFree(true);
+				return;
+			}
+			setCommuneFree(false);
+
 			if (state.communesCache[wilayaCode]) {
 				fillCommunes(state.communesCache[wilayaCode]);
 				return;
@@ -200,6 +207,37 @@
 				communeSelect.appendChild(option);
 			});
 			communeSelect.disabled = false;
+		}
+
+		/* Commune libre : pays sans communes en base (hors Algérie). */
+		var communeText = el(root, '.icod-commune-text');
+		var communeFree = false;
+
+		function setCommuneFree(free) {
+			communeFree = free;
+			if (!communeText) { return; }
+			communeSelect.classList.toggle('icod-hidden', free);
+			communeText.classList.toggle('icod-hidden', !free);
+			if (free) { communeSelect.disabled = true; }
+		}
+
+		/* Sélecteur de pays (multi-pays Premium) : filtre les wilayas. */
+		var countrySelect = el(root, '.icod-country');
+		if (countrySelect) {
+			countrySelect.addEventListener('change', function () {
+				var cc = countrySelect.value;
+				els(wilayaSelect, 'option').forEach(function (option) {
+					if (!option.value) { return; }
+					var match = (option.getAttribute('data-country') || 'DZ') === cc;
+					option.classList.toggle('icod-hidden', !match);
+					option.hidden = !match;
+				});
+				wilayaSelect.value = '';
+				communeSelect.innerHTML = '<option value="">' + I18N.chooseCommune + '</option>';
+				communeSelect.disabled = true;
+				setCommuneFree(false);
+				refreshQuote();
+			});
 		}
 
 		wilayaSelect.addEventListener('change', function () {
@@ -321,7 +359,7 @@
 				var discountLabel = el(root, '[data-summary-discount-label]');
 
 				if (subtotalEl) { subtotalEl.textContent = money(json.subtotal); }
-				if (shippingEl) { shippingEl.textContent = json.free ? I18N.free : money(json.shipping); }
+				if (shippingEl) { shippingEl.textContent = (json.shipping < 0) ? '—' : (json.free ? I18N.free : money(json.shipping)); }
 				if (totalEl) { totalEl.textContent = money(json.total); }
 
 				if (discountRow && discountEl) {
@@ -528,8 +566,9 @@
 			if (waBtn) { waBtn.disabled = true; }
 
 			var arOption = communeSelect.options[communeSelect.selectedIndex];
-			var communeFr = communeSelect.value;
-			var communeAr = arOption ? (arOption.getAttribute('data-ar') || '') : '';
+			var communeFr = communeFree && communeText ? communeText.value.trim() : communeSelect.value;
+			var arOption = communeSelect.options[communeSelect.selectedIndex];
+			var communeAr = (!communeFree && arOption) ? (arOption.getAttribute('data-ar') || '') : '';
 
 			var payRadio = el(form, 'input[name="icod_payment"]:checked');
 			var emailInput = el(form, '[name="icod_email"]');

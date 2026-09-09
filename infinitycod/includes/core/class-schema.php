@@ -54,7 +54,8 @@ class Schema {
 		$tables  = array();
 
 		$tables['wilayas'] = 'CREATE TABLE ' . self::table( 'wilayas' ) . " (
-			code varchar(3) NOT NULL,
+			code varchar(8) NOT NULL,
+			country_code varchar(2) NOT NULL DEFAULT 'DZ',
 			name_fr varchar(120) NOT NULL,
 			name_ar varchar(120) NOT NULL DEFAULT '',
 			active tinyint(1) NOT NULL DEFAULT 1,
@@ -63,12 +64,14 @@ class Schema {
 			free_shipping tinyint(1) NOT NULL DEFAULT 0,
 			delivery_days varchar(50) NOT NULL DEFAULT '',
 			min_order decimal(10,2) NOT NULL DEFAULT 0,
-			PRIMARY KEY (code)
+			PRIMARY KEY (code),
+			KEY country_code (country_code)
 		) $collate;";
 
 		$tables['communes'] = 'CREATE TABLE ' . self::table( 'communes' ) . " (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-			wilaya_code varchar(3) NOT NULL,
+			wilaya_code varchar(8) NOT NULL,
+			country_code varchar(2) NOT NULL DEFAULT 'DZ',
 			name_fr varchar(160) NOT NULL,
 			name_ar varchar(160) NOT NULL DEFAULT '',
 			active tinyint(1) NOT NULL DEFAULT 1,
