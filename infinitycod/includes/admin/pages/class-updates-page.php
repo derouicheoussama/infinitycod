@@ -95,7 +95,21 @@ class UpdatesPage {
 						<td>
 							<?php if ( $latest ) : ?>
 								<strong><?php echo esc_html( $latest ); ?></strong>
-								<span class="icod-hint">— <?php echo esc_html( 'beta' === Updater::channel() ? 'canal beta' : 'canal stable' ); ?></span>
+								<span class="icod-hint">
+									— <?php echo esc_html( 'beta' === Updater::channel() ? 'canal beta' : 'canal stable' ); ?>
+									<?php
+									$src           = isset( $remote['source'] ) ? (string) $remote['source'] : '';
+									$source_labels = array(
+										'github'          => __( '· via GitHub API', 'infinitycod' ),
+										'atom'            => __( '· via GitHub (flux atom)', 'infinitycod' ),
+										'mirror-raw'      => __( '· via miroir raw.githubusercontent.com', 'infinitycod' ),
+										'mirror-jsdelivr' => __( '· via miroir jsDelivr (CDN)', 'infinitycod' ),
+									);
+									if ( isset( $source_labels[ $src ] ) ) {
+										echo esc_html( $source_labels[ $src ] );
+									}
+									?>
+								</span>
 							<?php else : ?>
 								<em><?php esc_html_e( 'Inconnue (GitHub injoignable ou aucune release publiée)', 'infinitycod' ); ?></em>
 							<?php endif; ?>

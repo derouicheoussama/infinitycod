@@ -317,71 +317,81 @@ class Updater {
 	/**
 	 * Repli via le feed Atom public de github.com (host github.com, pas
 	 * api.github.com) — fonctionne même quand l'API est bloquée par
-	 * l'hébergeur. Public : aucun token requis.
+	 * l'hébergeur. Les deux dépôts sont tentés (sources puis public).
+	 * Public : aucun token requis.
 	 *
 	 * @return array|null
 	 */
 	private function remote_atom() {
 		self::$http_intercept = false;
-		$repo = self::releases_repo();
-		if ( '' === $repo ) {
-			return null;
-		}
 
 		$cached = get_transient( 'icod_update_atom' );
 		if ( false !== $cached ) {
 			return is_array( $cached ) ? $cached : null;
 		}
 
-		$response = wp_remote_get(
-			'https://github.com/' . $repo . '/releases.atom',
-			array(
-				'timeout' => 10,
-				'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
-			)
-		);
-
-		$status = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
-		$body   = is_wp_error( $response ) ? '' : (string) wp_remote_retrieve_body( $response );
-
-		$tag = '';
-		if ( $status >= 200 && $status < 300 && preg_match( '/releases\/tag\/([^<"<]+)/', $body, $idm ) ) {
-			$tag = trim( $idm[1] );
-		}
-
-		$version = ltrim( $tag, 'vV' );
-		if ( '' === $version || ! preg_match( '/^\d+\.\d+\.\d+$/', $version ) ) {
-			set_transient( 'icod_update_atom', array( 'unreachable' => 1, 'reason' => 'no_release' ), 30 * MINUTE_IN_SECONDS );
+		$repos = array_values( array_unique( array_filter( array( self::github_repo(), self::releases_repo() ) ) ) );
+		if ( empty( $repos ) ) {
 			return null;
 		}
 
-		$download = 'https://github.com/' . $repo . '/releases/download/' . $tag . '/infinitycod.zip';
+		foreach ( $repos as $repo ) {
+			$response = wp_remote_get(
+				'https://github.com/' . $repo . '/releases.atom',
+				array(
+					'timeout' => 10,
+					'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
+				)
+			);
 
-		// update.json compagnon (best effort — donne le SHA-256 sans API).
-		$sha256 = '';
-		$mres   = wp_remote_get( 'https://github.com/' . $repo . '/releases/download/' . $tag . '/update.json', array(
-			'timeout' => 10,
-			'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
-		) );
-		if ( ! is_wp_error( $mres ) && (int) wp_remote_retrieve_response_code( $mres ) === 200 ) {
-			$mdec = json_decode( wp_remote_retrieve_body( $mres ), true );
-			if ( is_array( $mdec ) && ! empty( $mdec['sha256'] ) ) {
-				$sha256 = (string) $mdec['sha256'];
+			$status = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
+			$body   = is_wp_error( $response ) ? '' : (string) wp_remote_retrieve_body( $response );
+
+			$tag = '';
+			if ( $status >= 200 && $status < 300 && preg_match( '/releases\/tag\/([^<"<]+)/', $body, $idm ) ) {
+				$tag = trim( $idm[1] );
 			}
+
+			$version = ltrim( $tag, 'vV' );
+			if ( '' === $version || ! preg_match( '/^\d+\.\d+\.\d+$/', $version ) ) {
+				continue; // Dépôt suivant.
+			}
+
+			$download = 'https://github.com/' . $repo . '/releases/download/' . $tag . '/infinitycod.zip';
+
+			// update.json compagnon (best effort — donne le SHA-256 sans API).
+			$sha256 = '';
+			$mres   = wp_remote_get( 'https://github.com/' . $repo . '/releases/download/' . $tag . '/update.json', array(
+				'timeout' => 10,
+				'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
+			) );
+			if ( ! is_wp_error( $mres ) && (int) wp_remote_retrieve_response_code( $mres ) === 200 ) {
+				$mdec = json_decode( wp_remote_retrieve_body( $mres ), true );
+				if ( is_array( $mdec ) && ! empty( $mdec['sha256'] ) ) {
+					$sha256 = (string) $mdec['sha256'];
+				}
+			}
+
+			$data = array(
+				'version'      => $version,
+				'download_url' => $download,
+				'homepage'     => 'https://github.com/' . $repo . '/releases/tag/' . $tag,
+				'changelog'    => '',
+				'sha256'       => $sha256,
+				'requires_php' => '7.4',
+				'requires'     => '6.0',
+				'source'       => 'atom',
+				'repo'         => $repo,
+			);
+
+			set_transient( 'icod_update_atom', $data, 2 * HOUR_IN_SECONDS );
+			self::$http_intercept = true;
+			return $data;
 		}
 
-		$data = array(
-			'version'      => $version,
-			'download_url' => $download,
-			'homepage'     => 'https://github.com/' . $repo . '/releases/tag/' . $tag,
-			'changelog'    => '',
-			'sha256'       => $sha256,
-			'source'       => 'atom',
-		);
-
-		set_transient( 'icod_update_atom', $data, 2 * HOUR_IN_SECONDS );
+		set_transient( 'icod_update_atom', array( 'unreachable' => 1, 'reason' => 'no_release' ), 30 * MINUTE_IN_SECONDS );
 		self::$http_intercept = true;
-		return $data;
+		return null;
 	}
 
 	/**
@@ -469,29 +479,68 @@ class Updater {
 	}
 
 	/**
-	 * Dernière release GitHub selon le canal (cache 2 h).
+	 * Dernière release GitHub selon le canal (cache 2 h). Les DEUX dépôts
+	 * sont sondés : le dépôt des sources (owner/infinitycod — la détection
+	 * y fonctionne dès qu'il est public) puis le dépôt public des releases
+	 * (owner/infinitycod-releases), source de vérité pour les clients quand
+	 * les sources restent privées.
 	 *
 	 * @return array|null version, download_url, homepage, changelog, sha256.
 	 */
 	private function remote_github() {
 		self::$http_intercept = false; // Nos propres fetches ne doivent pas être interceptés.
-		$repo  = self::releases_repo();
-		$token = '';
-
-		if ( '' === $repo ) {
-			$repo  = self::github_repo();
-			$token = self::github_token();
-		}
-
-		if ( '' === $repo ) {
-			return null;
-		}
 
 		$cached = get_transient( 'icod_update_gh' );
 		if ( false !== $cached ) {
 			return is_array( $cached ) ? $cached : null;
 		}
 
+		// Dépôts candidats, dans l'ordre : dépôt des sources, dépôt public.
+		$repos = array_values( array_unique( array_filter( array( self::github_repo(), self::releases_repo() ) ) ) );
+		if ( empty( $repos ) ) {
+			return null;
+		}
+
+		$tried  = array();
+		$status = 0;
+
+		foreach ( $repos as $repo ) {
+			$tried[] = $repo;
+			$token   = ( $repo === self::github_repo() ) ? self::github_token() : '';
+
+			$result = $this->fetch_latest_release( $repo, $token );
+
+			if ( is_array( $result ) ) {
+				set_transient( 'icod_update_gh', $result, 2 * HOUR_IN_SECONDS );
+				self::$http_intercept = true;
+				return $result;
+			}
+
+			// 404 = dépôt privé/inexistant ou aucune release : on tente le suivant.
+			// 403 ou erreur réseau : inutile d'insister, même réseau pour tous.
+			$status = (int) $result;
+			if ( 404 !== $status ) {
+				break;
+			}
+		}
+
+		set_transient( 'icod_update_gh', array(
+			'unreachable' => 1,
+			'reason'      => 404 === $status ? 'private_or_empty' : 'network',
+			'repo'        => implode( ' → ', $tried ),
+		), 30 * MINUTE_IN_SECONDS );
+		self::$http_intercept = true;
+		return null;
+	}
+
+	/**
+	 * Récupère la dernière release d'un dépôt via l'API GitHub.
+	 *
+	 * @param string $repo   Dépôt (owner/name).
+	 * @param string $token  Token (dépôt privé), peut être vide.
+	 * @return array|int    Données de release, ou code HTTP (0/403/404…) si échec.
+	 */
+	private function fetch_latest_release( $repo, $token ) {
 		$args = array(
 			'timeout' => 10,
 			'headers' => array(
@@ -528,13 +577,7 @@ class Updater {
 		}
 
 		if ( ! is_array( $release ) || empty( $release['tag_name'] ) ) {
-			set_transient( 'icod_update_gh', array(
-				'unreachable' => 1,
-				'reason'      => 404 === $status ? 'private_or_empty' : 'network',
-				'repo'        => $repo,
-			), 30 * MINUTE_IN_SECONDS );
-			self::$http_intercept = true;
-			return null;
+			return $status;
 		}
 
 		// Manifest update.json prioritaire (contient le SHA-256), sinon zip direct.
@@ -555,6 +598,7 @@ class Updater {
 				if ( '' !== $sig && ! self::verify_manifest_signature( $mraw, $sig ) ) {
 					\InfinityCod\Logging\Logger::log( 'security', 'Manifest signature INVALIDE — manifest ignoré (mise à jour non proposée).' );
 					set_transient( 'icod_update_gh', array( 'unreachable' => 1, 'reason' => 'bad_signature' ), 30 * MINUTE_IN_SECONDS );
+					self::$http_intercept = true;
 					return null;
 				}
 
@@ -576,15 +620,15 @@ class Updater {
 			'requires_php' => $manifest['requires_php'] ?? '7.4',
 			'requires'     => $manifest['requires'] ?? '6.0',
 			'source'       => 'github',
+			'repo'         => $repo,
 		);
 
 		if ( '' === $data['download_url'] ) {
 			set_transient( 'icod_update_gh', array( 'unreachable' => 1, 'reason' => 'no_package' ), 30 * MINUTE_IN_SECONDS );
+			self::$http_intercept = true;
 			return null;
 		}
 
-		set_transient( 'icod_update_gh', $data, 2 * HOUR_IN_SECONDS );
-		self::$http_intercept = true;
 		return $data;
 	}
 

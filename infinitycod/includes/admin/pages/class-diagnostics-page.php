@@ -274,13 +274,29 @@ class DiagnosticsPage {
 		$test = array(
 			'time'   => current_time( 'mysql' ),
 			'ok'     => ! empty( $latest['version'] ),
-			'source' => isset( $latest['source'] ) ? ( 'github' === $latest['source'] ? 'GitHub' : 'infinitycoder.app' ) : __( 'aucune source joignable', 'infinitycod' ),
+			'source' => isset( $latest['source'] ) ? $this->source_label( (string) $latest['source'] ) : __( 'aucune source joignable', 'infinitycod' ),
 			'version'=> isset( $latest['version'] ) ? (string) $latest['version'] : '',
 		);
 		update_option( 'icod_updater_test', $test, false );
 
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-diagnostics&icod_msg=tested' ) );
 		exit;
+	}
+
+	/**
+	 * Libellé lisible de la source qui a répondu.
+	 *
+	 * @param string $source Identifiant interne de source.
+	 * @return string
+	 */
+	private function source_label( $source ) {
+		$labels = array(
+			'github'          => __( 'GitHub API', 'infinitycod' ),
+			'atom'            => __( 'GitHub (flux atom)', 'infinitycod' ),
+			'mirror-raw'      => __( 'Miroir raw.githubusercontent.com', 'infinitycod' ),
+			'mirror-jsdelivr' => __( 'Miroir jsDelivr (CDN)', 'infinitycod' ),
+		);
+		return isset( $labels[ $source ] ) ? $labels[ $source ] : $source;
 	}
 
 	/**
