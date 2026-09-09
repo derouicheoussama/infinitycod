@@ -790,8 +790,19 @@ cod-toggle-danger">
 			}
 		}
 
-		// Cases à cocher (absent = 0).
-		foreach ( array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'menu_badge', 'auto_update', 'payment_enabled', 'redirect_enabled', 'upsell_enabled', 'show_email', 'restrict_hours_enabled', 'wa_order_enabled', 'log_enabled', 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'whatsapp_enabled', 'abandoned_enabled', 'delete_on_uninstall' ) as $toggle_key ) {
+		// Cases à cocher : seulement celles présentes dans le POST de cet onglet.
+		// Les autres sont préservées (chaque onglet gère ses propres toggles).
+		$tab_toggles = array(
+			'form'     => array( 'show_qty_selector', 'show_stopdesk', 'show_note', 'show_offers', 'show_reassurance', 'sticky_bar', 'show_email' ),
+			'order'    => array( 'redirect_enabled', 'upsell_enabled' ),
+			'fraud'    => array( 'shield_enabled', 'phone_strict', 'block_duplicate_phone', 'restrict_hours_enabled' ),
+			'whatsapp' => array( 'whatsapp_enabled', 'abandoned_enabled', 'wa_order_enabled' ),
+			'payment'  => array( 'payment_enabled' ),
+			'advanced' => array( 'menu_badge', 'auto_update', 'log_enabled', 'delete_on_uninstall' ),
+		);
+		$scope_toggles = isset( $tab_toggles[ $this->tab ] ) ? $tab_toggles[ $this->tab ] : array();
+
+		foreach ( $scope_toggles as $toggle_key ) {
 			$clean[ $toggle_key ] = empty( $raw[ $toggle_key ] ) ? 0 : 1;
 		}
 

@@ -228,3 +228,12 @@ Transformation en produit commercial professionnel : chaîne de release sécuris
 
 ### Changed
 - `create_tables()` : le require de `wp-admin/includes/upgrade.php` est conditionné à l'absence de `dbDelta` — le harnais de test n'a plus besoin de la fixture fake-wp (suggestion retenue du rapport CI).
+
+## 2.8.0 — 2026-09-09
+
+### Fixed
+- **Sauvegarde par onglet isolée** : chaque onglet de réglages ne traite que SES propres toggles — sauvegarder depuis l'onglet WhatsApp ne désactive plus les toggles de l'onglet Formulaire, et vice versa. Chaque onglet déclare ses champs gérés via un système de scope.
+
+### Improved
+- Miniature du produit dans l'en-tête du formulaire COD (confiance visuelle).
+- Regex email réparé (backslashes restaurés — rejetait tout email contenant un « s »).
