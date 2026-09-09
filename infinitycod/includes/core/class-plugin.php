@@ -52,6 +52,7 @@ final class Plugin {
 		'rest'      => '\\InfinityCod\\Rest\\Routes',
 		'carriers'  => '\\InfinityCod\\Carriers\\CarrierManager',
 		'whatsapp'  => '\\InfinityCod\\Whatsapp\\WhatsappManager',
+		'seo'       => '\InfinityCod\Seo\SeoManager',
 		'stats'     => '\\InfinityCod\\Stats\\Pnl',
 		'tracking'  => '\\InfinityCod\\Tracking\\PixelManager',
 		'admin'     => '\\InfinityCod\\Admin\\AdminManager',

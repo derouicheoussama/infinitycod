@@ -724,6 +724,49 @@ class SettingsPage {
 		);
 		?>
 		<div class="icod-card">
+		<div class="icod-card">
+			<h2>🧱 <?php esc_html_e( 'Checkout Builder — champs du formulaire', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Activez, ordonnez (▲▼), rendez obligatoire et renommez chaque champ. Ajoutez vos propres champs personnalisés.', 'infinitycod' ); ?></p>
+			<?php
+			$fields = (array) Settings::get( 'checkout_fields', array() );
+			$move = isset( $_GET['cfmove'] ) ? sanitize_text_field( wp_unslash( $_GET['cfmove'] ) ) : '';
+			if ( $move && strpos( $move, ':' ) !== false && current_user_can( 'manage_woocommerce' ) ) {
+				$parts = explode( ':', $move );
+				$i = absint( $parts[1] );
+				$dir = ( $parts[0] === 'up' ) ? -1 : 1;
+				if ( isset( $fields[ $i ] ) && isset( $fields[ $i + $dir ] ) ) {
+					$tmp = $fields[ $i ];
+					$fields[ $i ] = $fields[ $i + $dir ];
+					$fields[ $i + $dir ] = $tmp;
+					Settings::set( 'checkout_fields', array_values( $fields ) );
+					$fields = array_values( Settings::get( 'checkout_fields', array() ) );
+				}
+			}
+			foreach ( $fields as $i => $fld ) : ?>
+			<div style="display:flex;gap:8px;align-items:center;border-bottom:1px solid #f0f0f1;padding:8px 0;flex-wrap:wrap">
+				<a href="?page=infinitycod-settings&tab=form&cfmove=up:<?php echo (int) $i; ?>" class="button" style="padding:2px 8px">▲</a>
+				<a href="?page=infinitycod-settings&tab=form&cfmove=down:<?php echo (int) $i; ?>" class="button" style="padding:2px 8px">▼</a>
+				<code dir="ltr" style="width:110px"><?php echo esc_html( $fld['key'] ); ?></code>
+				<select name="icod[checkout_fields][<?php echo (int) $i; ?>][type]">
+				<?php foreach ( array( 'text', 'tel', 'email', 'select', 'radio', 'checkbox', 'textarea', 'date', 'number' ) as $t ) : ?>
+				<option <?php selected( $fld['type'], $t ); ?>><?php echo esc_html( $t ); ?></option>
+				<?php endforeach; ?></select>
+				<input type="text" name="icod[checkout_fields][<?php echo (int) $i; ?>][label]" placeholder="Label personnalisé…" value="<?php echo esc_attr( $fld['label'] ); ?>" style="flex:1;min-width:150px" />
+				<label style="white-space:nowrap"><input type="checkbox" name="icod[checkout_fields][<?php echo (int) $i; ?>][on]" value="1" <?php checked( ! empty( $fld['on'] ) ); ?> /> Actif</label>
+				<label style="white-space:nowrap"><input type="checkbox" name="icod[checkout_fields][<?php echo (int) $i; ?>][req]" value="1" <?php checked( ! empty( $fld['req'] ) ); ?> /> Obligatoire</label>
+				<input type="hidden" name="icod[checkout_fields][<?php echo (int) $i; ?>][key]" value="<?php echo esc_attr( $fld['key'] ); ?>" />
+				<input type="hidden" name="icod[checkout_fields][<?php echo (int) $i; ?>][order]" value="<?php echo (int) $i; ?>" />
+			</div>
+			<?php endforeach; ?>
+			<div style="display:flex;gap:8px;align-items:center;border-top:2px solid #f0f0f1;padding-top:10px;margin-top:6px;flex-wrap:wrap">
+				<strong style="font-size:12px"><?php esc_html_e( 'Ajouter un champ personnalisé :', 'infinitycod' ); ?></strong>
+				<input type="text" name="icod[checkout_fields_new][key]" placeholder="clé (ex: ville2)" dir="ltr" style="width:120px" />
+				<select name="icod[checkout_fields_new][type]"><option>text</option><option>tel</option><option>email</option><option>select</option><option>checkbox</option><option>textarea</option><option>date</option><option>number</option></select>
+				<input type="text" name="icod[checkout_fields_new][label]" placeholder="Label" style="width:150px" />
+			</div>
+			<p class="description"><?php esc_html_e( 'Les nouveaux champs sont ajoutés en fin de liste après enregistrement.', 'infinitycod' ); ?></p>
+		</div>
+
 			<h2><?php esc_html_e( 'Thème du formulaire', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Choisissez un thème visuel — la couleur d‘accent ci-dessous le personnalise encore.', 'infinitycod' ); ?></p>
 			<div class="icod-preset-grid">
@@ -1067,6 +1110,7 @@ class SettingsPage {
 						<option value="wame" <?php selected( Settings::get( 'whatsapp_gateway' ), 'wame' ); ?>><?php esc_html_e( 'Liens wa.me (ouverture manuelle, gratuit)', 'infinitycod' ); ?></option>
 						<option value="cloud" <?php selected( Settings::get( 'whatsapp_gateway' ), 'cloud' ); ?>><?php esc_html_e( 'WhatsApp Cloud API (officiel Meta)', 'infinitycod' ); ?></option>
 						<option value="ultramsg" <?php selected( Settings::get( 'whatsapp_gateway' ), 'ultramsg' ); ?>>UltraMsg</option>
+						<option value="textmebot" <?php selected( Settings::get( 'whatsapp_gateway' ), 'textmebot' ); ?>>TextMeBot API</option>
 					</select>
 				</label>
 				<label>
@@ -1088,6 +1132,10 @@ class SettingsPage {
 				<label>
 					<span><?php esc_html_e( 'UltraMsg — Clé API', 'infinitycod' ); ?></span>
 					<input type="password" name="icod[whatsapp_ultramsg_key]" value="<?php echo esc_attr( Settings::get( 'whatsapp_ultramsg_key' ) ); ?>" class="regular-text" autocomplete="new-password" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'TextMeBot — Clé API (textmebot.com)', 'infinitycod' ); ?></span>
+					<input type="password" name="icod[wa_textmebot_key]" value="<?php echo esc_attr( Settings::get( 'wa_textmebot_key' ) ); ?>" class="regular-text" autocomplete="new-password" />
 				</label>
 			</div>
 		</div>
@@ -1338,6 +1386,7 @@ cod-toggle-danger">
 			'accent_color'       => array( 'tab' => 'form', 'type' => 'color' ),
 			'form_theme'         => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'light', 'dark', 'auto' ) ),
 			'success_style'      => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'classic', 'confetti', 'minimal', 'ticket', 'celebration' ) ),
+			'checkout_fields'    => array( 'tab' => 'form', 'type' => 'json' ),
 			'form_preset'        => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'modern', 'elegant', 'sunset', 'ocean', 'minimal', 'rose', 'royal', 'cafe', 'aqua' ) ),
 			'form_position'      => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'before_summary', 'after_price', 'after_excerpt', 'before_cart', 'after_cart', 'after_summary', 'end_product' ) ),
 			'form_max_width'     => array( 'tab' => 'form', 'type' => 'int', 'min' => 400, 'max' => 900 ),
@@ -1378,12 +1427,13 @@ cod-toggle-danger">
 			'whatsapp_enabled'         => array( 'tab' => 'whatsapp', 'type' => 'toggle' ),
 			'abandoned_enabled'        => array( 'tab' => 'whatsapp', 'type' => 'toggle' ),
 			'wa_order_enabled'         => array( 'tab' => 'whatsapp', 'type' => 'toggle' ),
-			'whatsapp_gateway'         => array( 'tab' => 'whatsapp', 'type' => 'enum', 'choices' => array( 'wame', 'cloud', 'ultramsg' ) ),
+			'whatsapp_gateway'         => array( 'tab' => 'whatsapp', 'type' => 'enum', 'choices' => array( 'wame', 'cloud', 'ultramsg', 'textmebot' ) ),
 			'whatsapp_number'          => array( 'tab' => 'whatsapp', 'type' => 'id' ),
 			'whatsapp_phone_id'        => array( 'tab' => 'whatsapp', 'type' => 'id' ),
 			'whatsapp_ultramsg_instance' => array( 'tab' => 'whatsapp', 'type' => 'id' ),
 			'whatsapp_cloud_token'     => array( 'tab' => 'whatsapp', 'type' => 'secret' ),
 			'whatsapp_ultramsg_key'    => array( 'tab' => 'whatsapp', 'type' => 'secret' ),
+			'wa_textmebot_key'         => array( 'tab' => 'whatsapp', 'type' => 'secret' ),
 			'wa_order_label'           => array( 'tab' => 'whatsapp', 'type' => 'text' ),
 			'msg_wa_order'             => array( 'tab' => 'whatsapp', 'type' => 'textarea' ),
 			'msg_order_received'       => array( 'tab' => 'whatsapp', 'type' => 'textarea' ),
@@ -1455,6 +1505,22 @@ cod-toggle-danger">
 
 		$raw   = isset( $_POST['icod'] ) && is_array( $_POST['icod'] ) ? wp_unslash( $_POST['icod'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitisé champ par champ.
 		$clean = $this->sanitize_fields( $raw, $this->tab );
+
+		// Checkout Builder : ajout des champs personnalisés soumis.
+		if ( 'form' === $tab && isset( $clean['checkout_fields'] ) && isset( $_POST['icod']['checkout_fields_new']['key'] ) ) {
+			$nk = sanitize_key( $_POST['icod']['checkout_fields_new']['key'] );
+			if ( $nk !== '' ) {
+				$fields = $clean['checkout_fields'];
+				$fields[] = array(
+					'key'   => substr( $nk, 0, 30 ),
+					'type'  => in_array( $_POST['icod']['checkout_fields_new']['type'] ?? 'text', array( 'text','tel','email','select','radio','checkbox','textarea','date','number' ), true ) ? $_POST['icod']['checkout_fields_new']['type'] : 'text',
+					'label' => sanitize_text_field( $_POST['icod']['checkout_fields_new']['label'] ?? '' ),
+					'on'    => 1,
+					'req'   => 0,
+				);
+				$clean['checkout_fields'] = $fields;
+			}
+		}
 
 		Settings::set( $clean );
 
@@ -1571,6 +1637,24 @@ cod-toggle-danger">
 					break;
 				case 'id':
 					$clean[ $key ] = preg_replace( '/[^0-9a-zA-Z_\-.\/]/', '', (string) $value );
+					break;
+				case 'json':
+					$fields = json_decode( wp_unslash( $value ), true );
+					$out = array();
+					if ( is_array( $fields ) ) {
+						foreach ( $fields as $f ) {
+							if ( ! is_array( $f ) || empty( $f['key'] ) ) { continue; }
+							$out[] = array(
+								'key'  => substr( preg_replace( '/[^a-z0-9_]/', '', strtolower( (string) $f['key'] ) ), 0, 30 ),
+								'type' => in_array( $f['type'] ?? '', array( 'text','tel','email','select','radio','checkbox','textarea','date','number' ), true ) ? $f['type'] : 'text',
+								'label' => sanitize_text_field( (string) ( $f['label'] ?? '' ) ),
+								'on' => empty( $f['on'] ) ? 0 : 1,
+								'req' => empty( $f['req'] ) ? 0 : 1,
+							);
+						}
+						usort( $out, fn( $a, $b ) => ( $a['order'] ?? 99 ) <=> ( $b['order'] ?? 99 ) );
+					}
+					$clean[ $key ] = $out;
 					break;
 				case 'secret':
 					$clean[ $key ] = sanitize_text_field( $value );

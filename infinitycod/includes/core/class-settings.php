@@ -129,6 +129,7 @@ class Settings {
 			'msg_order_received'    => __( 'Bonjour {nom} 👋 Merci pour votre commande #{commande} ! Nous vous rappellerons très vite au {telephone} pour la confirmer. Montant à la livraison : {total}.', 'infinitycod' ),
 			'msg_order_shipped'     => __( 'Bonjour {nom}, votre commande #{commande} a été expédiée 📦. Suivi : {suivi}. Merci pour votre confiance !', 'infinitycod' ),
 			'msg_abandoned'         => __( 'Bonjour {nom} 👋 Votre commande de {produit} est restée inachevée 🛒. Répondez OUI et nous vous rappelons tout de suite pour la finaliser !', 'infinitycod' ),
+			'wa_textmebot_key'      => '',           // Clé API TextMeBot.
 			'abandoned_enabled'     => 0,
 			'abandoned_delay'       => 60,   // minutes avant 1ère relance.
 			'abandoned_max'         => 2,    // nombre de relances.
@@ -142,6 +143,15 @@ class Settings {
 			'menu_badge'            => 1,    // Badge commandes en attente sur le menu.
 			'auto_update'           => 1,    // Mise à jour automatique du plugin (activée par défaut).
 			'success_style'         => 'classic', // Style de l'écran de remerciement.
+			'checkout_fields'       => [ // Checkout Builder : ordre, visibilité, requis, labels.
+				['key'=>'name','type'=>'text','label'=>'','on'=>1,'req'=>1],
+				['key'=>'phone','type'=>'tel','label'=>'','on'=>1,'req'=>1],
+				['key'=>'email','type'=>'email','label'=>'','on'=>0,'req'=>0],
+				['key'=>'wilaya','type'=>'select','label'=>'','on'=>1,'req'=>1],
+				['key'=>'commune','type'=>'select','label'=>'','on'=>1,'req'=>1],
+				['key'=>'address','type'=>'text','label'=>'','on'=>0,'req'=>0],
+				['key'=>'note','type'=>'textarea','label'=>'','on'=>0,'req'=>0],
+			],
 			'license_lock_form'     => 0,    // Verrouille le formulaire sans licence (distribution commerciale).
 			'update_channel'        => 'stable', // stable | beta.
 			'log_enabled'           => 1,    // Journal InfinityCod.

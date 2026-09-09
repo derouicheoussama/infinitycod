@@ -254,6 +254,17 @@ class WhatsappManager {
 	 * @param string $message Texte.
 	 * @return true|\WP_Error
 	 */
+	/** TextMeBot : GET api.textmebot.com/send.php?recipient=&apikey=&text= */
+	private function send_textmebot( $to, $message ) {
+		$key = Settings::get( 'wa_textmebot_key' );
+		if ( '' === $key ) { return array( 'ok' => false, 'error' => 'no_key' ); }
+		$phone = preg_replace( '/\D/', '', (string) $to );
+		$url = add_query_arg( array( 'recipient' => '+' . $phone, 'apikey' => $key, 'text' => $message ), 'https://api.textmebot.com/send.php' );
+		$res = wp_remote_get( $url, array( 'timeout' => 20 ) );
+		if ( is_wp_error( $res ) ) { return array( 'ok' => false, 'error' => 'http' ); }
+		$ok = wp_remote_retrieve_response_code( $res ) === 200;
+		return array( 'ok' => $ok );
+	}
 	private function send_ultramsg( $to, $message ) {
 		$instance = Settings::get( 'whatsapp_ultramsg_instance' );
 		$key      = Settings::get( 'whatsapp_ultramsg_key' );
