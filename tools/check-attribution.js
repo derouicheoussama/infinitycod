@@ -28,6 +28,7 @@ let phpTotal = 0;
 let phpOk = 0;
 const phpBad = [];
 walk('infinitycod', (n) => n.endsWith('.php'), (f, s) => {
+  if (path.basename(f) === 'index.php') return; // Gardes « Silence is golden » : hors exigence d'attribution.
   phpTotal++;
   const isMain = path.basename(f) === 'infinitycod.php';
   const signed = isMain

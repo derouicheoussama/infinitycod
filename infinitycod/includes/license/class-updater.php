@@ -524,7 +524,11 @@ class Updater {
 			return $transient;
 		}
 
-		if ( version_compare( INFINITYCOD_VERSION, (string) $remote['version'], '>=' ) ) {
+		$installed = isset( $transient->checked[ INFINITYCOD_BASENAME ] ) && '' !== (string) $transient->checked[ INFINITYCOD_BASENAME ]
+			? (string) $transient->checked[ INFINITYCOD_BASENAME ]
+			: INFINITYCOD_VERSION;
+
+		if ( version_compare( $installed, (string) $remote['version'], '>=' ) ) {
 			return $transient;
 		}
 

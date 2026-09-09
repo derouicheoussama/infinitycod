@@ -177,9 +177,6 @@ class RatesManager {
 
 	/**
 	 * Sauvegarde en masse des tarifs depuis l'écran admin.
-
-	/**
-	 * Sauvegarde en masse des tarifs depuis l'écran admin.
 	 *
 	 * @param array $wilaya_prices Tableau code => array('home' => x, 'desk' => y, 'active' => 0|1, 'free' => 0|1).
 	 * @return int Nombre de wilayas mises à jour.

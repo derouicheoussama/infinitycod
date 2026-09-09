@@ -30,6 +30,7 @@ define( 'OBJECT', 'OBJECT' );
 /* ---------- Stubs WordPress ---------- */
 
 $GLOBALS['__options']   = array();
+$GLOBALS['__transients'] = array();
 $GLOBALS['__actions']   = array();
 $GLOBALS['__wpdb_log']  = array();
 
@@ -84,8 +85,9 @@ function get_option( $k, $d = false ) { return array_key_exists( $k, $GLOBALS['_
 function update_option( $k, $v, $autoload = null ) { $GLOBALS['__options'][ $k ] = $v; return true; }
 function add_option( $k, $v, $x = '', $a = false ) { $GLOBALS['__options'][ $k ] = $v; return true; }
 function delete_option( $k ) { unset( $GLOBALS['__options'][ $k ] ); return true; }
-function get_transient( $k, $d = false ) { return $d; }
-function set_transient( $k, $v, $e = 0 ) { return true; }
+function get_transient( $k, $d = false ) { return array_key_exists( $k, $GLOBALS['__transients'] ) ? $GLOBALS['__transients'][ $k ] : $d; }
+function set_transient( $k, $v, $e = 0 ) { $GLOBALS['__transients'][ $k ] = $v; return true; }
+function delete_transient( $k ) { unset( $GLOBALS['__transients'][ $k ] ); return true; }
 function current_time( $type, $gmt = 0 ) { return 'mysql' === $type ? gmdate( 'Y-m-d H:i:s', time() + 3600 ) : time() + 3600; }
 function current_user_can( ...$c ) { return true; }
 function check_admin_referer( ...$a ) {}
@@ -137,8 +139,8 @@ function paginate_links( $a = array() ) { return ''; }
 function nocache_headers() {}
 function wp_remote_request( ...$a ) { return new WP_Error_Stub( 'http', 'offline' ); }
 function wp_remote_post( ...$a ) { return new WP_Error_Stub( 'http', 'offline' ); }
-function wp_remote_retrieve_response_code( $r ) { return 0; }
-function wp_remote_retrieve_body( $r ) { return ''; }
+function wp_remote_retrieve_response_code( $r ) { return ( is_array( $r ) && isset( $r['response']['code'] ) ) ? (int) $r['response']['code'] : 0; }
+function wp_remote_retrieve_body( $r ) { return ( is_array( $r ) && isset( $r['body'] ) ) ? (string) $r['body'] : ''; }
 function is_wp_error( $t ) { return $t instanceof WP_Error_Stub || $t instanceof WP_Error; }
 function mysql2date( $f, $v ) { return date( $f, strtotime( (string) $v ) ); }
 function number_format_i18n( $n, $d = 0 ) { return number_format( (float) $n, (int) $d ); }
@@ -162,7 +164,6 @@ function wp_update_plugins() {}
 function wp_list_pluck( $list, $field ) { $out = array(); foreach ( $list as $item ) { $out[] = is_object( $item ) ? $item->$field : $item[$field]; } return $out; }
 function get_site_transient( $k ) { return false; }
 function set_site_transient( $k, $v, $e = 0 ) { return true; }
-function delete_transient( $k ) {}
 function delete_site_transient( $k ) {}
 function get_bloginfo( $k = 'name' ) { return '6.5'; }
 function wp_get_theme() { return new class { public function get( $k ) { return 'Twenty Twenty-Four'; } }; }
