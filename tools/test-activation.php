@@ -8,14 +8,16 @@
 error_reporting( E_ALL );
 ini_set( 'display_errors', '1' );
 
-define( 'ICOD_HARNESS_DEBUG', true );
-define( 'ABSPATH', __DIR__ . '/../.tools/fake-wp/' );
+define( 'ICOD_HARNESS_DEBUG', false );
+define( 'ABSPATH', sys_get_temp_dir() . '/icod-fake-wp/' );
 
 // Fixture wp-admin/includes/upgrade.php : créée avant tout require (§56).
+if ( ! is_dir( ABSPATH . 'wp-admin/includes' ) ) {
+	@mkdir( ABSPATH . 'wp-admin/includes', 0777, true );
+}
 $__icod_upgrade = ABSPATH . 'wp-admin/includes/upgrade.php';
 if ( ! file_exists( $__icod_upgrade ) ) {
-    @mkdir( dirname( $__icod_upgrade ), 0777, true );
-    file_put_contents( $__icod_upgrade, '<?php' );
+	file_put_contents( $__icod_upgrade, "<?php\n// stub\n" );
 }
 define( 'MINUTE_IN_SECONDS', 60 );
 define( 'HOUR_IN_SECONDS', 3600 );
