@@ -54,6 +54,7 @@ class AdminManager {
 		add_action( 'wp_ajax_icod_save_commune', array( $this, 'handle_commune_save' ) );
 		add_action( 'admin_post_icod_orders_bulk', array( $this, 'handle_orders_bulk' ) );
 		add_action( 'wp_ajax_icod_order_status', array( $this, 'handle_order_status' ) );
+		add_action( 'wp_ajax_icod_order_update', array( $this, 'handle_order_update' ) );
 		add_action( 'wp_ajax_icod_order_blacklist', array( $this, 'handle_order_blacklist' ) );
 		add_action( 'admin_post_icod_orders_export', array( $this, 'handle_orders_export' ) );
 		add_action( 'admin_post_icod_carrier_save', array( $this, 'handle_carrier_save' ) );
@@ -371,6 +372,11 @@ class AdminManager {
 				'saved'     => __( 'Enregistré ✓', 'infinitycod' ),
 				'confirm'   => __( 'Confirmer ?', 'infinitycod' ),
 				'inherit'   => __( 'Hérite', 'infinitycod' ),
+				'saving'    => __( 'Enregistrement…', 'infinitycod' ),
+				'edit'      => __( 'Modifier la commande', 'infinitycod' ),
+				'save'      => __( 'Enregistrer les modifications', 'infinitycod' ),
+				'details'   => __( 'Détails', 'infinitycod' ),
+				'editBtn'   => __( '✎ Modifier', 'infinitycod' ),
 			),
 		) );
 	}
@@ -701,6 +707,92 @@ class AdminManager {
 			) );
 		}
 		wp_send_json_error( array( 'message' => 'db' ) );
+	}
+
+	/**
+	 * Édition d'une commande depuis la modale (AJAX) : coordonnées,
+	 * destination, quantité, note — montants recalculés et synchronisés
+	 * avec la commande WooCommerce liée.
+	 *
+	 * @return void
+	 */
+	public function handle_order_update() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+
+		$id    = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+		$order = $id ? \InfinityCod\Core\Schema::get_order( $id ) : null;
+
+		if ( ! $order ) {
+			wp_send_json_error( array( 'message' => 'not_found' ) );
+		}
+
+		$name    = isset( $_POST['customer_name'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_name'] ) ) : $order['customer_name'];
+		$phone   = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : $order['phone'];
+		$phone   = \InfinityCod\Form\Validator::normalize_phone( $phone );
+		$wilaya  = isset( $_POST['wilaya_code'] ) ? preg_replace( '/[^0-9]/', '', wp_unslash( $_POST['wilaya_code'] ) ) : $order['wilaya_code'];
+		$wilaya  = str_pad( substr( (string) $wilaya, 0, 2 ), 2, '0', STR_PAD_LEFT );
+		$commune = isset( $_POST['commune'] ) ? sanitize_text_field( wp_unslash( $_POST['commune'] ) ) : $order['commune'];
+		$mode    = ( isset( $_POST['delivery_mode'] ) && 'desk' === $_POST['delivery_mode'] ) ? 'desk' : 'home';
+		$stopdesk = ( 'desk' === $mode && isset( $_POST['stopdesk'] ) ) ? sanitize_text_field( wp_unslash( $_POST['stopdesk'] ) ) : '';
+		$qty     = isset( $_POST['quantity'] ) ? max( 1, min( 999, absint( $_POST['quantity'] ) ) ) : (int) $order['quantity'];
+		$note    = isset( $_POST['note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['note'] ) ) : (string) ( $order['note'] ?? '' );
+
+		if ( '' === $name || '' === $phone ) {
+			wp_send_json_error( array( 'message' => 'invalid' ) );
+		}
+
+		// Recalcul : prix unitaire implicite = sous-total / ancienne quantité.
+		$old_qty  = max( 1, (int) $order['quantity'] );
+		$unit     = (float) $order['subtotal'] / $old_qty;
+		$subtotal = round( $unit * $qty, 2 );
+		$total    = round( $subtotal - (float) $order['discount'] + (float) $order['shipping'], 2 );
+
+		global $wpdb;
+
+		$updated = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- mise à jour ciblée.
+			\InfinityCod\Core\Schema::table( 'orders' ),
+			array(
+				'customer_name' => $name,
+				'phone'         => $phone,
+				'wilaya_code'   => $wilaya,
+				'commune'       => $commune,
+				'delivery_mode' => $mode,
+				'stopdesk'      => $stopdesk,
+				'quantity'      => $qty,
+				'note'          => $note,
+				'subtotal'      => $subtotal,
+				'total'         => $total,
+			),
+			array( 'id' => $id ),
+			array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%f', '%f' ),
+			array( '%d' )
+		);
+
+		if ( false === $updated ) {
+			wp_send_json_error( array( 'message' => 'db' ) );
+		}
+
+		// Synchronisation minimale avec la commande WooCommerce liée.
+		if ( ! empty( $order['wc_order_id'] ) && function_exists( 'wc_get_order' ) ) {
+			$wc = wc_get_order( (int) $order['wc_order_id'] );
+			if ( $wc ) {
+				try {
+					if ( method_exists( $wc, 'set_total' ) ) {
+						$wc->set_total( $total );
+						$wc->save();
+					}
+					$wc->add_order_note( __( 'Commande modifiée depuis InfinityCod (client, destination, quantité ou note).', 'infinitycod' ) );
+				} catch ( \Throwable $e ) {
+					\InfinityCod\Logging\Logger::log( 'error', 'Sync commande WC : ' . $e->getMessage() );
+				}
+			}
+		}
+
+		wp_send_json_success( array( 'total' => $total ) );
 	}
 
 	/**

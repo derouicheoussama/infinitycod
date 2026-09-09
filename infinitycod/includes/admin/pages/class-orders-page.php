@@ -174,6 +174,23 @@ class OrdersPage {
 			</form>
 
 			<?php $this->pagination( $total ); ?>
+
+			<?php
+			// Liste des wilayas pour le select d'édition de la modale.
+			$wl = array();
+			foreach ( $wilayas as $w ) {
+				$wl[] = array( 'code' => $w['code'], 'name' => $w['name_fr'] );
+			}
+			printf( '<script>window.icodWilayas=%s;</script>', wp_json_encode( $wl ) ); // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- données de page, JSON sans balise.
+			?>
+
+			<div class="icod-modal" id="icod-order-modal" hidden>
+				<div class="icod-modal-overlay" data-icod-modal-close></div>
+				<div class="icod-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="icod-modal-title">
+					<button type="button" class="icod-modal-x" data-icod-modal-close aria-label="<?php esc_attr_e( 'Fermer', 'infinitycod' ); ?>">✕</button>
+					<div id="icod-modal-body"></div>
+				</div>
+			</div>
 		</div>
 		<?php
 	}
@@ -232,7 +249,7 @@ class OrdersPage {
 				<?php endif; ?>
 			</td>
 			<td class="icod-col-actions icod-row-actions">
-				<a href="#" class="icod-detail-toggle button button-small" aria-expanded="false">🔍</a>
+				<button type="button" class="button button-small icod-open" data-order="<?php echo esc_attr( wp_json_encode( $this->order_payload( $row ) ) ); ?>" title="<?php esc_attr_e( 'Voir les détails et modifier', 'infinitycod' ); ?>">🔍</button>
 				<?php if ( in_array( $status, array( 'pending', 'no_answer' ), true ) ) : ?>
 					<button type="button" class="button button-small icod-quick" data-id="<?php echo esc_attr( $row['id'] ); ?>" data-status="confirmed" title="<?php esc_attr_e( 'Confirmer', 'infinitycod' ); ?>">✓</button>
 				<?php endif; ?>
@@ -244,63 +261,48 @@ class OrdersPage {
 				<?php endif; ?>
 			</td>
 		</tr>
-		<tr class="icod-detail-row icod-hidden">
-			<td colspan="10">
-				<div class="icod-detail-grid">
-					<div>
-						<h4><?php esc_html_e( 'Coordonnées', 'infinitycod' ); ?></h4>
-						<p>
-											<?php echo esc_html( $row['customer_name'] ); ?><br />
-											<a href="tel:<?php echo esc_attr( $row['phone'] ); ?>"><?php echo esc_html( $row['phone'] ); ?></a><br />
-											<a href="https://wa.me/213<?php echo esc_attr( ltrim( $row['phone'], '0' ) ); ?>" target="_blank" rel="noopener">💬 WhatsApp</a>
-										</p>
-						<?php if ( $row['stopdesk'] ) : ?>
-							<p><strong><?php esc_html_e( 'Bureau :', 'infinitycod' ); ?></strong> <?php echo esc_html( $row['stopdesk'] ); ?></p>
-						<?php endif; ?>
-					</div>
-					<div>
-						<?php if ( ! empty( $row['paid'] ) ) : ?>
-							<p><span class="icod-status icod-status-confirmed">💳 <?php esc_html_e( 'Payé en ligne (CIB/Edahabia)', 'infinitycod' ); ?></span><?php if ( $row['paid_at'] ) : ?> <span class="icod-sub"><?php echo esc_html( mysql2date( 'd/m/Y H:i', $row['paid_at'] ) ); ?></span><?php endif; ?></p>
-						<?php elseif ( 'online' === $row['payment'] ) : ?>
-							<p><span class="icod-status icod-status-no_answer">⏳ <?php esc_html_e( 'Paiement en ligne non finalisé', 'infinitycod' ); ?></span></p>
-						<?php endif; ?>
-						<h4><?php esc_html_e( 'Montants', 'infinitycod' ); ?></h4>
-						<p>
-							<?php
-							printf(
-								/* translators: 1 : sous-total, 2 : remise, 3 : livraison, 4 : total. */
-								esc_html__( 'Sous-total : %1$s DA / Remise : %2$s DA / Livraison : %3$s DA / Total : %4$s DA', 'infinitycod' ),
-								esc_html( number_format_i18n( (float) $row['subtotal'], 2 ) ),
-								esc_html( number_format_i18n( (float) $row['discount'], 2 ) ),
-								esc_html( number_format_i18n( (float) $row['shipping'], 2 ) ),
-								esc_html( number_format_i18n( (float) $row['total'], 2 ) )
-							);
-							?>
-						</p>
-					</div>
-					<div>
-						<h4><?php esc_html_e( 'Suivi', 'infinitycod' ); ?></h4>
-						<p>
-							WC #<?php echo esc_html( $row['wc_order_id'] ); ?> ·
-							<?php echo esc_html( $row['carrier_status'] ? $row['carrier_status'] : '—' ); ?>
-						</p>
-						<?php if ( $row['fraud_flags'] ) : ?>
-							<p class="icod-risk-flags">⚠️ <?php echo esc_html( $row['fraud_flags'] ); ?></p>
-						<?php endif; ?>
-						<?php if ( $row['ip'] ) : ?>
-							<p class="icod-sub">IP : <?php echo esc_html( $row['ip'] ); ?></p>
-						<?php endif; ?>
-					</div>
-					<div>
-						<?php if ( $row['wc_order_id'] ) : ?>
-							<a class="button button-small" href="<?php echo esc_url( get_edit_post_link( (int) $row['wc_order_id'] ) ); ?>"><?php esc_html_e( 'Voir dans WooCommerce', 'infinitycod' ); ?></a>
-						<?php endif; ?>
-						<button type="button" class="button button-small icod-bl" data-phone="<?php echo esc_attr( $row['phone'] ); ?>">🚫 <?php esc_html_e( 'Blacklister', 'infinitycod' ); ?></button>
-					</div>
-				</div>
-			</td>
-		</tr>
 		<?php
+	}
+
+	/**
+	 * Données complètes d'une commande pour la modale (détails + édition).
+	 *
+	 * @param array $row Ligne icod_orders enrichie.
+	 * @return array
+	 */
+	private function order_payload( array $row ) {
+		return array(
+			'id'             => (int) $row['id'],
+			'name'           => (string) $row['customer_name'],
+			'phone'          => (string) $row['phone'],
+			'email'          => (string) ( $row['email'] ?? '' ),
+			'wilaya'         => (string) $row['wilaya_code'],
+			'wilaya_name'    => (string) ( $row['wilaya_name'] ?? '' ),
+			'commune'        => (string) $row['commune'],
+			'mode'           => (string) $row['delivery_mode'],
+			'stopdesk'       => (string) $row['stopdesk'],
+			'qty'            => (int) $row['quantity'],
+			'product'        => $row['product_id'] ? (string) get_the_title( (int) $row['product_id'] ) : '',
+			'note'           => (string) ( $row['note'] ?? '' ),
+			'status'         => (string) $row['status'],
+			'statuses'       => OrderStore::STATUSES,
+			'subtotal'       => (float) $row['subtotal'],
+			'discount'       => (float) $row['discount'],
+			'shipping'       => (float) $row['shipping'],
+			'total'          => (float) $row['total'],
+			'paid'           => (int) ( $row['paid'] ?? 0 ),
+			'paid_at'        => ! empty( $row['paid_at'] ) ? mysql2date( 'd/m/Y H:i', $row['paid_at'] ) : '',
+			'payment'        => (string) ( $row['payment'] ?? 'cod' ),
+			'carrier'        => (string) ( $row['carrier'] ?? '' ),
+			'tracking'       => (string) ( $row['tracking'] ?? '' ),
+			'carrier_status' => (string) ( $row['carrier_status'] ?? '' ),
+			'fraud_score'    => (int) ( $row['fraud_score'] ?? 0 ),
+			'fraud_flags'    => (string) ( $row['fraud_flags'] ?? '' ),
+			'ip'             => (string) ( $row['ip'] ?? '' ),
+			'wc_order_id'    => (int) ( $row['wc_order_id'] ?? 0 ),
+			'edit_url'       => ! empty( $row['wc_order_id'] ) ? (string) get_edit_post_link( (int) $row['wc_order_id'] ) : '',
+			'created_at'     => mysql2date( 'd/m/Y H:i', $row['created_at'] ),
+		);
 	}
 
 	/**

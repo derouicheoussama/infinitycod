@@ -86,16 +86,6 @@
 		});
 	}
 
-	document.querySelectorAll('.icod-detail-toggle').forEach(function (toggle) {
-		toggle.addEventListener('click', function (event) {
-			event.preventDefault();
-			var detailRow = toggle.closest('tr').nextElementSibling;
-			var open = !detailRow.classList.contains('icod-hidden');
-			detailRow.classList.toggle('icod-hidden', open);
-			toggle.setAttribute('aria-expanded', open ? 'false' : 'true');
-		});
-	});
-
 	function post(action, body) {
 		var data = new window.FormData();
 		data.append('action', action);
@@ -124,6 +114,202 @@
 				window.alert(icodAdmin.i18n.error);
 				btn.disabled = false;
 			});
+		});
+	});
+
+	/* ===== Modale commande : détails complets + édition + tous les statuts ===== */
+
+	var modal = document.getElementById('icod-order-modal');
+	var modalBody = document.getElementById('icod-modal-body');
+	var wilayas = window.icodWilayas || [];
+
+	function escHtml(str) {
+		return String(str == null ? '' : str)
+			.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+	}
+
+	function moneyAdmin(n) {
+		var v = Math.round((Number(n) || 0) * 100) / 100;
+		var s;
+		try {
+			s = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }).format(v);
+		} catch (e) {
+			s = String(v);
+		}
+		return s + ' DA';
+	}
+
+	function closeModal() {
+		if (!modal) { return; }
+		modal.hidden = true;
+		document.body.classList.remove('icod-modal-open');
+	}
+
+	if (modal) {
+		modal.querySelectorAll('[data-icod-modal-close]').forEach(function (el) {
+			el.addEventListener('click', closeModal);
+		});
+		document.addEventListener('keydown', function (event) {
+			if (event.key === 'Escape') { closeModal(); }
+		});
+	}
+
+	function openOrderModal(o) {
+		if (!modal || !modalBody) { return; }
+
+		var wa = 'https://wa.me/213' + String(o.phone || '').replace(/^0/, '');
+		var risk = parseInt(o.fraud_score, 10) || 0;
+		var riskLabel = risk >= 60 ? 'Élevé (' + risk + ')' : (risk >= 25 ? 'Moyen (' + risk + ')' : 'Faible');
+		var riskClass = risk >= 60 ? 'icod-risk-high' : (risk >= 25 ? 'icod-risk-mid' : 'icod-risk-low');
+		var modeLabel = 'desk' === o.mode ? '🏢 Au bureau' : '🏠 À domicile';
+
+		/* Sélecteur de statuts : tous les statuts sauf le courant. */
+		var statusBtns = '';
+		Object.keys(o.statuses || {}).forEach(function (key) {
+			if (key === o.status) { return; }
+			statusBtns += '<button type="button" class="button button-small icod-m-status" data-id="' + o.id + '" data-status="' + escHtml(key) + '">' +
+				escHtml(o.statuses[key]) + '</button> ';
+		});
+
+		/* Options wilayas pour l'édition. */
+		var wilayaOpts = '<option value="">' + escHtml(o.wilaya_name || '—') + '</option>';
+		(wilayas || []).forEach(function (w) {
+			var sel = (String(w.code) === String(o.wilaya)) ? ' selected' : '';
+			wilayaOpts += '<option value="' + escHtml(w.code) + '"' + sel + '>' + escHtml(w.code + ' — ' + w.name) + '</option>';
+		});
+
+		modalBody.innerHTML =
+			'<div class="icod-m-head">' +
+				'<h2 id="icod-modal-title">Commande #' + o.id + ' <span class="icod-sub">· ' + escHtml(o.created_at) + '</span></h2>' +
+				'<span class="icod-status icod-status-' + escHtml(o.status) + '">' + escHtml((o.statuses || {})[o.status] || o.status) + '</span>' +
+			'</div>' +
+
+			'<div class="icod-m-grid">' +
+				'<section class="icod-m-card">' +
+					'<h4>👤 Coordonnées</h4>' +
+					'<p><strong>' + escHtml(o.name) + '</strong><br />' +
+					'<a href="tel:' + escHtml(o.phone) + '">' + escHtml(o.phone) + '</a><br />' +
+					'<a class="button button-small" href="' + wa + '" target="_blank" rel="noopener">💬 WhatsApp</a></p>' +
+					((o.email) ? '<p class="icod-sub">✉️ ' + escHtml(o.email) + '</p>' : '') +
+				'</section>' +
+
+				'<section class="icod-m-card">' +
+					'<h4>🗺️ Destination</h4>' +
+					'<p>' + escHtml((o.wilaya ? o.wilaya + ' — ' : '') + (o.wilaya_name || '')) + '<br />' +
+					'<span class="icod-sub">' + escHtml(o.commune) + ' · ' + modeLabel + '</span></p>' +
+					((o.stopdesk) ? '<p class="icod-sub">🏢 ' + escHtml(o.stopdesk) + '</p>' : '') +
+				'</section>' +
+
+				'<section class="icod-m-card">' +
+					'<h4>📦 Produit</h4>' +
+					'<p>' + escHtml(o.product || '—') + '<br /><span class="icod-sub">Quantité : ×' + parseInt(o.qty, 10) + '</span></p>' +
+					((parseInt(o.paid, 10)) ? '<p><span class="icod-status icod-status-confirmed">💳 Payé en ligne</span> <span class="icod-sub">' + escHtml(o.paid_at) + '</span></p>' : '') +
+				'</section>' +
+
+				'<section class="icod-m-card">' +
+					'<h4>💰 Montants</h4>' +
+					'<p class="icod-m-lines">' +
+						'<span>Sous-total <b>' + moneyAdmin(o.subtotal) + '</b></span>' +
+						((o.discount > 0) ? '<span>Remise <b>−' + moneyAdmin(o.discount) + '</b></span>' : '') +
+						'<span>Livraison <b>' + moneyAdmin(o.shipping) + '</b></span>' +
+						'<span class="icod-m-total">Total <b>' + moneyAdmin(o.total) + '</b></span>' +
+					'</p>' +
+				'</section>' +
+
+				'<section class="icod-m-card">' +
+					'<h4>🛡️ Risque & suivi</h4>' +
+					'<p><span class="icod-risk ' + riskClass + '">' + escHtml(riskLabel) + '</span>' +
+					((o.fraud_flags) ? ' <span class="icod-sub">⚠️ ' + escHtml(o.fraud_flags) + '</span>' : '') + '</p>' +
+					'<p class="icod-sub">' +
+						((o.wc_order_id) ? 'WC #' + o.wc_order_id + ' · ' : '') +
+						((o.carrier) ? escHtml(o.carrier) + (o.tracking ? ' · ' + escHtml(o.tracking) : '') + (o.carrier_status ? ' · ' + escHtml(o.carrier_status) : '') : 'aucun transporteur') +
+						((o.ip) ? '<br />IP : ' + escHtml(o.ip) : '') +
+					'</p>' +
+					((o.note) ? '<p class="icod-sub">📝 ' + escHtml(o.note) + '</p>' : '') +
+				'</section>' +
+
+				'<section class="icod-m-card">' +
+					'<h4>⚡ Actions</h4>' +
+					'<p class="icod-m-statuses">' + statusBtns + '</p>' +
+					((o.edit_url) ? '<p><a class="button button-small" href="' + escHtml(o.edit_url) + '" target="_blank" rel="noopener">Voir dans WooCommerce ↗</a></p>' : '') +
+				'</section>' +
+			'</div>' +
+
+			'<form class="icod-m-edit" id="icod-m-edit-form">' +
+				'<h4>✎ ' + escHtml(icodAdmin.i18n.edit) + '</h4>' +
+				'<div class="icod-m-edit-grid">' +
+					'<label><span>Nom</span><input type="text" name="customer_name" value="' + escHtml(o.name) + '" required /></label>' +
+					'<label><span>Téléphone</span><input type="text" name="phone" value="' + escHtml(o.phone) + '" dir="ltr" required /></label>' +
+					'<label><span>Wilaya</span><select name="wilaya_code">' + wilayaOpts + '</select></label>' +
+					'<label><span>Commune</span><input type="text" name="commune" value="' + escHtml(o.commune) + '" /></label>' +
+					'<label><span>Mode</span><select name="delivery_mode">' +
+						'<option value="home"' + ('home' === o.mode ? ' selected' : '') + '>À domicile</option>' +
+						'<option value="desk"' + ('desk' === o.mode ? ' selected' : '') + '>Au bureau (stopdesk)</option>' +
+					'</select></label>' +
+					'<label><span>Bureau (si stopdesk)</span><input type="text" name="stopdesk" value="' + escHtml(o.stopdesk) + '" /></label>' +
+					'<label><span>Quantité</span><input type="number" name="quantity" value="' + parseInt(o.qty, 10) + '" min="1" max="999" /></label>' +
+					'<label class="icod-m-full"><span>Note</span><textarea name="note" rows="2">' + escHtml(o.note) + '</textarea></label>' +
+				'</div>' +
+				'<p class="icod-m-actions">' +
+					'<button type="submit" class="button button-primary">' + escHtml(icodAdmin.i18n.save) + '</button> ' +
+					'<button type="button" class="button" data-icod-modal-close>Fermer</button>' +
+				'</p>' +
+			'</form>';
+
+		modal.hidden = false;
+		document.body.classList.add('icod-modal-open');
+
+		/* Actions statut dans la modale. */
+		modalBody.querySelectorAll('.icod-m-status').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				if (!window.confirm(icodAdmin.i18n.confirm)) { return; }
+				btn.disabled = true;
+				post('icod_order_status', { id: btn.getAttribute('data-id'), status: btn.getAttribute('data-status') })
+					.then(function (json) {
+						if (!json || !json.success) { window.alert(icodAdmin.i18n.error); btn.disabled = false; return; }
+						window.location.reload();
+					}).catch(function () { window.alert(icodAdmin.i18n.error); btn.disabled = false; });
+			});
+		});
+
+		/* Enregistrement de l'édition. */
+		var editForm = document.getElementById('icod-m-edit-form');
+		if (editForm) {
+			editForm.addEventListener('submit', function (event) {
+				event.preventDefault();
+				var submitBtn = editForm.querySelector('button[type="submit"]');
+				submitBtn.disabled = true;
+				submitBtn.textContent = icodAdmin.i18n.saving;
+
+				var body = { id: o.id };
+				editForm.querySelectorAll('input, select, textarea').forEach(function (input) {
+					if (input.name) { body[input.name] = input.value; }
+				});
+
+				post('icod_order_update', body).then(function (json) {
+					if (!json || !json.success) {
+						window.alert(icodAdmin.i18n.error);
+						submitBtn.disabled = false;
+						submitBtn.textContent = icodAdmin.i18n.save;
+						return;
+					}
+					window.location.reload();
+				}).catch(function () {
+					window.alert(icodAdmin.i18n.error);
+					submitBtn.disabled = false;
+					submitBtn.textContent = icodAdmin.i18n.save;
+				});
+			});
+		}
+	}
+
+	document.querySelectorAll('.icod-open').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			var payload = btn.getAttribute('data-order');
+			var order = null;
+			try { order = JSON.parse(payload); } catch (e) { order = null; }
+			if (order) { openOrderModal(order); }
 		});
 	});
 

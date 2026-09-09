@@ -154,9 +154,6 @@ class FormManager {
 		$show_reassurance = (bool) Settings::get( 'show_reassurance', 1 );
 		$show_email       = (bool) Settings::get( 'show_email', 0 );
 		$wa_order         = (bool) Settings::get( 'wa_order_enabled', 0 ) && Settings::get( 'whatsapp_number' );
-		$wa_order         = (bool) Settings::get( 'wa_order_enabled', 0 ) && Settings::get( 'whatsapp_number' );
-		$wa_order         = (bool) Settings::get( 'wa_order_enabled', 0 ) && Settings::get( 'whatsapp_number' );
-		$wa_order         = (bool) Settings::get( 'wa_order_enabled', 0 ) && Settings::get( 'whatsapp_number' );
 		$payment_online   = infinitycod()->module( 'payment' ) ? \InfinityCod\Payment\PaymentManager::enabled() : false;
 
 		$ts  = time();
@@ -206,6 +203,7 @@ class FormManager {
 			data-product="<?php echo esc_attr( $product->get_id() ); ?>"
 			data-variations="<?php echo esc_attr( $variations_json ); ?>"
 			data-unit-price="<?php echo esc_attr( $product->get_price() ); ?>"
+			data-regular-price="<?php echo esc_attr( $product->is_type( 'variable' ) ? '' : $product->get_regular_price() ); ?>"
 			data-qty-max="<?php echo esc_attr( (int) Settings::get( 'qty_max', 20 ) ); ?>"
 			data-sticky="<?php echo esc_attr( (int) Settings::get( 'sticky_bar', 1 ) ); ?>"
 			data-redirect="<?php echo $redirect_on ? esc_attr( Settings::get( 'redirect_url' ) ) : ''; ?>"
@@ -217,6 +215,12 @@ class FormManager {
 
 			<section class="icod-card" aria-labelledby="icod-form-title">
 				<header class="icod-head">
+					<?php
+					$thumb_url = wp_get_attachment_image_url( $product->get_image_id(), 'woocommerce_thumbnail' );
+					if ( $thumb_url ) :
+						?>
+						<img class="icod-head-thumb" src="<?php echo esc_url( $thumb_url ); ?>" alt="" loading="lazy" />
+					<?php endif; ?>
 					<span class="icod-head-icon" aria-hidden="true"><?php echo esc_html( Settings::get( 'form_icon', '🛒' ) ); ?></span>
 					<div class="icod-head-text">
 						<h2 class="icod-form-title" id="icod-form-title"><?php echo esc_html( $title ); ?></h2>
@@ -224,6 +228,19 @@ class FormManager {
 							<p class="icod-form-subtitle"><?php echo esc_html( Settings::get( 'form_subtitle' ) ); ?></p>
 						<?php endif; ?>
 					</div>
+					<span class="icod-head-price" data-head-price>
+						<?php
+						$head_regular = (float) $product->get_regular_price();
+						$head_price   = (float) $product->get_price();
+						$decimals     = fmod( $head_price, 1 ) ? 2 : 0;
+						if ( $head_regular > $head_price && $head_regular > 0 && ! $product->is_type( 'variable' ) ) :
+							?>
+							<del data-head-price-regular><?php echo esc_html( number_format_i18n( $head_regular, fmod( $head_regular, 1 ) ? 2 : 0 ) . ' ' . __( 'DA', 'infinitycod' ) ); ?></del>
+						<?php else : ?>
+							<del data-head-price-regular class="icod-hidden"></del>
+						<?php endif; ?>
+						<ins data-head-price-live><?php echo esc_html( number_format_i18n( $head_price, $decimals ) . ' ' . __( 'DA', 'infinitycod' ) ); ?></ins>
+					</span>
 				</header>
 
 				<form class="icod-form" novalidate>
@@ -390,6 +407,12 @@ class FormManager {
 
 						<aside class="icod-aside">
 							<div class="icod-summary" role="status" aria-live="polite">
+								<p class="icod-summary-title"><?php esc_html_e( '🧾 Récapitulatif', 'infinitycod' ); ?></p>
+								<div class="icod-summary-line icod-summary-product">
+									<span class="icod-summary-product-name"><?php echo esc_html( wp_trim_words( $product->get_name(), 6 ) ); ?></span>
+									<span class="icod-summary-qty" data-summary-qty>×1</span>
+								</div>
+								<div class="icod-summary-line"><span><?php esc_html_e( 'Prix unitaire', 'infinitycod' ); ?></span><span data-summary-unit>—</span></div>
 								<?php if ( Settings::get( 'free_amount_enabled' ) ) : ?>
 								<div class="icod-freebar icod-hidden" data-icod-freebar>
 									<span data-icod-freebar-text></span>
@@ -399,7 +422,7 @@ class FormManager {
 								<div class="icod-summary-line"><span><?php esc_html_e( 'Sous-total', 'infinitycod' ); ?></span><span data-summary-subtotal>—</span></div>
 								<div class="icod-summary-line icod-hidden" data-summary-discount-row><span data-summary-discount-label><?php esc_html_e( 'Remise', 'infinitycod' ); ?></span><span data-summary-discount>—</span></div>
 								<div class="icod-summary-line"><span><?php esc_html_e( 'Livraison', 'infinitycod' ); ?></span><span data-summary-shipping>—</span></div>
-								<div class="icod-summary-total"><span><?php esc_html_e( 'Total à payer à la livraison', 'infinitycod' ); ?></span><span data-summary-total>—</span></div>
+								<div class="icod-summary-total"><span><?php esc_html_e( 'Total à payer', 'infinitycod' ); ?></span><span data-summary-total>—</span></div>
 							</div>
 
 							<div class="icod-msg icod-hidden" data-icod-msg role="alert"></div>
@@ -412,15 +435,6 @@ class FormManager {
 								<button type="button" class="icod-submit icod-wa-btn" data-icod-wa>
 									💬 <?php echo esc_html( Settings::get( 'wa_order_label' ) ); ?>
 								</button>
-							<?php endif; ?>
-
-							<?php if ( $wa_order ) : ?>
-							<?php endif; ?>
-
-							<?php if ( $wa_order ) : ?>
-							<?php endif; ?>
-
-							<?php if ( $wa_order ) : ?>
 							<?php endif; ?>
 
 							<?php if ( $show_reassurance ) : ?>

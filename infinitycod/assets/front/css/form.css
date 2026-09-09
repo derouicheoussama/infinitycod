@@ -512,3 +512,84 @@ select.icod-input{
 
 /* Verrou licence : note visible par l'administrateur uniquement. */
 .icod-form-locked-admin{background:#fff8e6;border:1px dashed #f0b429;border-radius:8px;padding:10px 14px;font-size:13px;color:#6b4e00}
+
+/* ===== Animations d'entrée & vie (v3.3) ===== */
+@keyframes icod-head-in{
+	from{opacity:0;transform:translateY(-12px)}
+	to{opacity:1;transform:translateY(0)}
+}
+@keyframes icod-icon-float{
+	0%,100%{transform:translateY(0) rotate(0deg)}
+	50%{transform:translateY(-3px) rotate(-3deg)}
+}
+@keyframes icod-shine{
+	0%,55%{transform:translateX(-130%)}
+	80%,100%{transform:translateX(130%)}
+}
+@keyframes icod-breathe{
+	0%,100%{box-shadow:0 5px 16px color-mix(in srgb, var(--icod-accent) 32%, transparent)}
+	50%{box-shadow:0 6px 26px color-mix(in srgb, var(--icod-accent) 55%, transparent)}
+}
+.icod-head{animation:icod-head-in .55s cubic-bezier(.22,1,.36,1) both}
+.icod-head-icon{animation:icod-icon-float 2.8s ease-in-out infinite}
+.icod-submit{
+	position:relative;overflow:hidden;
+	animation:icod-breathe 2.4s ease-in-out infinite;
+}
+.icod-submit::after{
+	content:"";position:absolute;inset:0;pointer-events:none;
+	background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.38) 50%,transparent 68%);
+	transform:translateX(-130%);
+	animation:icod-shine 3.4s ease-in-out infinite;
+}
+.icod-submit:hover{transform:translateY(-2px)}
+.icod-submit:active{transform:translateY(1px) scale(.99)}
+.icod-submit[disabled]{animation:none}
+.icod-submit[disabled]::after{display:none}
+
+/* ===== Prix dans l'en-tête ===== */
+.icod-head-price{
+	display:flex;flex-direction:column;align-items:flex-end;gap:1px;
+	margin-inline-start:auto;
+	font-weight:800;font-size:1.08rem;line-height:1.15;
+	color:var(--icod-accent);white-space:nowrap;
+	text-shadow:0 1px 6px color-mix(in srgb, var(--icod-accent) 22%, transparent);
+}
+.icod-head-price del{opacity:.65;font-size:.78rem;font-weight:600;color:var(--icod-head-ink,#333)}
+.icod-head-price ins{text-decoration:none}
+
+/* ===== Récapitulatif enrichi ===== */
+.icod-summary-title{
+	margin:0 0 8px!important;
+	font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+	color:var(--icod-muted)!important;
+}
+.icod-summary-product{
+	align-items:baseline;
+	padding-bottom:6px;margin-bottom:6px;
+	border-bottom:1px dashed var(--icod-border);
+}
+.icod-summary-product-name{font-weight:700;color:var(--icod-text);font-size:.9rem}
+.icod-summary-qty{
+	flex:none;
+	background:color-mix(in srgb, var(--icod-accent) 14%, transparent);
+	color:var(--icod-accent);
+	font-weight:800;font-size:.78rem;
+	padding:1px 8px;border-radius:99px;
+}
+.icod-summary-total{
+	background:color-mix(in srgb, var(--icod-accent) 10%, transparent);
+	border-radius:var(--icod-radius-sm);
+	padding:10px 12px!important;
+	margin-top:10px!important;
+	border-top:0!important;
+}
+.icod-summary-total [data-summary-total]{font-size:1.3rem}
+
+/* ===== Mobile : le récap remonte juste sous l'en-tête ===== */
+@media (max-width:719px){
+	.icod-aside{display:contents}
+	.icod-summary{order:-1;margin:0 0 16px}
+	.icod-msg,.icod-submit,.icod-wa-btn,.icod-reassurance{order:1}
+	.icod-head-price{font-size:.98rem}
+}

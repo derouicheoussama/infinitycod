@@ -101,6 +101,37 @@
 
 		fpInput.value = fingerprint();
 
+		/* --- Affichage permanent du prix (en-tête + récap) --- */
+		function currentQty() { return qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1; }
+
+		function updateHeadPrice() {
+			var live = el(root, '[data-head-price-live]');
+			if (live) { live.textContent = money(state.unitPrice); }
+			var regular = parseFloat(root.getAttribute('data-regular-price')) || 0;
+			var regularEl = el(root, '[data-head-price-regular]');
+			if (regularEl) {
+				var show = regular > state.unitPrice + 0.001;
+				regularEl.classList.toggle('icod-hidden', !show);
+				if (show) { regularEl.textContent = money(regular); }
+			}
+		}
+
+		function updateQtyBadge() {
+			var qtyEl = el(root, '[data-summary-qty]');
+			if (qtyEl) { qtyEl.textContent = '×' + currentQty(); }
+		}
+
+		function updateLocalTotals() {
+			var unitEl = el(root, '[data-summary-unit]');
+			if (unitEl) { unitEl.textContent = money(state.unitPrice); }
+			var subtotalEl = el(root, '[data-summary-subtotal]');
+			if (subtotalEl && !state.quote) { subtotalEl.textContent = money(state.unitPrice * currentQty()); }
+		}
+
+		updateHeadPrice();
+		updateQtyBadge();
+		updateLocalTotals();
+
 		/* --- Variations : résolution de l'ID selon les attributs choisis --- */
 		function currentAttributes() {
 			var attrs = {};
@@ -127,6 +158,8 @@
 					state.unitPrice = variation.price;
 				}
 			});
+			updateHeadPrice();
+			updateLocalTotals();
 			refreshQuote();
 		}
 
@@ -224,6 +257,7 @@
 				var value = (parseInt(qtyInput.value, 10) || 1) + step;
 				value = Math.max(1, Math.min(state.qtyMax, value));
 				qtyInput.value = value;
+				updateQtyBadge();
 				refreshQuote();
 			});
 		});
@@ -231,6 +265,7 @@
 			qtyInput.addEventListener('change', function () {
 				var value = parseInt(qtyInput.value, 10) || 1;
 				qtyInput.value = Math.max(1, Math.min(state.qtyMax, value));
+				updateQtyBadge();
 				refreshQuote();
 			});
 		}
@@ -253,6 +288,8 @@
 				if (!json || !json.unit) { return; }
 				state.quote = json;
 				state.unitPrice = json.unit;
+				updateHeadPrice();
+				updateQtyBadge();
 
 				var homeEl = el(form, '[data-price-home]');
 				var deskEl = el(form, '[data-price-desk]');
