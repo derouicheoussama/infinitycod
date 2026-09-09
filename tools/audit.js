@@ -19,9 +19,13 @@ for (const m of sp.matchAll(/icod\[([a-z_0-9]+)\]\[\]/g)) used.add(m[1]);
 const handledText = [...sp.matchAll(/array\(([^)]*)\) as \$(text_key|textarea_key)/g)].flatMap(m =>
   m[1].split(',').map(x => x.trim().replace(/^'|'$/g, '')).filter(x => x && !x.includes('('))
 );
-const handledToggleBlock = [...sp.matchAll(/array\(([^)]*)\) as \$toggle_key/g)].flatMap(m =>
-  m[1].split(',').map(x => x.trim().replace(/^'|'$/g, ''))
-);
+// Toggles : bloc $tab_toggles = array( 'onglet' => array( 'cle1', 'cle2', ... ), ... );
+const tabTogglesBlock = sp.match(/\$tab_toggles\s*=\s*array\(([\s\S]*?)\);\s*\r?\n\s*\$scope_toggles/);
+const handledToggleBlock = tabTogglesBlock
+  ? [...tabTogglesBlock[1].matchAll(/'([a-z_0-9]+)'/g)].map(m => m[1])
+  : [...sp.matchAll(/array\(([^)]*)\) as \$toggle_key/g)].flatMap(m =>
+      m[1].split(',').map(x => x.trim().replace(/^'|'$/g, ''))
+    );
 const handledNum = [...sp.matchAll(/'([a-z_0-9]+)'\s+=> array\(/g)].map(m => m[1]);
 
 const handled = new Set([...handledText, ...handledToggleBlock, ...handledNum,
