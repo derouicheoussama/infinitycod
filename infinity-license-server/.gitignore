@@ -1,0 +1,10 @@
+node_modules/
+.env
+storage/*.db
+storage/*.db-wal
+storage/*.db-shm
+storage/.app_key
+storage/keys/
+storage/logs/
+storage/backups/
+storage/releases/

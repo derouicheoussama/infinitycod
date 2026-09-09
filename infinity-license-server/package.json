@@ -1,0 +1,15 @@
+{
+  "name": "infinity-license-server",
+  "version": "1.0.0",
+  "description": "Central license server for Infinity WordPress plugins (InfinityCOD & more).",
+  "type": "module",
+  "main": "server.js",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "start": "node server.js",
+    "keys": "node -e \"import('./src/core.js').then(m=>{m.ensureKeys();console.log('Keys ready in ./storage')})\"",
+    "test": "node scripts/test-e2e.js"
+  },
+  "license": "GPL-2.0-or-later",
+  "author": "Derouiche Oussama"
+}
