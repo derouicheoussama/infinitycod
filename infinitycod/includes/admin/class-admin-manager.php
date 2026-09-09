@@ -95,6 +95,38 @@ class AdminManager {
 				esc_html__( 'Commandes', 'infinitycod' )
 			),
 		);
+
+		// Mise à jour connue (cache) et plus récente : lien direct.
+		$gh = get_transient( 'icod_update_gh' );
+		$gh = is_array( $gh ) ? $gh : array();
+		$latest = isset( $gh['version'] ) ? (string) $gh['version'] : '';
+		if ( '' === $latest ) {
+			$atom = get_transient( 'icod_update_atom' );
+			$atom = is_array( $atom ) ? $atom : array();
+			$mirror = get_transient( 'icod_update_mirror' );
+			$mirror = is_array( $mirror ) ? $mirror : array();
+			$latest = isset( $atom['version'] ) ? (string) $atom['version'] : ( isset( $mirror['version'] ) ? (string) $mirror['version'] : '' );
+		}
+		if ( '' !== $latest && version_compare( INFINITYCOD_VERSION, $latest, '<' ) ) {
+			array_unshift(
+				$custom,
+				sprintf(
+					'<a href="%s" style="color:#0e7a4f;font-weight:700">⬆ %s</a>',
+					esc_url( wp_nonce_url( self_admin_url( 'update.php?action=upgrade-plugin&plugin=' . urlencode( INFINITYCOD_BASENAME ) ), 'upgrade-plugin_' . INFINITYCOD_BASENAME ) ),
+					esc_html( sprintf( /* translators: %s : numéro de version. */ __( 'Mettre à jour vers %s', 'infinitycod' ), $latest ) )
+				)
+			);
+		}
+
+		// Sans licence : mise en avant Pro.
+		if ( ! \InfinityCod\License\LicenseManager::is_premium() ) {
+			$custom[] = sprintf(
+				'<a href="%s" style="color:#996800;font-weight:700">★ %s</a>',
+				esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=license' ) ),
+				esc_html__( 'Passer à la Pro', 'infinitycod' )
+			);
+		}
+
 		return array_merge( $custom, (array) $actions );
 	}
 
@@ -119,6 +151,25 @@ class AdminManager {
 			'<a href="%s" target="_blank" rel="noopener">%s</a>',
 			esc_url( 'https://github.com/derouicheoussama/infinitycod-releases/releases' ),
 			esc_html__( 'Nouveautés', 'infinitycod' )
+		);
+		$meta[] = sprintf(
+			'<a href="%s" target="_blank" rel="noopener">%s</a>',
+			esc_url( 'https://infinitycoder.app/infinitycod' ),
+			esc_html__( '📘 Documentation', 'infinitycod' )
+		);
+		$meta[] = sprintf(
+			'<a href="%s" class="thickbox open-plugin-details-modal">%s</a>',
+			esc_url( add_query_arg(
+				array(
+					'tab'       => 'plugin-information',
+					'plugin'    => 'infinitycod',
+					'TB_iframe' => 'true',
+					'width'     => '600',
+					'height'    => '550',
+				),
+				admin_url( 'plugin-install.php' )
+			) ),
+			esc_html__( 'ℹ️ Détails', 'infinitycod' )
 		);
 		return $meta;
 	}

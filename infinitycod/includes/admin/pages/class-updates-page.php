@@ -193,7 +193,37 @@ class UpdatesPage {
 							<button type="submit" class="button button-primary"><?php esc_html_e( 'Installer ce zip (remplace la version actuelle)', 'infinitycod' ); ?></button>
 						</p>
 					</form>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="icod_upload_zip" />
+						<?php wp_nonce_field( 'icod_upload_zip' ); ?>
+						<p>
+							<input type="url" name="icod_zip_url" dir="ltr" placeholder="https://…/infinitycod.zip" class="regular-text" required />
+							<button type="submit" class="button"><?php esc_html_e( 'Installer depuis une URL', 'infinitycod' ); ?></button>
+						</p>
+					</form>
 				</details>
+
+				<?php
+				// Diagnostic des sources (résultat du dernier « Vérifier »).
+				$probe = get_option( 'icod_source_test', array() );
+				$probe = is_array( $probe ) ? $probe : array();
+				if ( ! empty( $probe['sources'] ) ) :
+					?>
+					<details class="icod-updates-manual icod-probe" open>
+						<summary><?php esc_html_e( '🔌 Diagnostic des sources', 'infinitycod' ); ?><?php echo ! empty( $probe['time'] ) ? ' <span class="icod-hint">— ' . esc_html( mysql2date( 'd/m/Y H:i', $probe['time'] ) ) . '</span>' : ''; ?></summary>
+						<table class="icod-probe-table">
+							<tbody>
+								<?php foreach ( $probe['sources'] as $src ) : ?>
+									<tr>
+										<td><?php echo ( $src['ok'] ? '✅' : '❌' ); ?> <strong><?php echo esc_html( $src['name'] ); ?></strong></td>
+										<td class="<?php echo $src['ok'] ? 'icod-probe-ok' : 'icod-probe-ko'; ?>"><?php echo esc_html( $src['detail'] ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+						<p class="description"><?php esc_html_e( 'Si toutes les sources échouent avec une erreur réseau, votre hébergeur bloque les connexions sortantes — utilisez alors l‘installation manuelle par zip ci-dessus.', 'infinitycod' ); ?></p>
+					</details>
+				<?php endif; ?>
 			</div>
 
 			<div class="icod-card">
@@ -363,6 +393,13 @@ class UpdatesPage {
 			wp_update_plugins();
 		}
 
+		// Diagnostic : chaque source est testée individuellement et le
+		// résultat est affiché sous l'état des mises à jour.
+		update_option( 'icod_source_test', array(
+			'time'    => current_time( 'mysql' ),
+			'sources' => Updater::probe_sources(),
+		), false );
+
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=checked' ) );
 		exit;
 	}
@@ -437,6 +474,17 @@ class UpdatesPage {
 		}
 
 		check_admin_referer( 'icod_upload_zip' );
+
+		// Variante : installation depuis une URL directe de zip.
+		$zip_url = isset( $_POST['icod_zip_url'] ) ? esc_url_raw( wp_unslash( $_POST['icod_zip_url'] ) ) : '';
+		if ( '' !== $zip_url && preg_match( '#^https://#', $zip_url ) ) {
+			$installed = $this->install_package( $zip_url );
+
+			\InfinityCod\Logging\Logger::log( 'update', 'Installation depuis URL : ' . ( is_wp_error( $installed ) ? $installed->get_error_message() : 'success' ) );
+
+			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=' . ( is_wp_error( $installed ) ? 'upload-fail' : 'install-ok' ) ) );
+			exit;
+		}
 
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput -- $_FILES échappe à la sanitization classique.
 		if ( empty( $_FILES['icod_zip'] ) || ! isset( $_FILES['icod_zip']['error'] ) || UPLOAD_ERR_OK !== (int) $_FILES['icod_zip']['error'] ) {

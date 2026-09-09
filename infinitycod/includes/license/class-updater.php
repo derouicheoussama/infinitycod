@@ -644,6 +644,69 @@ class Updater {
 	}
 
 	/**
+	 * Teste chaque source de mise à jour individuellement (diagnostic).
+	 *
+	 * Utilisé par la page Mises à jour pour montrer exactement quelle source
+	 * répond et laquelle échoue, avec l'erreur réseau brute.
+	 *
+	 * @return array[] name, ok, detail, version
+	 */
+	public static function probe_sources() {
+		$repo = self::releases_repo();
+		if ( '' === $repo ) {
+			$repo = self::github_repo();
+		}
+
+		$targets = array(
+			'API api.github.com'             => self::api_url( $repo, '/releases/latest' ),
+			'Atom github.com'                => 'https://github.com/' . $repo . '/releases.atom',
+			'Miroir raw.githubusercontent.com' => 'https://raw.githubusercontent.com/' . $repo . '/main/latest/update.json',
+			'Miroir jsDelivr (CDN)'          => 'https://cdn.jsdelivr.net/gh/' . $repo . '@main/latest/update.json',
+		);
+
+		$out = array();
+		foreach ( $targets as $name => $url ) {
+			$response = wp_remote_get(
+				$url,
+				array(
+					'timeout'    => 12,
+					'redirection' => 2,
+					'headers'    => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
+				$out[] = array(
+					'name'    => $name,
+					'ok'      => false,
+					'detail'  => $response->get_error_message(),
+					'version' => '',
+				);
+				continue;
+			}
+
+			$code = (int) wp_remote_retrieve_response_code( $response );
+			$body = (string) wp_remote_retrieve_body( $response );
+			$ver  = '';
+			$dec  = json_decode( $body, true );
+			if ( is_array( $dec ) ) {
+				$ver = isset( $dec['version'] ) ? (string) $dec['version'] : ( isset( $dec['tag_name'] ) ? ltrim( (string) $dec['tag_name'], 'vV' ) : '' );
+			} elseif ( preg_match( '/releases\/tag\/([^<"<]+)/', $body, $m ) ) {
+				$ver = ltrim( trim( $m[1] ), 'vV' );
+			}
+
+			$out[] = array(
+				'name'    => $name,
+				'ok'      => $code >= 200 && $code < 300,
+				'detail'  => (string) $code . ( '' !== $ver ? ' · v' . $ver : '' ),
+				'version' => $ver,
+			);
+		}
+
+		return $out;
+	}
+
+	/**
 	 * Injecte la mise à jour dans la transient WordPress si plus récente.
 	 *
 	 * @param object $transient Transient update_plugins.
