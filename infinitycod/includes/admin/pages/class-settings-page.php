@@ -55,14 +55,14 @@ class SettingsPage {
 			<?php endif; ?>
 
 			<nav class="nav-tab-wrapper icod-tabs">
-				<a href="?page=infinitycod-settings" class="nav-tab <?php echo 'form' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Formulaire', 'infinitycod' ); ?></a>
-				<a href="?page=infinitycod-settings&tab=order" class="nav-tab <?php echo 'order' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Commande', 'infinitycod' ); ?></a>
-				<a href="?page=infinitycod-settings&tab=fraud" class="nav-tab <?php echo 'fraud' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Anti-fraude', 'infinitycod' ); ?></a>
-				<a href="?page=infinitycod-settings&tab=whatsapp" class="nav-tab <?php echo 'whatsapp' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'WhatsApp', 'infinitycod' ); ?></a>
+				<a href="?page=infinitycod-settings" class="nav-tab <?php echo 'form' === $this->tab ? 'nav-tab-active' : ''; ?>">🎨 <?php esc_html_e( 'Formulaire', 'infinitycod' ); ?></a>
+				<a href="?page=infinitycod-settings&tab=order" class="nav-tab <?php echo 'order' === $this->tab ? 'nav-tab-active' : ''; ?>">🧾 <?php esc_html_e( 'Commande', 'infinitycod' ); ?></a>
+				<a href="?page=infinitycod-settings&tab=fraud" class="nav-tab <?php echo 'fraud' === $this->tab ? 'nav-tab-active' : ''; ?>">🛡️ <?php esc_html_e( 'Anti-fraude', 'infinitycod' ); ?></a>
+				<a href="?page=infinitycod-settings&tab=whatsapp" class="nav-tab <?php echo 'whatsapp' === $this->tab ? 'nav-tab-active' : ''; ?>">💬 <?php esc_html_e( 'WhatsApp', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=tracking" class="nav-tab <?php echo 'tracking' === $this->tab ? 'nav-tab-active' : ''; ?>">🎯 <?php esc_html_e( 'Tracking', 'infinitycod' ); ?></a>
-				<a href="?page=infinitycod-settings&tab=payment" class="nav-tab <?php echo 'payment' === $this->tab ? 'nav-tab-active' : ''; ?>" ><?php esc_html_e( 'Paiement', 'infinitycod' ); ?></a>
-				<a href="?page=infinitycod-settings&tab=license" class="nav-tab <?php echo 'license' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Licence', 'infinitycod' ); ?></a>
-				<a href="?page=infinitycod-settings&tab=advanced" class="nav-tab <?php echo 'advanced' === $this->tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Avancé', 'infinitycod' ); ?></a>
+				<a href="?page=infinitycod-settings&tab=payment" class="nav-tab <?php echo 'payment' === $this->tab ? 'nav-tab-active' : ''; ?>" >💳 <?php esc_html_e( 'Paiement', 'infinitycod' ); ?></a>
+				<a href="?page=infinitycod-settings&tab=license" class="nav-tab <?php echo 'license' === $this->tab ? 'nav-tab-active' : ''; ?>">🔑 <?php esc_html_e( 'Licence', 'infinitycod' ); ?></a>
+				<a href="?page=infinitycod-settings&tab=advanced" class="nav-tab <?php echo 'advanced' === $this->tab ? 'nav-tab-active' : ''; ?>">⚙️ <?php esc_html_e( 'Avancé', 'infinitycod' ); ?></a>
 			</nav>
 
 			<?php if ( 'license' === $this->tab ) : ?>
@@ -376,7 +376,8 @@ class SettingsPage {
 		<?php if ( '1' === ( isset( $_GET['paypal_ok'] ) ? sanitize_text_field( wp_unslash( $_GET['paypal_ok'] ) ) : '' ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 			<div class="notice notice-success"><p>
 				<strong><?php esc_html_e( 'Paiement PayPal envoyé, merci !', 'infinitycod' ); ?></strong>
-				<?php esc_html_e( 'Votre clé de licence vous est envoyée par email (référence de votre installation jointe au paiement). Collez-la ci-dessous pour activer Pro.', 'infinitycod' ); ?>
+				<?php esc_html_e( 'Votre clé de licence vous est envoyée par email (référence de votre installation jointe au paiement). ' ); ?>
+				<a href="#icod-key-input"><?php esc_html_e( 'Coller ma clé maintenant ↓', 'infinitycod' ); ?></a>
 			</p></div>
 		<?php endif; ?>
 
@@ -454,59 +455,6 @@ class SettingsPage {
 			<?php endif; ?>
 		</div>
 
-		<div class="icod-card">
-			<h2><?php esc_html_e( 'Ce que débloque la licence Premium', 'infinitycod' ); ?></h2>
-			<p class="description">
-				<?php esc_html_e( 'La version gratuite couvre déjà tout le nécessaire pour vendre en paiement à la livraison. La licence Premium ajoute l’automatisation (WhatsApp, transporteurs, relances) et le pilotage (statistiques P&L, offres).', 'infinitycod' ); ?>
-			</p>
-			<table class="icod-lic-compare">
-				<thead>
-					<tr>
-						<th><?php esc_html_e( 'Fonctionnalité', 'infinitycod' ); ?></th>
-						<th class="icod-lic-c"><?php esc_html_e( 'Gratuit', 'infinitycod' ); ?></th>
-						<th class="icod-lic-c"><?php esc_html_e( 'Premium', 'infinitycod' ); ?></th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ( $rows as $row ) : ?>
-						<tr>
-							<td><?php echo esc_html( $row[0] ); ?></td>
-							<?php if ( $row[1] ) : ?>
-								<td class="icod-lic-c icod-lic-yes">✓</td>
-								<td class="icod-lic-c icod-lic-yes">✓</td>
-							<?php else : ?>
-								<td class="icod-lic-c icod-lic-no">—</td>
-								<td class="icod-lic-c icod-lic-yes">✓</td>
-							<?php endif; ?>
-						</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
-		</div>
-
-		<div class="icod-card">
-			<h2><?php $premium ? esc_html_e( 'Changer de clé', 'infinitycod' ) : esc_html_e( 'Activer votre licence Premium', 'infinitycod' ); ?></h2>
-			<?php if ( ! $premium ) : ?>
-				<p class="description">
-					<?php esc_html_e( 'Saisissez la clé reçue après votre achat pour débloquer immédiatement WhatsApp automatique, les transporteurs, les statistiques P&L et les offres par quantité — sans réinstaller quoi que ce soit.', 'infinitycod' ); ?>
-				</p>
-			<?php endif; ?>
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-				<input type="hidden" name="action" value="icod_activate_license" />
-				<?php wp_nonce_field( 'icod_activate_license' ); ?>
-				<div class="icod-grid">
-					<label>
-						<span><?php esc_html_e( 'Clé de licence', 'infinitycod' ); ?></span>
-						<input type="text" name="icod_license_key" class="regular-text" dir="ltr" placeholder="INFINITY-XXXX-XXXX-XXXX" />
-					</label>
-				</div>
-				<p class="icod-submit">
-					<button type="submit" class="button button-primary"><?php esc_html_e( 'Activer la licence', 'infinitycod' ); ?></button>
-					<a href="<?php echo esc_url( 'https://infinitycoder.app/infinitycod' ); ?>" class="button" target="_blank" rel="noopener"><?php esc_html_e( 'Acheter une licence', 'infinitycod' ); ?></a>
-				</p>
-			</form>
-		</div>
-
 		<?php
 		// ——— Achat Pro via PayPal (visible sans licence, si configuré) ———
 		$paypal_email    = Settings::get( 'paypal_email', '' );
@@ -537,7 +485,12 @@ class SettingsPage {
 			?>
 			<div class="icod-card">
 				<h2>💳 <?php esc_html_e( 'Passer à InfinityCod Pro — paiement PayPal sécurisé', 'infinitycod' ); ?></h2>
-				<p class="description"><?php esc_html_e( 'Payez par PayPal, recevez votre clé par email, collez-la ci-dessus : Pro est actif immédiatement, sans réinstallation.', 'infinitycod' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Payez par PayPal, recevez votre clé par email, collez-la juste en dessous : Pro est actif immédiatement, sans réinstallation.', 'infinitycod' ); ?></p>
+				<ol class="icod-steps-mini">
+					<li><?php esc_html_e( 'Choisissez votre offre', 'infinitycod' ); ?></li>
+					<li><?php esc_html_e( 'Payez sur PayPal', 'infinitycod' ); ?></li>
+					<li><?php esc_html_e( 'Collez votre clé reçue par email', 'infinitycod' ); ?></li>
+				</ol>
 				<div class="icod-pricing">
 					<?php foreach ( $plans as $plan_key => $plan ) : ?>
 						<div class="icod-pricing-card<?php echo ! empty( $plan['star'] ) ? ' icod-pricing-star' : ''; ?>">
@@ -571,6 +524,56 @@ class SettingsPage {
 				</div>
 			</div>
 		<?php endif; ?>
+
+		<div class="icod-card">
+			<h2><?php $premium ? esc_html_e( 'Changer de clé', 'infinitycod' ) : esc_html_e( 'Activer votre licence Premium', 'infinitycod' ); ?></h2>
+			<?php if ( ! $premium ) : ?>
+				<p class="description">
+					<?php esc_html_e( 'Collez la clé reçue après votre achat : WhatsApp automatique, transporteurs, statistiques P&L et offres se débloquent immédiatement — sans réinstaller quoi que ce soit.', 'infinitycod' ); ?>
+				</p>
+			<?php endif; ?>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="icod-key-form">
+				<input type="hidden" name="action" value="icod_activate_license" />
+				<?php wp_nonce_field( 'icod_activate_license' ); ?>
+				<div class="icod-key-row">
+					<input type="text" id="icod-key-input" name="icod_license_key" class="regular-text" dir="ltr" placeholder="INFINITY-XXXX-XXXX-XXXX" />
+					<button type="submit" class="button button-primary button-hero"><?php esc_html_e( 'Activer la licence', 'infinitycod' ); ?></button>
+				</div>
+				<p class="description">
+					<a href="<?php echo esc_url( 'https://infinitycoder.app/infinitycod' ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Ou acheter une licence sur infinitycoder.app ↗', 'infinitycod' ); ?></a>
+				</p>
+			</form>
+		</div>
+
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Ce que débloque la licence Premium', 'infinitycod' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'La version gratuite couvre déjà tout le nécessaire pour vendre en paiement à la livraison. La licence Premium ajoute l’automatisation (WhatsApp, transporteurs, relances) et le pilotage (statistiques P&L, offres).', 'infinitycod' ); ?>
+			</p>
+			<table class="icod-lic-compare">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'Fonctionnalité', 'infinitycod' ); ?></th>
+						<th class="icod-lic-c"><?php esc_html_e( 'Gratuit', 'infinitycod' ); ?></th>
+						<th class="icod-lic-c"><?php esc_html_e( 'Premium', 'infinitycod' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $rows as $row ) : ?>
+						<tr>
+							<td><?php echo esc_html( $row[0] ); ?></td>
+							<?php if ( $row[1] ) : ?>
+								<td class="icod-lic-c icod-lic-yes">✓</td>
+								<td class="icod-lic-c icod-lic-yes">✓</td>
+							<?php else : ?>
+								<td class="icod-lic-c icod-lic-no">—</td>
+								<td class="icod-lic-c icod-lic-yes">✓</td>
+							<?php endif; ?>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
 
 		<?php if ( current_user_can( 'manage_options' ) ) : ?>
 			<div class="icod-card">

@@ -895,3 +895,18 @@ body.icod-modal-open{overflow:hidden}
 .icod-paypal-pay{color:#003087}
 .icod-paypal-pal{color:#009cde}
 .button-hero .icod-paypal-word{font-size:1.05em}
+
+/* --- Licence : parcours d'achat (étapes, clé inline, hero) --- */
+.icod-steps-mini{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 14px;padding:0!important;list-style:none!important;counter-reset:step}
+.icod-steps-mini li{counter-increment:step;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:#50575e}
+.icod-steps-mini li::before{content:counter(step);display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#1d5fa8;color:#fff;font-size:11px;font-weight:800;flex:none}
+.icod-key-form .icod-key-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0 6px}
+.icod-key-form .icod-key-row input{flex:1;min-width:240px;min-height:40px;font-size:15px;letter-spacing:.04em}
+.icod-key-form .icod-key-row .button-hero{min-height:40px;padding:8px 22px}
+.icod-lic-faq{margin-top:4px}
+.icod-lic-faq summary:focus-visible{outline:2px solid #1d5fa8}
+@media (max-width:782px){
+	.icod-key-form .icod-key-row{flex-direction:column;align-items:stretch}
+	.icod-key-form .icod-key-row .button{text-align:center}
+	.icod-pricing{grid-template-columns:1fr}
+}
