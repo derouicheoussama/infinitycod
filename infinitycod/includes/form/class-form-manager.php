@@ -407,7 +407,25 @@ class FormManager {
 								</div>
 							<?php endif; ?>
 
-							<?php if ( $show_note ) : ?>
+							<?php
+				// Champs personnalisés du Checkout Builder.
+				foreach ( (array) Settings::get( 'checkout_fields', array() ) as $cf ) {
+					if ( empty( $cf['on'] ) || strpos( (string) $cf['key'], 'cf_' ) !== 0 ) { continue; }
+					$_lbl = $cf['label'] !== '' ? $cf['label'] : $cf['key'];
+					$_req = ! empty( $cf['req'] ) ? ' required' : '';
+					$_id  = 'icod-' . esc_attr( $cf['key'] );
+					echo '<div class="icod-field"><label for="' . $_id . '">' . esc_html( $_lbl ) . '</label>';
+					if ( 'textarea' === $cf['type'] ) {
+						echo '<textarea class="icod-input" name="' . esc_attr( $cf['key'] ) . '" rows="2"' . $_req . '></textarea>';
+					} elseif ( 'checkbox' === $cf['type'] ) {
+						echo '<label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" name="' . esc_attr( $cf['key'] ) . '" value="1"' . $_req . ' /> ' . esc_html( $_lbl ) . '</label>';
+					} else {
+						echo '<input class="icod-input" type="' . esc_attr( $cf['type'] ) . '" name="' . esc_attr( $cf['key'] ) . '"' . $_req . ' />';
+					}
+					echo '</div>';
+				}
+				?>
+				<?php if ( $show_note ) : ?>
 								<div class="icod-field">
 									<label for="icod-note-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( $label_note ); ?></label>
 									<div class="icod-input-wrap icod-input-wrap-area">

@@ -645,6 +645,7 @@
 				commune_ar: communeAr,
 				mode: currentMode(),
 				coupon: state.coupon,
+				cfields: (function(){var o={};els(root,'[name^="cf_"]').forEach(function(el){o[el.name.slice(3)]=el.type==='checkbox'?(el.checked?'1':''):el.value;});return o;})(),
 				stopdesk: currentMode() === 'desk' ? deskSelect.value : '',
 				payment: payRadio ? payRadio.value : 'cod',
 				via_whatsapp: viaWhatsApp ? 1 : 0,

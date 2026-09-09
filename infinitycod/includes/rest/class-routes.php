@@ -404,6 +404,7 @@ class Routes {
 			'payment'      => $payment,
 			'note'         => isset( $body['note'] ) ? $body['note'] : '',
 			'coupon'       => isset( $body['coupon'] ) ? $body['coupon'] : '',
+			'cfields'      => array_filter( (array) ( $body['cfields'] ?? array() ), 'is_string' ),
 			'fraud_score'  => isset( $assessment['score'] ) ? $assessment['score'] : 0,
 			'fraud_flags'  => isset( $assessment['flags'] ) ? $assessment['flags'] : array(),
 			'ip'           => Shield::client_ip(),

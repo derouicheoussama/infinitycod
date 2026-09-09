@@ -191,6 +191,15 @@ class OrderStore {
 		global $wpdb;
 		$now = current_time( 'mysql' );
 
+		// Champs personnalisés cf_* → note de la commande.
+		$cf_text = '';
+		foreach ( $data as $dk => $dv ) {
+			if ( strpos( (string) $dk, 'cf_' ) === 0 && $dv !== '' && $dv !== null ) {
+				$cf_text .= ucfirst( substr( (string) $dk, 3 ) ) . ' : ' . sanitize_text_field( (string) $dv ) . "\n";
+			}
+		}
+		$note_full = trim( ( isset( $data['note'] ) ? sanitize_textarea_field( (string) $data['note'] ) : '' ) . ( $cf_text !== '' ? "\n" . $cf_text : '' ) );
+
 		$inserted = $wpdb->insert(
 			Schema::table( 'orders' ),
 			array(
@@ -216,7 +225,7 @@ class OrderStore {
 				'fraud_flags'   => isset( $data['fraud_flags'] ) ? implode( ',', (array) $data['fraud_flags'] ) : '',
 				'ip'            => isset( $data['ip'] ) ? $data['ip'] : '',
 				'fingerprint'   => isset( $data['fingerprint'] ) ? substr( (string) $data['fingerprint'], 0, 64 ) : '',
-				'note'          => isset( $data['note'] ) ? sanitize_textarea_field( $data['note'] ) : '',
+				'note'          => $note_full,
 				'created_at'    => $now,
 			)
 		);
