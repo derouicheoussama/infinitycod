@@ -8,6 +8,7 @@
 error_reporting( E_ALL );
 ini_set( 'display_errors', '1' );
 
+define( 'ICOD_HARNESS_DEBUG', true );
 define( 'ABSPATH', __DIR__ . '/../.tools/fake-wp/' );
 
 // Fixture wp-admin/includes/upgrade.php : créée avant tout require (§56).
@@ -146,7 +147,15 @@ function get_post( $id = 0 ) { return null; }
 function is_product() { return false; }
 function is_singular( $t = '' ) { return false; }
 function did_action( $h ) { return 0; }
-function wp_remote_get( ...$a ) { return new WP_Error_Stub( 'http', 'offline' ); }
+function wp_remote_get( $url, $args = array() ) {
+	$mocked = ! empty( $GLOBALS['__http_mock'] );
+	echo '   [http] GET ' . substr( $url, 0, 80 ) . ' | mock=' . ( $mocked ? 'OUI' : 'non' ) . "\n";
+	if ( $mocked ) {
+		$mock = array_shift( $GLOBALS['__http_mock'] );
+		return array( 'response' => array( 'code' => $mock['code'] ?? 200 ), 'body' => $mock['body'] ?? '', 'headers' => array() );
+	}
+	return new WP_Error_Stub( 'http', 'offline' );
+}
 function wp_update_plugins() {}
 function wp_list_pluck( $list, $field ) { $out = array(); foreach ( $list as $item ) { $out[] = is_object( $item ) ? $item->$field : $item[$field]; } return $out; }
 function get_site_transient( $k ) { return false; }
@@ -369,6 +378,78 @@ if ( ! function_exists( 'sodium_crypto_sign_detached_sign' ) || ! $signing_priva
 
 echo "10b) REST submit (chemin protégé try/catch)...";
 class REST_Request_Stub extends WP_REST_Request {	public function get_json_params() {		return array( 'product_id' => 1, 'name' => 'Test Client', 'phone' => '0555123456', 'wilaya' => '16', 'commune' => 'Alger Centre', 'quantity' => 1, 'mode' => 'home', 'payment' => 'cod', 'via_whatsapp' => 0, 'note' => '', 'honeypot' => '', 'ts' => 0, 'sig' => '', 'fingerprint' => 'x' );	}}$routes_module = infinitycod()->module( 'rest' );$resp_submit = $routes_module->submit( new REST_Request_Stub() );if ( is_wp_error( $resp_submit ) ) {  echo '   OK rejet propre : ' . $resp_submit->get_error_code() . "\n";} elseif ( is_array( $resp_submit ) || is_object( $resp_submit ) ) {  echo '   ✓ réponse REST émise\n';} else {  echo '   ? sortie inattendue\n';}
+echo "12) Flux de mise à jour — scénario complet (§58)...";
+
+
+// Réponse API simulée : release v9.9.9 avec zip + manifest.
+$release_body = json_encode( array(
+	'tag_name' => 'v9.9.9',
+	'name' => 'InfinityCod 9.9.9',
+	'html_url' => 'https://github.com/derouicheoussama/infinitycod-releases/releases/tag/v9.9.9',
+	'body' => 'Changelog de test.',
+	'assets' => array(
+		array( 'name' => 'infinitycod.zip', 'browser_download_url' => 'https://github.com/derouicheoussama/infinitycod-releases/releases/download/v9.9.9/infinitycod.zip' ),
+	),
+) );
+
+$GLOBALS['__http_mock'] = array( array( 'code' => 200, 'body' => $release_body ) );
+
+InfinityCod\License\Updater::clear_cache();
+$updater_flow = new \InfinityCod\License\Updater();
+$_mock_resp = null;
+$remote_flow = $updater_flow->latest();
+if ( ! $remote_flow || '9.9.9' !== $remote_flow['version'] ) {
+	echo '   X DEBUG releases_repo : ' . var_export( \InfinityCod\License\Updater::releases_repo(), true ) . ' | github_repo : ' . var_export( \InfinityCod\License\Updater::github_repo(), true ) . "\n";
+	echo '   X DEBUG gh-transient : ' . var_export( get_transient( 'icod_update_gh' ), true ) . "\n";
+	echo '   X DEBUG atom-transient : ' . var_export( get_transient( 'icod_update_atom' ), true ) . "\n";
+	echo '   X DEBUG last-url : ' . ( $GLOBALS['__last_url'] ?? '(aucune)' ) . "\n";
+	exit( 1 );
+}
+echo '   ✓ v9.9.9 détectée (download: ' . ( false !== strpos( $remote_flow['download_url'], '/releases/download/' ) ? 'asset OK' : 'MANQUANT' ) . ')' . PHP_EOL;
+
+// Injection dans la transient WordPress.
+$flow_transient = new stdClass();
+	$flow_transient->checked = array( 'infinitycod/infinitycod.php' => '2.5.0' );
+	$flow_transient->response = array();
+$flow_transient = $updater_flow->inject_update( $flow_transient );
+if ( empty( $flow_transient->response[ 'infinitycod/infinitycod.php' ] ) ) {
+	echo '   X mise à jour non injectée' . PHP_EOL; exit( 1 );
+}
+$injected = $flow_transient->response[ 'infinitycod/infinitycod.php' ];
+echo '   ✓ injectée : v' . $injected->new_version . ' — package GitHub OK' . PHP_EOL;
+
+// Version identique : aucune injection.
+$flow_transient->checked[ 'infinitycod/infinitycod.php' ] = '9.9.9';
+$flow_transient->response = array();
+$GLOBALS['__http_mock'] = array( array( 'code' => 200, 'body' => $release_body ) );
+$flow_transient = $updater_flow->inject_update( $flow_transient );
+if ( ! empty( $flow_transient->response ) ) { echo '   X injection indue (version identique)' . PHP_EOL; exit( 1 ); }
+echo '   ✓ version identique : aucune injection' . PHP_EOL;
+
+// Version distante plus ancienne : aucune injection.
+$flow_transient->checked[ 'infinitycod/infinitycod.php' ] = '99.0.0';
+$flow_transient->response = array();
+$GLOBALS['__http_mock'] = array( array( 'code' => 200, 'body' => $release_body ) );
+$flow_transient = $updater_flow->inject_update( $flow_transient );
+if ( ! empty( $flow_transient->response ) ) { echo '   X injection indue (version inférieure)' . PHP_EOL; exit( 1 ); }
+echo '   ✓ version inférieure : ignorée' . PHP_EOL;
+
+// GitHub inaccessible : pas de fatal, pas d injection.
+$GLOBALS['__http_mock'] = array(); // stub -> offline
+$flow_transient->checked = array();
+$flow_transient = $updater_flow->inject_update( $flow_transient );
+echo '   ✓ GitHub inaccessible : dégradation propre' . PHP_EOL;
+
+// Compatibilité PHP bloquante.
+$compat = $updater_flow->check_compatibility( array( 'requires_php' => '99.0' ) );
+echo ( is_wp_error( $compat ) ) ? '   ✓ compatibilité bloquante OK' . PHP_EOL : '   X compatibilité non bloquée' . PHP_EOL;
+
+$zip_bytes = "PK fake zip content";
+$sha_ok = hash( 'sha256', $zip_bytes );
+echo ( \InfinityCod\License\Updater::verify_sha256( $zip_bytes, $sha_ok ) ? '   ✓ SHA-256 valide accepté' : '   X SHA-256 valide rejeté' ) . PHP_EOL;
+echo ( ! \InfinityCod\License\Updater::verify_sha256( $zip_bytes, str_repeat( '0', 64 ) ) ? '   ✓ SHA-256 invalide rejeté' : '   X SHA-256 invalide accepté' ) . PHP_EOL;
+
+
 echo "\n=== TOUS LES TESTS PASSENT ===\n";
 echo "11) URL API GitHub (anti-regression %2F)...\n";
 $url = \InfinityCod\License\Updater::api_url( 'derouicheoussama/infinitycod-releases', '/releases/latest' );
