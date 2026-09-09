@@ -187,9 +187,9 @@ class DiagnosticsPage {
 		if ( ! empty( $test['time'] ) ) {
 			$this->add(
 				__( 'Dernier test de connexion', 'infinitycod' ),
-				esc( $test['ok'] ? 'OK' : 'échec' ) . ' · ' . esc( $test['source'] ) . ( ! empty( $test['version'] ) ? ' · v' . esc( $test['version'] ) : '' ),
+				$this->esc( $test['ok'] ? 'OK' : 'échec' ) . ' · ' . $this->esc( $test['source'] ) . ( ! empty( $test['version'] ) ? ' · v' . $this->esc( $test['version'] ) : '' ),
 				$test['ok'] ? self::PASS : self::WARN,
-				esc( $test['time'] )
+				$this->esc( $test['time'] )
 			);
 		}
 
