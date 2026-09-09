@@ -99,7 +99,13 @@ class OrderStore {
 		}
 
 		$discount_amount = (float) $discount['amount'];
-		$total     = max( 0, $subtotal - $discount_amount + $shipping_price );
+
+		// Code promo : revalidé côté serveur (jamais confiance au client).
+		$coupon_code   = isset( $data['coupon'] ) ? sanitize_text_field( (string) $data['coupon'] ) : '';
+		$coupon        = $coupon_code ? Coupon::evaluate( $coupon_code, round( $subtotal - $discount_amount, 2 ), $quantity ) : array( 'valid' => false, 'amount' => 0.0, 'code' => '', 'label' => '' );
+		$coupon_amount = $coupon['valid'] ? (float) $coupon['amount'] : 0.0;
+
+		$total = max( 0, $subtotal - $discount_amount - $coupon_amount + $shipping_price );
 
 		// 3. Commande WooCommerce.
 		$order = wc_create_order( array( 'created_by' => 'infinitycod' ) );
@@ -124,6 +130,17 @@ class OrderStore {
 			$fee->set_amount( -$discount_amount );
 			$fee->set_total( -$discount_amount );
 			$order->add_item( $fee );
+		}
+
+		// Code promo : frais négatif + meta traçable.
+		if ( $coupon_amount > 0 ) {
+			$fee = new \WC_Order_Item_Fee();
+			/* translators: %s : code promo saisi. */
+			$fee->set_name( sprintf( __( 'Code promo %s', 'infinitycod' ), strtoupper( $coupon['code'] ) ) );
+			$fee->set_amount( -$coupon_amount );
+			$fee->set_total( -$coupon_amount );
+			$order->add_item( $fee );
+			$order->update_meta_data( '_icod_coupon', $coupon['code'] );
 		}
 
 		// Livraison.
@@ -189,6 +206,7 @@ class OrderStore {
 				'payment'       => ( isset( $data['payment'] ) && 'online' === $data['payment'] ) ? 'online' : 'cod',
 				'subtotal'      => $subtotal,
 				'discount'      => $discount_amount,
+				'coupon'        => $coupon['valid'] ? $coupon['code'] : '',
 				'shipping'      => $shipping_price,
 				'total'         => (float) $order->get_total(),
 				'status'        => 'pending',

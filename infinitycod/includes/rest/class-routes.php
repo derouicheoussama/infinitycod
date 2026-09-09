@@ -18,6 +18,7 @@ use InfinityCod\AntiFraud\Shield;
 use InfinityCod\Core\Settings;
 use InfinityCod\Form\OffersEngine;
 use InfinityCod\Form\Validator;
+use InfinityCod\Orders\Coupon;
 use InfinityCod\Shipping\RatesManager;
 
 defined( 'ABSPATH' ) || exit;
@@ -207,18 +208,31 @@ class Routes {
 			? 0
 			: max( 0, (float) \InfinityCod\Core\Settings::get( 'free_amount_threshold', 0 ) - $subtotal );
 
+		// Code promo : validé côté serveur sur la base après remises quantité.
+		$coupon_code = isset( $body['coupon'] ) ? sanitize_text_field( (string) $body['coupon'] ) : '';
+		$base        = round( $subtotal - (float) $discount['amount'], 2 );
+		$coupon      = $coupon_code ? Coupon::evaluate( $coupon_code, $base, $quantity ) : array( 'valid' => false, 'amount' => 0.0, 'label' => '' );
+		$coupon_out  = array(
+			'code'   => $coupon_code,
+			'valid'  => ! empty( $coupon['valid'] ) ? 1 : 0,
+			'amount' => (float) ( $coupon['amount'] ?? 0 ),
+			'label'  => (string) ( $coupon['label'] ?? '' ),
+			'error'  => (string) ( $coupon['error'] ?? '' ),
+		);
+
 		return rest_ensure_response( array(
 			'unit'          => $unit_price,
 			'subtotal'      => $subtotal,
 			'discount_pct'  => $discount['pct'],
 			'discount'      => $discount['amount'],
+			'coupon'        => $coupon_out,
 			'shipping'      => $shipping,
 			'price_home'    => $price_home,
 			'price_desk'    => $price_desk,
 			'free'          => $free ? 1 : 0,
 			'free_remaining'=> $free_remaining,
 			'weight_fee'    => $weight_fee,
-			'total'         => max( 0, $subtotal - $discount['amount'] + max( 0, $shipping ) ),
+			'total'         => max( 0, $subtotal - $discount['amount'] - $coupon_out['amount'] + max( 0, $shipping ) ),
 		) );
 	}
 
@@ -357,6 +371,7 @@ class Routes {
 			'stopdesk'     => $stopdesk,
 			'payment'      => $payment,
 			'note'         => isset( $body['note'] ) ? $body['note'] : '',
+			'coupon'       => isset( $body['coupon'] ) ? $body['coupon'] : '',
 			'fraud_score'  => isset( $assessment['score'] ) ? $assessment['score'] : 0,
 			'fraud_flags'  => isset( $assessment['flags'] ) ? $assessment['flags'] : array(),
 			'ip'           => Shield::client_ip(),

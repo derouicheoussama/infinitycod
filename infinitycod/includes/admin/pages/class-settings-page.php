@@ -567,7 +567,7 @@ class SettingsPage {
 				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[sticky_bar]" value="1" <?php checked( (int) Settings::get( 'sticky_bar' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Barre récapitulative collante sur mobile', 'infinitycod' ); ?></span>
+					<span><?php esc_html_e( 'Barre « Commander maintenant » collante sur mobile (récapitulatif + total + bouton toujours visibles)', 'infinitycod' ); ?></span>
 				</label>
 			</div>
 		</div>

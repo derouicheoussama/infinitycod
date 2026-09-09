@@ -130,6 +130,12 @@ class FormManager {
 
 		$this->enqueue();
 
+		// Arabe / RTL : la police Cairo est chargée uniquement pour le
+		// formulaire (jamais sur tout le site) et sert de 1re police.
+		if ( $rtl ) {
+			$this->enqueue_cairo();
+		}
+
 		$geo     = infinitycod()->module( 'geo' );
 		$wilayas = $geo ? $geo->wilayas( true ) : array();
 		$theme   = Settings::get( 'form_theme', 'light' );
@@ -256,18 +262,19 @@ class FormManager {
 								<?php foreach ( $product->get_variation_attributes() as $taxonomy => $terms ) : ?>
 									<?php
 									$attribute_label = wc_attribute_label( $taxonomy );
-									$options         = '';
-									foreach ( $terms as $term ) {
-										$slug      = sanitize_title( $term );
-										$options  .= sprintf( '<option value="%1$s">%2$s</option>', esc_attr( $slug ), esc_html( $term ) );
-									}
+									$single          = ( count( $terms ) === 1 );
 									?>
-									<div class="icod-field" data-attribute="<?php echo esc_attr( $taxonomy ); ?>">
+									<div class="icod-field icod-variants" data-attribute="<?php echo esc_attr( $taxonomy ); ?>">
 										<label><?php echo esc_html( $attribute_label ); ?></label>
-										<select class="icod-input icod-attr" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>">
-											<option value=""><?php esc_html_e( '— Choisir —', 'infinitycod' ); ?></option>
-											<?php echo $options; // phpcs:ignore WordPress.Security.EscapeOutput -- options échappées ci-dessus. ?>
-										</select>
+										<div class="icod-chipset" role="radiogroup" aria-label="<?php echo esc_attr( $attribute_label ); ?>">
+											<?php foreach ( $terms as $term ) : ?>
+												<?php $slug = sanitize_title( $term ); ?>
+												<label class="icod-chip">
+													<input type="radio" class="icod-attr" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>" name="icod_attr_<?php echo esc_attr( $taxonomy ); ?>" value="<?php echo esc_attr( $slug ); ?>" <?php checked( $single ); ?> />
+													<span><?php echo esc_html( $term ); ?></span>
+												</label>
+											<?php endforeach; ?>
+										</div>
 									</div>
 								<?php endforeach; ?>
 							<?php endif; ?>
@@ -413,6 +420,11 @@ class FormManager {
 									<span class="icod-summary-qty" data-summary-qty>×1</span>
 								</div>
 								<div class="icod-summary-line"><span><?php esc_html_e( 'Prix unitaire', 'infinitycod' ); ?></span><span data-summary-unit>—</span></div>
+								<div class="icod-coupon">
+									<input type="text" name="icod_coupon" class="icod-coupon-input" data-icod-coupon-input placeholder="<?php esc_attr_e( 'Code promo', 'infinitycod' ); ?>" autocomplete="off" aria-label="<?php esc_attr_e( 'Code promo', 'infinitycod' ); ?>" />
+									<button type="button" class="icod-coupon-apply" data-icod-coupon-apply><?php esc_html_e( 'Appliquer', 'infinitycod' ); ?></button>
+								</div>
+								<div class="icod-coupon-msg icod-hidden" data-coupon-msg role="status"></div>
 								<?php if ( Settings::get( 'free_amount_enabled' ) ) : ?>
 								<div class="icod-freebar icod-hidden" data-icod-freebar>
 									<span data-icod-freebar-text></span>
@@ -421,6 +433,7 @@ class FormManager {
 								<?php endif; ?>
 								<div class="icod-summary-line"><span><?php esc_html_e( 'Sous-total', 'infinitycod' ); ?></span><span data-summary-subtotal>—</span></div>
 								<div class="icod-summary-line icod-hidden" data-summary-discount-row><span data-summary-discount-label><?php esc_html_e( 'Remise', 'infinitycod' ); ?></span><span data-summary-discount>—</span></div>
+								<div class="icod-summary-line icod-hidden" data-summary-coupon-row><span data-summary-coupon-label><?php esc_html_e( 'Code promo', 'infinitycod' ); ?></span><span data-summary-coupon>—</span></div>
 								<div class="icod-summary-line"><span><?php esc_html_e( 'Livraison', 'infinitycod' ); ?></span><span data-summary-shipping>—</span></div>
 								<div class="icod-summary-total"><span><?php esc_html_e( 'Total à payer', 'infinitycod' ); ?></span><span data-summary-total>—</span></div>
 							</div>
@@ -520,6 +533,35 @@ class FormManager {
 	}
 
 	/**
+	 * Charge la police Cairo pour le rendu arabe du formulaire.
+	 *
+	 * Même logique que enqueue() : si wp_head est déjà passé, le <link>
+	 * est écrit inline faute de pouvoir être mis en file.
+	 *
+	 * @return void
+	 */
+	private function enqueue_cairo() {
+		$handle = 'icod-font-cairo';
+		$src    = 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap';
+
+		if ( wp_style_is( $handle, 'registered' ) ) {
+			wp_enqueue_style( $handle );
+		} else {
+			wp_register_style( $handle, $src, array(), null );
+			wp_enqueue_style( $handle );
+		}
+
+		// Fallback identique au CSS du formulaire si wp_head est passé.
+		if ( function_exists( 'did_action' ) && did_action( 'wp_head' ) && ! wp_style_is( $handle, 'done' ) ) {
+			printf(
+				'<link rel="stylesheet" id="%1$s-css" href="%2$s" media="all" />',
+				esc_attr( $handle ),
+				esc_url( $src )
+			);
+		}
+	}
+
+	/**
 	 * Enregistre les assets front.
 	 *
 	 * Chargement ANTICIPÉ quand la page courante en aura besoin (fiche
@@ -578,6 +620,12 @@ class FormManager {
 				'errorDesk'      => __( 'Veuillez choisir un bureau de retrait.', 'infinitycod' ),
 				'sending'        => __( 'Envoi en cours…', 'infinitycod' ),
 				'blocked'        => __( 'Commande refusée. Si c‘est une erreur, contactez-nous par téléphone.', 'infinitycod' ),
+				'coupon'         => __( 'Code promo', 'infinitycod' ),
+				'couponOk'       => __( 'Code promo appliqué !', 'infinitycod' ),
+				'couponBad'      => __( 'Code promo invalide.', 'infinitycod' ),
+				'couponExpired'  => __( 'Code promo expiré.', 'infinitycod' ),
+				'couponUsed'     => __( 'Code promo déjà utilisé.', 'infinitycod' ),
+				'couponMin'      => __( 'Montant minimum non atteint pour ce code.', 'infinitycod' ),
 				'successTitle'   => Settings::get( 'success_title' ),
 				'successText'    => Settings::get( 'success_text' ),
 				'redirecting'    => __( 'Vous allez être redirigé dans {s} secondes…', 'infinitycod' ),

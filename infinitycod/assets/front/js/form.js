@@ -85,6 +85,7 @@
 			qtyMax: parseInt(root.getAttribute('data-qty-max'), 10) || 20,
 			variationId: 0,
 			quote: null,
+			coupon: '',
 			communesCache: {}
 		};
 
@@ -135,8 +136,9 @@
 		/* --- Variations : résolution de l'ID selon les attributs choisis --- */
 		function currentAttributes() {
 			var attrs = {};
-			els(form, '.icod-attr').forEach(function (select) {
-				if (select.value) { attrs[select.getAttribute('data-taxonomy')] = select.value; }
+			els(form, '.icod-attr').forEach(function (input) {
+				var value = ('radio' === input.type || 'checkbox' === input.type) ? (input.checked ? input.value : '') : input.value;
+				if (value) { attrs[input.getAttribute('data-taxonomy')] = value; }
 			});
 			return attrs;
 		}
@@ -270,6 +272,20 @@
 			});
 		}
 
+		/* --- Code promo : appliquer / retirer --- */
+		var couponInput = el(root, '[data-icod-coupon-input]');
+		var couponApply = el(root, '[data-icod-coupon-apply]');
+		if (couponInput && couponApply) {
+			var applyCoupon = function () {
+				state.coupon = couponInput.value.trim();
+				refreshQuote();
+			};
+			couponApply.addEventListener('click', applyCoupon);
+			couponInput.addEventListener('keydown', function (event) {
+				if (event.key === 'Enter') { event.preventDefault(); applyCoupon(); }
+			});
+		}
+
 		/* --- Prix temps réel : toujours recalculé par le serveur --- */
 		var refreshQuote = debounce(function () {
 			var wilaya = wilayaSelect.value;
@@ -281,7 +297,8 @@
 				quantity: qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1,
 				wilaya: wilaya,
 				commune: communeSelect.value || '',
-				mode: currentMode()
+				mode: currentMode(),
+				coupon: state.coupon
 			};
 
 			api('quote', payload).then(function (json) {
@@ -314,6 +331,40 @@
 						discountEl.textContent = '−' + money(json.discount);
 						if (discountLabel && json.discount_pct) {
 							discountLabel.textContent = 'Remise −' + json.discount_pct + '%';
+						}
+					}
+				}
+
+				// Code promo : ligne de remise + message de validation.
+				var couponRow = el(root, '[data-summary-coupon-row]');
+				var couponEl = el(root, '[data-summary-coupon]');
+				var couponLabel = el(root, '[data-summary-coupon-label]');
+				var couponMsg = el(root, '[data-coupon-msg]');
+				if (couponRow && couponEl) {
+					var info = json.coupon || {};
+					var hasCode = !!state.coupon;
+					var okCoupon = hasCode && info.valid;
+					couponRow.classList.toggle('icod-hidden', !okCoupon);
+					if (okCoupon) {
+						if (couponLabel) { couponLabel.textContent = (I18N.coupon || 'Code promo') + ' ' + state.coupon.toUpperCase() + (info.label ? ' ' + info.label : ''); }
+						couponEl.textContent = '−' + money(info.amount);
+					}
+					if (couponMsg) {
+						if (hasCode && okCoupon) {
+							couponMsg.textContent = '✓ ' + (I18N.couponOk || 'Code promo appliqué');
+							couponMsg.className = 'icod-coupon-msg icod-coupon-ok';
+						} else if (hasCode) {
+							var reasons = {
+								not_found: I18N.couponBad || 'Code promo invalide',
+								expired: I18N.couponExpired || 'Code promo expiré',
+								used_up: I18N.couponUsed || 'Code promo déjà utilisé',
+								min_spend: I18N.couponMin || 'Montant minimum non atteint'
+							};
+							couponMsg.textContent = (info.error && reasons[info.error]) ? reasons[info.error] : (I18N.couponBad || 'Code promo invalide');
+							couponMsg.className = 'icod-coupon-msg icod-coupon-ko';
+							state.coupon = '';
+						} else {
+							couponMsg.className = 'icod-coupon-msg icod-hidden';
 						}
 					}
 				}
@@ -494,6 +545,7 @@
 				commune: communeFr,
 				commune_ar: communeAr,
 				mode: currentMode(),
+				coupon: state.coupon,
 				stopdesk: currentMode() === 'desk' ? deskSelect.value : '',
 				payment: payRadio ? payRadio.value : 'cod',
 				via_whatsapp: viaWhatsApp ? 1 : 0,

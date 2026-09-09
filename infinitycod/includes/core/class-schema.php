@@ -109,6 +109,7 @@ class Schema {
 			stopdesk varchar(200) NOT NULL DEFAULT '',
 			subtotal decimal(10,2) NOT NULL DEFAULT 0,
 			discount decimal(10,2) NOT NULL DEFAULT 0,
+			coupon varchar(50) NOT NULL DEFAULT '',
 			shipping decimal(10,2) NOT NULL DEFAULT 0,
 			total decimal(10,2) NOT NULL DEFAULT 0,
 			status varchar(20) NOT NULL DEFAULT 'pending',
