@@ -6,7 +6,7 @@ import {
 	json, now, nowTs, uid, sha256, esc, fmtDate, rateLimit, audit,
 	generateLicenseKey, encrypt, keyPreview,
 } from './core.js';
-import { page, csrfField as cf, svgBars } from './views.js';
+import { page, csrfField as cf, svgBars, svgArea } from './views.js';
 import { createLicense, revealLicenseKey } from './api.js';
 
 /* ---------- Helpers ---------- */
@@ -36,40 +36,64 @@ export function adminOverview(req, res, admin) {
 		products: one('SELECT COUNT(*) c FROM products'),
 		customers: one('SELECT COUNT(*) c FROM customers'),
 		licensesActive: one("SELECT COUNT(*) c FROM licenses WHERE status='ACTIVE'"),
-			licensesExpired: db.prepare("SELECT COUNT(*) c FROM licenses WHERE status='EXPIRED' OR (status='ACTIVE' AND expires_at != '' AND expires_at < ?)").get(now()).c,
+		licensesExpired: db.prepare("SELECT COUNT(*) c FROM licenses WHERE status='EXPIRED' OR (status='ACTIVE' AND expires_at != '' AND expires_at < ?)").get(now()).c,
 		licensesSuspended: one("SELECT COUNT(*) c FROM licenses WHERE status='SUSPENDED'"),
-		licensesRevoked: one("SELECT COUNT(*) c FROM licenses WHERE status='REVOKED'"),
 		installations: one("SELECT COUNT(*) c FROM installations WHERE status='ACTIVE'"),
 		activations: one('SELECT COUNT(*) c FROM activations'),
 		revenue: db.prepare("SELECT COALESCE(SUM(amount),0) s FROM orders WHERE status='PAID'").get().s,
 	};
+
+	// Graphiques 14 jours (depuis la base, aucun chiffre en dur).
 	const days = 14;
-	const chartRows = db.prepare(`SELECT substr(created_at,1,10) d, COUNT(*) c FROM licenses WHERE created_at >= ? GROUP BY d ORDER BY d`).get(
-		new Date(Date.now() - days * 864e5).toISOString().slice(0, 10)
-	) ? [] : [];
-	const licChart = db.prepare(`SELECT substr(created_at,1,10) d, COUNT(*) c FROM licenses WHERE created_at >= datetime('now','-14 days') GROUP BY d ORDER BY d`).all();
-	const chartData = [];
-	for (let i = days - 1; i >= 0; i--) {
-		const d = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
-		const found = licChart.find((r) => r.d === d);
-		chartData.push([d.slice(5), found ? found.c : 0]);
-	}
+	const series = (sql) => {
+		const rows = db.prepare(sql).all(new Date(Date.now() - days * 864e5).toISOString().slice(0, 10));
+		const out = [];
+		for (let i = days - 1; i >= 0; i--) {
+			const d = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
+			const f = rows.find((r) => r.d === d);
+			out.push([d.slice(5), f ? f.c : 0]);
+		}
+		return out;
+	};
+	const licData = series(`SELECT substr(created_at,1,10) d, COUNT(*) c FROM licenses WHERE created_at >= ? GROUP BY d ORDER BY d`);
+	const revData = db.prepare(`SELECT substr(paid_at,1,10) d, ROUND(SUM(amount)) c FROM orders WHERE status='PAID' AND paid_at >= datetime('now','-14 days') GROUP BY d ORDER BY d`).all()
+		.reduce((acc, r) => { acc.push([r.d.slice(5), Number(r.c) || 0]); return acc; }, []);
+
+	// Vue multi-plugins : licences + installations par produit.
+	const perProduct = db.prepare(`SELECT p.id, p.name, p.logo_emoji, p.version,
+		(SELECT COUNT(*) FROM licenses l WHERE l.product_id = p.id) licenses,
+		(SELECT COUNT(*) FROM licenses l WHERE l.product_id = p.id AND l.status = 'ACTIVE') licenses_active,
+		(SELECT COUNT(*) FROM installations i JOIN licenses l2 ON l2.id = i.license_id WHERE l2.product_id = p.id AND i.status = 'ACTIVE') installs
+		FROM products p ORDER BY p.id`).all();
+	const perProductRows = perProduct.map((p) => `<tr>
+		<td>${esc(p.logo_emoji)} <strong>${esc(p.name)}</strong> <span class="muted">v${esc(p.version)}</span></td>
+		<td>${p.licenses}</td><td>${p.licenses_active}</td><td>${p.installs}</td>
+		<td><a class="btn sm" href="/admin/products?edit=${p.id}">Gérer</a></td></tr>`);
+
+	const recentOrders = db.prepare(`SELECT o.*, c.name customer, p.name product FROM orders o JOIN customers c ON c.id=o.customer_id JOIN products p ON p.id=o.product_id ORDER BY o.id DESC LIMIT 6`).all();
 	const recent = db.prepare(`SELECT l.*, c.name customer, p.name product FROM licenses l JOIN customers c ON c.id=l.customer_id JOIN products p ON p.id=l.product_id ORDER BY l.id DESC LIMIT 8`).all();
+
+	const kpiCard = (icon, value, label, cls = '', href = '') =>
+		`<${href ? 'a href="' + href + '"' : 'div'} class="kpi kpi-c-${cls || 'blue'}" ${href ? 'style="text-decoration:none"' : ''}>
+			<div class="kpi-ico">${icon}</div><div><div class="v">${value}</div><div class="l">${label}</div></div>
+		${href ? '</a>' : '</div>'}`;
 
 	const content = `
 <div class="grid">
-	<div class="kpi"><div class="v">${kpi.products}</div><div class="l">Products</div></div>
-	<div class="kpi"><div class="v">${kpi.customers}</div><div class="l">Customers</div></div>
-	<div class="kpi"><div class="v">${kpi.licensesActive}</div><div class="l">Active licenses</div></div>
-	<div class="kpi"><div class="v">${kpi.licensesExpired}</div><div class="l">Expired</div></div>
-	<div class="kpi"><div class="v">${kpi.licensesSuspended}</div><div class="l">Suspended</div></div>
-	<div class="kpi"><div class="v">${kpi.licensesRevoked}</div><div class="l">Revoked</div></div>
-	<div class="kpi"><div class="v">${kpi.installations}</div><div class="l">Active installations</div></div>
-	<div class="kpi"><div class="v">${kpi.activations}</div><div class="l">Activations total</div></div>
-	<div class="kpi"><div class="v">$${Number(kpi.revenue).toFixed(2)}</div><div class="l">Revenue (paid orders)</div></div>
+	${kpiCard('💰', '$' + Number(kpi.revenue).toFixed(2), 'Revenue (paid)', 'ok', '/admin/orders')}
+	${kpiCard('🔑', kpi.licensesActive, 'Active licenses', 'blue', '/admin/licenses?status=ACTIVE')}
+	${kpiCard('👥', kpi.customers, 'Customers', 'blue', '/admin/customers')}
+	${kpiCard('🖥️', kpi.installations, 'Active installations', 'blue', '/admin/installations')}
+	${kpiCard('⏳', kpi.licensesExpired, 'Expired', 'warn', '/admin/licenses?status=EXPIRED')}
+	${kpiCard('⏸️', kpi.licensesSuspended, 'Suspended', 'warn', '/admin/licenses?status=SUSPENDED')}
+	${kpiCard('⚡', kpi.activations, 'Activations total', '', '/admin/activations')}
+	${kpiCard('🧩', kpi.products, 'Products', '', '/admin/products')}
 </div>
-<div class="card"><h2>Licenses created — last 14 days</h2>${svgBars(chartData)}</div>
-<div class="card"><h2>Latest licenses</h2>${table(['Key', 'Customer', 'Product', 'Status', 'Expires', ''],
+<div class="card"><h2>💰 Revenue — 14 jours</h2>${svgArea(revData, { color: '#0e7a4f', label: 'USD' })}</div>
+<div class="card"><h2>🔑 Licenses créées — 14 jours</h2>${svgBars(licData)}</div>
+<div class="card"><h2>🧩 Par plugin</h2>${table(['Plugin', 'Licenses', 'Active', 'Installations', ''], perProductRows)}</div>
+<div class="card"><h2>🧾 Dernières commandes</h2>${table(['Ref', 'Client', 'Produit', 'Montant', 'Statut', 'Date'], recentOrders.map((o) => `<tr><td class="mono">${esc(o.reference)}</td><td>${esc(o.customer)}</td><td>${esc(o.product)}</td><td><strong>$${Number(o.amount).toFixed(2)}</strong></td><td>${statusBadge(o.status)}</td><td>${fmtDate(o.created_at)}</td></tr>`))}</div>
+<div class="card"><h2>🔑 Dernières licences</h2>${table(['Key', 'Customer', 'Product', 'Status', 'Expires', ''],
 	recent.map((l) => `<tr><td class="mono"><a href="/admin/licenses/${l.id}">${esc(l.key_preview)}</a></td><td>${esc(l.customer)}</td><td>${esc(l.product)}</td><td>${statusBadge(l.status)}</td><td>${fmtDate(l.expires_at)}</td><td><a class="btn sm" href="/admin/licenses/${l.id}">View</a></td></tr>`))}</div>`;
 	page(req, admin, res, 200, 'Dashboard', content, '/admin');
 }
@@ -240,7 +264,9 @@ export function adminLicenses(req, res, admin, url, body) {
 	const params = [];
 	if (search) { where += ' AND (l.key_preview LIKE ? OR c.email LIKE ? OR c.name LIKE ?)'; const like = `%${search}%`; params.push(like, like, like); }
 	if (status) { where += ' AND l.status = ?'; params.push(status); }
-	const total = db.prepare(`SELECT COUNT(*) c FROM licenses l JOIN customers c ON c.id=l.customer_id WHERE ${where}`).get(...params).c;
+	const productFilter = q(req, 'product');
+	if (productFilter) { where += ' AND p.slug = ?'; params.push(productFilter); }
+	const total = db.prepare(`SELECT COUNT(*) c FROM licenses l JOIN customers c ON c.id=l.customer_id JOIN products p ON p.id=l.product_id WHERE ${where}`).get(...params).c;
 	const rows = db.prepare(`SELECT l.*, c.name customer, c.email email, p.name product FROM licenses l JOIN customers c ON c.id=l.customer_id JOIN products p ON p.id=l.product_id WHERE ${where} ORDER BY l.id DESC LIMIT ? OFFSET ?`)
 		.all(...params, per, (paged - 1) * per)
 		.map((l) => `<tr><td class="mono"><a href="/admin/licenses/${l.id}">${esc(l.key_preview)}</a></td><td>${esc(l.customer)}<div class="muted" style="font-size:11px">${esc(l.email)}</div></td>
@@ -249,10 +275,11 @@ export function adminLicenses(req, res, admin, url, body) {
 	page(req, admin, res, 200, 'Licenses', `
 <div class="toolbar">
 <form method="get" class="toolbar" style="margin:0"><input name="q" placeholder="Key, email, name…" value="${esc(search)}"><button class="btn sm">Filter</button>
+<select name="product" onchange="this.form.submit()"><option value="">Tous les plugins</option>${db.prepare('SELECT * FROM products ORDER BY name').all().map((p) => `<option ${productFilter === p.slug ? 'selected' : ''} value="${esc(p.slug)}">${esc(p.name)}</option>`).join('')}</select>
 <select name="status" onchange="this.form.submit()"><option value="">All statuses</option>${['ACTIVE','EXPIRED','SUSPENDED','REVOKED','PENDING'].map((s) => `<option ${status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></form>
 <a class="btn primary" href="/admin/licenses/create">＋ Create license</a>
 <a class="btn" href="/admin/licenses/export?format=csv&q=${encodeURIComponent(search)}">Export CSV</a>
-</div>` + table(['Key', 'Customer', 'Product', 'Status', 'Expires', ''], rows) + paginate(total, per, paged, `/admin/licenses?q=${encodeURIComponent(search)}&status=${status}`), '/admin/licenses');
+</div>` + table(['Key', 'Customer', 'Product', 'Status', 'Expires', ''], rows) + paginate(total, per, paged, `/admin/licenses?q=${encodeURIComponent(search)}&status=${status}&product=${encodeURIComponent(productFilter)}`), '/admin/licenses');
 }
 
 function licenseDetail(req, res, admin, id, body) {

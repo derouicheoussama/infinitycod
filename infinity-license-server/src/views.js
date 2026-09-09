@@ -1,5 +1,6 @@
 import zlib from 'node:zlib';
-import { esc } from './core.js';
+import { db } from './db.js';
+import { esc, fmtDate } from './core.js';
 
 export function secureHeaders(res) {
 	res.setHeader('X-Frame-Options', 'DENY');
@@ -55,9 +56,19 @@ input,select,textarea{font:inherit;padding:9px 11px;border:1.5px solid var(--lin
 input:focus,select:focus,textarea:focus{outline:2px solid var(--blue);border-color:var(--blue)}
 label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:10px 0 4px}
 .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
-.kpi{background:var(--card);border-radius:var(--radius);box-shadow:0 1px 3px rgba(10,30,50,.08);padding:16px}
-.kpi .v{font-size:26px;font-weight:800;color:var(--blue)}
-.kpi .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.kpi{background:var(--card);border-radius:14px;box-shadow:0 1px 3px rgba(10,30,50,.08);padding:16px;display:flex;gap:12px;align-items:center;border:1px solid transparent;transition:transform .15s,box-shadow .15s}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(10,30,50,.10)}
+.kpi-ico{flex:none;width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;background:color-mix(in srgb,var(--blue) 14%,transparent)}
+.kpi-c-ok{--k:#0e7a4f}.kpi-c-ok .kpi-ico{background:color-mix(in srgb,#0e7a4f 14%,transparent)}
+.kpi-c-warn{--k:#996800}.kpi-c-warn .kpi-ico{background:color-mix(in srgb,#996800 16%,transparent)}
+.kpi-c-bad{--k:#b32d2e}.kpi-c-bad .kpi-ico{background:color-mix(in srgb,#b32d2e 13%,transparent)}
+.kpi .v{font-size:24px;font-weight:800;color:var(--k,var(--blue));line-height:1.1}
+.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.card h2{display:flex;align-items:center;gap:8px}
+.tbl tbody tr{transition:background .12s}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--muted) 40%,transparent);border-radius:99px}
+::-webkit-scrollbar-track{background:transparent}
 .notice{padding:10px 14px;border-radius:9px;margin-bottom:14px;font-weight:600}
 .notice.ok{background:#e0f2e9;color:var(--ok)}
 .notice.err{background:#fbe4e2;color:var(--bad)}
@@ -75,40 +86,53 @@ code,.mono{font-family:ui-monospace,Consolas,monospace;font-size:.95em}
 export function layout(req, admin, title, content, active = '') {
 	const menu = [
 		['Dashboard', '/admin', '📊'],
-		['STORE', null, ''],
+		['STORE', null],
 		['Products', '/admin/products', '🧩'], ['Plans', '/admin/plans', '🏷️'], ['Orders', '/admin/orders', '🧾'], ['Customers', '/admin/customers', '👥'],
-		['LICENSES', null, ''],
+		['LICENSES', null],
 		['Licenses', '/admin/licenses', '🔑'], ['Installations', '/admin/installations', '🖥️'], ['Activations', '/admin/activations', '⚡'],
-		['UPDATES', null, ''],
+		['UPDATES', null],
 		['Releases', '/admin/releases', '📦'],
-		['SECURITY', null, ''],
+		['SECURITY', null],
 		['Security Events', '/admin/security', '🛡️'], ['API Logs', '/admin/api-logs', '📡'], ['Audit Logs', '/admin/audit-logs', '📝'],
-		['COMMUNICATION', null, ''],
+		['COMMUNICATION', null],
 		['Email Templates', '/admin/emails', '✉️'], ['Email Logs', '/admin/email-logs', '📨'],
-		['SYSTEM', null, ''],
+		['SYSTEM', null],
 		['Settings', '/admin/settings', '⚙️'], ['Administrators', '/admin/admins', '👤'],
 	];
 	const nav = menu.map(([label, href, icon]) => {
 		if (!href) return `<li class="sep">${esc(label)}</li>`;
-		return `<li><a href="${href}" class="${active === href ? 'on' : ''}">${icon} ${esc(label)}</a></li>`;
+		return `<li><a href="${href}" class="${active === href ? 'on' : ''}">${icon} <span>${esc(label)}</span></a></li>`;
 	}).join('');
 	const unread = Number(admin.unread || 0);
+	const notifs = db.prepare('SELECT * FROM notifications ORDER BY id DESC LIMIT 6').all();
+	const notifItems = notifs.length
+		? notifs.map((n) => `<div class="nd ${n.read ? '' : 'un'}"><div>${esc(n.message)}</div><time>${esc(fmtDate(n.ts))}</time></div>`).join('')
+		: '<div class="nd empty">Aucune notification.</div>';
+	const crumbs = active && active !== '/admin'
+		? `<div class="crumbs"><a href="/admin">Dashboard</a> <span>/</span> <strong>${esc(title)}</strong></div>`
+		: '';
 	return `<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)} — Infinity License</title><link rel="stylesheet" href="/assets/admin.css"></head><body>
 <div id="side-overlay"></div>
 <div class="app">
-<aside class="side"><div class="brand"><span class="dot"></span> Infinity License <button id="theme-toggle" class="theme-btn" title="Light / Dark">🌗</button></div><ul>${nav}</ul></aside>
+<aside class="side">
+	<div class="brand"><span class="mark">∞</span><div><strong>Infinity</strong><small>License Server</small></div></div>
+	<ul>${nav}</ul>
+	<div class="side-foot"><span class="badge b-ok">● ${esc(admin.role)}</span></div>
+</aside>
 <main class="main">
-<div class="top">
-<div class="side-toggle-cell"><button id="side-toggle" class="burger" aria-label="Menu">☰</button></div>
-<h1>${esc(title)}</h1>
-<form action="/admin/search" method="get"><input name="q" placeholder="Search license, email, domain, order…"><button class="btn sm">Search</button></form>
-<div class="top-actions">
-<a class="bell" href="/admin/notifications" title="Notifications">🔔${unread ? `<span class="cnt">${unread}</span>` : ''}</a>
-<span class="badge b-ok">● ${esc(admin.role)}</span>
-<form method="post" action="/logout" style="display:inline">${csrfField(admin)}<button class="btn sm">Logout</button></form>
-</div>
-</div>
+<header class="top">
+	<div class="side-toggle-cell"><button id="side-toggle" class="burger" aria-label="Menu">☰</button></div>
+	<div class="headings"><h1>${esc(title)}</h1>${crumbs}</div>
+	<form action="/admin/search" method="get" class="gsearch"><input name="q" placeholder="⌕  License, email, domaine, commande…"><button class="btn sm">Search</button></form>
+	<div class="top-actions">
+		<details class="belldd"><summary class="bell" title="Notifications">🔔${unread ? `<span class="cnt">${unread}</span>` : ''}</summary>
+			<div class="dd"><div class="dd-h">Notifications</div>${notifItems}<a href="/admin/notifications">Tout voir →</a></div>
+		</details>
+		<button id="theme-toggle" class="theme-btn" title="Light / Dark">🌗</button>
+		<form method="post" action="/logout" style="display:inline">${csrfField(admin)}<button class="btn sm" title="Déconnexion">⏻</button></form>
+	</div>
+</header>
 ${content}
 </main></div>
 <script src="/assets/admin.js" defer></script>
@@ -260,4 +284,22 @@ export function checkoutDone(req, res, order, licenseKey, email) {
 <p class="sec-sub">Your license key has been generated${licenseKey ? ' and is shown below' : ' and will be emailed to ' + esc(email) + ' once payment is validated'}.</p>
 ${licenseKey ? `<div class="card"><div class="mono" style="font-size:20px;font-weight:800;letter-spacing:.06em">${esc(licenseKey)}</div></div>` : ''}
 <p><a class="btn primary" href="/products">Back to products</a></p></section>`);
+}
+
+/* ---------- Graphique aire avec dégradé ---------- */
+export function svgArea(data, { width = 680, height = 180, color = '#1877c2', label } = {}) {
+	if (!data.length) return '<div class="muted">No data yet.</div>';
+	const max = Math.max(...data.map((d) => d[1]), 1);
+	const step = (width - 24) / Math.max(1, data.length - 1);
+	const pts = data.map((d, i) => [12 + i * step, height - 30 - Math.round((d[1] / max) * (height - 50))]);
+	const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0] + ' ' + p[1]).join(' ');
+	const area = line + ` L${pts[pts.length - 1][0]} ${height - 26} L${pts[0][0]} ${height - 26} Z`;
+	const gid = 'g' + Math.random().toString(36).slice(2, 8);
+	let out = `<svg viewBox="0 0 ${width} ${height}" style="width:100%;max-width:${width}px">`;
+	out += `<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="${color}" stop-opacity=".03"/></linearGradient></defs>`;
+	for (let gy = height - 26; gy > 14; gy -= (height - 56) / 3) out += `<line x1="12" x2="${width - 12}" y1="${gy}" y2="${gy}" stroke="var(--line)" stroke-dasharray="3 5"/>`;
+	out += `<path d="${area}" fill="url(#${gid})"/><path d="${line}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linejoin="round"/>`;
+	pts.forEach((p, i) => { out += `<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="${color}"><title>${esc(data[i][0])}: ${data[i][1]}</title></circle>`; });
+	if (label) out += `<text x="12" y="14" font-size="11" fill="var(--muted)">${esc(label)} — max ${max}</text>`;
+	return out + '</svg>';
 }
