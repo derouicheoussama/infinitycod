@@ -34,6 +34,8 @@ class SettingsPage {
 
 		add_action( 'admin_post_icod_save_settings', array( $this, 'handle_save' ) );
 		add_action( 'admin_post_icod_activate_license', array( $this, 'handle_license' ) );
+		add_action( 'admin_post_icod_verify_license', array( $this, 'handle_license_verify' ) );
+		add_action( 'admin_post_icod_deactivate_license', array( $this, 'handle_license_deactivate' ) );
 	}
 
 	/**
@@ -161,40 +163,175 @@ class SettingsPage {
 	}
 
 	/**
-	 * Onglet licence : activation de clé.
+	 * Onglet licence : statut détaillé, comparatif Gratuit / Premium,
+	 * activation, vérification, désactivation et aide.
 	 *
 	 * @return void
 	 */
 	private function tab_license() {
 		$license = \InfinityCod\License\LicenseManager::stored();
 		$premium = \InfinityCod\License\LicenseManager::is_premium();
+		$has_key = ! empty( $license['key_hash'] );
 		$msg     = isset( $_GET['icod_msg'] ) ? sanitize_text_field( rawurldecode( wp_unslash( $_GET['icod_msg'] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$ok      = isset( $_GET['icod_ok'] ) ? ( '1' === sanitize_text_field( wp_unslash( $_GET['icod_ok'] ) ) ) : $premium; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// Détails dérivés : expiration, jours restants, dernière vérification.
+		$expires_ts  = ! empty( $license['expires_at'] ) ? strtotime( (string) $license['expires_at'] ) : false;
+		$days_left   = ( false !== $expires_ts ) ? (int) ceil( ( $expires_ts - time() ) / DAY_IN_SECONDS ) : null;
+		$checked_txt = '';
+		if ( ! empty( $license['checked_at'] ) && false !== strtotime( (string) $license['checked_at'] ) ) {
+			/* translators: %s : date de dernière vérification. */
+			$checked_txt = sprintf( __( 'dernière vérification : %s', 'infinitycod' ), mysql2date( get_option( 'date_format', 'd/m/Y' ), $license['checked_at'] ) );
+		}
+
+		// Libellé du statut serveur brut.
+		$raw_status   = isset( $license['status'] ) ? (string) $license['status'] : '';
+		$status_names = array(
+			'ACTIVE'  => __( 'Active', 'infinitycod' ),
+			'UNKNOWN' => __( 'En grâce (serveur non joint)', 'infinitycod' ),
+			'EXPIRED' => __( 'Expirée', 'infinitycod' ),
+			'REVOKED' => __( 'Révoquée', 'infinitycod' ),
+			'INVALID' => __( 'Invalide', 'infinitycod' ),
+		);
+
+		// Comparatif Gratuit / Premium (true = inclus dans la version gratuite).
+		$rows = array(
+			array( __( 'Formulaire COD one-page — 8 thèmes, mode sombre, RTL arabe, Elementor', 'infinitycod' ), true ),
+			array( __( '58 wilayas & 1541 communes officielles (noms FR + AR)', 'infinitycod' ), true ),
+			array( __( 'Tarifs domicile / stopdesk par wilaya et par commune', 'infinitycod' ), true ),
+			array( __( 'Livraison gratuite, délais et commande minimale par wilaya', 'infinitycod' ), true ),
+			array( __( 'Dashboard commandes : confirmation, statuts, export, blacklist', 'infinitycod' ), true ),
+			array( __( 'Anti-fraude Shield : honeypot, empreinte, limites IP, score de risque', 'infinitycod' ), true ),
+			array( __( 'Paiement en ligne CIB / Edahabia via Chargily Pay', 'infinitycod' ), true ),
+			array( __( 'Mises à jour automatiques depuis GitHub + rollback + diagnostic', 'infinitycod' ), true ),
+			array( __( 'WhatsApp automatique : remerciement, confirmation, expédition', 'infinitycod' ), false ),
+			array( __( 'Relance automatique des paniers abandonnés', 'infinitycod' ), false ),
+			array( __( 'Commande via WhatsApp (le client valide sur WhatsApp)', 'infinitycod' ), false ),
+			array( __( 'Transporteurs intégrés : Yalidine, ZR Express, Maystro, Noest, E-COM, DHD', 'infinitycod' ), false ),
+			array( __( 'Création de colis et suivi synchronisé (tracking)', 'infinitycod' ), false ),
+			array( __( 'Statistiques P&L : CA, taux de confirmation, retours, marge nette', 'infinitycod' ), false ),
+			array( __( 'Offres intelligentes par quantité (remises automatiques)', 'infinitycod' ), false ),
+		);
 		?>
 		<?php if ( $msg ) : ?>
-			<div class="notice <?php echo $premium ? 'notice-success' : 'notice-error'; ?>"><p><?php echo esc_html( $msg ); ?></p></div>
+			<div class="notice <?php echo $ok ? 'notice-success' : 'notice-error'; ?>"><p><?php echo esc_html( $msg ); ?></p></div>
 		<?php endif; ?>
 
 		<div class="icod-card">
 			<h2><?php esc_html_e( 'Licence InfinityCod', 'infinitycod' ); ?></h2>
+
+			<div class="icod-lic-hero">
+				<div>
+					<span class="icod-lic-badge <?php echo $premium ? 'icod-lic-badge-premium' : 'icod-lic-badge-free'; ?>">
+						<?php echo $premium ? '★ ' . esc_html( \InfinityCod\License\LicenseManager::status_label() ) : esc_html( \InfinityCod\License\LicenseManager::status_label() ); ?>
+					</span>
+					<?php if ( ! empty( $license['client'] ) ) : ?>
+						<span class="icod-lic-client">— <?php echo esc_html( $license['client'] ); ?></span>
+					<?php endif; ?>
+				</div>
+				<?php if ( $has_key ) : ?>
+					<div class="icod-lic-actions">
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+							<input type="hidden" name="action" value="icod_verify_license" />
+							<?php wp_nonce_field( 'icod_verify_license' ); ?>
+							<button type="submit" class="button"><?php esc_html_e( 'Vérifier maintenant', 'infinitycod' ); ?></button>
+						</form>
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Désactiver la licence sur ce site ? Les fonctionnalités Premium seront verrouillées. Vos données sont conservées.', 'infinitycod' ) ); ?>');">
+							<input type="hidden" name="action" value="icod_deactivate_license" />
+							<?php wp_nonce_field( 'icod_deactivate_license' ); ?>
+							<button type="submit" class="button button-link-delete"><?php esc_html_e( 'Désactiver la licence', 'infinitycod' ); ?></button>
+						</form>
+					</div>
+				<?php endif; ?>
+			</div>
+
+			<?php if ( $has_key ) : ?>
+				<dl class="icod-lic-details">
+					<dt><?php esc_html_e( 'Titulaire', 'infinitycod' ); ?></dt>
+					<dd><?php echo esc_html( $license['client'] ? $license['client'] : __( '—', 'infinitycod' ) ); ?></dd>
+
+					<dt><?php esc_html_e( 'Email', 'infinitycod' ); ?></dt>
+					<dd><?php echo esc_html( ! empty( $license['email'] ) ? $license['email'] : __( '—', 'infinitycod' ) ); ?></dd>
+
+					<dt><?php esc_html_e( 'Statut serveur', 'infinitycod' ); ?></dt>
+					<dd><?php echo esc_html( isset( $status_names[ $raw_status ] ) ? $status_names[ $raw_status ] : ( $raw_status ? $raw_status : __( '—', 'infinitycod' ) ) ); ?></dd>
+
+					<dt><?php esc_html_e( 'Expiration', 'infinitycod' ); ?></dt>
+					<dd>
+						<?php if ( false === $expires_ts ) : ?>
+							<?php esc_html_e( 'Illimitée', 'infinitycod' ); ?>
+						<?php else : ?>
+							<?php echo esc_html( mysql2date( get_option( 'date_format', 'd/m/Y' ), $license['expires_at'] ) ); ?>
+							<?php if ( null !== $days_left ) : ?>
+								—
+								<?php
+								if ( $days_left > 15 ) {
+									/* translators: %d : nombre de jours restants. */
+									printf( esc_html__( '%d jours restants', 'infinitycod' ), (int) $days_left );
+								} elseif ( $days_left > 0 ) {
+									/* translators: %d : nombre de jours restants. */
+									printf( esc_html__( '⚠ %d jours restants', 'infinitycod' ), (int) $days_left );
+								} else {
+									esc_html_e( 'expirée', 'infinitycod' );
+								}
+								?>
+							<?php endif; ?>
+						<?php endif; ?>
+					</dd>
+
+					<dt><?php esc_html_e( 'Vérification', 'infinitycod' ); ?></dt>
+					<dd><?php echo esc_html( $checked_txt ? $checked_txt : __( 'jamais vérifiée', 'infinitycod' ) ); ?></dd>
+
+					<dt><?php esc_html_e( 'Installation', 'infinitycod' ); ?></dt>
+					<dd><code dir="ltr"><?php echo esc_html( substr( (string) \InfinityCod\License\LicenseManager::install_id(), 0, 10 ) ); ?>…</code></dd>
+				</dl>
+				<p class="description icod-lic-note">
+					<?php esc_html_e( 'Une licence est liée à ce site (une machine = un site). La vérification hebdomadaire est automatique ; en cas de coupure, une période de grâce conserve vos fonctionnalités Premium.', 'infinitycod' ); ?>
+				</p>
+			<?php endif; ?>
+		</div>
+
+		<div class="icod-card">
+			<h2><?php esc_html_e( 'Ce que débloque la licence Premium', 'infinitycod' ); ?></h2>
 			<p class="description">
-				<?php esc_html_e( 'La version gratuite inclut le formulaire COD, les 58 wilayas et 1541 communes, les tarifs de livraison et l‘anti-fraude. La licence Premium débloque : WhatsApp automatique, transporteurs intégrés (création de colis + suivi), statistiques P&L et offres par quantité.', 'infinitycod' ); ?>
+				<?php esc_html_e( 'La version gratuite couvre déjà tout le nécessaire pour vendre en paiement à la livraison. La licence Premium ajoute l’automatisation (WhatsApp, transporteurs, relances) et le pilotage (statistiques P&L, offres).', 'infinitycod' ); ?>
 			</p>
+			<table class="icod-lic-compare">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'Fonctionnalité', 'infinitycod' ); ?></th>
+						<th class="icod-lic-c"><?php esc_html_e( 'Gratuit', 'infinitycod' ); ?></th>
+						<th class="icod-lic-c"><?php esc_html_e( 'Premium', 'infinitycod' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $rows as $row ) : ?>
+						<tr>
+							<td><?php echo esc_html( $row[0] ); ?></td>
+							<?php if ( $row[1] ) : ?>
+								<td class="icod-lic-c icod-lic-yes">✓</td>
+								<td class="icod-lic-c icod-lic-yes">✓</td>
+							<?php else : ?>
+								<td class="icod-lic-c icod-lic-no">—</td>
+								<td class="icod-lic-c icod-lic-yes">✓</td>
+							<?php endif; ?>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
 
-			<p>
-				<strong><?php esc_html_e( 'Statut :', 'infinitycod' ); ?></strong>
-				<span class="icod-status <?php echo $premium ? 'icod-status-delivered' : 'icod-status-pending'; ?>"><?php echo esc_html( \InfinityCod\License\LicenseManager::status_label() ); ?></span>
-				<?php if ( ! empty( $license['client'] ) ) : ?>
-					— <?php echo esc_html( $license['client'] ); ?>
-				<?php endif; ?>
-				<?php if ( ! empty( $license['expires_at'] ) ) : ?>
-					· <?php printf( /* translators: %s : date. */ esc_html__( 'expire le %s', 'infinitycod' ), esc_html( $license['expires_at'] ) ); ?>
-				<?php endif; ?>
-			</p>
-
+		<div class="icod-card">
+			<h2><?php $premium ? esc_html_e( 'Changer de clé', 'infinitycod' ) : esc_html_e( 'Activer votre licence Premium', 'infinitycod' ); ?></h2>
+			<?php if ( ! $premium ) : ?>
+				<p class="description">
+					<?php esc_html_e( 'Saisissez la clé reçue après votre achat pour débloquer immédiatement WhatsApp automatique, les transporteurs, les statistiques P&L et les offres par quantité — sans réinstaller quoi que ce soit.', 'infinitycod' ); ?>
+				</p>
+			<?php endif; ?>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="icod_activate_license" />
 				<?php wp_nonce_field( 'icod_activate_license' ); ?>
-				<div class="icod-grid icod-grid-full">
+				<div class="icod-grid">
 					<label>
 						<span><?php esc_html_e( 'Clé de licence', 'infinitycod' ); ?></span>
 						<input type="text" name="icod_license_key" class="regular-text" dir="ltr" placeholder="INFINITY-XXXX-XXXX-XXXX" />
@@ -202,8 +339,33 @@ class SettingsPage {
 				</div>
 				<p class="icod-submit">
 					<button type="submit" class="button button-primary"><?php esc_html_e( 'Activer la licence', 'infinitycod' ); ?></button>
+					<a href="<?php echo esc_url( 'https://infinitycoder.app/infinitycod' ); ?>" class="button" target="_blank" rel="noopener"><?php esc_html_e( 'Acheter une licence', 'infinitycod' ); ?></a>
 				</p>
 			</form>
+		</div>
+
+		<div class="icod-card icod-lic-faq">
+			<h2><?php esc_html_e( 'Questions fréquentes', 'infinitycod' ); ?></h2>
+			<details>
+				<summary><?php esc_html_e( 'Où obtenir ma clé de licence ?', 'infinitycod' ); ?></summary>
+				<p><?php esc_html_e( 'Après votre achat sur infinitycoder.app, la clé vous est envoyée par email et WhatsApp. Elle ressemble à INFINITY-XXXX-XXXX-XXXX.', 'infinitycod' ); ?></p>
+			</details>
+			<details>
+				<summary><?php esc_html_e( 'Puis-je utiliser ma licence sur plusieurs sites ?', 'infinitycod' ); ?></summary>
+				<p><?php esc_html_e( 'Une licence couvre un site (une installation). Pour transférer la licence vers un nouveau site, désactivez-la ici puis activez-la sur l’autre, ou contactez le support.', 'infinitycod' ); ?></p>
+			</details>
+			<details>
+				<summary><?php esc_html_e( 'Que se passe-t-il si le serveur de licences est injoignable ?', 'infinitycod' ); ?></summary>
+				<p><?php esc_html_e( 'Rien ne se coupe : votre statut local est conservé en période de grâce. La vérification est retentée automatiquement chaque semaine, ou via le bouton « Vérifier maintenant ».', 'infinitycod' ); ?></p>
+			</details>
+			<details>
+				<summary><?php esc_html_e( 'Que devient ma boutique si la licence expire ou est désactivée ?', 'infinitycod' ); ?></summary>
+				<p><?php esc_html_e( 'Le plugin repasse en version gratuite : le formulaire, les tarifs, l’anti-fraude et le dashboard continuent de fonctionner. Seules les fonctions Premium se verrouillent. Toutes vos données restent sur votre site, rien n’est supprimé.', 'infinitycod' ); ?></p>
+			</details>
+			<details>
+				<summary><?php esc_html_e( 'Mes données sont-elles envoyées quelque part ?', 'infinitycod' ); ?></summary>
+				<p><?php esc_html_e( 'Non. Commandes, clients et statistiques restent 100 % dans votre WordPress. Seule la licence échange avec le serveur (empreinte du site, statut) — jamais vos données commerciales.', 'infinitycod' ); ?></p>
+			</details>
 		</div>
 		<?php
 	}
@@ -225,7 +387,45 @@ class SettingsPage {
 		$manager = new \InfinityCod\License\LicenseManager();
 		$result  = $manager->activate( $key );
 
-		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=license&icod_msg=' . rawurlencode( $result['message'] ) ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=license&icod_msg=' . rawurlencode( $result['message'] ) . '&icod_ok=' . ( $result['ok'] ? '1' : '0' ) ) );
+		exit;
+	}
+
+	/**
+	 * Vérification manuelle de la licence (bouton « Vérifier maintenant »).
+	 *
+	 * @return void
+	 */
+	public function handle_license_verify() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_verify_license' );
+
+		$manager = new \InfinityCod\License\LicenseManager();
+		$result  = $manager->manual_check();
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=license&icod_msg=' . rawurlencode( $result['message'] ) . '&icod_ok=' . ( $result['ok'] ? '1' : '0' ) ) );
+		exit;
+	}
+
+	/**
+	 * Désactivation de la licence sur ce site.
+	 *
+	 * @return void
+	 */
+	public function handle_license_deactivate() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_deactivate_license' );
+
+		$manager = new \InfinityCod\License\LicenseManager();
+		$result  = $manager->deactivate();
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=license&icod_msg=' . rawurlencode( $result['message'] ) . '&icod_ok=' . ( $result['ok'] ? '1' : '0' ) ) );
 		exit;
 	}
 

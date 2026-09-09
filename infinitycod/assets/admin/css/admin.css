@@ -704,3 +704,32 @@
 	.icod-kpi-value { font-size: 2rem; }
 	.icod-card { padding: 14px !important; }
 }
+
+/* --- Licence : statut, comparatif, FAQ --- */
+.icod-lic-hero{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+.icod-lic-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 16px;border-radius:99px;font-weight:700;font-size:13px;line-height:1.6}
+.icod-lic-badge-free{background:#f0f0f1;color:#50575e}
+.icod-lic-badge-premium{background:linear-gradient(135deg,#1d5fa8,#0e7a4f);color:#fff;box-shadow:0 1px 4px rgba(14,122,79,.35)}
+.icod-lic-client{font-weight:600;color:#1d2327}
+.icod-lic-actions{display:flex;gap:10px;flex-wrap:wrap}
+.icod-lic-actions form{margin:0}
+.icod-lic-details{display:grid;gap:12px 20px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin:16px 0 0;padding-top:16px;border-top:1px solid #f0f0f1}
+.icod-lic-details dt{font-size:11px;font-weight:700;color:#8c8f94;text-transform:uppercase;letter-spacing:.04em}
+.icod-lic-details dd{margin:3px 0 0;font-size:13px;color:#1d2327;overflow-wrap:anywhere}
+.icod-lic-note{margin-top:14px}
+.icod-lic-compare{width:100%;border-collapse:collapse;margin-top:10px}
+.icod-lic-compare th,.icod-lic-compare td{padding:9px 10px;border-bottom:1px solid #f0f0f1;text-align:left;font-size:13px}
+.icod-lic-compare thead th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#50575e;background:#f6f7f7}
+.icod-lic-compare tbody tr:hover{background:#f6f7f7}
+.icod-lic-c{text-align:center;width:90px}
+.icod-lic-yes{color:#0e7a4f;font-weight:700}
+.icod-lic-no{color:#c3c4c7}
+.icod-lic-faq details{margin:8px 0 0;padding:10px 14px;background:#f6f7f7;border-radius:8px}
+.icod-lic-faq summary{cursor:pointer;font-weight:600;font-size:13px}
+.icod-lic-faq details[open]{background:#eef4fb}
+.icod-lic-faq p{margin:8px 0 2px;color:#50575e;font-size:13px}
+@media (max-width:782px){
+	.icod-lic-c{width:54px}
+	.icod-lic-details{grid-template-columns:repeat(2,1fr)}
+	.icod-lic-hero{flex-direction:column;align-items:flex-start}
+}

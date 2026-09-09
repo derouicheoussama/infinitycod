@@ -168,6 +168,29 @@ class LicenseManager {
 	}
 
 	/**
+	 * Requête vers le serveur de licences.
+	 *
+	 * @param string $action   Action API (activate, heartbeat, deactivate).
+	 * @param string $key_hash Empreinte SHA-256 de la clé.
+	 * @return array|WP_Error Réponse HTTP ou erreur.
+	 */
+	private function remote_status( $action, $key_hash ) {
+		return wp_remote_post(
+			add_query_arg( 'action', $action, self::server_url() ),
+			array(
+				'timeout' => 20,
+				'body'    => array(
+					'machine'    => self::machine_id(),
+					'key_hash'   => $key_hash,
+					'install_id' => self::install_id(),
+					'product'    => 'infinitycod',
+					'version'    => INFINITYCOD_VERSION,
+				),
+			)
+		);
+	}
+
+	/**
 	 * Vérification périodique (tâche hebdomadaire).
 	 *
 	 * @return void
@@ -178,19 +201,7 @@ class LicenseManager {
 			return;
 		}
 
-		$response = wp_remote_post(
-			add_query_arg( 'action', 'heartbeat', self::server_url() ),
-			array(
-				'timeout' => 20,
-				'body'    => array(
-					'machine'    => self::machine_id(),
-					'key_hash'   => $stored['key_hash'],
-					'install_id' => self::install_id(),
-					'product'    => 'infinitycod',
-					'version'    => INFINITYCOD_VERSION,
-				),
-			)
-		);
+		$response = $this->remote_status( 'heartbeat', $stored['key_hash'] );
 
 		if ( is_wp_error( $response ) ) {
 			return; // Serveur injoignable : statut conservé.
@@ -205,6 +216,85 @@ class LicenseManager {
 			$stored['checked_at'] = current_time( 'mysql' );
 			update_option( self::OPTION, $stored, true );
 		}
+	}
+
+	/**
+	 * Vérification manuelle déclenchée depuis l'écran Licence.
+	 *
+	 * @return array{ok: bool, message: string}
+	 */
+	public function manual_check() {
+		$stored = self::stored();
+
+		if ( empty( $stored['key_hash'] ) ) {
+			return array( 'ok' => false, 'message' => __( 'Aucune clé enregistrée : activez d’abord votre licence.', 'infinitycod' ) );
+		}
+
+		$response = $this->remote_status( 'heartbeat', $stored['key_hash'] );
+
+		if ( is_wp_error( $response ) ) {
+			return array( 'ok' => false, 'message' => __( 'Serveur de licences injoignable. Votre statut local est conservé (période de grâce).', 'infinitycod' ) );
+		}
+
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+		$body   = is_array( $body ) ? $body : array();
+		$status = isset( $body['status'] ) ? (string) $body['status'] : '';
+
+		if ( '' === $status ) {
+			return array( 'ok' => false, 'message' => __( 'Réponse inattendue du serveur de licences.', 'infinitycod' ) );
+		}
+
+		$stored['status']     = $status;
+		$stored['checked_at'] = current_time( 'mysql' );
+		if ( ! empty( $body['expires_at'] ) ) {
+			$stored['expires_at'] = (string) $body['expires_at'];
+		}
+		update_option( self::OPTION, $stored, true );
+
+		if ( 'ACTIVE' === $status ) {
+			return array( 'ok' => true, 'message' => __( 'Licence vérifiée auprès du serveur : active.', 'infinitycod' ) );
+		}
+
+		if ( 'UNKNOWN' === $status ) {
+			return array( 'ok' => true, 'message' => __( 'Serveur injoignable : statut conservé (période de grâce).', 'infinitycod' ) );
+		}
+
+		/* translators: %s : statut renvoyé par le serveur. */
+		return array( 'ok' => false, 'message' => sprintf( __( 'Le serveur indique le statut : %s.', 'infinitycod' ), $status ) );
+	}
+
+	/**
+	 * Désactive la licence localement (et libère le siège côté serveur).
+	 *
+	 * @return array{ok: bool, message: string}
+	 */
+	public function deactivate() {
+		$stored = self::stored();
+
+		if ( empty( $stored['key_hash'] ) ) {
+			return array( 'ok' => false, 'message' => __( 'Aucune licence active à désactiver.', 'infinitycod' ) );
+		}
+
+		// Best effort : prévenir le serveur pour libérer la machine.
+		wp_remote_post(
+			add_query_arg( 'action', 'deactivate', self::server_url() ),
+			array(
+				'timeout' => 10,
+				'body'    => array(
+					'machine'    => self::machine_id(),
+					'key_hash'   => $stored['key_hash'],
+					'install_id' => self::install_id(),
+					'product'    => 'infinitycod',
+				),
+			)
+		);
+
+		delete_option( self::OPTION );
+
+		return array(
+			'ok'      => true,
+			'message' => __( 'Licence désactivée. Les fonctionnalités Premium sont verrouillées ; vos données (commandes, tarifs, réglages) sont conservées.', 'infinitycod' ),
+		);
 	}
 
 	/**
