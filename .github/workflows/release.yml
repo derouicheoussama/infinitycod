@@ -117,3 +117,12 @@ jobs:
           git add latest
           git commit -m "Miroir ${GITHUB_REF_NAME}"
           git push origin main
+
+      - name: Purge du cache jsDelivr (miroir)
+        if: env.RELEASES_TOKEN != ''
+        continue-on-error: true
+        run: |
+          for f in update.json update.json.sig infinitycod.zip infinitycod.zip.sha256; do
+            curl -sf "https://purge.jsdelivr.net/gh/derouicheoussama/infinitycod-releases@main/latest/${f}" > /dev/null || true
+          done
+          echo "Cache jsDelivr purgé."
