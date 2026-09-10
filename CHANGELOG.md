@@ -1,5 +1,16 @@
 # Changelog
 
+## 5.7.1 — 2026-09-10
+
+Audit automatisé complet des écrans d'administration : un dernier réglage mort détecté et réparé.
+
+### Corrigé
+- **« Livraison gratuite par montant » et « Supplément poids » (page Wilayas & Tarifs) ne pouvaient jamais s'activer** : les cases étaient rendues avec un nom différent de celui lu par le gestionnaire de sauvegarde — chaque enregistrement les remettait à zéro. Noms alignés, les six réglages (activation, seuil, message, tarif par kg, kg inclus) fonctionnent.
+
+### Ajouté
+- **Nouvel audit automatique** : correspondance champ rendu ↔ champ lu sur TOUS les écrans d'administration (intégré à npm run check) — cette classe de réglage mort ne peut plus revenir.
+
+
 ## 5.7.0 — 2026-09-10
 
 Personnalisation avancée : chaque couleur et mesure remplie est réellement appliquée au formulaire.

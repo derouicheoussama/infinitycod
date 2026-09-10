@@ -113,30 +113,30 @@ class GeoPage {
 				<h2><?php esc_html_e( 'Livraison gratuite intelligente & poids', 'infinitycod' ); ?></h2>
 				<div class="icod-toggles">
 					<label class="icod-toggle">
-						<input type="checkbox" name="icod[free_amount_enabled]" value="1" <?php checked( (int) Settings::get( 'free_amount_enabled' ), 1 ); ?> />
+						<input type="checkbox" name="icod_free_amount_enabled" value="1" <?php checked( (int) Settings::get( 'free_amount_enabled' ), 1 ); ?> />
 						<span><?php esc_html_e( 'Livraison gratuite à partir d\'un montant de panier', 'infinitycod' ); ?></span>
 					</label>
 					<label class="icod-toggle">
-						<input type="checkbox" name="icod[weight_fee_enabled]" value="1" <?php checked( (int) Settings::get( 'weight_fee_enabled' ), 1 ); ?> />
+						<input type="checkbox" name="icod_weight_fee_enabled" value="1" <?php checked( (int) Settings::get( 'weight_fee_enabled' ), 1 ); ?> />
 						<span><?php esc_html_e( 'Supplément poids (produits lourds)', 'infinitycod' ); ?></span>
 					</label>
 				</div>
 				<div class="icod-grid">
 					<label>
 						<span><?php esc_html_e( 'Seuil de gratuité (DA)', 'infinitycod' ); ?></span>
-						<input type="number" min="0" step="50" name="icod[free_amount_threshold]" value="<?php echo esc_attr( Settings::get( 'free_amount_threshold' ) ); ?>" />
+						<input type="number" min="0" step="50" name="icod_free_amount_threshold" value="<?php echo esc_attr( Settings::get( 'free_amount_threshold' ) ); ?>" />
 					</label>
 					<label>
 						<span><?php esc_html_e( 'Message dynamique (variable {reste})', 'infinitycod' ); ?></span>
-						<input type="text" name="icod[free_amount_message]" value="<?php echo esc_attr( Settings::get( 'free_amount_message' ) ); ?>" class="regular-text" />
+						<input type="text" name="icod_free_amount_message" value="<?php echo esc_attr( Settings::get( 'free_amount_message' ) ); ?>" class="regular-text" />
 					</label>
 					<label>
 						<span><?php esc_html_e( 'Prix par kg supplémentaire (DA)', 'infinitycod' ); ?></span>
-						<input type="number" min="0" step="10" name="icod[weight_fee_per_kg]" value="<?php echo esc_attr( Settings::get( 'weight_fee_per_kg' ) ); ?>" />
+						<input type="number" min="0" step="10" name="icod_weight_fee_per_kg" value="<?php echo esc_attr( Settings::get( 'weight_fee_per_kg' ) ); ?>" />
 					</label>
 					<label>
 						<span><?php esc_html_e( 'Kg inclus sans frais', 'infinitycod' ); ?></span>
-						<input type="number" min="0" step="1" name="icod[weight_fee_free_kg]" value="<?php echo esc_attr( Settings::get( 'weight_fee_free_kg' ) ); ?>" />
+						<input type="number" min="0" step="1" name="icod_weight_fee_free_kg" value="<?php echo esc_attr( Settings::get( 'weight_fee_free_kg' ) ); ?>" />
 					</label>
 				</div>
 			</div>

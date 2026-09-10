@@ -445,6 +445,17 @@ $sanitize2 = $refm( '\InfinityCod\Admin\Pages\SettingsPage', 'sanitize_fields' )
 $clean2 = $sanitize2->invoke( $page, array( 'border_radius' => '99', 'form_padding' => '' ), 'form' );
 check( 'arrondi borné (99 → 40) et vide préservé', isset( $clean2['border_radius'] ) && 40 === $clean2['border_radius'] && isset( $clean2['form_padding'] ) && '' === $clean2['form_padding'] );
 
+/* ---------- 17. Réglages Geo : livraison gratuite / poids sauvegardés ---------- */
+
+echo "\n17) Page Wilayas & Tarifs : toggles Geo réellement sauvegardés\n";
+$geo_src = file_get_contents( $plugin_dir . 'includes/admin/pages/class-geo-page.php' );
+check( 'plus de mismatch de noms (icod[...] vs icod_...)', false === strpos( $geo_src, 'name="icod[free_amount_enabled]"' ) && false === strpos( $geo_src, 'name="icod[weight_fee_enabled]"' ) );
+check( 'champs rendus au format plat lu par le handler', false !== strpos( $geo_src, 'name="icod_free_amount_enabled"' ) && false !== strpos( $geo_src, 'name="icod_weight_fee_enabled"' ) && false !== strpos( $geo_src, 'name="icod_free_amount_threshold"' ) );
+$am2 = file_get_contents( $plugin_dir . 'includes/admin/class-admin-manager.php' );
+check( 'handler lit et sauvegarde les 6 clés Geo', false !== strpos( $am2, "'free_amount_enabled'" ) && false !== strpos( $am2, "'free_amount_threshold'" ) && false !== strpos( $am2, "'weight_fee_enabled'" ) && false !== strpos( $am2, "'weight_fee_per_kg'" ) );
+$post_scan = shell_exec( 'node ' . escapeshellarg( dirname( __DIR__ ) . '/tools/check-post-fields.js' ) . ' 2>&1' );
+check( 'scan POST des écrans admin : aucun mismatch', false !== strpos( (string) $post_scan, 'OK :' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
