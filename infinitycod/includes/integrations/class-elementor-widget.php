@@ -144,24 +144,10 @@ class ElementorWidget extends Widget_Base {
 	protected function render() {
 		$settings = $this->get_settings_for_display();
 
-		// Détection du mode édition Elementor : afficher une preview sans soumission.
-		$is_editor = false;
-		if ( class_exists( 'ElementorPlugin' ) ) {
-			$elementor = ElementorPlugin::instance();
-			if ( method_exists( $elementor, 'editor' ) && $elementor->editor->is_edit_mode() ) {
-				$is_editor = true;
-			}
-		}
-
 		$product_id = absint( $settings['product_id'] ?? 0 );
 		$title      = sanitize_text_field( $settings['custom_title'] ?? '' );
 		$button     = sanitize_text_field( $settings['custom_button'] ?? '' );
 		$preset     = sanitize_key( $settings['preset'] ?? '' );
-
-		if (  ) {
-			echo '<div style="padding:40px;text-align:center;background:#f0f6fc;border:2px dashed #1877c2;border-radius:12px;font-size:14px;color:#1877c2">🛒 <strong>InfinityCOD Form</strong><br><small>Preview — le formulaire s'affiche sur le front-end.</small></div>';
-			return;
-		}
 
 		// Applique le preset du widget si choisi (sinon thème des réglages).
 		$override = static function ( $channel ) use ( $preset ) {
