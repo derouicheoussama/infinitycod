@@ -910,3 +910,8 @@ body.icod-modal-open{overflow:hidden}
 	.icod-key-form .icod-key-row .button{text-align:center}
 	.icod-pricing{grid-template-columns:1fr}
 }
+
+/* --- Transporteurs : logos officiels (déposez dans assets/front/img/carriers/) --- */
+.icod-carrier-logo{border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.icod-carrier-badge{display:inline-flex;align-items:center;justify-content:center;width:40px;height:28px;border-radius:6px;background:#eef3f9;color:#1d5fa8;font-weight:800;font-size:12px}
+.icod-carrier-head{display:flex;align-items:center;gap:12px}
