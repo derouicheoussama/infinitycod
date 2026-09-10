@@ -121,9 +121,10 @@ class AdminManager {
 		// Sans licence : mise en avant Pro.
 		if ( ! \InfinityCod\License\LicenseManager::is_premium() ) {
 			$custom[] = sprintf(
-				'<a href="%s" style="color:#996800;font-weight:700">★ %s</a>',
+				'<a href="%1$s" style="color:#0e7a4f;font-weight:700" title="%2$s">★ %3$s</a>',
 				esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=license' ) ),
-				esc_html__( 'Passer à la Pro', 'infinitycod' )
+				esc_attr__( 'Débloque WhatsApp automatique, transporteurs, P&L et offres — dès 39 USD.', 'infinitycod' ),
+				esc_html__( 'Passer à la version Pro', 'infinitycod' )
 			);
 		}
 
