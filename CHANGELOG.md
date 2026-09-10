@@ -1,5 +1,19 @@
 # Changelog
 
+## 5.11.0 — 2026-09-10
+
+Palettes de couleurs cliquables, icônes de bouton, HUD retiré, aperçu instantané et blindage thèmes.
+
+### Ajouté
+- **Palettes de couleurs cliquables** (fini les codes hex à taper) : Couleur d'accent (16 teintes), bouton, texte, bordures et fond (12 teintes chacune) — un clic sélectionne, ↺ revient au défaut du thème, l'aperçu se met à jour instantanément.
+- **Icône du bouton « Confirmer la commande »** : 10 icônes au choix (🛒 🛍️ 💳 ✅ 🚀 📦 ⚡ ❤️ ou aucune) — Réglages → Contenu.
+- **Blindage thèmes** : le formulaire neutralise les interférences des CSS tierces (reset ciblé des inputs/boutons/listes/images, accent-color natif, color-scheme clair/sombre) — compatible thèmes populaires et navigateurs nouvelle génération.
+- Aperçu en direct encore plus réactif : 250 ms.
+
+### Supprimé
+- **HUD admin sur le formulaire** (demande marchands : il gênait) — les valeurs de contrôle restent visibles via l'aperçu en direct et les Diagnostics.
+
+
 ## 5.10.0 — 2026-09-10
 
 4 styles de formulaire + 5 nouvelles options d'affichage + barre collante pleine largeur.

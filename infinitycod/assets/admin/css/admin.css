@@ -1059,3 +1059,9 @@ body.icod-modal-open{overflow:hidden}
 	.icod-form-preview #icod-preview-frame{height:calc(100vh - 250px)!important}
 }
 .icod-form-preview #icod-preview-frame{background:#fff}
+
+/* Palettes de couleurs cliquables + sélecteur d’icônes. */
+.icod-swatches{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.icod-swatch{width:27px;height:27px;border-radius:7px;border:2px solid #fff;box-shadow:0 0 0 1px #dcdcde;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:14px;padding:0;line-height:1}
+.icod-swatch:hover{transform:translateY(-1px)}
+.icod-swatch.active{box-shadow:0 0 0 3px #1877c2;border-color:#fff}

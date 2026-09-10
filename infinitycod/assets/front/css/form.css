@@ -69,11 +69,6 @@
 /* Honeypot anti-bots : présent dans le DOM mais JAMAIS visible (aucun champ vide à l'écran). */
 .icod-hp{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px 0 0 -1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important;background:none!important}
 .icod-hidden{display:none!important}
-/* HUD administrateur (invisible des clients) : valeurs réellement rendues.
-   S'il n'apparaît pas pour un admin connecté, la page est une copie en cache. */
-.icod-admin-hud{position:absolute;top:6px;inset-inline-end:6px;z-index:30;background:#1d2327;background:color-mix(in srgb,#1d2327 88%,transparent);color:#fff;font-size:10.5px;font-weight:600;line-height:1.4;padding:4px 9px;border-radius:8px;pointer-events:auto}
-.icod-admin-hud strong{color:#72aee6;font-weight:800}
-.icod-admin-hud a{color:#72aee6;text-decoration:underline}
 .icod-card{background:var(--icod-surface);border-radius:var(--icod-radius,18px);overflow:hidden}
 @keyframes icod-fade-in{from{opacity:0}to{opacity:1}}
 @keyframes icod-pop{from{transform:scale(0)}to{transform:scale(1)}}
@@ -347,3 +342,14 @@ fieldset.icod-mode{min-width:0}
 .icod-fs-ecommerce .icod-chip span{font-weight:800}
 .icod-fs-ecommerce .icod-mode-price{font-size:1rem}
 .icod-fs-ecommerce .icod-sticky .icod-submit{min-width:240px}
+
+/* ===== Blindage thèmes : neutralise les interférences des CSS tierces ===== */
+.icod-root input,.icod-root select,.icod-root textarea,.icod-root button{font-family:inherit;letter-spacing:normal;text-transform:none;text-shadow:none}
+.icod-root ul,.icod-root li{list-style:none;margin:0;padding:0}
+.icod-root img{max-width:100%;height:auto}
+.icod-root a{text-decoration:none}
+.icod-root button{cursor:pointer}
+.icod-root input[type=checkbox],.icod-root input[type=radio]{accent-color:var(--icod-accent);width:auto;min-width:0}
+.icod-root{color-scheme:light}
+.icod-root[data-theme=dark],.icod-root[data-theme=auto]{color-scheme:dark}
+.icod-btn-ico{margin-inline-end:8px;display:inline-block}

@@ -123,6 +123,20 @@ class SettingsPage {
 			<?php endif; ?>
 
 			<script>
+			/* Palettes de couleurs : clic = sélection + aperçu rafraîchi. */
+			(function () {
+				document.querySelectorAll('.icod-swatches .icod-swatch').forEach(function (sw) {
+					sw.addEventListener('click', function () {
+						var group = sw.closest('.icod-swatches');
+						var input = group ? group.querySelector('input[type="hidden"]') : null;
+						if (!input) { return; }
+						input.value = sw.getAttribute('data-color') || '';
+						group.querySelectorAll('.icod-swatch').forEach(function (x) { x.classList.toggle('active', x === sw); });
+						input.dispatchEvent(new window.Event('change', { bubbles: true }));
+						input.dispatchEvent(new window.Event('input', { bubbles: true }));
+					});
+				});
+			})();
 			/* Sauvegarde prioritaire via admin-ajax (contourne un éventuel blocage
 			   de admin-post.php) ; repli natif automatique en cas d'échec AJAX. */
 			(function () {
@@ -131,7 +145,6 @@ class SettingsPage {
 				form = form.closest('form');
 				var btn = form.querySelector('.icod-save-sticky button');
 				if (!form || !btn) { return; }
-				var saved = btn.textContent;
 				form.addEventListener('submit', function (e) {
 					if (form.dataset.ajaxTried === '1') { return; } // Repli natif déjà en cours.
 					e.preventDefault();
@@ -818,6 +831,23 @@ class SettingsPage {
 					<input type="text" name="icod[button_text]" value="<?php echo esc_attr( Settings::get( 'button_text' ) ); ?>" class="regular-text" />
 				</label>
 				<label>
+					<span><?php esc_html_e( 'Icône du bouton', 'infinitycod' ); ?></span>
+					<div class="icod-swatches" style="margin-top:4px">
+						<input type="hidden" name="icod[button_icon]" value="<?php echo esc_attr( Settings::get( 'button_icon', '' ) ); ?>" />
+						<?php
+						$current_icon = (string) Settings::get( 'button_icon', '' );
+						foreach ( array( '', '🛒', '🛍️', '💳', '✅', '🚀', '📦', '⚡', '❤️', '🛴' ) as $icon ) :
+							printf(
+								'<button type="button" class="icod-swatch%1$s" data-color="%2$s" title="%3$s">%2$s</button>',
+								$current_icon === $icon ? ' active' : '',
+								esc_attr( $icon ),
+								'' === $icon ? esc_attr__( 'Aucune icône', 'infinitycod' ) : esc_attr( $icon )
+							);
+						endforeach;
+						?>
+					</div>
+				</label>
+				<label>
 					<span><?php esc_html_e( 'Indication du champ téléphone', 'infinitycod' ); ?></span>
 					<input type="text" name="icod[phone_placeholder]" value="<?php echo esc_attr( Settings::get( 'phone_placeholder' ) ); ?>" dir="ltr" />
 				</label>
@@ -893,7 +923,7 @@ class SettingsPage {
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Couleur d‘accent', 'infinitycod' ); ?></span>
-					<input type="color" name="icod[accent_color]" value="<?php echo esc_attr( Settings::get( 'accent_color' ) ); ?>" />
+					<?php $this->color_swatches( 'accent_color', (string) Settings::get( 'accent_color', '#0e7a4f' ), array( '#0E7A4F', '#12B886', '#1877C2', '#1971C2', '#0891B2', '#6D28D9', '#7048E8', '#D6336C', '#E8590C', '#F76707', '#E03131', '#C92A2A', '#5C940D', '#F59F00', '#364FC7', '#1A1D21' ), false ); ?>
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Mode sombre', 'infinitycod' ); ?></span>
@@ -908,23 +938,23 @@ class SettingsPage {
 					<input type="number" min="400" max="900" step="20" name="icod[form_max_width]" value="<?php echo esc_attr( (int) Settings::get( 'form_max_width', 680 ) ); ?>" />
 				</label>
 			</div>
-			<p class="description" style="margin-top:14px"><strong><?php esc_html_e( 'Personnalisation avancée', 'infinitycod' ); ?></strong> — <?php esc_html_e( 'laissez vide pour garder les couleurs du thème ; remplissez pour appliquer réellement.', 'infinitycod' ); ?></p>
+			<p class="description" style="margin-top:14px"><strong><?php esc_html_e( 'Personnalisation avancée', 'infinitycod' ); ?></strong> — <?php esc_html_e( 'choisissez une couleur dans la palette ; ↺ revient au défaut du thème.', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
 				<label>
-					<span><?php esc_html_e( 'Couleur du bouton', 'infinitycod' ); ?> <em>(vide = dégradé de l'accent)</em></span>
-					<input type="text" name="icod[button_color]" dir="ltr" placeholder="#RRGGBB" value="<?php echo esc_attr( Settings::get( 'button_color', '' ) ); ?>" />
+					<span><?php esc_html_e( 'Couleur du bouton', 'infinitycod' ); ?> <em>(↺ = dégradé de l'accent)</em></span>
+					<?php $this->color_swatches( 'button_color', (string) Settings::get( 'button_color', '' ), array( '#0E7A4F', '#1877C2', '#1A1D21', '#D6336C', '#E8590C', '#6D28D9', '#1971C2', '#C92A2A', '#5C940D', '#F08C00', '#0891B2', '#364FC7' ), true ); ?>
 				</label>
 				<label>
-					<span><?php esc_html_e( 'Couleur du texte', 'infinitycod' ); ?> <em>(vide = défaut)</em></span>
-					<input type="text" name="icod[text_color]" dir="ltr" placeholder="#RRGGBB" value="<?php echo esc_attr( Settings::get( 'text_color', '' ) ); ?>" />
+					<span><?php esc_html_e( 'Couleur du texte', 'infinitycod' ); ?> <em>(↺ = défaut)</em></span>
+					<?php $this->color_swatches( 'text_color', (string) Settings::get( 'text_color', '' ), array( '#1D2327', '#33415C', '#2B2D42', '#37474F', '#1B4332', '#4E342E', '#455A64', '#3E2723', '#212121', '#4A148C', '#0D47A1', '#880E4F' ), true ); ?>
 				</label>
 				<label>
-					<span><?php esc_html_e( 'Couleur des bordures', 'infinitycod' ); ?> <em>(vide = défaut)</em></span>
-					<input type="text" name="icod[border_color]" dir="ltr" placeholder="#RRGGBB" value="<?php echo esc_attr( Settings::get( 'border_color', '' ) ); ?>" />
+					<span><?php esc_html_e( 'Couleur des bordures', 'infinitycod' ); ?> <em>(↺ = défaut)</em></span>
+					<?php $this->color_swatches( 'border_color', (string) Settings::get( 'border_color', '' ), array( '#D5DFE9', '#C9B8A3', '#B9CADB', '#CBD5E1', '#D1D9D9', '#E0D5C4', '#C4CBD1', '#E3D0C3', '#B0BEC5', '#CCC5B9', '#D8CFC4', '#C5D1EB' ), true ); ?>
 				</label>
 				<label>
-					<span><?php esc_html_e( 'Couleur de fond du formulaire', 'infinitycod' ); ?> <em>(vide = défaut)</em></span>
-					<input type="text" name="icod[background_color]" dir="ltr" placeholder="#RRGGBB" value="<?php echo esc_attr( Settings::get( 'background_color', '' ) ); ?>" />
+					<span><?php esc_html_e( 'Couleur de fond du formulaire', 'infinitycod' ); ?> <em>(↺ = défaut)</em></span>
+					<?php $this->color_swatches( 'background_color', (string) Settings::get( 'background_color', '' ), array( '#FFFFFF', '#F8FAFC', '#F5EFE6', '#FAF5FF', '#ECFDF5', '#FFF7ED', '#F1F5F9', '#FDF2F8', '#FFFDE7', '#ECEFF1', '#161B22', '#1F2937' ), true ); ?>
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Arrondi des coins (0-40 px)', 'infinitycod' ); ?> <em>(vide = 18 px)</em></span>
@@ -1178,7 +1208,7 @@ class SettingsPage {
 					form.addEventListener(evt, function (e) {
 						if (e.target.closest && e.target.closest('#icod-preview-card')) { return; } // Le sélecteur de produit déclenche déjà.
 						clearTimeout(timer);
-						timer = setTimeout(refresh, 400);
+						timer = setTimeout(refresh, 250);
 					});
 				});
 				var btn = document.getElementById('icod-preview-refresh');
@@ -1764,6 +1794,7 @@ class SettingsPage {
 			'form_subtitle'      => array( 'tab' => 'form', 'type' => 'text' ),
 			'form_icon'          => array( 'tab' => 'form', 'type' => 'text' ),
 			'button_text'        => array( 'tab' => 'form', 'type' => 'text' ),
+				'button_icon'        => array( 'tab' => 'form', 'type' => 'text' ),
 			'phone_placeholder'  => array( 'tab' => 'form', 'type' => 'text' ),
 			'label_name'         => array( 'tab' => 'form', 'type' => 'text' ),
 			'label_phone'        => array( 'tab' => 'form', 'type' => 'text' ),
@@ -2030,6 +2061,38 @@ class SettingsPage {
 		}
 
 		wp_send_json_success( array( 'redirect' => admin_url( 'admin.php?page=infinitycod-settings&tab=' . $tab . '&icod_msg=saved' ) ) );
+	}
+
+	/**
+	 * Palette de couleurs cliquables : remplace la saisie de code hex.
+	 * Un champ caché porte la valeur ; les pastilles la modifient et
+	 * déclenchent le rafraîchissement de l'aperçu en direct.
+	 *
+	 * @param string $name        Nom du réglage (icod[name]).
+	 * @param string $current     Valeur actuelle ('' = défaut du thème).
+	 * @param array  $colors      Palette (hex).
+	 * @param bool   $allow_empty Proposer « défaut du thème ».
+	 * @return void
+	 */
+	private function color_swatches( $name, $current, array $colors, $allow_empty = false ) {
+		$current = strtoupper( (string) $current );
+		echo '<div class="icod-swatches" data-swatches="' . esc_attr( $name ) . '">';
+		printf( '<input type="hidden" name="icod[%1$s]" value="%2$s" />', esc_attr( $name ), esc_attr( $current ) );
+		if ( $allow_empty ) {
+			printf(
+				'<button type="button" class="icod-swatch%1$s" data-color="" title="%2$s">↺</button>',
+				'' === $current ? ' active' : '',
+				esc_attr__( 'Défaut du thème', 'infinitycod' )
+			);
+		}
+		foreach ( $colors as $color ) {
+			printf(
+				'<button type="button" class="icod-swatch%1$s" data-color="%2$s" style="background:%2$s" title="%2$s" aria-label="%2$s"></button>',
+				strtoupper( $color ) === $current ? ' active' : '',
+				esc_attr( $color )
+			);
+		}
+		echo '</div>';
 	}
 
 	/**

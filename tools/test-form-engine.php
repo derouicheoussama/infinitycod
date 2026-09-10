@@ -420,10 +420,13 @@ check( 'valeur stockée (masquée) toujours honorée', \InfinityCod\Core\Setting
 check( 'FormManager lit le verrou centralisé', false !== strpos( $fm_now, 'Settings::lock_form_enabled()' ) );
 $set_saved( array() );
 
-/* ---------- 15. HUD admin + diagnostics persistance + menu renommé ---------- */
+/* ---------- 15. Persistance + menu renommé ---------- */
 
-echo "\n15) HUD admin, test de persistance, menu « Commandes »\n";
-check( 'HUD admin dans le rendu (gated par capability)', false !== strpos( $fm_now, 'icod-admin-hud' ) && false !== strpos( $fm_now, "current_user_can( 'manage_woocommerce' )" ) );
+echo "\n15) Persistance + menu « Commandes »\n";
+$fm_hud = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
+check( 'HUD admin SUPPRIMÉ du formulaire (demande marchand)', false === strpos( $fm_hud, 'icod-admin-hud' ) );
+$css_hud = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
+check( 'CSS du HUD supprimée', false === strpos( $css_hud, 'icod-admin-hud' ) );
 $diag_src = file_get_contents( $plugin_dir . 'includes/admin/pages/class-diagnostics-page.php' );
 check( 'Diagnostics : test d\'écriture → lecture (persistance)', false !== strpos( $diag_src, 'icod_write_test' ) );
 check( 'Diagnostics : réglages stockés + dernière sauvegarde', false !== strpos( $diag_src, 'icod_settings_saved_at' ) );
@@ -431,7 +434,7 @@ $sp3 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-pag
 check( 'Sauvegarde horodatée (icod_settings_saved_at)', false !== strpos( $sp3, "update_option( 'icod_settings_saved_at'" ) );
 check( 'Sous-menu renommé « Commandes » (sans « COD »)', false !== strpos( $am_src, "__( 'Commandes', 'infinitycod' )" ) && false === strpos( $am_src, "__( 'Commandes COD', 'infinitycod' )" ) );
 $css_src = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
-check( 'CSS du HUD présente', false !== strpos( $css_src, '.icod-admin-hud' ) );
+check( 'CSS du HUD supprimée', false === strpos( $css_src, 'icod-admin-hud' ) );
 
 /* ---------- 16. Personnalisation avancée (couleurs par élément, arrondi, espacement) ---------- */
 
@@ -440,7 +443,7 @@ $fm_src2 = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.ph
 check( 'render() lit les 6 nouveaux réglages', false !== strpos( $fm_src2, "Settings::get( 'button_color'" ) && false !== strpos( $fm_src2, "Settings::get( 'text_color'" ) && false !== strpos( $fm_src2, "Settings::get( 'border_color'" ) && false !== strpos( $fm_src2, "Settings::get( 'background_color'" ) && false !== strpos( $fm_src2, "Settings::get( 'border_radius'" ) && false !== strpos( $fm_src2, "Settings::get( 'form_padding'" ) );
 $sp4 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
 check( 'schéma : int_opt optionnel présent', false !== strpos( $sp4, "'int_opt'" ) );
-check( 'UI : les 6 champs de personnalisation présents', false !== strpos( $sp4, 'icod[button_color]' ) && false !== strpos( $sp4, 'icod[border_radius]' ) && false !== strpos( $sp4, 'icod[form_padding]' ) );
+check( 'UI : 4 palettes + 2 mesures présentes', false !== strpos( $sp4, 'color_swatches(' ) && false !== strpos( $sp4, 'icod[border_radius]' ) );
 $css2 = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
 check( 'CSS : arrondi/espacement pilotés par variables', false !== strpos( $css2, 'var(--icod-radius,18px)' ) && false !== strpos( $css2, 'var(--icod-pad,20px)' ) && false !== strpos( $css2, 'var(--icod-radius-sm,12px)' ) );
 $sanitize2 = $refm( '\InfinityCod\Admin\Pages\SettingsPage', 'sanitize_fields' );
@@ -528,7 +531,7 @@ check( 'UI : sélecteur des 3 styles', false !== strpos( $sp5, 'value="pill"' ) 
 check( 'rendu : classe de style appliquée au timer', false !== strpos( $fm3, 'icod-timer-' ) );
 check( 'CSS : les 3 styles existent', false !== strpos( $css2, '.icod-timer-pill' ) && false !== strpos( $css2, '.icod-timer-ribbon' ) && false !== strpos( $css2, '.icod-timer-bar' ) );
 check( 'disposition : aperçu collant à droite (écrans larges)', false !== strpos( $sp5, 'icod-form-layout' ) && false !== strpos( $sp5, 'icod-form-preview' ) );
-check( 'rafraîchissement temps réel 400 ms', false !== strpos( $sp5, 'setTimeout(refresh, 400)' ) );
+check( 'rafraîchissement quasi instantané (250 ms)', false !== strpos( $sp5, 'setTimeout(refresh, 250)' ) );
 
 /* ---------- 24. Styles de formulaire + options d'affichage + sticky pleine largeur ---------- */
 
