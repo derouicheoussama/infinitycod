@@ -604,6 +604,18 @@ class FormManager {
 
 		$qty_min = max( 1, min( 99, (int) Settings::get( 'qty_min', 1 ) ) );
 
+		// HUD administrateur : affiche les valeurs RÉELLEMENT rendues par le
+		// serveur (jamais visible des clients). Si le HUD n'apparaît pas pour
+		// un admin connecté, la page servie est une copie en cache.
+		$hud_html = '';
+		if ( current_user_can( 'manage_woocommerce' ) ) {
+			$hud_html = '<div class="icod-admin-hud" title="Valeurs réellement rendues — invisible pour vos clients">⚙ Accent <strong>' . esc_html( $palette['accent'] ) . '</strong>'
+				. ' · Captcha <strong>' . ( 'off' === $captcha_provider ? 'OFF' : ( 'math' === $captcha_provider ? 'ON' : 'reCAPTCHA' ) ) . '</strong>'
+				. ' · Timer <strong>' . ( Settings::get( 'timer_urgency_enabled' ) ? 'ON' : 'OFF' ) . '</strong>'
+				. ' · Thème <strong>' . esc_html( (string) $theme ) . '</strong>'
+				. ' · <a href="' . esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=form' ) ) . '" target="_blank" rel="noopener">Modifier</a></div>';
+		}
+
 		ob_start();
 		?>
 		<div class="icod-root icod-theme-<?php echo esc_attr( $theme ); ?>"
@@ -622,6 +634,8 @@ class FormManager {
 			data-redirect-delay="<?php echo $redirect_on ? (int) $redirect_delay : 0; ?>"
 			style="max-width:<?php echo (int) $max_width; ?>px;<?php echo esc_attr( $root_vars ); ?>"
 			dir="<?php echo $rtl ? 'rtl' : 'ltr'; ?>">
+
+			<?php echo $hud_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé. ?>
 
 			<section class="icod-card" aria-labelledby="icod-form-title">
 				<header class="icod-head">

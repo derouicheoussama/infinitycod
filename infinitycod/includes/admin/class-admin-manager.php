@@ -353,8 +353,8 @@ class AdminManager {
 
 		add_submenu_page(
 			'infinitycod',
-			__( 'Commandes COD', 'infinitycod' ),
-			'📦 ' . __( 'Commandes COD', 'infinitycod' ),
+			__( 'Commandes', 'infinitycod' ),
+			'📦 ' . __( 'Commandes', 'infinitycod' ),
 			'manage_woocommerce',
 			'infinitycod-orders',
 			array( $this, 'render_orders' )
@@ -518,7 +518,7 @@ class AdminManager {
 		}
 		printf(
 			'<div class="wrap icod-wrap"><h1>%s</h1><p>%s</p></div>',
-			esc_html__( 'Commandes COD', 'infinitycod' ),
+			esc_html__( 'Commandes', 'infinitycod' ),
 			esc_html__( 'Le gestionnaire de commandes arrive avec la phase Commandes.', 'infinitycod' )
 		);
 	}

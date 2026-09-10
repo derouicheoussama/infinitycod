@@ -198,6 +198,28 @@ class DiagnosticsPage {
 		$settings_count = count( \InfinityCod\Core\Settings::all() );
 		$this->add( 'Configuration (moteur de réglages)', $settings_count . ' ' . __( 'clés chargées', 'infinitycod' ), $settings_count > 50 ? self::PASS : self::WARN, 'option : infinitycod_settings' );
 
+		// Réglages RÉELLEMENT stockés (différences avec les défauts) : répond
+		// à « mes changements sont-ils bien enregistrés ? ».
+		$saved_raw  = get_option( 'infinitycod_settings', array() );
+		$saved_raw  = is_array( $saved_raw ) ? $saved_raw : array();
+		$saved_accent  = isset( $saved_raw['accent_color'] ) ? (string) $saved_raw['accent_color'] : __( '(défaut)', 'infinitycod' );
+		$saved_captcha = isset( $saved_raw['captcha_enabled'] ) ? (int) $saved_raw['captcha_enabled'] : 0;
+		$saved_timer   = isset( $saved_raw['timer_urgency_enabled'] ) ? (int) $saved_raw['timer_urgency_enabled'] : 0;
+		$saved_theme   = isset( $saved_raw['form_theme'] ) ? (string) $saved_raw['form_theme'] : 'light';
+		$this->add( __( 'Réglages modifiés stockés en base', 'infinitycod' ), count( $saved_raw ) . ' ' . __( 'clés', 'infinitycod' ), count( $saved_raw ) > 0 ? self::PASS : self::WARN, 'accent=' . $saved_accent . ' · captcha=' . $saved_captcha . ' · timer=' . $saved_timer . ' · thème=' . $saved_theme );
+
+		$saved_at = get_option( 'icod_settings_saved_at', '' );
+		$this->add( __( 'Dernière sauvegarde des réglages', 'infinitycod' ), $saved_at ? mysql2date( 'd/m/Y H:i', $saved_at ) : __( 'jamais (valeurs par défaut)', 'infinitycod' ), $saved_at ? self::PASS : self::WARN, '' );
+
+		// Test d'écriture → lecture : détecte un cache d'objets défectueux
+		// qui ferait « disparaître » les sauvegardes.
+		$write_token = wp_generate_password( 12, false );
+		update_option( 'icod_write_test', $write_token, false );
+		$read_back   = (string) get_option( 'icod_write_test', '' );
+		delete_option( 'icod_write_test' );
+		$persist_ok  = hash_equals( $write_token, $read_back );
+		$this->add( __( 'Persistance (écriture → lecture immédiate)', 'infinitycod' ), $persist_ok ? __( 'OK — la sauvegarde fonctionne', 'infinitycod' ) : __( 'ÉCHEC — un cache d\'objets défectueux avale les sauvegardes', 'infinitycod' ), $persist_ok ? self::PASS : self::FAIL, '' );
+
 		$plan          = \InfinityCod\Form\FormManager::fields_plan();
 		$active_fields = array_values( array_filter( $plan, static function ( $f ) { return ! empty( $f['on'] ); } ) );
 		$active_keys   = implode( ', ', array_map( static function ( $f ) { return $f['key'] . ( ! empty( $f['req'] ) ? '*' : '' ); }, $active_fields ) );

@@ -1799,6 +1799,10 @@ class SettingsPage {
 			}
 		}
 
+		// Horodatage de la dernière sauvegarde (Diagnostics : « réglages
+		// stockés vs attendus »).
+		update_option( 'icod_settings_saved_at', current_time( 'mysql' ), false );
+
 		Settings::set( $clean );
 
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=' . $tab . '&icod_msg=saved' ) );

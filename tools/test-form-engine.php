@@ -418,6 +418,19 @@ check( 'valeur stockée (masquée) toujours honorée', \InfinityCod\Core\Setting
 check( 'FormManager lit le verrou centralisé', false !== strpos( $fm_now, 'Settings::lock_form_enabled()' ) );
 $set_saved( array() );
 
+/* ---------- 15. HUD admin + diagnostics persistance + menu renommé ---------- */
+
+echo "\n15) HUD admin, test de persistance, menu « Commandes »\n";
+check( 'HUD admin dans le rendu (gated par capability)', false !== strpos( $fm_now, 'icod-admin-hud' ) && false !== strpos( $fm_now, "current_user_can( 'manage_woocommerce' )" ) );
+$diag_src = file_get_contents( $plugin_dir . 'includes/admin/pages/class-diagnostics-page.php' );
+check( 'Diagnostics : test d\'écriture → lecture (persistance)', false !== strpos( $diag_src, 'icod_write_test' ) );
+check( 'Diagnostics : réglages stockés + dernière sauvegarde', false !== strpos( $diag_src, 'icod_settings_saved_at' ) );
+$sp3 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+check( 'Sauvegarde horodatée (icod_settings_saved_at)', false !== strpos( $sp3, "update_option( 'icod_settings_saved_at'" ) );
+check( 'Sous-menu renommé « Commandes » (sans « COD »)', false !== strpos( $am_src, "__( 'Commandes', 'infinitycod' )" ) && false === strpos( $am_src, "__( 'Commandes COD', 'infinitycod' )" ) );
+$css_src = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
+check( 'CSS du HUD présente', false !== strpos( $css_src, '.icod-admin-hud' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

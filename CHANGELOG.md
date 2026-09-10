@@ -1,5 +1,20 @@
 # Changelog
 
+## 5.6.3 — 2026-09-10
+
+Vous ne savez jamais si le formulaire affiche VOS réglages ? Le HUD admin répond instantanément.
+
+### Ajouté
+- **HUD administrateur sur le formulaire** : les admins voient un petit bandeau « ⚙ Accent · Captcha · Timer · Thème » affichant les valeurs RÉELLEMENT rendues par le serveur, avec lien direct vers les réglages. Invisible pour les clients. Si le HUD n'apparaît pas pour vous, la page servie est une copie en cache (LiteSpeed…).
+- **Diagnostics « persistance »** : test d'écriture → lecture immédiate qui détecte un cache d'objets défectueux faisant « disparaître » les sauvegardes ; affichage des réglages réellement stockés (accent, captcha, timer, thème) et de la date de dernière sauvegarde.
+
+### Modifié
+- Sous-menu « Commandes COD » renommé **« Commandes »**.
+
+### Diagnostic du 10/09 (site de démonstration)
+Le formulaire servait bien le moteur complet avec les valeurs par défaut : captcha/timer étaient simplement désactivés et la couleur n'avait pas été enregistrée — d'où le HUD et les tests de persistance ajoutés.
+
+
 ## 5.6.2 — 2026-09-10
 
 Nettoyage commercial : le verrou de formulaire n'apparaît plus dans le dashboard du marchand.
