@@ -1,4 +1,5 @@
 <?php
+define( 'INFINITYCOD_DEV_MODE', true );
 /**
  * Harnais de test : simule l'activation et le démarrage du plugin
  * sans WordPress, pour reproduire les erreurs fatales.

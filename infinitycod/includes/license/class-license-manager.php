@@ -106,8 +106,12 @@ class LicenseManager {
 			return array( 'ok' => false, 'message' => __( 'Veuillez saisir votre clé de licence.', 'infinitycod' ) );
 		}
 
-		// Autoriser la clé de développement / tests.
+		// Clé de développement : uniquement si INFINITYCOD_DEV_MODE est défini
+		// dans wp-config.php (jamais actif dans la build commerciale).
 		if ( hash_equals( 'INFINITY-DEV', $key ) ) {
+			if ( ! defined( 'INFINITYCOD_DEV_MODE' ) || ! INFINITYCOD_DEV_MODE ) {
+				return array( 'ok' => false, 'message' => __( 'Clé de développement non autorisée sur ce site.', 'infinitycod' ) );
+			}
 			update_option( self::OPTION, array(
 				'key_hash'   => hash( 'sha256', $key ),
 				'status'     => 'ACTIVE',
