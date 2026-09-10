@@ -438,6 +438,31 @@ class Updater {
 		private static $allowed_hosts = array( 'raw.githubusercontent.com', 'cdn.jsdelivr.net', 'objects.githubusercontent.com' );
 
 	/**
+	 * Source primaire : le serveur Infinity License (infinitycoder.app ou
+	 * tout domaine configuré). Les clients ne configurent RIEN.
+	 */
+	private function remote_server() {
+		$url = 'https://infinitycoder.app/update-server.php';
+		$response = wp_remote_get( $url, array(
+			'timeout' => 10,
+			'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
+		) );
+		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) { return null; }
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $data ) || empty( $data['version'] ) || empty( $data['download_url'] ) ) { return null; }
+		return array(
+			'version'      => (string) $data['version'],
+			'download_url' => (string) $data['download_url'],
+			'homepage'     => 'https://infinitycod.pro',
+			'changelog'    => (string) ( $data['changelog'] ?? '' ),
+			'sha256'       => (string) ( $data['sha256'] ?? '' ),
+			'requires_php' => '7.4',
+			'requires'     => '6.0',
+			'source'       => 'infinity-server',
+		);
+	}
+
+	/**
 	 * Valide qu'une URL pointe vers un domaine autorisé (anti-SSRF).
 	 */
 	private function is_safe_url( $url ) {
