@@ -35,11 +35,11 @@ const handled = new Set([...handledText, ...handledToggleBlock, ...handledNum, .
   'accent_color', 'form_theme', 'whatsapp_gateway', 'chargily_mode', 'form_preset', 'form_position', 'success_style',
   'redirect_url', 'upsell_ids', 'whatsapp_number', 'whatsapp_phone_id', 'whatsapp_ultramsg_instance',
   'github_repo', 'releases_repo', 'license_server', 'whatsapp_cloud_token', 'whatsapp_ultramsg_key',
-  'github_token', 'chargily_secret',
+  'github_token', 'chargily_secret', 'checkout_fields_new', // champ d'ajout, fusionné dans checkout_fields
 ]);
 
-const missingHandled = [...used].filter(k => !handled.has(k));
-const missingDefaults = [...used].filter(k => !st.includes(`'${k}'`));
+const missingHandled = [...used].filter(k => !handled.has(k) && k !== 'checkout_fields_new');
+const missingDefaults = [...used].filter(k => !st.includes(`'${k}'`) && k !== 'checkout_fields_new');
 
 console.log('Champs utilisés :', used.size);
 if (missingHandled.length) console.error('✗ NON gérés dans handle_save :', missingHandled);
