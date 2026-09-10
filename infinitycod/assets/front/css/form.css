@@ -181,3 +181,47 @@ select.icod-input{appearance:none;background-image:linear-gradient(45deg,transpa
 @media (prefers-reduced-motion:reduce){
 	.icod-root *,.icod-root *::before,.icod-root *::after{animation:none!important;transition:none!important}
 }
+
+.icod-captcha-field label{font-weight:700;color:var(--icod-accent)}
+.icod-captcha-field input{font-weight:800;text-align:center;font-size:18px}
+.icod-note-toggle{display:inline-block;margin:2px 0 10px;font-size:12.5px;font-weight:700;color:var(--icod-accent);text-decoration:none}
+.icod-note-toggle.open::before{content:'− '}
+.icod-stock-badge{display:inline-flex;align-items:center;gap:6px;margin:0 20px 10px;padding:4px 12px;border-radius:99px;background:rgba(14,122,79,.1);color:#0e7a4f;font-size:12px;font-weight:700}
+.icod-stock-badge .dot{width:7px;height:7px;border-radius:50%;background:#0e7a4f}
+.icod-paylogos{display:flex;gap:6px;margin-top:8px}
+.icod-paylogo{border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.icod-summary-head{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:0;padding:0 0 8px;cursor:pointer;font:inherit}
+.icod-summary-head .chev{transition:transform .2s}
+.icod-summary-head.closed .chev{transform:rotate(180deg)}
+.icod-lic-hero{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.icod-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.icod-actions-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.icod-theme-dark .icod-card{background:#1a2634;border-color:#2a3a4e;color:#e8eef5}
+.icod-theme-dark .icod-input{background:#243447;border-color:#37455a;color:#e8eef5}
+.icod-theme-dark .icod-summary{background:#243447;border-color:#37455a}
+[dir=rtl] .icod-input-icon{inset-inline-start:auto;inset-inline-end:12px}
+[dir=rtl] select.icod-input{background-position:18px 55%,13px 55%}
+[dir=rtl] .icod-root{font-family:Cairo,Tajawal,Tahoma,sans-serif}
+@media(max-width:480px){.icod-input,.icod-chip span,.icod-coupon-input,.icod-coupon-apply,.icod-qty-input{font-size:16px!important}.icod-field{margin-bottom:14px}.icod-input-wrap .icod-input{min-height:52px}.icod-form{padding:14px 12px 18px}}
+@media(prefers-reduced-motion:reduce){.icod-root *,.icod-root *::before,.icod-root *::after{animation:none!important;transition:none!important}}
+.icod-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.icod-kpi-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;background:rgba(24,119,194,.12)}
+.icod-kpi .v{font-size:26px;font-weight:800;color:var(--icod-accent)}
+.icod-kpi .l{font-size:12px;color:#6b7c93;text-transform:uppercase;letter-spacing:.05em}
+.icod-actions-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.icod-actions-row .btn{display:inline-flex;gap:6px;align-items:center}
+.icod-carrier-logo{border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.icod-carrier-badge{display:inline-flex;align-items:center;justify-content:center;width:48px;height:32px;border-radius:8px;font-weight:800;font-size:13px;color:#fff;background:linear-gradient(135deg,#1877c2,#0e7a4f)}
+.icod-carrier-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.icod-carrier-info{display:flex;flex-direction:column;gap:2px}
+.icod-carrier-name{font-size:16px;font-weight:800;color:#0b2239}
+.icod-carrier-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;margin-bottom:0}
+.icod-carrier-status.on{background:#e0f2e9;color:#0e7a4f}
+.icod-carrier-status.off{background:#f0f0f1;color:#8c8f94}
+.icod-paylogo{border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.icod-paystrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.icod-paystrip-item{display:flex;flex-direction:column;align-items:center;gap:6px;background:#f6f7f7;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center;font-size:12px;color:#50575e}
+.icod-paystrip-item span{line-height:1.35}
+.icod-paystrip-on{border-color:#0e7a4f;background:#f0f9f3}
+.icod-captcha-field label{font-weight:700;color:var(--icod-accent)}
+.icod-captcha-field input{font-weight:800;text-align:center;font-size:18px}
