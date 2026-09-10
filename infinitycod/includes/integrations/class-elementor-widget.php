@@ -144,6 +144,16 @@ class ElementorWidget extends Widget_Base {
 	protected function render() {
 		$settings = $this->get_settings_for_display();
 
+		// Mode édition Elementor : afficher une preview sans AJAX ni soumission.
+		if ( class_exists( '\Elementor\Plugin' ) ) {
+			$el = \Elementor\Plugin::instance();
+			if ( isset( $el->editor ) && $el->editor->is_edit_mode() ) {
+				echo '<div style="padding:40px;text-align:center;background:#f0f6fc;border:2px dashed #1877c2;border-radius:12px;color:#1877c2">';
+				echo '<strong>InfinityCOD Form</strong><br><small>Le formulaire s\'affiche sur le front-end.</small></div>';
+				return;
+			}
+		}
+
 		$product_id = absint( $settings['product_id'] ?? 0 );
 		$title      = sanitize_text_field( $settings['custom_title'] ?? '' );
 		$button     = sanitize_text_field( $settings['custom_button'] ?? '' );
