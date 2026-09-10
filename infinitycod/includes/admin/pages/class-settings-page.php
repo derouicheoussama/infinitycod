@@ -52,6 +52,12 @@ class SettingsPage {
 		<div class="wrap icod-wrap icod-admin-polish">
 			<h1 class="icod-title"><?php esc_html_e( 'Réglages InfinityCod', 'infinitycod' ); ?></h1>
 
+			<div class="icod-steps">
+				<span><strong>1</strong> <?php esc_html_e( 'Modifiez vos réglages', 'infinitycod' ); ?></span>
+				<span><strong>2</strong> <?php esc_html_e( 'Enregistrez — les caches se vident automatiquement', 'infinitycod' ); ?></span>
+				<span><strong>3</strong> <?php esc_html_e( 'Vérifiez dans l’aperçu en bas de page (ou le HUD du formulaire)', 'infinitycod' ); ?></span>
+			</div>
+
 			<?php if ( 'saved' === $saved ) : ?>
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Réglages enregistrés et appliqués au formulaire.', 'infinitycod' ); ?> <strong><?php esc_html_e( 'Si le formulaire public ne change pas : videz le cache de votre plugin de cache (LiteSpeed, WP Rocket…)', 'infinitycod' ); ?></strong></p></div>
 			<?php elseif ( 'reset' === $saved ) : ?>
@@ -103,8 +109,9 @@ class SettingsPage {
 				}
 				?>
 
-				<p class="icod-submit">
+				<p class="icod-submit icod-save-sticky">
 					<button type="submit" class="button button-primary button-hero"><?php esc_html_e( 'Enregistrer', 'infinitycod' ); ?></button>
+					<span class="icod-save-hint"><?php esc_html_e( 'Appliqué au formulaire public dès l’enregistrement (caches vidés automatiquement).', 'infinitycod' ); ?></span>
 				</p>
 			</form>
 			<?php endif; ?>
@@ -722,7 +729,8 @@ class SettingsPage {
 	}
 
 	/**
-	 * Onglet formulaire.
+	 * Onglet formulaire — organisé en sections numérotées :
+	 * Contenu → Champs → Apparence → Options → Anti-bot → Succès → Libellés → Aperçu.
 	 *
 	 * @return void
 	 */
@@ -733,19 +741,46 @@ class SettingsPage {
 			'sunset'  => array( 'label' => __( 'Sunset', 'infinitycod' ), 'color' => '#e8590c' ),
 			'ocean'   => array( 'label' => __( 'Océan', 'infinitycod' ), 'color' => '#1971c2' ),
 			'minimal' => array( 'label' => __( 'Minimal', 'infinitycod' ), 'color' => '#1a1d21' ),
-			'rose'   => array( 'label' => __( 'Rose', 'infinitycod' ), 'color' => '#d6336c' ),
-			'royal'  => array( 'label' => __( 'Royal', 'infinitycod' ), 'color' => '#6d28d9' ),
-			'cafe'   => array( 'label' => __( 'Café', 'infinitycod' ), 'color' => '#7c4a21' ),
-			'aqua'   => array( 'label' => __( 'Aqua', 'infinitycod' ), 'color' => '#0891b2' ),
-				'pro'    => array( 'label' => __( 'Pro (Yaxii+)', 'infinitycod' ), 'color' => '#7c3aed' ),
+			'rose'    => array( 'label' => __( 'Rose', 'infinitycod' ), 'color' => '#d6336c' ),
+			'royal'   => array( 'label' => __( 'Royal', 'infinitycod' ), 'color' => '#6d28d9' ),
+			'cafe'    => array( 'label' => __( 'Café', 'infinitycod' ), 'color' => '#7c4a21' ),
+			'aqua'    => array( 'label' => __( 'Aqua', 'infinitycod' ), 'color' => '#0891b2' ),
+			'pro'     => array( 'label' => __( 'Pro (Yaxii+)', 'infinitycod' ), 'color' => '#7c3aed' ),
 		);
 		?>
 		<div class="icod-card">
-			<h2>🧱 <?php esc_html_e( 'Checkout Builder — champs du formulaire', 'infinitycod' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'Activez, ordonnez (▲▼), rendez obligatoire et renommez chaque champ. L’ordre, la visibilité et le caractère obligatoire sont appliqués RÉELLEMENT sur le formulaire et contrôlés à nouveau côté serveur. Ajoutez vos propres champs personnalisés.', 'infinitycod' ); ?></p>
+			<h2>1 — 📝 <?php esc_html_e( 'Contenu du formulaire', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Les textes affichés en haut du formulaire et sur le bouton.', 'infinitycod' ); ?></p>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Titre du formulaire', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[form_title]" value="<?php echo esc_attr( Settings::get( 'form_title' ) ); ?>" class="regular-text" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Icône de l’en-tête (emoji)', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[form_icon]" value="<?php echo esc_attr( Settings::get( 'form_icon' ) ); ?>" maxlength="8" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Sous-titre (facultatif)', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[form_subtitle]" value="<?php echo esc_attr( Settings::get( 'form_subtitle' ) ); ?>" class="regular-text" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Texte du bouton', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[button_text]" value="<?php echo esc_attr( Settings::get( 'button_text' ) ); ?>" class="regular-text" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Indication du champ téléphone', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[phone_placeholder]" value="<?php echo esc_attr( Settings::get( 'phone_placeholder' ) ); ?>" dir="ltr" />
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2>2 — 🧱 <?php esc_html_e( 'Champs du formulaire (Checkout Builder)', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Activez, ordonnez (▲▼), rendez obligatoire et renommez chaque champ. L’ordre, la visibilité et le caractère obligatoire sont appliqués réellement sur le formulaire et contrôlés à nouveau côté serveur. Ajoutez vos propres champs personnalisés.', 'infinitycod' ); ?></p>
 			<?php
 			$fields = (array) Settings::get( 'checkout_fields', array() );
-			$move = isset( $_GET['cfmove'] ) ? sanitize_text_field( wp_unslash( $_GET['cfmove'] ) ) : '';
+			$move = isset( $_GET['cfmove'] ) ? sanitize_text_field( wp_unslash( $_GET['cfmove'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce vérifié ci-dessous.
 			if ( $move && strpos( $move, ':' ) !== false && current_user_can( 'manage_woocommerce' ) ) {
 				check_admin_referer( 'icod_cfmove' );
 				$parts = explode( ':', $move );
@@ -785,8 +820,9 @@ class SettingsPage {
 			<p class="description"><?php esc_html_e( 'Les nouveaux champs sont ajoutés en fin de liste après enregistrement.', 'infinitycod' ); ?></p>
 		</div>
 
-			<h2><?php esc_html_e( 'Thème du formulaire', 'infinitycod' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'Choisissez un thème visuel — la couleur d‘accent ci-dessous le personnalise encore.', 'infinitycod' ); ?></p>
+		<div class="icod-card">
+			<h2>3 — 🎨 <?php esc_html_e( 'Apparence', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Un preset choisit la couleur de départ ; la couleur d’accent la remplace partout (en-tête, bouton, focus, récapitulatif).', 'infinitycod' ); ?></p>
 			<div class="icod-preset-grid">
 				<?php foreach ( $presets as $preset_key => $preset ) : ?>
 					<label class="icod-preset <?php checked( Settings::get( 'form_preset', 'modern' ), $preset_key ); ?>">
@@ -796,32 +832,7 @@ class SettingsPage {
 					</label>
 				<?php endforeach; ?>
 			</div>
-
-			<div class="icod-grid">
-				<label>
-					<span><?php esc_html_e( 'Titre du formulaire', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[form_title]" value="<?php echo esc_attr( Settings::get( 'form_title' ) ); ?>" class="regular-text" />
-				</label>
-				<label>
-					<span><?php esc_html_e( 'Icône de l’en-tête (emoji)', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[form_icon]" value="<?php echo esc_attr( Settings::get( 'form_icon' ) ); ?>" maxlength="8" />
-				</label>
-				<label>
-					<span><?php esc_html_e( 'Sous-titre (facultatif)', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[form_subtitle]" value="<?php echo esc_attr( Settings::get( 'form_subtitle' ) ); ?>" class="regular-text" />
-				</label>
-				<label>
-					<span><?php esc_html_e( 'Texte du bouton', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[button_text]" value="<?php echo esc_attr( Settings::get( 'button_text' ) ); ?>" class="regular-text" />
-				</label>
-				<label>
-					<span><?php esc_html_e( 'Indication du champ téléphone', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[phone_placeholder]" value="<?php echo esc_attr( Settings::get( 'phone_placeholder' ) ); ?>" dir="ltr" />
-				</label>
-				<label>
-					<span><?php esc_html_e( 'Largeur du formulaire (px)', 'infinitycod' ); ?></span>
-					<input type="number" min="400" max="900" step="20" name="icod[form_max_width]" value="<?php echo esc_attr( (int) Settings::get( 'form_max_width', 680 ) ); ?>" />
-				</label>
+			<div class="icod-grid" style="margin-top:12px">
 				<label>
 					<span><?php esc_html_e( 'Couleur d‘accent', 'infinitycod' ); ?></span>
 					<input type="color" name="icod[accent_color]" value="<?php echo esc_attr( Settings::get( 'accent_color' ) ); ?>" />
@@ -834,8 +845,12 @@ class SettingsPage {
 						<option value="auto" <?php selected( Settings::get( 'form_theme' ), 'auto' ); ?>><?php esc_html_e( 'Automatique (préférence du visiteur)', 'infinitycod' ); ?></option>
 					</select>
 				</label>
+				<label>
+					<span><?php esc_html_e( 'Largeur du formulaire (px)', 'infinitycod' ); ?></span>
+					<input type="number" min="400" max="900" step="20" name="icod[form_max_width]" value="<?php echo esc_attr( (int) Settings::get( 'form_max_width', 680 ) ); ?>" />
+				</label>
 			</div>
-			<p class="description" style="margin-top:8px"><strong><?php esc_html_e( 'Personnalisation avancée', 'infinitycod' ); ?></strong> — <?php esc_html_e( 'laissez vide pour garder les couleurs du thème ; remplissez pour appliquer réellement.', 'infinitycod' ); ?></p>
+			<p class="description" style="margin-top:14px"><strong><?php esc_html_e( 'Personnalisation avancée', 'infinitycod' ); ?></strong> — <?php esc_html_e( 'laissez vide pour garder les couleurs du thème ; remplissez pour appliquer réellement.', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
 				<label>
 					<span><?php esc_html_e( 'Couleur du bouton', 'infinitycod' ); ?> <em>(vide = dégradé de l'accent)</em></span>
@@ -861,6 +876,12 @@ class SettingsPage {
 					<span><?php esc_html_e( 'Espacement intérieur (8-48 px)', 'infinitycod' ); ?> <em>(vide = 20 px)</em></span>
 					<input type="number" min="8" max="48" name="icod[form_padding]" value="<?php echo esc_attr( Settings::get( 'form_padding', '' ) ); ?>" />
 				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2>4 — ⚙️ <?php esc_html_e( 'Options du formulaire', 'infinitycod' ); ?></h2>
+			<div class="icod-grid">
 				<label>
 					<span><?php esc_html_e( 'Quantité minimale par commande', 'infinitycod' ); ?></span>
 					<input type="number" min="1" max="99" name="icod[qty_min]" value="<?php echo esc_attr( max( 1, (int) Settings::get( 'qty_min', 1 ) ) ); ?>" />
@@ -869,19 +890,19 @@ class SettingsPage {
 					<span><?php esc_html_e( 'Quantité maximale par commande', 'infinitycod' ); ?></span>
 					<input type="number" min="1" max="999" name="icod[qty_max]" value="<?php echo esc_attr( Settings::get( 'qty_max' ) ); ?>" />
 				</label>
+				<label>
+					<span><?php esc_html_e( 'Position du formulaire sur la fiche produit', 'infinitycod' ); ?></span>
+					<select name="icod[form_position]">
+						<option value="before_summary" <?php selected( Settings::get( 'form_position' ), 'before_summary' ); ?>><?php esc_html_e( 'Avant le résumé produit', 'infinitycod' ); ?></option>
+						<option value="after_price" <?php selected( Settings::get( 'form_position' ), 'after_price' ); ?>><?php esc_html_e( 'Après le prix', 'infinitycod' ); ?></option>
+						<option value="after_excerpt" <?php selected( Settings::get( 'form_position' ), 'after_excerpt' ); ?>><?php esc_html_e( 'Après la description courte', 'infinitycod' ); ?></option>
+						<option value="before_cart" <?php selected( Settings::get( 'form_position' ), 'before_cart' ); ?>><?php esc_html_e( 'Avant le bouton Ajouter au panier', 'infinitycod' ); ?></option>
+						<option value="after_cart" <?php selected( Settings::get( 'form_position' ), 'after_cart' ); ?>><?php esc_html_e( 'Après le bouton Ajouter au panier', 'infinitycod' ); ?></option>
+						<option value="after_summary" <?php selected( Settings::get( 'form_position' ), 'after_summary' ); ?>><?php esc_html_e( 'Après le résumé produit (défaut)', 'infinitycod' ); ?></option>
+						<option value="end_product" <?php selected( Settings::get( 'form_position' ), 'end_product' ); ?>><?php esc_html_e( 'Fin de la fiche produit', 'infinitycod' ); ?></option>
+					</select>
+				</label>
 			</div>
-			<label>
-				<span><?php esc_html_e( 'Position du formulaire sur la fiche produit', 'infinitycod' ); ?></span>
-				<select name="icod[form_position]">
-					<option value="before_summary" <?php selected( Settings::get( 'form_position' ), 'before_summary' ); ?>><?php esc_html_e( 'Avant le résumé produit', 'infinitycod' ); ?></option>
-					<option value="after_price" <?php selected( Settings::get( 'form_position' ), 'after_price' ); ?>><?php esc_html_e( 'Après le prix', 'infinitycod' ); ?></option>
-					<option value="after_excerpt" <?php selected( Settings::get( 'form_position' ), 'after_excerpt' ); ?>><?php esc_html_e( 'Après la description courte', 'infinitycod' ); ?></option>
-					<option value="before_cart" <?php selected( Settings::get( 'form_position' ), 'before_cart' ); ?>><?php esc_html_e( 'Avant le bouton Ajouter au panier', 'infinitycod' ); ?></option>
-					<option value="after_cart" <?php selected( Settings::get( 'form_position' ), 'after_cart' ); ?>><?php esc_html_e( 'Après le bouton Ajouter au panier', 'infinitycod' ); ?></option>
-					<option value="after_summary" <?php selected( Settings::get( 'form_position' ), 'after_summary' ); ?>><?php esc_html_e( 'Après le résumé produit (défaut)', 'infinitycod' ); ?></option>
-					<option value="end_product" <?php selected( Settings::get( 'form_position' ), 'end_product' ); ?>><?php esc_html_e( 'Fin de la fiche produit', 'infinitycod' ); ?></option>
-				</select>
-			</label>
 			<div class="icod-toggles">
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[show_qty_selector]" value="1" <?php checked( (int) Settings::get( 'show_qty_selector' ), 1 ); ?> />
@@ -891,13 +912,13 @@ class SettingsPage {
 					<input type="checkbox" name="icod[show_stopdesk]" value="1" <?php checked( (int) Settings::get( 'show_stopdesk' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Proposer la livraison au bureau (Stopdesk)', 'infinitycod' ); ?></span>
 				</label>
+				<label class="icod-toggle<?php echo \InfinityCod\License\LicenseManager::is_premium() ? '' : ' icod-premium-locked icod-premium-item'; ?>">
+					<input type="checkbox" name="icod[show_offers]" value="1" <?php checked( (int) Settings::get( 'show_offers' ), 1 ); ?> <?php disabled( ! \InfinityCod\License\LicenseManager::is_premium() ); ?> />
+					<span><?php esc_html_e( 'Afficher les paliers d‘offres par quantité', 'infinitycod' ); ?> <span class="icod-premium-mini">★ Premium</span></span>
+				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[show_reassurance]" value="1" <?php checked( (int) Settings::get( 'show_reassurance' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Bandeau de réassurance (COD, 58 wilayas, vérification colis)', 'infinitycod' ); ?></span>
-				</label>
-				<label class="icod-toggle">
-					<input type="checkbox" name="icod[sticky_bar]" value="1" <?php checked( (int) Settings::get( 'sticky_bar' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Barre « Commander maintenant » collante sur mobile (récapitulatif + total + bouton toujours visibles)', 'infinitycod' ); ?></span>
 				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[sticky_bar]" value="1" <?php checked( (int) Settings::get( 'sticky_bar' ), 1 ); ?> />
@@ -907,7 +928,7 @@ class SettingsPage {
 		</div>
 
 		<div class="icod-card">
-			<h2>🤖 <?php esc_html_e( 'Captcha anti-bot', 'infinitycod' ); ?></h2>
+			<h2>5 — 🤖 <?php esc_html_e( 'Captcha anti-bot', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Désactivé : aucun script, aucun champ, aucune validation. Activé : question mathématique (sans service externe) ou reCAPTCHA v3 (invisible, nécessite des clés Google).', 'infinitycod' ); ?></p>
 			<div class="icod-toggles">
 				<label class="icod-toggle">
@@ -936,7 +957,7 @@ class SettingsPage {
 		</div>
 
 		<div class="icod-card">
-			<h2>⏳ <?php esc_html_e( 'Compte à rebours d’urgence', 'infinitycod' ); ?></h2>
+			<h2>6 — ⏳ <?php esc_html_e( 'Compte à rebours d’urgence', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Affiche un compte à rebours au-dessus du formulaire (technique « offre à durée limitée » : il redémarre à chaque session visiteur). Variable : {time} (mm:ss).', 'infinitycod' ); ?></p>
 			<div class="icod-toggles">
 				<label class="icod-toggle">
@@ -956,32 +977,32 @@ class SettingsPage {
 			</div>
 		</div>
 
-			<div class="icod-card">
-				<h2><?php esc_html_e( 'Écran de remerciement', 'infinitycod' ); ?></h2>
-				<p class="description"><?php esc_html_e( 'Le style de la fenêtre de remerciement affichée après une commande réussie — chaque style présente le récapitulatif détaillé (n°, produit, livraison, total).', 'infinitycod' ); ?></p>
-				<div class="icod-preset-grid">
-					<?php
-					$success_styles = array(
-						'classic'     => array( 'label' => __( 'Classique', 'infinitycod' ), 'icon' => '✓' ),
-						'confetti'    => array( 'label' => __( 'Confettis', 'infinitycod' ), 'icon' => '🎉' ),
-						'minimal'     => array( 'label' => __( 'Minimal', 'infinitycod' ), 'icon' => '◦' ),
-						'ticket'      => array( 'label' => __( 'Ticket', 'infinitycod' ), 'icon' => '🎟️' ),
-						'celebration' => array( 'label' => __( 'Célébration', 'infinitycod' ), 'icon' => '🥳' ),
-					);
-					foreach ( $success_styles as $style_key => $style ) :
-						?>
-						<label class="icod-preset">
-							<input type="radio" name="icod[success_style]" value="<?php echo esc_attr( $style_key ); ?>" <?php checked( Settings::get( 'success_style', 'classic' ), $style_key ); ?> />
-							<span class="icod-preset-swatch" style="background:linear-gradient(135deg,#1d5fa8,#0e7a4f);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px"><?php echo esc_html( $style['icon'] ); ?></span>
-							<span class="icod-preset-label"><?php echo esc_html( $style['label'] ); ?></span>
-						</label>
-					<?php endforeach; ?>
-				</div>
+		<div class="icod-card">
+			<h2>7 — 🎉 <?php esc_html_e( 'Écran de remerciement', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Le style de la fenêtre de remerciement affichée après une commande réussie — chaque style présente le récapitulatif détaillé (n°, produit, livraison, total).', 'infinitycod' ); ?></p>
+			<div class="icod-preset-grid">
+				<?php
+				$success_styles = array(
+					'classic'     => array( 'label' => __( 'Classique', 'infinitycod' ), 'icon' => '✓' ),
+					'confetti'    => array( 'label' => __( 'Confettis', 'infinitycod' ), 'icon' => '🎉' ),
+					'minimal'     => array( 'label' => __( 'Minimal', 'infinitycod' ), 'icon' => '◦' ),
+					'ticket'      => array( 'label' => __( 'Ticket', 'infinitycod' ), 'icon' => '🎟️' ),
+					'celebration' => array( 'label' => __( 'Célébration', 'infinitycod' ), 'icon' => '🥳' ),
+				);
+				foreach ( $success_styles as $style_key => $style ) :
+					?>
+					<label class="icod-preset">
+						<input type="radio" name="icod[success_style]" value="<?php echo esc_attr( $style_key ); ?>" <?php checked( Settings::get( 'success_style', 'classic' ), $style_key ); ?> />
+						<span class="icod-preset-swatch" style="background:linear-gradient(135deg,#1d5fa8,#0e7a4f);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px"><?php echo esc_html( $style['icon'] ); ?></span>
+						<span class="icod-preset-label"><?php echo esc_html( $style['label'] ); ?></span>
+					</label>
+				<?php endforeach; ?>
 			</div>
+		</div>
 
-			<div class="icod-card">
-				<h2><?php esc_html_e( 'Libellés des champs', 'infinitycod' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'Personnalisez le texte affiché devant chaque champ (utile en arabe ou pour votre ton de marque).', 'infinitycod' ); ?></p>
+		<div class="icod-card">
+			<h2>8 — 🏷️ <?php esc_html_e( 'Libellés des champs', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Personnalisez le texte affiché devant chaque champ (utile en arabe ou pour votre ton de marque). Ces libellés sont les valeurs par défaut ; le Checkout Builder les remplace champ par champ.', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
 				<label>
 					<span><?php esc_html_e( 'Champ nom', 'infinitycod' ); ?></span>
@@ -1072,7 +1093,6 @@ class SettingsPage {
 				var btn = document.getElementById('icod-preview-refresh');
 				if (btn) { btn.addEventListener('click', refresh); }
 				if (product) { product.addEventListener('change', refresh); }
-				if (product || Object.keys(<?php echo wp_json_encode( $preview_choices ); ?>).length === 0) { /* premier rendu */ }
 				refresh();
 			})();
 			</script>
@@ -1522,14 +1542,6 @@ class SettingsPage {
 		<div class="icod-card">
 			<h2><?php esc_html_e( 'Avancé', 'infinitycod' ); ?></h2>
 			<div class="icod-toggles">
-				<label class="icod-toggle<?php echo \InfinityCod\License\LicenseManager::is_premium() ? '' : ' icod-premium-locked icod-premium-item'; ?>">
-					<input type="checkbox" name="icod[show_offers]" value="1" <?php checked( (int) Settings::get( 'show_offers' ), 1 ); ?> <?php disabled( ! \InfinityCod\License\LicenseManager::is_premium() ); ?> />
-					<span><?php esc_html_e( 'Afficher les paliers d‘offres par quantité', 'infinitycod' ); ?> <span class="icod-premium-mini">★ Premium</span></span>
-				</label>
-				<label class="icod-toggle">
-					<input type="checkbox" name="icod[show_reassurance]" value="1" <?php checked( (int) Settings::get( 'show_reassurance' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Bandeau de réassurance (COD, 58 wilayas, vérification colis)', 'infinitycod' ); ?></span>
-				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[auto_update]" value="1" <?php checked( (int) Settings::get( 'auto_update' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Mise à jour automatique du plugin (sans clic, dès qu‘une version GitHub est publiée)', 'infinitycod' ); ?></span>
@@ -1838,8 +1850,44 @@ class SettingsPage {
 
 		Settings::set( $clean );
 
+		// Sinon le formulaire public sert l'ancien HTML : purge best-effort
+		// des caches de pages les plus répandus.
+		$this->purge_page_caches();
+
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=' . $tab . '&icod_msg=saved' ) );
 		exit;
+	}
+
+	/**
+	 * Purge best-effort des caches de pages après un changement de réglages.
+	 * Chaque appel n'agit que si le plugin de cache correspondant est actif :
+	 * LiteSpeed, WP Rocket, W3 Total Cache, WP Super Cache, SG Optimizer,
+	 * WP Fastest Cache, Autoptimize (CSS/JS minifiés).
+	 *
+	 * @return void
+	 */
+	private function purge_page_caches() {
+		if ( defined( 'LSCWP_V' ) ) {
+			do_action( 'litespeed_purge_all' );
+		}
+		if ( function_exists( 'rocket_clean_domain' ) ) {
+			rocket_clean_domain();
+		}
+		if ( function_exists( 'w3tc_flush_all' ) ) {
+			w3tc_flush_all();
+		}
+		if ( function_exists( 'wp_cache_clear_cache' ) ) {
+			wp_cache_clear_cache();
+		}
+		if ( function_exists( 'sg_cachepress_purge_cache' ) ) {
+			sg_cachepress_purge_cache();
+		}
+		if ( function_exists( 'wpfc_clear_all_cache' ) ) {
+			wpfc_clear_all_cache();
+		}
+		if ( class_exists( 'autoptimizeCache' ) && method_exists( 'autoptimizeCache', 'clearall' ) ) {
+			\autoptimizeCache::clearall();
+		}
 	}
 
 	/**

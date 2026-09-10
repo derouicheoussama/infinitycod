@@ -474,6 +474,17 @@ $fm3 = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' )
 $js2 = file_get_contents( $plugin_dir . 'assets/front/js/form.js' );
 check( 'formulaire : zones délai + min-order rendues et alimentées', false !== strpos( $fm3, 'data-delivery-estimate' ) && false !== strpos( $fm3, 'data-min-order-warn' ) && false !== strpos( $js2, 'data-delivery-estimate' ) && false !== strpos( $js2, 'data-min-order-warn' ) );
 
+/* ---------- 19. Interface réorganisée + purge des caches ---------- */
+
+echo "\n19) Interface organisée + purge automatique des caches\n";
+$sp5 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+check( 'sections numérotées 1-8 dans l’onglet Formulaire', false !== strpos( $sp5, '1 — 📝' ) && false !== strpos( $sp5, '2 — 🧱' ) && false !== strpos( $sp5, '3 — 🎨' ) && false !== strpos( $sp5, '4 — ⚙️' ) && false !== strpos( $sp5, '5 — 🤖' ) && false !== strpos( $sp5, '6 — ⏳' ) && false !== strpos( $sp5, '7 — 🎉' ) && false !== strpos( $sp5, '8 — 🏷️' ) );
+check( 'show_offers présent exactement UNE fois (plus de disparition silencieuse)', 1 === substr_count( $sp5, 'name="icod[show_offers]"' ) );
+check( 'sticky_bar présent exactement UNE fois (doublon supprimé)', 1 === substr_count( $sp5, 'name="icod[sticky_bar]"' ) );
+check( 'bandeau 3 étapes + bouton Enregistrer collant', false !== strpos( $sp5, 'icod-steps' ) && false !== strpos( $sp5, 'icod-save-sticky' ) );
+check( 'purge des caches appelée à la sauvegarde', false !== strpos( $sp5, 'purge_page_caches' ) );
+check( 'purge couvre LiteSpeed / WP Rocket / W3TC / Autoptimize', false !== strpos( $sp5, 'litespeed_purge_all' ) && false !== strpos( $sp5, 'rocket_clean_domain' ) && false !== strpos( $sp5, 'w3tc_flush_all' ) && false !== strpos( $sp5, 'autoptimizeCache' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

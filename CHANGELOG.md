@@ -1,5 +1,19 @@
 # Changelog
 
+## 5.8.0 — 2026-09-10
+
+L'interface Réglages est réorganisée en sections numérotées, et la cause n°1 du « rien ne change » est éliminée.
+
+### Ajouté
+- **Purge automatique des caches à chaque enregistrement** : LiteSpeed, WP Rocket, W3 Total Cache, WP Super Cache, SG Optimizer, WP Fastest Cache et Autoptimize sont vidés dès que vous cliquez sur Enregistrer — plus besoin de vider manuellement pour voir le formulaire changer.
+- **Bouton Enregistrer toujours visible** (barre collante en bas de page) avec rappel « appliqué dès l'enregistrement ».
+- **Bandeau guide** en haut de la page : 1) Modifiez 2) Enregistrez (caches vidés) 3) Vérifiez l'aperçu.
+
+### Modifié
+- **Onglet Formulaire réorganisé en 8 sections numérotées** : Contenu → Champs → Apparence → Options → Captcha → Compte à rebours → Écran de remerciement → Libellés → Aperçu.
+- **2 anomalies d'interface corrigées** : la case « Offres par quantité » avait disparu de l'onglet Formulaire (et repassait à zéro à chaque enregistrement — restaurée, une seule fois, avec son badge Premium) ; la case « Barre collante » était affichée en double ; des cases « Offres/Réassurance » inertes traînaient dans l'onglet Avancé (elles n'y sauvegardaient jamais) — supprimées.
+
+
 ## 5.7.2 — 2026-09-10
 
 Deux réglages fantômes de Wilayas & Tarifs deviennent réellement fonctionnels + pied de page assagi.
