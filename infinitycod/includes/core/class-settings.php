@@ -162,6 +162,8 @@ class Settings {
 			'background_color'      => '',
 			'border_radius'         => '',
 			'form_padding'          => '',
+			'form_font_size'        => '',
+			'button_height'         => '',
 
 			// Champs personnalisés du Checkout Builder : ordre, visibilité, requis, labels.
 			'checkout_fields'       => [
@@ -223,6 +225,7 @@ class Settings {
 			'paypal_price_personal' => 39,
 			'paypal_price_business' => 79,
 			'paypal_price_agency'   => 149,
+				'paypal_price'          => 79,             // Licence Premium unique (tout inclus).
 			'payment_return_text'   => __( 'Merci ! Votre paiement a bien été reçu et votre commande est confirmée. Nous vous contacterons très vite.', 'infinitycod' ),
 
 			// Mises à jour via GitHub.

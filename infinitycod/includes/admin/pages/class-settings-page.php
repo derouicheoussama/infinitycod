@@ -545,64 +545,38 @@ class SettingsPage {
 		$install_ref     = \InfinityCod\License\LicenseManager::install_id();
 
 		if ( ! $premium && $paypal_on ) :
-			$plans = array(
-				'personal' => array(
-					'name'  => __( 'Personal', 'infinitycod' ),
-					'price' => (float) Settings::get( 'paypal_price_personal', 39 ),
-					'desc'  => __( '1 site · WhatsApp, transporteurs, P&L, offres', 'infinitycod' ),
-				),
-				'business' => array(
-					'name'  => __( 'Business', 'infinitycod' ),
-					'price' => (float) Settings::get( 'paypal_price_business', 79 ),
-					'desc'  => __( '3 sites · tout Personal + support prioritaire', 'infinitycod' ),
-					'star'  => true,
-				),
-				'agency'   => array(
-					'name'  => __( 'Agency', 'infinitycod' ),
-					'price' => (float) Settings::get( 'paypal_price_agency', 149 ),
-					'desc'  => __( '10 sites · tout Business + multi-pays', 'infinitycod' ),
-				),
-			);
-			$return_url = admin_url( 'admin.php?page=infinitycod-settings&tab=license&paypal_ok=1' );
+			$pp_price    = (float) Settings::get( 'paypal_price', 79 );
+			$return_url  = admin_url( 'admin.php?page=infinitycod-settings&tab=license&paypal_ok=1' );
 			?>
 			<div class="icod-card">
-				<h2>💳 <?php esc_html_e( 'Passer à InfinityCod Pro — paiement PayPal sécurisé', 'infinitycod' ); ?></h2>
-				<p class="description"><?php esc_html_e( 'Payez par PayPal, recevez votre clé par email, collez-la juste en dessous : Pro est actif immédiatement, sans réinstallation.', 'infinitycod' ); ?></p>
-				<ol class="icod-steps-mini">
-					<li><?php esc_html_e( 'Choisissez votre offre', 'infinitycod' ); ?></li>
-					<li><?php esc_html_e( 'Payez sur PayPal', 'infinitycod' ); ?></li>
-					<li><?php esc_html_e( 'Collez votre clé reçue par email', 'infinitycod' ); ?></li>
-				</ol>
+				<h2>💳 <?php esc_html_e( 'Passer à InfinityCod Premium — TOUT INCLUS', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Une seule licence Premium, tout inclus : WhatsApp automatique, transporteurs, relances paniers, offres par quantité, statistiques P&L, multi-pays. Payez par PayPal, recevez votre clé par email, collez-la juste en dessous : Premium est actif immédiatement.', 'infinitycod' ); ?></p>
 				<div class="icod-pricing">
-					<?php foreach ( $plans as $plan_key => $plan ) : ?>
-						<div class="icod-pricing-card<?php echo ! empty( $plan['star'] ) ? ' icod-pricing-star' : ''; ?>">
-							<?php if ( ! empty( $plan['star'] ) ) : ?>
-								<span class="icod-pricing-badge"><?php esc_html_e( 'Recommandé', 'infinitycod' ); ?></span>
-							<?php endif; ?>
-							<h3><?php echo esc_html( $plan['name'] ); ?></h3>
-							<p class="icod-pricing-price">
-								<?php echo esc_html( number_format_i18n( $plan['price'], 2 ) ); ?>
-								<span><?php echo esc_html( $paypal_currency ); ?></span>
-							</p>
-							<p class="icod-pricing-desc"><?php echo esc_html( $plan['desc'] ); ?></p>
-							<form method="post" action="<?php echo esc_url( 'https://www.paypal.com/cgi-bin/webscr' ); ?>" target="_blank" rel="noopener">
-								<input type="hidden" name="cmd" value="_xclick" />
-								<input type="hidden" name="business" value="<?php echo esc_attr( $paypal_email ); ?>" />
-								<input type="hidden" name="item_name" value="<?php echo esc_attr( 'InfinityCod Pro — ' . $plan['name'] . ' (site ' . $install_ref . ')' ); ?>" />
-								<input type="hidden" name="custom" value="<?php echo esc_attr( $install_ref ); ?>" />
-								<input type="hidden" name="amount" value="<?php echo esc_attr( number_format( $plan['price'], 2, '.', '' ) ); ?>" />
-								<input type="hidden" name="currency_code" value="<?php echo esc_attr( $paypal_currency ); ?>" />
-								<input type="hidden" name="no_shipping" value="1" />
-								<input type="hidden" name="charset" value="utf-8" />
-								<input type="hidden" name="return" value="<?php echo esc_attr( $return_url ); ?>" />
-								<input type="hidden" name="cancel_return" value="<?php echo esc_attr( $return_url ); ?>" />
-								<button type="submit" class="button button-primary button-hero">
-									<?php esc_html_e( 'Payer avec', 'infinitycod' ); ?>
-									<span class="icod-paypal-word" dir="ltr"><span class="icod-paypal-pay">Pay</span><span class="icod-paypal-pal">Pal</span></span>
-								</button>
-							</form>
-						</div>
-					<?php endforeach; ?>
+					<div class="icod-pricing-card icod-pricing-star">
+						<span class="icod-pricing-badge"><?php esc_html_e( 'Tout inclus', 'infinitycod' ); ?></span>
+						<h3><?php esc_html_e( 'Premium', 'infinitycod' ); ?></h3>
+						<p class="icod-pricing-price">
+							<?php echo esc_html( number_format_i18n( $pp_price, 2 ) ); ?>
+							<span><?php echo esc_html( $paypal_currency ); ?></span>
+						</p>
+						<p class="icod-pricing-desc"><?php esc_html_e( '1 site · toutes les fonctionnalités Premium · mises à jour incluses', 'infinitycod' ); ?></p>
+						<form method="post" action="<?php echo esc_url( 'https://www.paypal.com/cgi-bin/webscr' ); ?>" target="_blank" rel="noopener">
+							<input type="hidden" name="cmd" value="_xclick" />
+							<input type="hidden" name="business" value="<?php echo esc_attr( $paypal_email ); ?>" />
+							<input type="hidden" name="item_name" value="<?php echo esc_attr( 'InfinityCod Premium (site ' . $install_ref . ')' ); ?>" />
+							<input type="hidden" name="custom" value="<?php echo esc_attr( $install_ref ); ?>" />
+							<input type="hidden" name="amount" value="<?php echo esc_attr( number_format( $pp_price, 2, '.', '' ) ); ?>" />
+							<input type="hidden" name="currency_code" value="<?php echo esc_attr( $paypal_currency ); ?>" />
+							<input type="hidden" name="no_shipping" value="1" />
+							<input type="hidden" name="charset" value="utf-8" />
+							<input type="hidden" name="return" value="<?php echo esc_attr( $return_url ); ?>" />
+							<input type="hidden" name="cancel_return" value="<?php echo esc_attr( $return_url ); ?>" />
+							<button type="submit" class="button button-primary button-hero">
+								<?php esc_html_e( 'Payer avec', 'infinitycod' ); ?>
+								<span class="icod-paypal-word" dir="ltr"><span class="icod-paypal-pay">Pay</span><span class="icod-paypal-pal">Pal</span></span>
+							</button>
+						</form>
+					</div>
 				</div>
 			</div>
 		<?php endif; ?>
@@ -683,16 +657,8 @@ class SettingsPage {
 							</select>
 						</label>
 						<label>
-							<span><?php esc_html_e( 'Prix Personal', 'infinitycod' ); ?></span>
-							<input type="text" name="icod[paypal_price_personal]" dir="ltr" value="<?php echo esc_attr( Settings::get( 'paypal_price_personal', 39 ) ); ?>" />
-						</label>
-						<label>
-							<span><?php esc_html_e( 'Prix Business', 'infinitycod' ); ?></span>
-							<input type="text" name="icod[paypal_price_business]" dir="ltr" value="<?php echo esc_attr( Settings::get( 'paypal_price_business', 79 ) ); ?>" />
-						</label>
-						<label>
-							<span><?php esc_html_e( 'Prix Agency', 'infinitycod' ); ?></span>
-							<input type="text" name="icod[paypal_price_agency]" dir="ltr" value="<?php echo esc_attr( Settings::get( 'paypal_price_agency', 149 ) ); ?>" />
+							<span><?php esc_html_e( 'Prix Premium — tout inclus', 'infinitycod' ); ?></span>
+							<input type="text" name="icod[paypal_price]" dir="ltr" value="<?php echo esc_attr( Settings::get( 'paypal_price', 79 ) ); ?>" />
 						</label>
 					</div>
 					<p class="icod-submit">
@@ -934,8 +900,8 @@ class SettingsPage {
 					</select>
 				</label>
 				<label>
-					<span><?php esc_html_e( 'Largeur du formulaire (px)', 'infinitycod' ); ?></span>
-					<input type="number" min="400" max="900" step="20" name="icod[form_max_width]" value="<?php echo esc_attr( (int) Settings::get( 'form_max_width', 680 ) ); ?>" />
+					<span><?php esc_html_e( 'Largeur du formulaire (px)', 'infinitycod' ); ?> <em>(jusqu'à 1400)</em></span>
+					<input type="number" min="400" max="1400" step="20" name="icod[form_max_width]" value="<?php echo esc_attr( (int) Settings::get( 'form_max_width', 680 ) ); ?>" />
 				</label>
 			</div>
 			<p class="description" style="margin-top:14px"><strong><?php esc_html_e( 'Personnalisation avancée', 'infinitycod' ); ?></strong> — <?php esc_html_e( 'choisissez une couleur dans la palette ; ↺ revient au défaut du thème.', 'infinitycod' ); ?></p>
@@ -963,6 +929,14 @@ class SettingsPage {
 				<label>
 					<span><?php esc_html_e( 'Espacement intérieur (8-48 px)', 'infinitycod' ); ?> <em>(vide = 20 px)</em></span>
 					<input type="number" min="8" max="48" name="icod[form_padding]" value="<?php echo esc_attr( Settings::get( 'form_padding', '' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Taille de la police (13-20 px)', 'infinitycod' ); ?> <em>(vide = 14 px)</em></span>
+					<input type="number" min="13" max="20" name="icod[form_font_size]" value="<?php echo esc_attr( Settings::get( 'form_font_size', '' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Hauteur du bouton (48-80 px)', 'infinitycod' ); ?> <em>(vide = 56 px)</em></span>
+					<input type="number" min="48" max="80" name="icod[button_height]" value="<?php echo esc_attr( Settings::get( 'button_height', '' ) ); ?>" />
 				</label>
 			</div>
 		</div>
@@ -1083,6 +1057,11 @@ class SettingsPage {
 						<option value="bar" <?php selected( Settings::get( 'timer_style', 'bar' ), 'bar' ); ?>><?php esc_html_e( 'Barre rayée (défaut)', 'infinitycod' ); ?></option>
 						<option value="pill" <?php selected( Settings::get( 'timer_style' ), 'pill' ); ?>><?php esc_html_e( 'Pilule sombre avec point pulsant', 'infinitycod' ); ?></option>
 						<option value="ribbon" <?php selected( Settings::get( 'timer_style' ), 'ribbon' ); ?>><?php esc_html_e( 'Ruban en bannières (couleur accent)', 'infinitycod' ); ?></option>
+						<option value="flip" <?php selected( Settings::get( 'timer_style' ), 'flip' ); ?>><?php esc_html_e( 'Flip — horloge à volets', 'infinitycod' ); ?></option>
+						<option value="neon" <?php selected( Settings::get( 'timer_style' ), 'neon' ); ?>><?php esc_html_e( 'Néon — texte lumineux sur fond nuit', 'infinitycod' ); ?></option>
+						<option value="minimal" <?php selected( Settings::get( 'timer_style' ), 'minimal' ); ?>><?php esc_html_e( 'Minimal — texte souligné', 'infinitycod' ); ?></option>
+						<option value="banner" <?php selected( Settings::get( 'timer_style' ), 'banner' ); ?>><?php esc_html_e( 'Bandeau plein — dégradé accent', 'infinitycod' ); ?></option>
+						<option value="boxes" <?php selected( Settings::get( 'timer_style' ), 'boxes' ); ?>><?php esc_html_e( 'Encadré — cadre accent', 'infinitycod' ); ?></option>
 					</select>
 				</label>
 				<label>
@@ -1809,6 +1788,8 @@ class SettingsPage {
 			'background_color'   => array( 'tab' => 'form', 'type' => 'color' ),
 			'border_radius'      => array( 'tab' => 'form', 'type' => 'int_opt', 'min' => 0, 'max' => 40 ),
 			'form_padding'       => array( 'tab' => 'form', 'type' => 'int_opt', 'min' => 8, 'max' => 48 ),
+			'form_font_size'     => array( 'tab' => 'form', 'type' => 'int_opt', 'min' => 13, 'max' => 20 ),
+			'button_height'      => array( 'tab' => 'form', 'type' => 'int_opt', 'min' => 48, 'max' => 80 ),
 			'form_theme'         => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'light', 'dark', 'auto' ) ),
 			'success_style'      => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'classic', 'confetti', 'minimal', 'ticket', 'celebration' ) ),
 			'checkout_fields'    => array( 'tab' => 'form', 'type' => 'json' ),
@@ -1828,7 +1809,7 @@ class SettingsPage {
 			'show_summary_coupon' => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'hide_when_sold_out' => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'form_position'      => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'before_summary', 'after_price', 'after_excerpt', 'before_cart', 'after_cart', 'after_summary', 'end_product' ) ),
-			'form_max_width'     => array( 'tab' => 'form', 'type' => 'int', 'min' => 400, 'max' => 900 ),
+			'form_max_width'     => array( 'tab' => 'form', 'type' => 'int', 'min' => 400, 'max' => 1400 ),
 			'qty_max'            => array( 'tab' => 'form', 'type' => 'int', 'min' => 1, 'max' => 999 ),
 			'show_qty_selector'  => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_stopdesk'      => array( 'tab' => 'form', 'type' => 'toggle' ),
@@ -1865,7 +1846,7 @@ class SettingsPage {
 			'captcha_enabled'         => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'captcha_provider'        => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'math', 'recaptcha_v3' ) ),
 			'timer_urgency_text'      => array( 'tab' => 'form', 'type' => 'text' ),
-			'timer_style'             => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'bar', 'pill', 'ribbon' ) ),
+			'timer_style'             => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'bar', 'pill', 'ribbon', 'flip', 'neon', 'minimal', 'banner', 'boxes' ) ),
 			'qty_min'                 => array( 'tab' => 'form', 'type' => 'int', 'min' => 1, 'max' => 99 ),
 			'max_orders_hour_global'  => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 500 ),
 
@@ -1920,7 +1901,8 @@ class SettingsPage {
 			'paypal_enabled'        => array( 'tab' => 'license', 'type' => 'toggle' ),
 			'paypal_email'          => array( 'tab' => 'license', 'type' => 'email' ),
 			'paypal_currency'       => array( 'tab' => 'license', 'type' => 'enum', 'choices' => array( 'USD', 'EUR' ) ),
-			'paypal_price_personal' => array( 'tab' => 'license', 'type' => 'price' ),
+			'paypal_price'          => array( 'tab' => 'license', 'type' => 'price' ),
+				'paypal_price_personal' => array( 'tab' => 'license', 'type' => 'price' ),
 			'paypal_price_business' => array( 'tab' => 'license', 'type' => 'price' ),
 			'paypal_price_agency'   => array( 'tab' => 'license', 'type' => 'price' ),
 			'custom_update_url'    => array( 'tab' => 'advanced', 'type' => 'url' ),

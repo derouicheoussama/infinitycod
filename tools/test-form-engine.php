@@ -545,6 +545,19 @@ $css3 = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
 check( 'CSS : les 4 styles structurels existent', false !== strpos( $css3, '.icod-fs-moderne' ) && false !== strpos( $css3, '.icod-fs-tech' ) && false !== strpos( $css3, '.icod-fs-ecommerce' ) );
 check( 'barre collante pleine largeur (plus de max-width 680px)', false === strpos( $css3, 'max-width:680px;margin-inline:auto' ) );
 
+/* ---------- 25. Personnalisation étendue + PayPal Premium unique ---------- */
+
+echo "
+25) Extension : 8 styles timer, police/hauteur/largeur, PayPal Premium unique
+";
+check( 'schéma : 8 styles de timer', false !== strpos( $sp5, "'flip'" ) && false !== strpos( $sp5, "'neon'" ) && false !== strpos( $sp5, "'minimal'" ) && false !== strpos( $sp5, "'banner'" ) && false !== strpos( $sp5, "'boxes'" ) );
+check( 'UI : sélecteur 8 options', false !== strpos( $sp5, 'value="flip"' ) && false !== strpos( $sp5, 'value="boxes"' ) );
+check( 'CSS : les 5 nouveaux styles existent', false !== strpos( $css2, '.icod-timer-flip' ) && false !== strpos( $css2, '.icod-timer-neon' ) && false !== strpos( $css2, '.icod-timer-minimal' ) && false !== strpos( $css2, '.icod-timer-banner' ) && false !== strpos( $css2, '.icod-timer-boxes' ) );
+check( 'largeur jusqu à 1400 px (schéma + UI)', false !== strpos( $sp5, "=> 1400" ) && false !== strpos( $sp5, 'max="1400"' ) );
+check( 'police + hauteur bouton variables', false !== strpos( $sp5, "'form_font_size'" ) && false !== strpos( $sp5, "'button_height'" ) && false !== strpos( $css2, 'var(--icod-fs,14px)' ) && false !== strpos( $css2, 'var(--icod-btn-h,56px)' ) );
+check( 'licence : carte Premium unique avec PayPal direct', false !== strpos( $sp5, 'paypal_price' ) && false === strpos( $sp5, "'Personal', 'infinitycod'" ) );
+check( 'quantité élargie (60 px)', false !== strpos( $css2, '.icod-qty-input{width:60px' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

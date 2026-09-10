@@ -1,5 +1,17 @@
 # Changelog
 
+## 5.12.0 — 2026-09-10
+
+8 styles de compte à rebours, personnalisation étendue (police, hauteur, largeur 1400) et licence Premium UNIQUE avec bouton PayPal direct.
+
+### Ajouté
+- **8 styles de compte à rebours** : Barre rayée, Pilule sombre, Ruban accent, Flip (horloge à volets), Néon (texte lumineux), Minimal (souligné), Bandeau plein (dégradé accent), Encadré (cadre accent).
+- **Personnalisation étendue** (Réglages → Apparence) : taille de la police (13-20 px) et hauteur du bouton (48-80 px), en plus de l'arrondi, de l'espacement et de la largeur.
+- **Largeur du formulaire jusqu'à 1400 px** pour les thèmes larges et les mises en page pleine largeur.
+- **Champ Quantité élargi** (60 px) pour un meilleur confort tactile.
+- **Licence Premium UNIQUE « tout inclus »** : la page Licence affiche désormais une seule carte Premium avec bouton PayPal direct vers le compte du vendeur (prix configurable dans la configuration vendeur). Les anciens prix multi-paliers restent compatibles mais ne sont plus affichés.
+
+
 ## 5.11.0 — 2026-09-10
 
 Palettes de couleurs cliquables, icônes de bouton, HUD retiré, aperçu instantané et blindage thèmes.

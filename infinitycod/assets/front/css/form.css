@@ -33,7 +33,7 @@
 	--icod-btn-bg:linear-gradient(135deg,#1877c2,#0c5c9a);
 	--icod-head-bg:linear-gradient(135deg,#0c5c9a,#1877c2);
 	--icod-head-ink:#ffffff;
-	font-family:system-ui,'Segoe UI',Roboto,sans-serif;color:var(--icod-text);background:var(--icod-page);border:1px solid var(--icod-border);border-radius:var(--icod-radius,18px);box-shadow:var(--icod-shadow);max-width:680px;margin:0 auto;overflow:hidden;position:relative;direction:ltr;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+	font-family:system-ui,'Segoe UI',Roboto,sans-serif;color:var(--icod-text);background:var(--icod-page);border:1px solid var(--icod-border);border-radius:var(--icod-radius,18px);box-shadow:var(--icod-shadow);max-width:680px;margin:0 auto;overflow:hidden;position:relative;direction:ltr;font-size:var(--icod-fs,14px);line-height:1.5;-webkit-font-smoothing:antialiased}
 /* Sombre : forcé, ou automatique selon la préférence du visiteur. */
 .icod-root[data-theme="dark"]{
 	--icod-surface:#1f2d3d;
@@ -117,7 +117,7 @@ select.icod-input:disabled{background-color:var(--icod-surface-2);color:var(--ic
 .icod-qty:focus-within{border-color:var(--icod-accent)}
 .icod-qty-btn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--icod-accent);background:none;border:none;cursor:pointer;transition:background .15s}
 .icod-qty-btn:hover{background:color-mix(in srgb,var(--icod-accent) 8%,transparent)}
-.icod-qty-input{width:48px;text-align:center;font-size:16px;font-weight:800;border:none;background:none;color:var(--icod-text);-moz-appearance:textfield}
+.icod-qty-input{width:60px;text-align:center;font-size:16px;font-weight:800;border:none;background:none;color:var(--icod-text);-moz-appearance:textfield}
 .icod-qty-input::-webkit-inner-spin-button{-webkit-appearance:none}
 
 /* Variantes */
@@ -184,7 +184,7 @@ fieldset.icod-mode{min-width:0}
 .icod-progress-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--icod-accent),var(--icod-accent-dark));transition:width .4s ease}
 
 /* Bouton — dégradé issu de la palette d'accent. */
-.icod-submit{display:block;width:100%;min-height:56px;padding:15px 20px;font-size:1.02rem;font-weight:800;font-family:inherit;color:var(--icod-accent-ink,#fff)!important;background:var(--icod-btn-bg)!important;border:none!important;border-radius:var(--icod-radius-sm,13px)!important;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 6px 18px rgba(11,34,57,.28)!important;box-shadow:0 6px 18px color-mix(in srgb,var(--icod-accent) 38%,transparent)!important;transition:transform .15s,box-shadow .2s;animation:icod-breathe 2.4s ease-in-out infinite}
+.icod-submit{display:block;width:100%;min-height:var(--icod-btn-h,56px);padding:15px 20px;font-size:1.02rem;font-weight:800;font-family:inherit;color:var(--icod-accent-ink,#fff)!important;background:var(--icod-btn-bg)!important;border:none!important;border-radius:var(--icod-radius-sm,13px)!important;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 6px 18px rgba(11,34,57,.28)!important;box-shadow:0 6px 18px color-mix(in srgb,var(--icod-accent) 38%,transparent)!important;transition:transform .15s,box-shadow .2s;animation:icod-breathe 2.4s ease-in-out infinite}
 .icod-submit::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.38) 50%,transparent 68%);transform:translateX(-130%);animation:icod-shine 3.4s ease-in-out infinite}
 .icod-submit:hover{transform:translateY(-2px);box-shadow:0 9px 26px rgba(11,34,57,.36)!important;box-shadow:0 9px 26px color-mix(in srgb,var(--icod-accent) 46%,transparent)!important}
 .icod-submit:active{transform:translateY(1px)}
@@ -353,3 +353,19 @@ fieldset.icod-mode{min-width:0}
 .icod-root{color-scheme:light}
 .icod-root[data-theme=dark],.icod-root[data-theme=auto]{color-scheme:dark}
 .icod-btn-ico{margin-inline-end:8px;display:inline-block}
+
+/* ===== Compte à rebours : 5 styles additionnels ===== */
+/* Flip : horloge à volets. */
+.icod-timer-flip .icod-timer-label{background:#1d2327;color:#fff;padding:10px 18px;border-radius:10px;box-shadow:0 4px 0 rgba(0,0,0,.35);background-image:linear-gradient(#1d2327 47%,rgba(255,255,255,.16) 50%,#1d2327 53%)}
+/* Néon : texte lumineux sur fond nuit. */
+.icod-timer-neon{background:#101418;border:1px solid var(--icod-accent)}
+.icod-timer-neon .icod-timer-label{color:var(--icod-accent);text-shadow:0 0 10px var(--icod-accent)}
+/* Minimal : texte souligné par l'accent. */
+.icod-timer-minimal{background:none;border:none;border-bottom:2px solid var(--icod-accent);border-radius:0;color:var(--icod-text);padding:6px 4px;width:fit-content;margin-inline:auto}
+.icod-timer-minimal .icod-timer-label{color:var(--icod-text)}
+/* Bandeau plein : dégradé accent, angles droits. */
+.icod-timer-banner{margin:12px 0 0;border-radius:0;background:var(--icod-btn-bg);color:var(--icod-accent-ink,#fff);border:none}
+.icod-timer-banner .icod-timer-label{color:var(--icod-accent-ink,#fff)}
+/* Encadré : cadre accent sur fond surface. */
+.icod-timer-boxes{background:transparent;border:none;padding:6px}
+.icod-timer-boxes .icod-timer-label{background:var(--icod-surface);border:2px solid var(--icod-accent);color:var(--icod-accent);padding:8px 16px;border-radius:10px}

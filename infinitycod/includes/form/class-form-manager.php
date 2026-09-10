@@ -564,7 +564,7 @@ class FormManager {
 
 		$offers_tiers = $show_offers ? OffersEngine::tiers_for_product( $product->get_id() ) : array();
 
-		$max_width = max( 400, min( 900, (int) Settings::get( 'form_max_width', 680 ) ) );
+		$max_width = max( 400, min( 1400, (int) Settings::get( 'form_max_width', 680 ) ) );
 
 		// Après commande : redirection + upsell.
 		$redirect_on    = (bool) Settings::get( 'redirect_enabled' ) && Settings::get( 'redirect_url' );
@@ -644,6 +644,14 @@ class FormManager {
 			$root_vars .= ';--icod-radius:' . $radius . 'px;--icod-radius-sm:' . max( 0, $radius - 6 ) . 'px';
 		}
 		$padding = Settings::get( 'form_padding', '' );
+		$font_size = Settings::get( 'form_font_size', '' );
+		if ( '' !== $font_size && is_numeric( (string) $font_size ) ) {
+			$root_vars .= ';--icod-fs:' . max( 13, min( 20, (int) $font_size ) ) . 'px';
+		}
+		$btn_h = Settings::get( 'button_height', '' );
+		if ( '' !== $btn_h && is_numeric( (string) $btn_h ) ) {
+			$root_vars .= ';--icod-btn-h:' . max( 48, min( 80, (int) $btn_h ) ) . 'px';
+		}
 		if ( '' !== $padding && is_numeric( (string) $padding ) ) {
 			$root_vars .= ';--icod-pad:' . max( 8, min( 48, (int) $padding ) ) . 'px';
 		}
