@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.8.3 — 2026-09-10
+
+Correctif pipeline : le harnais d'activation n'avait pas le stub du cache (échec CI v5.8.2 — relance automatique des tags précédents possible).
+
+### Corrigé
+- Stub wp_cache_delete manquant dans tools/test-activation.php (la CI Release échouait sur ce fatal — les révisions 5.8.2/5.8.3 du moteur de réglages sont validées).
+
+
 ## 5.8.2 — 2026-09-10
 
 Changement FORCÉ : les réglages sont désormais lus directement en base de données, immunisés contre tout cache d'objets serveur.

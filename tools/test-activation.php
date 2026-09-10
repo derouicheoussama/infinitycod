@@ -120,6 +120,8 @@ function plugin_dir_path( $f ) { return trailingslashit( dirname( $f ) ); }
 function plugin_dir_url( $f ) { return 'https://example.test/wp-content/plugins/' . basename( dirname( $f ) ) . '/'; }
 function trailingslashit( $s ) { return rtrim( (string) $s, '/\\' ) . '/'; }
 function untrailingslashit( $s ) { return rtrim( (string) $s, '/\\' ); }
+function wp_cache_delete( ...$a ) { return true; }
+function wp_using_ext_object_cache() { return false; }
 function wp_next_scheduled( $h ) { return false; }
 function wp_schedule_event( ...$a ) { return true; }
 function wp_style_is( ...$a ) { return false; }
