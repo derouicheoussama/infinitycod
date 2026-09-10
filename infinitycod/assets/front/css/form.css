@@ -826,3 +826,37 @@ select.icod-input{
 /* Champs personnalisés (cf_*) : même style que les champs natifs */
 input[name^="cf_"], textarea[name^="cf_"], select[name^="cf_"]{width:100%;min-height:48px;padding:12px 14px;border:1.5px solid var(--icod-border);border-radius:10px;background:var(--icod-surface);color:var(--icod-text);font:inherit;font-size:16px}
 input[name^="cf_"]:focus, textarea[name^="cf_"]:focus{outline:none;border-color:var(--icod-accent)}
+
+/* ===== Design Yaxii+ : cartes sections, stepper vertical, CTA flèche ===== */
+.icod-card{border-radius:16px!important;overflow:visible}
+.icod-card .icod-head{border-radius:16px 16px 0 0}
+.icod-field .icod-input{min-height:52px;border-radius:12px!important;background:color-mix(in srgb,var(--icod-accent) 4%,var(--icod-surface))!important;transition:border-color .15s,box-shadow .15s}
+.icod-field .icod-input:focus{box-shadow:0 0 0 4px color-mix(in srgb,var(--icod-accent) 12%,transparent)}
+.icod-mode-box{border-radius:14px!important;transition:all .15s}
+.icod-mode-option input:checked + .icod-mode-box{border-width:2px;box-shadow:0 4px 16px color-mix(in srgb,var(--icod-accent) 18%,transparent)}
+.icod-summary{border-radius:14px!important;box-shadow:0 2px 10px color-mix(in srgb,var(--icod-accent) 8%,transparent)}
+.icod-submit{border-radius:14px!important;letter-spacing:.3px;font-weight:900}
+.icod-submit::after{animation-duration:2.6s}
+.icod-qty{flex-direction:column;gap:0;border:1.5px solid var(--icod-border);border-radius:12px;overflow:hidden;background:var(--icod-surface)}
+.icod-qty .icod-qty-btn{border-radius:0;border-bottom:1px solid var(--icod-border)}
+.icod-qty .icod-qty-btn:last-child{border-bottom:0}
+.icod-qty-input{border:0!important;text-align:center;font-weight:800}
+@media (min-width:720px){
+	.icod-qty{position:absolute;inset-inline-start:-64px;top:0;flex-direction:column;width:44px}
+}
+.icod-form .icod-duo + .icod-row,
+.icod-row + .icod-field{margin-top:2px}
+
+/* Preset Pro (violet Yaxii+) */
+.icod-root[data-preset="pro"]{
+	--icod-accent:#7c3aed;
+	--icod-radius:18px;
+	--icod-radius-sm:13px;
+	--icod-shadow:0 6px 24px rgba(124,58,237,.16);
+	--icod-surface:#f8f5ff;
+	--icod-border:#e4dcf7;
+	--icod-head-bg:linear-gradient(135deg,#8b5cf6,#6d28d9);
+	--icod-head-ink:#ffffff;
+}
+.icod-root.icod-theme-dark[data-preset="pro"]{--icod-head-bg:linear-gradient(135deg,#4c1d95,#7c3aed)}
+.icod-root.icod-theme-auto[data-preset="pro"]{--icod-head-bg:linear-gradient(135deg,#7c3aed,#4c1d95)}
