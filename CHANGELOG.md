@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.5.1 — 2026-09-10
+
+Correctif urgent : l'API REST du plugin (communes, devis, soumission) renvoyait une erreur 500 sur les sites — aucune commande ne pouvait passer.
+
+### Corrigé
+- **Erreur fatale à l'enregistrement des routes REST** (appel de méthode introuvable) : communes ne se chargeaient plus au choix de la wilaya, le prix temps réel et la soumission de commande échouaient. Toutes les routes REST sont rétablies.
+- **Captcha et compte à rebours déplacés à l'intérieur du formulaire** : leurs champs étaient rendus hors de la balise form et n'étaient jamais soumis.
+- Nouvel audit automatique intégré : détection de tout appel de méthode inexistant (65 fichiers, héritage inclus) + tests d'enregistrement REST dans le harnais.
+
+
 ## 5.5.0 — 2026-09-09
 
 Le dashboard pilote réellement le formulaire et le formulaire s'affiche sans aucun champ vide.

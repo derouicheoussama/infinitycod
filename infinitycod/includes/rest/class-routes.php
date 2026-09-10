@@ -43,7 +43,7 @@ class Routes {
 	 */
 	public function routes() {
 		register_rest_route(
-			$this->ns(),
+			self::NAMESPACE_V1,
 			'/github-release',
 			array(
 				'methods'             => 'POST',

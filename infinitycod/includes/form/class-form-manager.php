@@ -624,8 +624,6 @@ class FormManager {
 			<?php if ( ! $product->is_type( 'variable' ) && $product->managing_stock() && $product->get_stock_quantity() !== null ) : ?>
 			<div class="icod-stock-badge" data-stock-badge><span class="dot"></span><?php printf( esc_html__( '%d pièces disponibles', 'infinitycod' ), (int) $product->get_stock_quantity() ); ?></div>
 			<?php endif; ?>
-			<?php echo $captcha_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé. ?>
-			<?php echo $timer_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé. ?>
 
 			<div class="icod-progress" aria-hidden="true"><div class="icod-progress-fill" data-progress-fill></div></div>
 
@@ -634,6 +632,12 @@ class FormManager {
 					<input type="hidden" name="icod_ts" value="<?php echo esc_attr( $ts ); ?>" />
 					<input type="hidden" name="icod_sig" value="<?php echo esc_attr( $sig ); ?>" />
 					<input type="hidden" name="icod_fp" class="icod-fp" value="" />
+					<?php
+					// Captcha + timer DANS le <form> : leurs champs doivent être
+					// soumis avec celui-ci (le JS les lit dans le formulaire).
+					echo $captcha_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé.
+					echo $timer_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé.
+					?>
 
 					<div class="icod-layout">
 						<div class="icod-main">

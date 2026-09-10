@@ -1,6 +1,6 @@
 {
   "name": "plugins-cod-algerien",
-  "version": "5.5.0",
+  "version": "5.5.1",
   "private": true,
   "description": "InfinityCod — plugin WordPress COD Algérie (dépôt de développement)",
   "scripts": {
@@ -8,7 +8,7 @@
     "lint": "node tools/lint-php.js",
     "smoke": "node tools/smoke.js",
     "pot": "node tools/make-pot.js",
-    "check": "node tools/lint-php.js && node tools/smoke.js && node tools/audit.js && node tools/audit-settings.js && node tools/check-imports.js && node tools/check-attribution.js"
+    "check": "node tools/lint-php.js && node tools/smoke.js && node tools/audit.js && node tools/audit-settings.js && node tools/check-methods.js && node tools/check-imports.js && node tools/check-attribution.js"
   },
   "devDependencies": {
     "libsodium-wrappers": "^0.8.4",

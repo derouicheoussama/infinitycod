@@ -115,8 +115,10 @@ function checked( ...$a ) {}
 function disabled( ...$a ) {}
 function add_menu_page( ...$a ) { return true; }
 function add_submenu_page( ...$a ) { return true; }
-function register_rest_route( ...$a ) { return true; }
+$GLOBALS['__routes'] = array();
+function register_rest_route( $ns, $route, $args = array() ) { $GLOBALS['__routes'][] = array( 'ns' => $ns, 'route' => $route, 'args' => $args ); return true; }
 function rest_url( $p = '' ) { return 'https://example.test/wp-json/' . $p; }
+function rest_ensure_response( $d ) { return $d; }
 function wp_remote_post( ...$a ) { return array( 'response' => array( 'code' => 200 ), 'body' => '{}' ); }
 function wp_remote_retrieve_response_code( $r ) { return is_array( $r ) ? (int) $r['response']['code'] : 0; }
 function wp_remote_retrieve_body( $r ) { return is_array( $r ) ? (string) $r['body'] : ''; }
@@ -132,6 +134,17 @@ class WP_Error {
 
 class FakeProduct {
 	public function get_id() { return 42; }
+}
+
+class FakeRequest {
+	public function get_param( $k ) { return '16'; }
+	public function get_json_params() { return array(); }
+}
+
+function infinitycod() {
+	return new class {
+		public function module( $slug ) { return null; }
+	};
 }
 
 /* ---------- Chargement du plugin ---------- */
@@ -328,6 +341,22 @@ $_POST = array(
 $page2->handle_preview_form();
 check( 'handler exécutable : JSON succès capturé', is_array( $GLOBALS['__captured_json'] ) && true === $GLOBALS['__captured_json']['success'] );
 check( 'brouillon NON enregistré en base', ! isset( $GLOBALS['__options']['infinitycod_settings']['form_title'] ) || 'Aperçu test' !== $GLOBALS['__options']['infinitycod_settings']['form_title'] );
+
+/* ---------- 10. Enregistrement REST + endpoint communes ---------- */
+
+echo "\n10) Routes REST : enregistrement exécuté + callback communes (anti-régression ns())\n";
+try {
+	$routes_obj = new \InfinityCod\Rest\Routes();
+	$routes_obj->routes();
+	check( 'routes() exécuté sans fatal (bug ns() éliminé)', count( $GLOBALS['__routes'] ) >= 6 );
+	$paths = array_column( $GLOBALS['__routes'], 'route' );
+	check( 'communes / stopdesks / quote / submit enregistrées', in_array( '/communes', $paths, true ) && in_array( '/quote', $paths, true ) && in_array( '/submit', $paths, true ) );
+	$communes_args = $GLOBALS['__routes'][ array_search( '/communes', $paths, true ) ]['args'];
+	$out = call_user_func( $communes_args['callback'], new FakeRequest() );
+	check( 'callback communes exécutable et retourne un tableau', is_array( $out ) && isset( $out['communes'] ) );
+} catch ( \Throwable $e ) {
+	check( 'routes()/communes : ' . $e->getMessage(), false );
+}
 
 /* ---------- Bilan ---------- */
 
