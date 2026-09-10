@@ -1,3 +1,8 @@
+/*
+ * InfinityCOD — Formulaire COD CSS
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ */
 /* InfinityCOD — Formulaire COD · Design system unifié (v5.2) */
 :root{--icod-accent:#1877c2;--icod-accent-ink:#fff;--icod-bg:#f8fafc;--icod-surface:#fff;--icod-text:#1d2327;--icod-muted:#6b7c93;--icod-border:#d5dfe9;--icod-success:#0e7a4f;--icod-radius:14px;--icod-radius-sm:10px;--icod-shadow:0 2px 12px rgba(11,34,57,.06);--icod-head-bg:linear-gradient(135deg,#1877c2,#0e7a4f);--icod-head-ink:#fff}
 *,*::before,*::after{box-sizing:border-box}
@@ -101,13 +106,7 @@ select.icod-input{appearance:none;background-image:linear-gradient(45deg,transpa
 
 /* Layout responsive */
 .icod-layout{display:grid;grid-template-columns:1fr;gap:4px}
-@media (min-width:720px){.icod-layout{grid-template-columns:1.35fr .95fr;gap:0 22px}.icod-form{padding:20px}.icod-aside{position:sticky;top:20px;align-self:start;border-inline-start:1.5px dashed #e0e0e0;padding-inline-start:22px}}
-@media (max-width:719px){
-	.icod-aside{display:contents}
-	.icod-summary{order:-1;margin:0 0 16px}
-	.icod-msg,.icod-submit,.icod-wa-btn,.icod-reassurance{order:1}
-	.icod-head-price{font-size:.98rem}
-}
+.icod-form{padding:20px}
 
 /* Écran succès */
 .icod-success{text-align:center;padding:34px 26px;animation:icod-fade-in .5s ease both}
