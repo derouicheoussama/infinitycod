@@ -1,0 +1,2 @@
+Déposez ici les logos officiels : cib.svg, edahabia.svg, baridimob.svg, ccp.svg, cash.svg (ou .png/.webp).
+Ils remplacent automatiquement les visuels par défaut dans le formulaire et l'admin.

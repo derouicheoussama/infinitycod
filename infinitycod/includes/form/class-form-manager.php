@@ -612,6 +612,14 @@ class FormManager {
 	 * @return string SVG inline.
 	 */
 	public static function payment_logo( $method ) {
+		// Priorité aux logos officiels : déposez cib.svg/png, edahabia.svg/png, etc.
+		// dans assets/front/img/pay/ — ils remplacent automatiquement les visuels par défaut.
+		foreach ( array( 'svg', 'png', 'webp' ) as $ext ) {
+			$file = INFINITYCOD_PATH . 'assets/front/img/pay/' . $method . '.' . $ext;
+			if ( file_exists( $file ) ) {
+				return '<img class="icod-paylogo" src="' . esc_url( INFINITYCOD_URL . 'assets/front/img/pay/' . $method . '.' . $ext ) . '" alt="' . esc_attr( $method ) . '" width="52" height="33" loading="lazy" />';
+			}
+		}
 		$common = 'class="icod-paylogo" role="img" width="52" height="33" viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"';
 
 		switch ( $method ) {
