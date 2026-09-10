@@ -303,7 +303,7 @@ class Updater {
 		try {
 			$tiers = ( 'beta' === self::channel() )
 				? array( 'api', 'atom', 'mirror' )
-				: array( 'mirror', 'atom', 'api' );
+				: array( 'server', 'mirror', 'atom', 'api' );
 
 			foreach ( $tiers as $tier ) {
 				$data = ( 'api' === $tier )
@@ -675,6 +675,33 @@ class Updater {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Source primaire : le serveur Infinity (infinitycod.pro) — toujours
+	 * joignable car c'est le domaine du produit lui-même. Les clients ne
+	 * configurent RIEN, la détection est 100% automatique.
+	 */
+	private function remote_server() {
+		$server = 'https://infinitycod.pro';
+		$url = $server . '/api/v1/license/check-update?product=infinitycod&version=' . INFINITYCOD_VERSION;
+		$response = wp_remote_get( $url, array(
+			'timeout' => 10,
+			'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
+		) );
+		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) { return null; }
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $data ) || empty( $data['version'] ) || empty( $data['download_url'] ) ) { return null; }
+		return array(
+			'version'      => (string) $data['version'],
+			'download_url' => (string) $data['download_url'],
+			'homepage'     => 'https://infinitycod.pro',
+			'changelog'    => (string) ( $data['changelog'] ?? '' ),
+			'sha256'       => (string) ( $data['sha256'] ?? '' ),
+			'requires_php' => '7.4',
+			'requires'     => '6.0',
+			'source'       => 'infinity-server',
+		);
 	}
 
 	/**
