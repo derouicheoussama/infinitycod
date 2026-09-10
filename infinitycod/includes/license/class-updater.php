@@ -435,6 +435,23 @@ class Updater {
 	 *
 	 * @return array|null
 	 */
+		private static $allowed_hosts = array( 'raw.githubusercontent.com', 'cdn.jsdelivr.net', 'objects.githubusercontent.com' );
+
+	/**
+	 * Valide qu'une URL pointe vers un domaine autorisé (anti-SSRF).
+	 */
+	private function is_safe_url( $url ) {
+		$host = parse_url( $url, PHP_URL_HOST );
+		if ( empty( $host ) ) { return false; }
+		$allowed = array( 'raw.githubusercontent.com', 'cdn.jsdelivr.net', 'objects.githubusercontent.com' );
+		$custom = InfinityCodCoreSettings::get( 'custom_update_url', '' );
+		if ( ! empty( $custom ) ) {
+			$custom_host = parse_url( $custom, PHP_URL_HOST );
+			if ( ! empty( $custom_host ) ) { $allowed[] = $custom_host; }
+		}
+		return in_array( strtolower( $host ), $allowed, true );
+	}
+
 	private function remote_mirror() {
 		self::$http_intercept = false;
 		$repo = self::releases_repo();
@@ -461,6 +478,7 @@ class Updater {
 		$mirrors['jsdelivr'] = 'https://cdn.jsdelivr.net/gh/' . $repo . '@main/latest/';
 
 		foreach ( $mirrors as $kind => $base ) {
+			if ( ! $this->is_safe_url( $base ) ) { continue; }
 			$response = wp_remote_get(
 				$base . 'update.json',
 				array(
