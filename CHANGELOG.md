@@ -1,5 +1,25 @@
 # Changelog
 
+## 5.5.0 — 2026-09-09
+
+Le dashboard pilote réellement le formulaire et le formulaire s'affiche sans aucun champ vide.
+
+### Ajouté
+- **Checkout Builder réellement appliqué** : ordre (boutons ▲▼), visibilité, caractère obligatoire et libellés de chaque champ pilotent le rendu ET la validation serveur (source unique : plan des champs). Un champ masqué disparaît du DOM et est ignoré côté serveur.
+- **Champ Adresse** : affichable, rendu obligatoire si configuré, enregistré dans la commande WooCommerce (address_1 + meta + note interne).
+- **Captcha au choix** : question mathématique (sans service externe) ou Google reCAPTCHA v3 (invisible, vérifié côté serveur). Désactivé = zéro script, zéro champ, zéro validation. Réparation majeure : activer le captcha bloquait toute commande (réponse jamais envoyée, lecture  au lieu du JSON, erreur fatale).
+- **reCAPTCHA v3, compte à rebours d'urgence, GA4, notifications Discord/Telegram** : options désormais réellement fonctionnelles (avant : présentes sans aucun effet).
+- **Aperçu en direct** dans Réglages → Formulaire : rendu par le vrai moteur avec le brouillon non enregistré.
+- **Réinitialisation des réglages** (confirmation, jamais les commandes) + Diagnostics enrichies (réglages chargés, champs actifs, captcha, devise).
+- Devise et sa position appliquées partout (19 devises), quantité minimale configurable, pays réel de la région livrée dans la commande.
+
+### Corrigé
+- Formulaire : suppression de TOUS les champs vides visibles (honeypot apparent, radios natifs du mode de livraison, label Note sans zone, tirets du récapitulatif, timer vide) + débordement mobile qui coupait téléphone et commune.
+- Champs personnalisés jamais enregistrés (variable utilisée avant définition), police arabe Cairo jamais chargée.
+- Limite « commandes/heure » qui se réglait par erreur à 1 au lieu du nombre choisi ; HTML admin réparé (4 zones) ; nonce CSRF sur le réordonnancement des champs.
+- Migration automatique et idempotente des anciens réglages email/note vers le Checkout Builder.
+
+
 ## 1.0.0 — 2026-09-08
 
 Version initiale d'InfinityCod — Paiement à la livraison (COD Algérie).
