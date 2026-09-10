@@ -368,7 +368,7 @@ update_option( 'infinitycod_settings', array_merge( (array) get_option( 'infinit
 
 echo "10) Signature Ed25519 du manifest...";
 $signing_private = base64_decode( trim( (string) file_get_contents( dirname( __DIR__ ) . '/.tools/signing-private.key' ) ) );
-$manifest_raw = json_encode( array( 'version' => '9.9.9', 'sha256' => str_repeat( 'a', 64 ) ) );
+$manifest_raw = json_encode( array( 'version' => '99.0.0', 'sha256' => str_repeat( 'a', 64 ) ) );
 if ( ! function_exists( 'sodium_crypto_sign_detached_sign' ) || ! $signing_private ) {
   echo '   - sodium absent : test ignoré' . PHP_EOL;
 } else {
@@ -386,14 +386,14 @@ class REST_Request_Stub extends WP_REST_Request {	public function get_json_param
 echo "12) Flux de mise à jour — scénario complet (§58)...";
 
 
-// Réponse simulée : manifest update.json v9.9.9 (format servi par les miroirs raw/jsDelivr).
+// Réponse simulée : manifest update.json v99.0.0 (format servi par les miroirs raw/jsDelivr).
 $release_body = json_encode( array(
-	'name'         => 'InfinityCod 9.9.9',
+	'name'         => 'InfinityCod 99.0.0',
 	'slug'         => 'infinitycod',
-	'version'      => '9.9.9',
+	'version'      => '99.0.0',
 	'requires'     => '6.0',
 	'requires_php' => '7.4',
-	'download_url' => 'https://github.com/derouicheoussama/infinitycod-releases/releases/download/v9.9.9/infinitycod.zip',
+	'download_url' => 'https://github.com/derouicheoussama/infinitycod-releases/releases/download/v99.0.0/infinitycod.zip',
 	'sha256'       => '',
 ) );
 
@@ -403,7 +403,7 @@ InfinityCod\License\Updater::clear_cache();
 $updater_flow = new \InfinityCod\License\Updater();
 $_mock_resp = null;
 $remote_flow = $updater_flow->latest();
-if ( ! $remote_flow || '9.9.9' !== $remote_flow['version'] ) {
+if ( ! $remote_flow || '99.0.0' !== $remote_flow['version'] ) {
 	echo '   X DEBUG releases_repo : ' . var_export( \InfinityCod\License\Updater::releases_repo(), true ) . ' | github_repo : ' . var_export( \InfinityCod\License\Updater::github_repo(), true ) . "\n";
 	echo '   X DEBUG gh-transient : ' . var_export( get_transient( 'icod_update_gh' ), true ) . "\n";
 	echo '   X DEBUG atom-transient : ' . var_export( get_transient( 'icod_update_atom' ), true ) . "\n";
@@ -411,7 +411,7 @@ if ( ! $remote_flow || '9.9.9' !== $remote_flow['version'] ) {
 	exit( 1 );
 }
 $dl_ok = ( false !== strpos( $remote_flow['download_url'], '/releases/download/' ) || false !== strpos( $remote_flow['download_url'], '/latest/infinitycod.zip' ) );
-echo '   ✓ v9.9.9 détectée (download: ' . ( $dl_ok ? 'OK' : 'MANQUANT' ) . ')' . PHP_EOL;
+echo '   ✓ v99.0.0 détectée (download: ' . ( $dl_ok ? 'OK' : 'MANQUANT' ) . ')' . PHP_EOL;
 
 // Injection dans la transient WordPress.
 $flow_transient = new stdClass();
@@ -425,7 +425,7 @@ $injected = $flow_transient->response[ 'infinitycod/infinitycod.php' ];
 echo '   ✓ injectée : v' . $injected->new_version . ' — package GitHub OK' . PHP_EOL;
 
 // Version identique : aucune injection.
-$flow_transient->checked[ 'infinitycod/infinitycod.php' ] = '9.9.9';
+$flow_transient->checked[ 'infinitycod/infinitycod.php' ] = '99.0.0';
 $flow_transient->response = array();
 $GLOBALS['__http_mock'] = array( array( 'code' => 200, 'body' => $release_body ) );
 $flow_transient = $updater_flow->inject_update( $flow_transient );
