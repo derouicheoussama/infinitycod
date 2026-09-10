@@ -238,7 +238,7 @@ class FormManager {
 			data-sticky="<?php echo esc_attr( (int) Settings::get( 'sticky_bar', 1 ) ); ?>"
 			data-redirect="<?php echo $redirect_on ? esc_attr( Settings::get( 'redirect_url' ) ) : ''; ?>"
 			data-redirect-delay="<?php echo $redirect_on ? (int) $redirect_delay : 0; ?>"
-			style="max-width:<?php echo (int) $max_width; ?>px"
+			style="max-width:<?php echo (int) $max_width; ?>px;--icod-accent:<?php echo esc_attr( $accent ); ?>"
 			dir="<?php echo $rtl ? 'rtl' : 'ltr'; ?>">
 
 			<style>:root{--icod-accent:<?php echo esc_attr( $accent ); ?>;}</style>
