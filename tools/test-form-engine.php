@@ -376,6 +376,22 @@ try {
 	@unlink( $plugin_dir . 'CHANGELOG.md' );
 }
 
+/* ---------- 12. Palette d'accent + thème sombre + surcharge Elementor ---------- */
+
+echo "\n12) Couleur d'accent réelle + mode sombre + presets\n";
+$pal = \InfinityCod\Core\Settings::accent_palette( '#FF0000' );
+check( 'palette : nuances hexadécimales valides', preg_match( '/^#[0-9A-F]{6}$/', $pal['accent'] ) && preg_match( '/^#[0-9A-F]{6}$/', $pal['dark'] ) && in_array( $pal['ink'], array( '#FFFFFF', '#1D2327' ), true ) );
+check( 'nuance foncée distincte de la base', $pal['dark'] !== $pal['accent'] );
+check( 'contraste : accent clair → texte sombre', '#1D2327' === \InfinityCod\Core\Settings::accent_palette( '#FFFF00' )['ink'] );
+
+$css = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
+check( 'CSS : mode sombre forcé + auto (préférence système)', false !== strpos( $css, '.icod-root[data-theme="dark"]' ) && false !== strpos( $css, 'prefers-color-scheme:dark' ) );
+check( 'CSS : bouton piloté par variables (plus de dégradé codé en dur)', false !== strpos( $css, 'var(--icod-btn-bg)' ) && false === strpos( $css, 'linear-gradient(135deg,#1877c2,#0e7a4f)' ) );
+check( 'CSS : les 5 styles d’écran de succès existent', false !== strpos( $css, '.icod-success-confetti' ) && false !== strpos( $css, '.icod-success-ticket' ) && false !== strpos( $css, '.icod-success-minimal' ) && false !== strpos( $css, '.icod-success-celebration' ) );
+
+$fm_now = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
+check( 'PHP : data-theme + palette inline + surcharge Elementor appliquée', false !== strpos( $fm_now, 'data-theme=' ) && false !== strpos( $fm_now, "apply_filters( 'infinitycod_widget_preset'" ) && false !== strpos( $fm_now, 'accent_palette(' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

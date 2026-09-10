@@ -1,5 +1,16 @@
 # Changelog
 
+## 5.6.0 — 2026-09-10
+
+La couleur choisie dans le dashboard teinte DÉSORMAIS tout le formulaire, et le mode sombre fonctionne réellement.
+
+### Ajouté
+- **Couleur d'accent 100 % appliquée** : la couleur choisie (Réglages → Formulaire) pilote l'en-tête, le bouton, les focus, les puces de variantes, le récapitulatif, le total et les ombres — nuances calculées automatiquement (dégradé foncé + contraste du texte garanti). Plus aucun dégradé codé en dur.
+- **Mode sombre fonctionnel** : « Sombre » force le thème ; « Automatique » suit la préférence du visiteur (réglage système). Tous les composants (champs, cartes, récapitulatif, code promo, réassurance, upsell, barre collante) sont repensés en variables de couleur.
+- **Les 5 styles d'écran de remerciement** sont maintenant visuellement distincts (Classique, Confettis, Minimal, Ticket, Célébration).
+- **Surcharge Elementor restaurée** : le choix de preset dans le widget Elementor pilote réellement la couleur et le style du widget (surcharge locale documentée du réglage global).
+
+
 ## 5.5.2 — 2026-09-10
 
 L'onglet « Journal des modifications » de wp-admin affiche désormais la liste complète des ajouts et corrections.

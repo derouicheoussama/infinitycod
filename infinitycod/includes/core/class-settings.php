@@ -215,6 +215,88 @@ class Settings {
 	}
 
 	/**
+	 * Palette dérivée de la couleur d'accent : la couleur choisie dans le
+	 * dashboard pilote TOUT le formulaire (en-tête, bouton, focus, puces,
+	 * récapitulatif) via des nuances calculées en HSL — plus aucun dégradé
+	 * codé en dur.
+	 *
+	 * @param string $hex Couleur de base (#rrggbb), sinon réglage accent_color.
+	 * @return array{accent:string,dark:string,ink:string} Nuances #rrggbb.
+	 */
+	public static function accent_palette( $hex = '' ) {
+		static $cache = array();
+		$hex = strtoupper( (string) $hex );
+		if ( '' === $hex ) {
+			$hex = (string) self::get( 'accent_color', '#0e7a4f' );
+		}
+		if ( isset( $cache[ $hex ] ) ) {
+			return $cache[ $hex ];
+		}
+
+		$accent = '#0E7A4F';
+		if ( preg_match( '/^#([0-9A-F]{6})$/', $hex, $m ) ) {
+			$accent = '#' . $m[1];
+		}
+
+		$r = hexdec( substr( $accent, 1, 2 ) ) / 255;
+		$g = hexdec( substr( $accent, 3, 2 ) ) / 255;
+		$b = hexdec( substr( $accent, 5, 2 ) ) / 255;
+
+		$max  = max( $r, $g, $b );
+		$min  = min( $r, $g, $b );
+		$l    = ( $max + $min ) / 2;
+		$d    = $max - $min;
+		$s    = $d;
+		if ( 0.0 !== $d ) {
+			$s = $d / ( 1 - abs( 2 * $l - 1 ) );
+		}
+		$h = 0;
+		if ( $d > 0 ) {
+			if ( $max === $r ) {
+				$h = 60 * fmod( ( ( $g - $b ) / $d ), 6 );
+			} elseif ( $max === $g ) {
+				$h = 60 * ( ( ( $b - $r ) / $d ) + 2 );
+			} else {
+				$h = 60 * ( ( ( $r - $g ) / $d ) + 4 );
+			}
+		}
+		$h = fmod( $h + 360, 360 );
+		$s = max( 0.0, min( 1.0, $s ) );
+
+		$to_hex = static function ( $hh, $ss, $ll ) {
+			$c  = ( 1 - abs( 2 * $ll - 1 ) ) * $ss;
+			$x  = $c * ( 1 - abs( fmod( $hh / 60, 2 ) - 1 ) );
+			$mm = $ll - $c / 2;
+			if ( $hh < 60 )      { $rgb = array( $c, $x, 0 ); }
+			elseif ( $hh < 120 ) { $rgb = array( $x, $c, 0 ); }
+			elseif ( $hh < 180 ) { $rgb = array( 0, $c, $x ); }
+			elseif ( $hh < 240 ) { $rgb = array( 0, $x, $c ); }
+			elseif ( $hh < 300 ) { $rgb = array( $x, 0, $c ); }
+			else                 { $rgb = array( $c, 0, $x ); }
+			$out = '#';
+			foreach ( $rgb as $v ) {
+				$out .= str_pad( dechex( (int) round( ( $v + $mm ) * 255 ) ), 2, '0', STR_PAD_LEFT );
+			}
+			return strtoupper( $out );
+		};
+
+		// Nuance foncée pour le dégradé (profondeur constante).
+		$dark_l = max( 0.12, $l * 0.62 );
+		$dark   = $to_hex( $h, min( 1, $s * 1.05 ), $dark_l );
+
+		// Texte contrasté sur la couleur (WCAG rapide : luminance perçive).
+		$lum = 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
+		$ink = ( $lum > 0.62 ) ? '#1D2327' : '#FFFFFF';
+
+		$cache[ $hex ] = array(
+			'accent' => $accent,
+			'dark'   => $dark,
+			'ink'    => $ink,
+		);
+		return $cache[ $hex ];
+	}
+
+	/**
 	 * Montant formaté selon la devise et sa position (réglages).
 	 *
 	 * @param float     $amount  Montant.

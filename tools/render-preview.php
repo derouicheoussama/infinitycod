@@ -178,6 +178,32 @@ $variants = array(
 			array( 'key' => 'note', 'type' => 'textarea', 'label' => '', 'on' => 0, 'req' => 0 ),
 		),
 	),
+	// Couleur d'accent personnalisée (rouge) : TOUT le formulaire se teinte.
+	'accent_rouge' => array(
+		'accent_color'             => '#D90429',
+		'captcha_enabled'          => 1,
+		'captcha_provider'         => 'math',
+		'timer_urgency_enabled'    => 1,
+		'checkout_fields'          => array(
+			array( 'key' => 'name', 'type' => 'text', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'phone', 'type' => 'tel', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'wilaya', 'type' => 'select', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'commune', 'type' => 'select', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'note', 'type' => 'textarea', 'label' => '', 'on' => 0, 'req' => 0 ),
+		),
+	),
+	// Mode sombre forcé.
+	'sombre' => array(
+		'form_theme'               => 'dark',
+		'accent_color'             => '#1971C2',
+		'timer_urgency_enabled'    => 1,
+		'checkout_fields'          => array(
+			array( 'key' => 'name', 'type' => 'text', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'phone', 'type' => 'tel', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'wilaya', 'type' => 'select', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'commune', 'type' => 'select', 'label' => '', 'on' => 1, 'req' => 1 ),
+		),
+	),
 );
 
 $out_dir = dirname( __DIR__ ) . '/dist/preview/';

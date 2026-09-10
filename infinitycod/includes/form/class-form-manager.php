@@ -462,9 +462,31 @@ class FormManager {
 			$wc = isset( $w['country_code'] ) ? $w['country_code'] : 'DZ';
 			return in_array( $wc, $countries, true );
 		} ) );
+
+		// Preset : réglage global, ou surcharge LOCALE du widget Elementor
+		// (le filtre retourne le preset choisi dans le widget). La surcharge
+		// pilote aussi la couleur : chaque preset a sa teinte de référence.
+		$preset_colors = array(
+			'modern'  => '#0E7A4F',
+			'elegant' => '#1D3557',
+			'sunset'  => '#E8590C',
+			'ocean'   => '#1971C2',
+			'minimal' => '#1A1D21',
+			'rose'    => '#D6336C',
+			'royal'   => '#6D28D9',
+			'cafe'    => '#7C4A21',
+			'aqua'    => '#0891B2',
+			'pro'     => '#7C3AED',
+		);
+		$saved_preset = (string) Settings::get( 'form_preset', 'modern' );
+		$preset       = (string) apply_filters( 'infinitycod_widget_preset', $saved_preset );
+		if ( ! isset( $preset_colors[ $preset ] ) || '' === $preset ) {
+			$preset = $saved_preset;
+		}
 		$theme   = Settings::get( 'form_theme', 'light' );
-		$preset  = Settings::get( 'form_preset', 'modern' );
-		$accent  = Settings::get( 'accent_color', '#0e7a4f' );
+		$accent  = ( $preset !== $saved_preset && isset( $preset_colors[ $preset ] ) )
+			? $preset_colors[ $preset ] // Surcharge Elementor : couleur du preset.
+			: Settings::get( 'accent_color', '#0e7a4f' );
 		$title   = $custom_title ? $custom_title : Settings::get( 'form_title' );
 		$button  = $custom_button ? $custom_button : Settings::get( 'button_text' );
 
@@ -569,12 +591,23 @@ class FormManager {
 			$timer_html = '<div class="icod-timer" data-timer="' . (int) $minutes . '"><span class="icod-timer-label" data-timer-text="' . esc_attr( Settings::get( 'timer_urgency_text' ) ) . '">' . esc_html( $timer_text ) . '</span></div>';
 		}
 
-		// Quantité minimale configurable.
+		// Palette dérivée de l'accent : la couleur du dashboard pilote tout
+		// (en-tête, bouton, focus, récap) — variables inline = priorité sur
+		// les presets, qui ne proposent que leur couleur de départ.
+		$palette   = Settings::accent_palette( $accent );
+		$root_vars = sprintf(
+			'--icod-accent:%1$s;--icod-accent-dark:%2$s;--icod-accent-ink:%3$s;--icod-btn-bg:linear-gradient(135deg,%1$s,%2$s);--icod-head-bg:linear-gradient(135deg,%2$s,%1$s);--icod-head-ink:%3$s',
+			$palette['accent'],
+			$palette['dark'],
+			$palette['ink']
+		);
+
 		$qty_min = max( 1, min( 99, (int) Settings::get( 'qty_min', 1 ) ) );
 
 		ob_start();
 		?>
 		<div class="icod-root icod-theme-<?php echo esc_attr( $theme ); ?>"
+			data-theme="<?php echo esc_attr( $theme ); ?>"
 			data-preset="<?php echo esc_attr( $preset ); ?>"
 			data-product="<?php echo esc_attr( $product->get_id() ); ?>"
 			data-variations="<?php echo esc_attr( $variations_json ); ?>"
@@ -587,10 +620,8 @@ class FormManager {
 			data-recaptcha-key="<?php echo esc_attr( 'recaptcha_v3' === $captcha_provider ? Settings::get( 'recaptcha_v3_site_key', '' ) : '' ); ?>"
 			data-redirect="<?php echo $redirect_on ? esc_attr( Settings::get( 'redirect_url' ) ) : ''; ?>"
 			data-redirect-delay="<?php echo $redirect_on ? (int) $redirect_delay : 0; ?>"
-			style="max-width:<?php echo (int) $max_width; ?>px;--icod-accent:<?php echo esc_attr( $accent ); ?>"
+			style="max-width:<?php echo (int) $max_width; ?>px;<?php echo esc_attr( $root_vars ); ?>"
 			dir="<?php echo $rtl ? 'rtl' : 'ltr'; ?>">
-
-			<style>:root{--icod-accent:<?php echo esc_attr( $accent ); ?>;}</style>
 
 			<section class="icod-card" aria-labelledby="icod-form-title">
 				<header class="icod-head">
