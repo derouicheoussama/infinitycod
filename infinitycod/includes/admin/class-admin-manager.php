@@ -73,6 +73,9 @@ class AdminManager {
 		// Accueil d'installation : redirection unique vers le dashboard.
 		add_action( 'admin_init', array( $this, 'welcome_redirect' ), 1 );
 
+		// Injecter la mise à jour dans la transient WordPress native (barre jaune).
+		add_action( 'admin_init', array( $this, 'force_inject_update' ) );
+
 		// Métabox offres par produit.
 		( new ProductMetaBox() )->register();
 	}
@@ -1271,5 +1274,41 @@ class AdminManager {
 			wp_send_json_success( $result );
 		}
 		wp_send_json_error( $result );
+	}
+
+	/**
+	 * Injecte la mise à jour dans la transient WordPress native (barre jaune)
+	 * à partir des caches de notre détecteur multi-sources.
+	 */
+	public function force_inject_update() {
+		if ( ! current_user_can( 'update_plugins' ) ) { return; }
+		$latest = '';
+		$pkg = '';
+		foreach ( array( 'icod_update_gh', 'icod_update_atom', 'icod_update_mirror' ) as $key ) {
+			$cached = get_transient( $key );
+			if ( is_array( $cached ) && ! empty( $cached['version'] ) ) {
+				$latest = $cached['version'];
+				$pkg = isset( $cached['download_url'] ) ? $cached['download_url'] : '';
+				break;
+			}
+		}
+		$push = get_option( 'infinitycod_gh_push', array() );
+		if ( is_array( $push ) && ! empty( $push['version'] ) && version_compare( $push['version'], $latest, '>' ) ) {
+			$latest = $push['version'];
+			$pkg = 'https://github.com/derouicheoussama/infinitycod-releases/releases/download/v' . $latest . '/infinitycod.zip';
+		}
+		if ( '' === $latest || version_compare( INFINITYCOD_VERSION, $latest, '>=' ) ) { return; }
+		$current = get_site_transient( 'update_plugins' );
+		if ( ! is_object( $current ) ) { $current = new \stdClass(); }
+		if ( ! isset( $current->response ) ) { $current->response = array(); }
+		$current->checked[ INFINITYCOD_BASENAME ] = INFINITYCOD_VERSION;
+		$current->response[ INFINITYCOD_BASENAME ] = (object) array(
+			'slug' => 'infinitycod',
+			'plugin' => INFINITYCOD_BASENAME,
+			'new_version' => $latest,
+			'url' => 'https://infinitycod.pro',
+			'package' => $pkg,
+		);
+		set_site_transient( 'update_plugins', $current );
 	}
 }
