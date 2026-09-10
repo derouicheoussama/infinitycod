@@ -860,3 +860,18 @@ input[name^="cf_"]:focus, textarea[name^="cf_"]:focus{outline:none;border-color:
 }
 .icod-root.icod-theme-dark[data-preset="pro"]{--icod-head-bg:linear-gradient(135deg,#4c1d95,#7c3aed)}
 .icod-root.icod-theme-auto[data-preset="pro"]{--icod-head-bg:linear-gradient(135deg,#7c3aed,#4c1d95)}
+
+/* ===== Style Yaxii exact : sans labels, placeholders, 2-col ===== */
+.icod-form .icod-field > label{display:none!important}
+.icod-field .icod-input{padding:14px 16px!important;font-size:16px!important;min-height:54px}
+.icod-field .icod-input::placeholder{color:var(--icod-muted)}
+.icod-duo{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px}
+@media (max-width:480px){.icod-duo{gap:8px}}
+.icod-row{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px}
+@media (max-width:480px){.icod-row{gap:8px}}
+.icod-qty{display:inline-flex!important;flex-direction:row!important;align-items:center;gap:0;border:1.5px solid var(--icod-border);border-radius:99px;overflow:hidden}
+.icod-qty .icod-qty-btn{width:42px;height:42px;font-size:18px;font-weight:800;background:none;border:none;color:var(--icod-accent)}
+.icod-qty-input{width:44px;text-align:center;border:none!important;font-size:16px;font-weight:800;background:none!important;color:var(--icod-text)}
+.icod-submit{background:linear-gradient(135deg,var(--icod-accent),color-mix(in srgb,var(--icod-accent) 75%,#6d28d9))!important}
+.icod-wa-btn{background:linear-gradient(135deg,#25D366,#128C7E)!important;color:#fff!important}
+.icod-wa-btn::after{display:none}
