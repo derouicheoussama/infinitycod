@@ -919,3 +919,12 @@ body.icod-modal-open{overflow:hidden}
 /* --- Mises à jour : bannière --- */
 .icod-updates-banner{display:flex;gap:10px;align-items:center;background:#eef4fb;border:1px solid #c9dff5;border-left-width:4px;border-radius:9px;padding:11px 15px;margin-bottom:14px;font-size:13px;color:#1d3a5f}
 .icod-updates-banner.has-upd{background:#e5f2e9;border-color:#0e7a4f;color:#0e5a3f}
+
+/* --- Dashboard : KPI cards premium --- */
+.icod-kpi-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.icod-kpi-head h2{margin:0;font-size:14px}
+.icod-kpi-ico{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,#1877c2 12%,transparent);font-size:16px}
+.icod-kpi-card{border-top:3px solid #1877c2}
+.icod-kpi-card:hover{transform:translateY(-2px);transition:transform .15s}
+.icod-actions-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.icod-actions-row .btn{display:inline-flex;gap:6px;align-items:center}

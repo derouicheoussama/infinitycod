@@ -152,7 +152,7 @@ class DashboardPage {
 			<div class="icod-kpi-grid">
 				<?php foreach ( $periods as $key => $label ) : ?>
 					<div class="icod-card icod-kpi-card">
-						<h2><?php echo esc_html( $label ); ?></h2>
+						<div class="icod-kpi-head"><h2><?php echo esc_html( $label ); ?></h2><span class="icod-kpi-ico">📦</span></div>
 						<p class="icod-kpi-value"><?php echo (int) $kpi[ $key ]['total']; ?></p>
 						<p class="icod-kpi-label"><?php esc_html_e( 'commandes', 'infinitycod' ); ?></p>
 						<ul class="icod-kpi-details">
