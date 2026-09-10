@@ -146,7 +146,16 @@ class Settings {
 			'menu_badge'            => 1,    // Badge commandes en attente sur le menu.
 			'auto_update'           => 1,    // Mise à jour automatique du plugin (activée par défaut).
 			'success_style'         => 'classic', // Style de l'écran de remerciement.
-			'checkout_fields'       => [ // Checkout Builder : ordre, visibilité, requis, labels.
+			// Personnalisation avancée : vide = valeurs du thème, rempli = appliqué.
+			'button_color'          => '',
+			'text_color'            => '',
+			'border_color'          => '',
+			'background_color'      => '',
+			'border_radius'         => '',
+			'form_padding'          => '',
+
+			// Champs personnalisés du Checkout Builder : ordre, visibilité, requis, labels.
+			'checkout_fields'       => [
 				['key'=>'name','type'=>'text','label'=>'','on'=>1,'req'=>1],
 				['key'=>'phone','type'=>'tel','label'=>'','on'=>1,'req'=>1],
 				['key'=>'email','type'=>'email','label'=>'','on'=>0,'req'=>0],

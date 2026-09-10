@@ -1,5 +1,19 @@
 # Changelog
 
+## 5.7.0 — 2026-09-10
+
+Personnalisation avancée : chaque couleur et mesure remplie est réellement appliquée au formulaire.
+
+### Ajouté
+- **Couleur du bouton** (indépendante de l'accent, dégradé calculé automatiquement).
+- **Couleur du texte**, **couleur des bordures**, **couleur de fond du formulaire**.
+- **Arrondi des coins (0-40 px)** et **espacement intérieur (8-48 px)**.
+- Principe : champ vide = valeurs du thème ; champ rempli = appliqué réellement via variables inline. Appliqué à l'aperçu en direct ET au formulaire public.
+
+### Non-régression
+- GitHub Updater re-testé intégralement (détection, injection, SHA-256 valide/invalide, compatibilité bloquante, dégradation réseau) : TOUS LES TESTS PASSENT — aucune modification du flux détection → téléchargement → installation.
+
+
 ## 5.6.3 — 2026-09-10
 
 Vous ne savez jamais si le formulaire affiche VOS réglages ? Le HUD admin répond instantanément.

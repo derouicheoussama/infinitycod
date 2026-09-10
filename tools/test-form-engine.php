@@ -431,6 +431,20 @@ check( 'Sous-menu renommé « Commandes » (sans « COD »)', false !== strpos( 
 $css_src = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
 check( 'CSS du HUD présente', false !== strpos( $css_src, '.icod-admin-hud' ) );
 
+/* ---------- 16. Personnalisation avancée (couleurs par élément, arrondi, espacement) ---------- */
+
+echo "\n16) Personnalisation avancée : chaque valeur remplie s'applique\n";
+$fm_src2 = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
+check( 'render() lit les 6 nouveaux réglages', false !== strpos( $fm_src2, "Settings::get( 'button_color'" ) && false !== strpos( $fm_src2, "Settings::get( 'text_color'" ) && false !== strpos( $fm_src2, "Settings::get( 'border_color'" ) && false !== strpos( $fm_src2, "Settings::get( 'background_color'" ) && false !== strpos( $fm_src2, "Settings::get( 'border_radius'" ) && false !== strpos( $fm_src2, "Settings::get( 'form_padding'" ) );
+$sp4 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+check( 'schéma : int_opt optionnel présent', false !== strpos( $sp4, "'int_opt'" ) );
+check( 'UI : les 6 champs de personnalisation présents', false !== strpos( $sp4, 'icod[button_color]' ) && false !== strpos( $sp4, 'icod[border_radius]' ) && false !== strpos( $sp4, 'icod[form_padding]' ) );
+$css2 = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
+check( 'CSS : arrondi/espacement pilotés par variables', false !== strpos( $css2, 'var(--icod-radius,18px)' ) && false !== strpos( $css2, 'var(--icod-pad,20px)' ) && false !== strpos( $css2, 'var(--icod-radius-sm,12px)' ) );
+$sanitize2 = $refm( '\InfinityCod\Admin\Pages\SettingsPage', 'sanitize_fields' );
+$clean2 = $sanitize2->invoke( $page, array( 'border_radius' => '99', 'form_padding' => '' ), 'form' );
+check( 'arrondi borné (99 → 40) et vide préservé', isset( $clean2['border_radius'] ) && 40 === $clean2['border_radius'] && isset( $clean2['form_padding'] ) && '' === $clean2['form_padding'] );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

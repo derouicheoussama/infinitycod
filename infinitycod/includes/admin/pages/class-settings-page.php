@@ -834,6 +834,33 @@ class SettingsPage {
 						<option value="auto" <?php selected( Settings::get( 'form_theme' ), 'auto' ); ?>><?php esc_html_e( 'Automatique (préférence du visiteur)', 'infinitycod' ); ?></option>
 					</select>
 				</label>
+			</div>
+			<p class="description" style="margin-top:8px"><strong><?php esc_html_e( 'Personnalisation avancée', 'infinitycod' ); ?></strong> — <?php esc_html_e( 'laissez vide pour garder les couleurs du thème ; remplissez pour appliquer réellement.', 'infinitycod' ); ?></p>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Couleur du bouton', 'infinitycod' ); ?> <em>(vide = dégradé de l'accent)</em></span>
+					<input type="text" name="icod[button_color]" dir="ltr" placeholder="#RRGGBB" value="<?php echo esc_attr( Settings::get( 'button_color', '' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Couleur du texte', 'infinitycod' ); ?> <em>(vide = défaut)</em></span>
+					<input type="text" name="icod[text_color]" dir="ltr" placeholder="#RRGGBB" value="<?php echo esc_attr( Settings::get( 'text_color', '' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Couleur des bordures', 'infinitycod' ); ?> <em>(vide = défaut)</em></span>
+					<input type="text" name="icod[border_color]" dir="ltr" placeholder="#RRGGBB" value="<?php echo esc_attr( Settings::get( 'border_color', '' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Couleur de fond du formulaire', 'infinitycod' ); ?> <em>(vide = défaut)</em></span>
+					<input type="text" name="icod[background_color]" dir="ltr" placeholder="#RRGGBB" value="<?php echo esc_attr( Settings::get( 'background_color', '' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Arrondi des coins (0-40 px)', 'infinitycod' ); ?> <em>(vide = 18 px)</em></span>
+					<input type="number" min="0" max="40" name="icod[border_radius]" value="<?php echo esc_attr( Settings::get( 'border_radius', '' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Espacement intérieur (8-48 px)', 'infinitycod' ); ?> <em>(vide = 20 px)</em></span>
+					<input type="number" min="8" max="48" name="icod[form_padding]" value="<?php echo esc_attr( Settings::get( 'form_padding', '' ) ); ?>" />
+				</label>
 				<label>
 					<span><?php esc_html_e( 'Quantité minimale par commande', 'infinitycod' ); ?></span>
 					<input type="number" min="1" max="99" name="icod[qty_min]" value="<?php echo esc_attr( max( 1, (int) Settings::get( 'qty_min', 1 ) ) ); ?>" />
@@ -1640,6 +1667,12 @@ class SettingsPage {
 			'label_note'         => array( 'tab' => 'form', 'type' => 'text' ),
 			'label_email'        => array( 'tab' => 'form', 'type' => 'text' ),
 			'accent_color'       => array( 'tab' => 'form', 'type' => 'color' ),
+			'button_color'       => array( 'tab' => 'form', 'type' => 'color' ),
+			'text_color'         => array( 'tab' => 'form', 'type' => 'color' ),
+			'border_color'       => array( 'tab' => 'form', 'type' => 'color' ),
+			'background_color'   => array( 'tab' => 'form', 'type' => 'color' ),
+			'border_radius'      => array( 'tab' => 'form', 'type' => 'int_opt', 'min' => 0, 'max' => 40 ),
+			'form_padding'       => array( 'tab' => 'form', 'type' => 'int_opt', 'min' => 8, 'max' => 48 ),
 			'form_theme'         => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'light', 'dark', 'auto' ) ),
 			'success_style'      => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'classic', 'confetti', 'minimal', 'ticket', 'celebration' ) ),
 			'checkout_fields'    => array( 'tab' => 'form', 'type' => 'json' ),
@@ -1876,6 +1909,12 @@ class SettingsPage {
 					break;
 				case 'int':
 					$clean[ $key ] = max( (int) $def['min'], min( (int) $def['max'], absint( $value ) ) );
+					break;
+				case 'int_opt':
+					// Entier optionnel : vide = réglage non appliqué (défauts du thème).
+					$clean[ $key ] = ( '' === trim( (string) $value ) )
+						? ''
+						: max( (int) $def['min'], min( (int) $def['max'], absint( $value ) ) );
 					break;
 				case 'url':
 					$clean[ $key ] = esc_url_raw( trim( (string) $value ) );

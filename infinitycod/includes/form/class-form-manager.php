@@ -602,6 +602,37 @@ class FormManager {
 			$palette['ink']
 		);
 
+		// Personnalisation avancée : chaque valeur REMPLIE est appliquée
+		// réellement ; vide = défauts du thème.
+		$hex_check = '/^#[0-9A-Fa-f]{6}$/';
+		$btn_color = (string) Settings::get( 'button_color', '' );
+		if ( preg_match( $hex_check, $btn_color ) ) {
+			// Seul le bouton change : l'en-tête reste sur la palette d'accent.
+			$btn_dark   = Settings::accent_palette( $btn_color )['dark'];
+			$root_vars .= ';--icod-btn-bg:linear-gradient(135deg,' . strtoupper( $btn_color ) . ',' . $btn_dark . ')';
+		}
+		$text_color = (string) Settings::get( 'text_color', '' );
+		if ( preg_match( $hex_check, $text_color ) ) {
+			$root_vars .= ';--icod-text:' . strtoupper( $text_color ) . ';--icod-heading:' . strtoupper( $text_color );
+		}
+		$border_color = (string) Settings::get( 'border_color', '' );
+		if ( preg_match( $hex_check, $border_color ) ) {
+			$root_vars .= ';--icod-border:' . strtoupper( $border_color ) . ';--icod-border-strong:' . strtoupper( $border_color );
+		}
+		$bg_color = (string) Settings::get( 'background_color', '' );
+		if ( preg_match( $hex_check, $bg_color ) ) {
+			$root_vars .= ';--icod-page:' . strtoupper( $bg_color );
+		}
+		$radius = Settings::get( 'border_radius', '' );
+		if ( '' !== $radius && is_numeric( (string) $radius ) ) {
+			$radius     = max( 0, min( 40, (int) $radius ) );
+			$root_vars .= ';--icod-radius:' . $radius . 'px;--icod-radius-sm:' . max( 0, $radius - 6 ) . 'px';
+		}
+		$padding = Settings::get( 'form_padding', '' );
+		if ( '' !== $padding && is_numeric( (string) $padding ) ) {
+			$root_vars .= ';--icod-pad:' . max( 8, min( 48, (int) $padding ) ) . 'px';
+		}
+
 		$qty_min = max( 1, min( 99, (int) Settings::get( 'qty_min', 1 ) ) );
 
 		// HUD administrateur : affiche les valeurs RÉELLEMENT rendues par le
