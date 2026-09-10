@@ -64,6 +64,7 @@ class Settings {
 			'qty_max'               => 20,
 			'form_theme'            => 'light',        // light | dark | auto.
 			'form_preset'           => 'modern',       // modern | elegant | sunset | ocean | minimal.
+			'form_style'            => 'classic',      // classic | moderne | tech | ecommerce.
 			'accent_color'          => '#0e7a4f',
 			'sticky_bar'            => 1,
 			'form_position'         => 'after_summary', // position sur la fiche produit.
@@ -107,6 +108,13 @@ class Settings {
 			'show_stopdesk'         => 1,
 			'show_offers'           => 1,
 			'show_reassurance'      => 1,
+
+			// Affichage des éléments du formulaire.
+			'show_head_thumb'       => 1,    // Photo produit dans l'en-tête.
+			'show_stock_badge'      => 1,    // Badge « X pièces disponibles ».
+			'show_progress_bar'     => 1,    // Barre de progression.
+			'show_summary_coupon'   => 1,    // Champ code promo.
+			'hide_when_sold_out'    => 0,    // Masquer le formulaire si épuisé.
 
 			// Anti-fraude.
 			'shield_enabled'        => 1,

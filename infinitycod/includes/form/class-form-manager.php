@@ -445,6 +445,12 @@ class FormManager {
 			return '';
 		}
 
+		// Option « Masquer si épuisé » : message à la place du formulaire.
+		if ( Settings::get( 'hide_when_sold_out' ) && $product->managing_stock() && ! $product->is_in_stock() ) {
+			$this->enqueue();
+			return '<div class="icod-root icod-soldout" style="--icod-accent:' . esc_attr( Settings::get( 'accent_color', '#0e7a4f' ) ) . '">❌ ' . esc_html__( 'Produit épuisé', 'infinitycod' ) . '</div>';
+		}
+
 		$this->enqueue();
 
 		$rtl = \InfinityCod\Core\I18n::is_rtl();
@@ -642,6 +648,16 @@ class FormManager {
 			$root_vars .= ';--icod-pad:' . max( 8, min( 48, (int) $padding ) ) . 'px';
 		}
 
+		// Style structurel du formulaire (Classique / Moderne / Tech / E-commerce).
+		$style = Settings::get( 'form_style', 'classic' );
+		if ( ! in_array( $style, array( 'classic', 'moderne', 'tech', 'ecommerce' ), true ) ) {
+			$style = 'classic';
+		}
+		$show_thumb   = (bool) Settings::get( 'show_head_thumb', 1 );
+		$show_stock   = (bool) Settings::get( 'show_stock_badge', 1 );
+		$show_prog    = (bool) Settings::get( 'show_progress_bar', 1 );
+		$show_coupon  = (bool) Settings::get( 'show_summary_coupon', 1 );
+
 		$qty_min = max( 1, min( 99, (int) Settings::get( 'qty_min', 1 ) ) );
 
 		// HUD administrateur : affiche les valeurs RÉELLEMENT rendues par le
@@ -658,7 +674,7 @@ class FormManager {
 
 		ob_start();
 		?>
-		<div class="icod-root icod-theme-<?php echo esc_attr( $theme ); ?>"
+		<div class="icod-root icod-theme-<?php echo esc_attr( $theme ); ?> icod-fs-<?php echo esc_attr( $style ); ?>"
 			data-theme="<?php echo esc_attr( $theme ); ?>"
 			data-preset="<?php echo esc_attr( $preset ); ?>"
 			data-product="<?php echo esc_attr( $product->get_id() ); ?>"
@@ -679,10 +695,8 @@ class FormManager {
 
 			<section class="icod-card" aria-labelledby="icod-form-title">
 				<header class="icod-head">
-					<?php
-					$thumb_url = wp_get_attachment_image_url( $product->get_image_id(), 'woocommerce_thumbnail' );
-					if ( $thumb_url ) :
-						?>
+					<?php $thumb_url = wp_get_attachment_image_url( $product->get_image_id(), 'woocommerce_thumbnail' ); ?>
+					<?php if ( $show_thumb && $thumb_url ) : ?>
 						<img class="icod-head-thumb" src="<?php echo esc_url( $thumb_url ); ?>" alt="" loading="lazy" />
 					<?php endif; ?>
 					<span class="icod-head-icon" aria-hidden="true"><?php echo esc_html( Settings::get( 'form_icon', '🛒' ) ); ?></span>
@@ -706,11 +720,13 @@ class FormManager {
 						<ins data-head-price-live><?php echo esc_html( Settings::format_price( $head_price, $decimals ) ); ?></ins>
 					</span>
 				</header>
-			<?php if ( ! $product->is_type( 'variable' ) && $product->managing_stock() && $product->get_stock_quantity() !== null ) : ?>
+			<?php if ( $show_stock && ! $product->is_type( 'variable' ) && $product->managing_stock() && $product->get_stock_quantity() !== null ) : ?>
 			<div class="icod-stock-badge" data-stock-badge><span class="dot"></span><?php printf( esc_html__( '%d pièces disponibles', 'infinitycod' ), (int) $product->get_stock_quantity() ); ?></div>
 			<?php endif; ?>
 
+			<?php if ( $show_prog ) : ?>
 			<div class="icod-progress" aria-hidden="true"><div class="icod-progress-fill" data-progress-fill></div></div>
+			<?php endif; ?>
 
 				<form class="icod-form" novalidate>
 					<input type="text" name="icod_hp" class="icod-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
@@ -852,11 +868,13 @@ class FormManager {
 									<span class="icod-summary-qty" data-summary-qty>×1</span>
 								</div>
 								<div class="icod-summary-line"><span><?php esc_html_e( 'Prix unitaire', 'infinitycod' ); ?></span><span data-summary-unit><?php echo esc_html( Settings::format_price( $head_price ) ); ?></span></div>
+								<?php if ( $show_coupon ) : ?>
 								<div class="icod-coupon">
 									<input type="text" name="icod_coupon" class="icod-coupon-input" data-icod-coupon-input placeholder="<?php esc_attr_e( 'Code promo', 'infinitycod' ); ?>" autocomplete="off" aria-label="<?php esc_attr_e( 'Code promo', 'infinitycod' ); ?>" />
 									<button type="button" class="icod-coupon-apply" data-icod-coupon-apply><?php esc_html_e( 'Appliquer', 'infinitycod' ); ?></button>
 								</div>
 								<div class="icod-coupon-msg icod-hidden" data-coupon-msg role="status"></div>
+								<?php endif; ?>
 								<?php if ( Settings::get( 'free_amount_enabled' ) ) : ?>
 								<div class="icod-freebar icod-hidden" data-icod-freebar>
 									<span data-icod-freebar-text></span>

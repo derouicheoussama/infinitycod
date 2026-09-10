@@ -883,6 +883,15 @@ class SettingsPage {
 			</div>
 			<div class="icod-grid" style="margin-top:12px">
 				<label>
+					<span><?php esc_html_e( 'Style du formulaire', 'infinitycod' ); ?></span>
+					<select name="icod[form_style]">
+						<option value="classic" <?php selected( Settings::get( 'form_style', 'classic' ), 'classic' ); ?>><?php esc_html_e( 'Classique — doux et rassurant (défaut)', 'infinitycod' ); ?></option>
+						<option value="moderne" <?php selected( Settings::get( 'form_style' ), 'moderne' ); ?>><?php esc_html_e( 'Moderne — épuré, aéré, étiquettes fines', 'infinitycod' ); ?></option>
+						<option value="tech" <?php selected( Settings::get( 'form_style' ), 'tech' ); ?>><?php esc_html_e( 'Tech — angles nets, esprit terminal', 'infinitycod' ); ?></option>
+						<option value="ecommerce" <?php selected( Settings::get( 'form_style' ), 'ecommerce' ); ?>><?php esc_html_e( 'E-commerce — CTA puissant, prix mis en avant', 'infinitycod' ); ?></option>
+					</select>
+				</label>
+				<label>
 					<span><?php esc_html_e( 'Couleur d‘accent', 'infinitycod' ); ?></span>
 					<input type="color" name="icod[accent_color]" value="<?php echo esc_attr( Settings::get( 'accent_color' ) ); ?>" />
 				</label>
@@ -971,7 +980,30 @@ class SettingsPage {
 				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[sticky_bar]" value="1" <?php checked( (int) Settings::get( 'sticky_bar' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Barre « Commander maintenant » collante sur mobile (récapitulatif + total + bouton toujours visibles)', 'infinitycod' ); ?></span>
+					<span><?php esc_html_e( 'Barre « Commander maintenant » collante sur mobile — pleine largeur, récapitulatif + total + bouton toujours visibles', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<p class="description" style="margin-top:12px"><strong><?php esc_html_e( 'Éléments affichés', 'infinitycod' ); ?></strong></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[show_head_thumb]" value="1" <?php checked( (int) Settings::get( 'show_head_thumb', 1 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Photo du produit dans l’en-tête', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[show_stock_badge]" value="1" <?php checked( (int) Settings::get( 'show_stock_badge', 1 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Badge « X pièces disponibles »', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[show_progress_bar]" value="1" <?php checked( (int) Settings::get( 'show_progress_bar', 1 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Barre de progression du formulaire', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[show_summary_coupon]" value="1" <?php checked( (int) Settings::get( 'show_summary_coupon', 1 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Champ « Code promo » dans le récapitulatif', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[hide_when_sold_out]" value="1" <?php checked( (int) Settings::get( 'hide_when_sold_out' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Masquer le formulaire et afficher « Épuisé » si le produit n’a plus de stock', 'infinitycod' ); ?></span>
 				</label>
 			</div>
 		</div>
@@ -1758,6 +1790,12 @@ class SettingsPage {
 			'timer_urgency_enabled' => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'timer_urgency_minutes' => array( 'tab' => 'form', 'type' => 'int', 'min' => 5, 'max' => 1440 ),
 			'form_preset'        => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'modern', 'elegant', 'sunset', 'ocean', 'minimal', 'rose', 'royal', 'cafe', 'aqua', 'pro' ) ),
+			'form_style'         => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'classic', 'moderne', 'tech', 'ecommerce' ) ),
+			'show_head_thumb'    => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'show_stock_badge'   => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'show_progress_bar'  => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'show_summary_coupon' => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'hide_when_sold_out' => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'form_position'      => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'before_summary', 'after_price', 'after_excerpt', 'before_cart', 'after_cart', 'after_summary', 'end_product' ) ),
 			'form_max_width'     => array( 'tab' => 'form', 'type' => 'int', 'min' => 400, 'max' => 900 ),
 			'qty_max'            => array( 'tab' => 'form', 'type' => 'int', 'min' => 1, 'max' => 999 ),

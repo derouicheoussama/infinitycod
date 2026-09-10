@@ -208,6 +208,19 @@ $variants = array(
 	'timer_pill' => array( 'timer_urgency_enabled' => 1, 'timer_style' => 'pill', 'timer_urgency_minutes' => 45 ),
 	'timer_ribbon' => array( 'timer_urgency_enabled' => 1, 'timer_style' => 'ribbon', 'timer_urgency_minutes' => 30 ),
 
+	// Style de formulaire TECH : angles nets, esprit terminal.
+	'style_tech' => array(
+		'form_style'   => 'tech',
+		'accent_color' => '#1971C2',
+		'timer_urgency_enabled' => 1,
+		'checkout_fields' => array(
+			array( 'key' => 'name', 'type' => 'text', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'phone', 'type' => 'tel', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'wilaya', 'type' => 'select', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'commune', 'type' => 'select', 'label' => '', 'on' => 1, 'req' => 1 ),
+		),
+	),
+
 	// Preset royal SANS accent personnalisé : le preset donne la couleur.
 	'preset_royal' => array(
 		'form_preset'  => 'royal',

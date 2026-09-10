@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.10.0 — 2026-09-10
+
+4 styles de formulaire + 5 nouvelles options d'affichage + barre collante pleine largeur.
+
+### Ajouté
+- **Style du formulaire** (Réglages → Apparence) : **Classique** (doux, défaut), **Moderne** (épuré, étiquettes fines majuscules), **Tech** (angles nets, labels monospace, bouton majuscule), **E-commerce** (CTA puissant, récapitulatif accentué, prix mis en avant).
+- **5 nouvelles options d'affichage** (section 4) : photo produit dans l'en-tête, badge de stock, barre de progression, champ code promo, masquer le formulaire avec message « Épuisé » si plus de stock.
+- **Barre collante mobile repensée** : pleine largeur écran, bordure accent, bouton plus large — récapitulatif + total + bouton toujours visibles.
+
+
 ## 5.9.2 — 2026-09-10
 
 Trois styles de compte à rebours au choix + aperçu en direct en colonne collante à droite de l'écran.

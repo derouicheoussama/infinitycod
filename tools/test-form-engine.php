@@ -530,6 +530,18 @@ check( 'CSS : les 3 styles existent', false !== strpos( $css2, '.icod-timer-pill
 check( 'disposition : aperçu collant à droite (écrans larges)', false !== strpos( $sp5, 'icod-form-layout' ) && false !== strpos( $sp5, 'icod-form-preview' ) );
 check( 'rafraîchissement temps réel 400 ms', false !== strpos( $sp5, 'setTimeout(refresh, 400)' ) );
 
+/* ---------- 24. Styles de formulaire + options d'affichage + sticky pleine largeur ---------- */
+
+echo "\n24) Styles de formulaire (classic/moderne/tech/ecommerce) + options d'affichage\n";
+$sp6 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+check( 'schéma : form_style enum + 5 toggles d’affichage', false !== strpos( $sp6, "'form_style'" ) && false !== strpos( $sp6, "'show_head_thumb'" ) && false !== strpos( $sp6, "'show_stock_badge'" ) && false !== strpos( $sp6, "'show_progress_bar'" ) && false !== strpos( $sp6, "'show_summary_coupon'" ) && false !== strpos( $sp6, "'hide_when_sold_out'" ) );
+check( 'UI : sélecteur des 4 styles de formulaire', false !== strpos( $sp6, 'value="moderne"' ) && false !== strpos( $sp6, 'value="tech"' ) && false !== strpos( $sp6, 'value="ecommerce"' ) );
+$fm4 = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
+check( 'rendu : classe icod-fs-* + garde épuisé', false !== strpos( $fm4, 'icod-fs-' ) && false !== strpos( $fm4, 'hide_when_sold_out' ) );
+$css3 = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
+check( 'CSS : les 4 styles structurels existent', false !== strpos( $css3, '.icod-fs-moderne' ) && false !== strpos( $css3, '.icod-fs-tech' ) && false !== strpos( $css3, '.icod-fs-ecommerce' ) );
+check( 'barre collante pleine largeur (plus de max-width 680px)', false === strpos( $css3, 'max-width:680px;margin-inline:auto' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
