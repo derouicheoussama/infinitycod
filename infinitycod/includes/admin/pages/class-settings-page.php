@@ -2068,7 +2068,7 @@ class SettingsPage {
 	 * Un champ caché porte la valeur ; les pastilles la modifient et
 	 * déclenchent le rafraîchissement de l'aperçu en direct.
 	 *
-	 * @param string $name        Nom du réglage (icod[name]).
+	 * @param string $name        Nom du réglage, ex. accent_color.
 	 * @param string $current     Valeur actuelle ('' = défaut du thème).
 	 * @param array  $colors      Palette (hex).
 	 * @param bool   $allow_empty Proposer « défaut du thème ».

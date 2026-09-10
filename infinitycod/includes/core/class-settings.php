@@ -46,6 +46,7 @@ class Settings {
 			'form_title'            => __( 'Commandez maintenant — paiement à la livraison', 'infinitycod' ),
 			'form_subtitle'         => __( 'Remplissez le formulaire, nous vous appelons pour confirmer.', 'infinitycod' ),
 			'button_text'           => __( 'Confirmer la commande', 'infinitycod' ),
+			'button_icon'           => '',            // Icône (emoji) devant le texte du bouton.
 			'phone_placeholder'     => __( '0X XX XX XX XX', 'infinitycod' ),
 			'form_max_width'        => 680,  // px, 400-900.
 			'success_title'         => __( '✅ Commande enregistrée !', 'infinitycod' ),
