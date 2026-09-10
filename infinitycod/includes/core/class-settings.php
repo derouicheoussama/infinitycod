@@ -184,6 +184,7 @@ class Settings {
 			'currency_position'     => 'right',      // right | left.
 			'default_country'       => 'DZ',         // Pays principal (détecté à l'installation).
 			'countries'             => array( 'DZ' ),// Pays actifs (au-delà du principal : Premium).
+			'github_webhook_secret' => '',           // Secret webhook GitHub.
 			'custom_update_url'     => '',           // Miroir perso update.json (optionnel).
 
 			// Vente de la licence Pro via PayPal (régie par le marchand-vendeur).

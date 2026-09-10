@@ -1486,6 +1486,7 @@ cod-toggle-danger">
 			'paypal_price_business' => array( 'tab' => 'license', 'type' => 'price' ),
 			'paypal_price_agency'   => array( 'tab' => 'license', 'type' => 'price' ),
 			'custom_update_url'    => array( 'tab' => 'advanced', 'type' => 'url' ),
+			'github_webhook_secret' => array( 'tab' => 'advanced', 'type' => 'secret' ),
 			'github_repo'          => array( 'tab' => 'advanced', 'type' => 'id' ),
 			'releases_repo'        => array( 'tab' => 'advanced', 'type' => 'id' ),
 			'license_server'       => array( 'tab' => 'advanced', 'type' => 'id' ),

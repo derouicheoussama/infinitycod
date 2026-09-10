@@ -43,6 +43,15 @@ class Routes {
 	 */
 	public function routes() {
 		register_rest_route(
+			$this->ns(),
+			'/github-release',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'github_release_webhook' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+		register_rest_route(
 			self::NAMESPACE_V1,
 			'/communes',
 			array(
@@ -163,6 +172,33 @@ class Routes {
 		}
 
 		return rest_ensure_response( array( 'stopdesks' => $out ) );
+	}
+
+	/**
+	 * Webhook GitHub (Release published) — signature HMAC vérifiée.
+	 *
+	 * @param \WP_REST_Request $request Requête.
+	 * @return \WP_REST_Response
+	 */
+	public function github_release_webhook( $request ) {
+		$secret = (string) Settings::get( 'github_webhook_secret', '' );
+		$sig    = isset( $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ) ) : '';
+		$raw    = $request->get_body();
+		if ( '' === $secret || '' === $sig ) { return new \WP_Error( 'icod_webhook', 'missing secret', array( 'status' => 400 ) ); }
+		$expected = 'sha256=' . hash_hmac( 'sha256', (string) $raw, $secret );
+		if ( ! hash_equals( $expected, $sig ) ) { return new \WP_Error( 'icod_webhook', 'invalid signature', array( 'status' => 401 ) ); }
+		$payload = json_decode( (string) $raw, true );
+		$release = $payload['release'] ?? $payload;
+		$tag     = isset( $release['tag_name'] ) ? ltrim( (string) $release['tag_name'], 'vV' ) : '';
+		if ( '' === $tag ) { return new \WP_Error( 'icod_webhook', 'no tag', array( 'status' => 400 ) ); }
+		update_option( 'infinitycod_gh_push', array(
+			'version'   => $tag,
+			'changelog' => isset( $release['body'] ) ? wp_kses_post( $release['body'] ) : '',
+			'url'       => isset( $release['html_url'] ) ? esc_url_raw( $release['html_url'] ) : '',
+			'at'        => current_time( 'mysql' ),
+		), false );
+		delete_transient( 'icod_update_gh' );
+		return rest_ensure_response( array( 'received' => true, 'version' => $tag ) );
 	}
 
 	/**

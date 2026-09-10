@@ -308,7 +308,7 @@ class Updater {
 			foreach ( $tiers as $tier ) {
 				$data = ( 'api' === $tier )
 					? $this->remote_github()
-					: ( ( 'atom' === $tier ) ? $this->remote_atom() : $this->remote_mirror() );
+					: ( ( 'atom' === $tier ) ? $this->remote_atom() : ( ( 'mirror' === $tier ) ? $this->remote_mirror() : $this->remote_webhook() ) );
 				if ( $data ) {
 					return $data;
 				}
@@ -400,6 +400,32 @@ class Updater {
 		return null;
 	}
 
+
+	/**
+	 * Source webhook : la version poussée par GitHub vers ce site.
+	 *
+	 * @return array|null
+	 */
+	private function remote_webhook() {
+		$push = get_option( 'infinitycod_gh_push', array() );
+		if ( ! is_array( $push ) || empty( $push['version'] ) ) { return null; }
+		$repo = self::releases_repo() ?: self::github_repo();
+		$data = array(
+			'version'      => (string) $push['version'],
+			'download_url' => 'https://github.com/' . $repo . '/releases/download/v' . $push['version'] . '/infinitycod.zip',
+			'homepage'     => 'https://github.com/' . $repo . '/releases/tag/v' . $push['version'],
+			'changelog'    => (string) ( $push['changelog'] ?? '' ),
+			'sha256'       => '',
+			'requires_php' => '7.4',
+			'requires'     => '6.0',
+			'source'       => 'webhook',
+		);
+		set_transient( 'icod_update_gh', $data, 2 * HOUR_IN_SECONDS );
+		return $data;
+	}
+
+	/**
+	 * Source webhook FIN
 	/**
 	 * Repli miroir : lit update.json publié sur la branche main du dépôt
 	 * public (dossier latest/) via raw.githubusercontent.com puis le CDN
