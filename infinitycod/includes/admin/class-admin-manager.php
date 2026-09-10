@@ -67,6 +67,7 @@ class AdminManager {
 		add_filter( 'admin_footer_text', array( $this, 'footer_credit' ) );
 
 		// Liste des extensions : liens d'action et de meta pro.
+		add_action( 'admin_footer', array( $this, 'deactivate_dialog' ) );
 		add_filter( 'plugin_action_links_' . INFINITYCOD_BASENAME, array( $this, 'action_links' ) );
 		add_filter( 'plugin_row_meta', array( $this, 'row_meta' ), 10, 2 );
 
@@ -1271,5 +1272,23 @@ class AdminManager {
 			wp_send_json_success( $result );
 		}
 		wp_send_json_error( $result );
+	}	/**
+	 * Pop-up avant désactivation : demande la raison (optionnel).
+	 */
+	public function deactivate_dialog() {
+		global ;
+		if ( 'plugins.php' !==  ) { return; }
+		?>
+		<script>
+		document.querySelectorAll('#the-list tr[data-plugin="<?php echo esc_attr( INFINITYCOD_BASENAME ); ?>"] .deactivate a').forEach(function(link){
+			link.addEventListener('click', function(e){
+				e.preventDefault();
+				var href = link.getAttribute('href');
+				var reason = prompt('<?php echo esc_js( __( 'Pourquoi désactivez-vous InfinityCOD ? (optionnel)', 'infinitycod' ) ); ?>');
+				if ( reason === null ) { return; }
+				window.location.href = href + '&icod_deactivate_reason=' + encodeURIComponent(reason);
+			});
+		});
+		</script>
+		<?php
 	}
-}
