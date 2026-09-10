@@ -444,7 +444,7 @@ class Updater {
 		$host = parse_url( $url, PHP_URL_HOST );
 		if ( empty( $host ) ) { return false; }
 		$allowed = array( 'raw.githubusercontent.com', 'cdn.jsdelivr.net', 'objects.githubusercontent.com' );
-		$custom = InfinityCodCoreSettings::get( 'custom_update_url', '' );
+		$custom = \InfinityCod\Core\Settings::get( 'custom_update_url', '' );
 		if ( ! empty( $custom ) ) {
 			$custom_host = parse_url( $custom, PHP_URL_HOST );
 			if ( ! empty( $custom_host ) ) { $allowed[] = $custom_host; }
