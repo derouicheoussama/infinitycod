@@ -1015,3 +1015,20 @@ body.icod-modal-open{overflow:hidden}
 .icod-builder-row .field-toggle input[type=checkbox]{margin:0}
 .icod-builder-row.drag-over{border-color:#1877c2;border-style:dashed;background:#f0f6fc}
 .icod-builder-row .cf-badge{display:inline-block;background:#1877c2;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:4px}
+
+
+/* --- Polish global admin InfinityCOD --- */
+.icod-admin-polish .form-table th{width:180px;padding:15px 10px}
+.icod-admin-polish .form-table td{padding:15px 10px}
+.icod-admin-polish input[type=text],.icod-admin-polish input[type=email],.icod-admin-polish input[type=password],.icod-admin-polish input[type=number],.icod-admin-polish input[type=url],.icod-admin-polish select,.icod-admin-polish textarea{border-radius:8px;border:1.5px solid #c3c4c7;padding:8px 12px;min-height:40px;transition:border-color .15s,box-shadow .15s}
+.icod-admin-polish input:focus,.icod-admin-polish select:focus,.icod-admin-polish textarea:focus{border-color:#1877c2;box-shadow:0 0 0 3px rgba(24,119,194,.12);outline:none}
+.icod-admin-polish .button{border-radius:8px;transition:all .15s}
+.icod-admin-polish .button:hover{transform:translateY(-1px)}
+.icod-admin-polish .nav-tab{border-radius:8px 8px 0 0;font-weight:600;transition:background .15s,color .15s}
+.icod-admin-polish .nav-tab:hover{background:rgba(24,119,194,.06)}
+.icod-admin-polish .nav-tab-active{border-bottom-color:#1877c2;font-weight:700}
+.icod-admin-polish .icod-card{border-radius:12px;transition:box-shadow .15s}
+.icod-admin-polish .icod-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.icod-admin-polish .icod-toggle input[type=checkbox]{accent-color:#1877c2}
+.icod-admin-polish .icod-toggle span{transition:color .15s}
+.icod-admin-polish .icod-toggle:hover span{color:#1877c2}

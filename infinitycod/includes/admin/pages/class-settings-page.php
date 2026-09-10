@@ -47,7 +47,7 @@ class SettingsPage {
 	public function render() {
 		$saved = isset( $_GET['icod_msg'] ) ? sanitize_key( wp_unslash( $_GET['icod_msg'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		?>
-		<div class="wrap icod-wrap">
+		<div class="wrap icod-wrap icod-admin-polish">
 			<h1 class="icod-title"><?php esc_html_e( 'Réglages InfinityCod', 'infinitycod' ); ?></h1>
 
 			<?php if ( 'saved' === $saved ) : ?>
