@@ -414,6 +414,26 @@ class Routes {
 			) );
 		}
 
+		// 2b. Protections additionnelles (email jetable, limite globale).
+		if ( ! empty( $body['email'] ) && Settings::get( 'block_disposable_email' ) ) {
+			$disposable = array( 'mailinator.com', 'yopmail.com', 'tempmail', '10minutemail', 'guerrillamail', 'trashmail', 'getnada', 'dispostable' );
+			foreach ( $disposable as $domain ) {
+				if ( false !== strpos( (string) $body['email'], $domain ) ) {
+					return new \WP_Error( 'icod_email', __( 'Email non accepté. Veuillez utiliser un email valide.', 'infinitycod' ), array( 'status' => 400 ) );
+				}
+			}
+		}
+		$global_max = (int) Settings::get( 'max_orders_hour_global', 0 );
+		if ( $global_max > 0 ) {
+			global $wpdb;
+			$orders_t  = \InfinityCod\Core\Schema::table( 'orders' );
+			$hour_ago  = gmdate( 'Y-m-d H:i:s', time() - 3600 );
+			$recent    = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$orders_t} WHERE created_at >= %s", $hour_ago ) );
+			if ( $recent >= $global_max ) {
+				return new \WP_Error( 'icod_hour_limit', __( 'Trop de commandes en ce moment. Veuillez réessayer dans quelques minutes.', 'infinitycod' ), array( 'status' => 429 ) );
+			}
+		}
+
 		// 3. Produit.
 		$product_id   = isset( $body['product_id'] ) ? absint( $body['product_id'] ) : 0;
 		$variation_id = isset( $body['variation_id'] ) ? absint( $body['variation_id'] ) : 0;

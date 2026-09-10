@@ -1064,6 +1064,14 @@ class SettingsPage {
 					<input type="checkbox" name="icod[block_duplicate_phone]" value="1" <?php checked( (int) Settings::get( 'block_duplicate_phone' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Refuser un numéro ayant déjà une commande en attente', 'infinitycod' ); ?></span>
 				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[block_disposable_email]" value="1" <?php checked( (int) Settings::get( 'block_disposable_email' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Rejeter les emails jetables (yopmail, tempmail, mailinator…)', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[max_orders_hour_global]" value="1" <?php checked( (int) Settings::get( 'max_orders_hour_global' ) > 0 ); ?> />
+					<span><?php esc_html_e( 'Limiter le nombre total de commandes par heure (toutes IP confondues)', 'infinitycod' ); ?></span>
+				</label>
 			</div>
 			<div class="icod-grid">
 				<label>
@@ -1431,6 +1439,8 @@ cod-toggle-danger">
 			'max_per_email_day'       => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 20 ),
 			'min_submit_seconds'      => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 60 ),
 			'min_fraud_score_block'   => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 100 ),
+			'block_disposable_email'  => array( 'tab' => 'fraud', 'type' => 'toggle' ),
+			'max_orders_hour_global'  => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 500 ),
 
 			// ——— Onglet WhatsApp ———
 			'whatsapp_enabled'         => array( 'tab' => 'whatsapp', 'type' => 'toggle' ),
