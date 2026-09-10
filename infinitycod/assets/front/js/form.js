@@ -185,9 +185,6 @@
 			root.addEventListener(evt, updateProgress, { passive: true });
 		});
 		updateProgress();
-		updateHeadPrice();
-		updateQtyBadge();
-		updateLocalTotals();
 
 		/* --- Variations : résolution de l'ID selon les attributs choisis --- */
 		function currentAttributes() {
@@ -795,6 +792,10 @@
 		}
 
 		refreshQuote();
+		updateHeadPrice();
+		updateQtyBadge();
+		updateLocalTotals();
+		updateProgress();
 	}
 
 	/* ---------- Démarrage ---------- */

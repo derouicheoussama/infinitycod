@@ -801,3 +801,15 @@ select.icod-input{
 .icod-summary-bottom .icod-summary-lines{display:grid;gap:2px}
 @media (min-width:720px){.icod-summary-bottom .icod-summary-lines{grid-template-columns:1fr 1fr;column-gap:26px}}
 .icod-summary-total{background:color-mix(in srgb,var(--icod-accent) 10%,transparent)}
+
+/* --- Fix icônes doublées : neutralise les backgrounds injectés par les thèmes --- */
+/* icod-icon-fix */
+.icod-input-wrap .icod-input,
+.icod-input-wrap select.icod-input,
+.icod-input-wrap textarea.icod-input{
+	background-image:none!important;
+}
+.icod-input-wrap .icod-input-icon{z-index:2;pointer-events:none}
+/* --- Barre de progression plus visible --- */
+.icod-progress{height:10px;margin:0 20px 12px;background:color-mix(in srgb,var(--icod-accent) 12%,var(--icod-border));box-shadow:inset 0 1px 3px rgba(0,0,0,.08)}
+.icod-progress-fill{box-shadow:0 0 8px color-mix(in srgb,var(--icod-accent) 60%,transparent)}
