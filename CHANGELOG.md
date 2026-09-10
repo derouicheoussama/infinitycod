@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.9.1 — 2026-09-10
+
+Sauvegarde INFAILLIBLE : chaque enregistrement est vérifié en base et disposé d'un repli automatique.
+
+### Ajouté
+- **Vérification après écriture** : après chaque « Enregistrer », le plugin RELIT la base et compare. Si les valeurs relues diffèrent (cache d'objets défectueux), un message rouge explicite s'affiche au lieu d'un faux succès.
+- **Repli AJAX automatique** : l'enregistrement passe d'abord par admin-ajax (contourne un éventuel blocage de admin-post.php par un pare-feu) ; en cas d'échec, repli transparent sur la soumission native.
+- En-têtes no-cache sur les écrans Réglages et Commandes.
+
+### ⚠️ IMPORTANT — version installée
+Le sondage direct du site de démonstration montre la 5.7.1 installée : les correctifs 5.7.2 → 5.9.1 (dont lecture directe en base et purge des caches) ne sont actifs qu'après installation de cette version. Mises à jour → Mettre à jour maintenant.
+
+
 ## 5.9.0 — 2026-09-10
 
 CRUD commandes complet (le D de Delete manquant est là) et synchronisation WooCommerce intégrale à l'édition.

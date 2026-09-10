@@ -509,6 +509,15 @@ check( 'bouton suppression par ligne', false !== strpos( $orders_page, 'icod-del
 $adminjs2 = file_get_contents( $plugin_dir . 'assets/admin/js/admin.js' );
 check( 'JS : suppression branchée avec confirmation + icod_order_delete', false !== strpos( $adminjs2, "post('icod_order_delete'" ) && false !== strpos( $adminjs2, 'window.confirm' ) );
 
+/* ---------- 22. Sauvegarde AJAX + vérification après écriture ---------- */
+
+echo "\n22) Sauvegarde infaillible : AJAX + vérification après écriture\n";
+$sp5 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+check( 'endpoint AJAX de sauvegarde enregistré', false !== strpos( $sp5, 'wp_ajax_icod_save_settings_ajax' ) );
+check( 'JS : priorité admin-ajax + repli natif', false !== strpos( $sp5, 'icod_save_settings_ajax' ) && false !== strpos( $sp5, 'form.submit()' ) );
+check( 'vérification après écriture (relecture + comparaison)', false !== strpos( $sp5, 'save_failed' ) && false !== strpos( $sp5, 'Settings::setCache( null )' ) );
+check( 'no-cache sur les écrans Réglages', false !== strpos( $sp5, 'nocache_headers()' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

@@ -33,6 +33,7 @@ class SettingsPage {
 		// phpcs:enable
 
 		add_action( 'admin_post_icod_save_settings', array( $this, 'handle_save' ) );
+		add_action( 'wp_ajax_icod_save_settings_ajax', array( $this, 'handle_save_ajax' ) );
 		add_action( 'admin_post_icod_activate_license', array( $this, 'handle_license' ) );
 		add_action( 'admin_post_icod_verify_license', array( $this, 'handle_license_verify' ) );
 		add_action( 'admin_post_icod_deactivate_license', array( $this, 'handle_license_deactivate' ) );
@@ -47,6 +48,9 @@ class SettingsPage {
 	 * @return void
 	 */
 	public function render() {
+		// La page d'admin ne doit JAMAIS être servie depuis un cache.
+		nocache_headers();
+
 		$saved = isset( $_GET['icod_msg'] ) ? sanitize_key( wp_unslash( $_GET['icod_msg'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		?>
 		<div class="wrap icod-wrap icod-admin-polish">
@@ -59,9 +63,11 @@ class SettingsPage {
 			</div>
 
 			<?php if ( 'saved' === $saved ) : ?>
-				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Réglages enregistrés et appliqués au formulaire.', 'infinitycod' ); ?> <strong><?php esc_html_e( 'Si le formulaire public ne change pas : videz le cache de votre plugin de cache (LiteSpeed, WP Rocket…)', 'infinitycod' ); ?></strong></p></div>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Réglages enregistrés et vérifiés en base : appliqués au formulaire.', 'infinitycod' ); ?></p></div>
 			<?php elseif ( 'reset' === $saved ) : ?>
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Réglages réinitialisés aux valeurs par défaut. Vos commandes n’ont pas été touchées.', 'infinitycod' ); ?></p></div>
+			<?php elseif ( 'save_failed' === $saved ) : ?>
+				<div class="notice notice-error"><p><strong><?php esc_html_e( 'ÉCHEC DE LA SAUVEGARDE : les valeurs relues en base ne correspondent pas à celles envoyées.', 'infinitycod' ); ?></strong> <?php esc_html_e( 'Un cache d’objets serveur (LiteSpeed/Memcached/Redis) avale probablement les écritures. Videz le cache d’objets dans votre plugin de cache ou chez votre hébergeur, puis réessayez.', 'infinitycod' ); ?></p></div>
 			<?php endif; ?>
 
 			<nav class="nav-tab-wrapper icod-tabs">
@@ -115,6 +121,46 @@ class SettingsPage {
 				</p>
 			</form>
 			<?php endif; ?>
+
+			<script>
+			/* Sauvegarde prioritaire via admin-ajax (contourne un éventuel blocage
+			   de admin-post.php) ; repli natif automatique en cas d'échec AJAX. */
+			(function () {
+				var form = document.querySelector('form input[name="action"][value="icod_save_settings"]');
+				if (!form) { return; }
+				form = form.closest('form');
+				var btn = form.querySelector('.icod-save-sticky button');
+				if (!form || !btn) { return; }
+				var saved = btn.textContent;
+				form.addEventListener('submit', function (e) {
+					if (form.dataset.ajaxTried === '1') { return; } // Repli natif déjà en cours.
+					e.preventDefault();
+					btn.disabled = true;
+					btn.textContent = <?php echo wp_json_encode( __( 'Enregistrement…', 'infinitycod' ) ); ?>;
+					var params = new URLSearchParams(new FormData(form));
+					params.set('action', 'icod_save_settings_ajax');
+					fetch(<?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>, { method: 'POST', credentials: 'same-origin', body: params })
+						.then(function (r) { return r.json(); })
+						.then(function (json) {
+							if (json && json.success && json.data && json.data.redirect) {
+								btn.textContent = <?php echo wp_json_encode( __( '✓ Enregistré', 'infinitycod' ) ); ?>;
+								window.location.href = json.data.redirect;
+								return;
+							}
+							if (json && json.data && json.data.redirect) { // Échec de persistance : message dédié.
+								window.location.href = json.data.redirect;
+								return;
+							}
+							throw new Error('ajax');
+						})
+						.catch(function () {
+							// Repli : soumission native via admin-post.php.
+							form.dataset.ajaxTried = '1';
+							form.submit();
+						});
+				});
+			})();
+			</script>
 
 			<?php if ( 'advanced' === $this->tab ) : ?>
 				<div class="icod-card icod-danger-zone">
@@ -1854,8 +1900,82 @@ class SettingsPage {
 		// des caches de pages les plus répandus.
 		$this->purge_page_caches();
 
+		// Vérification après écriture : on relit en base et on compare.
+		Settings::setCache( null );
+		$fresh    = \InfinityCod\Core\Settings::all();
+		$mismatch = false;
+		foreach ( $clean as $check_key => $check_val ) {
+			if ( ! array_key_exists( $check_key, $fresh ) ) { continue; }
+			$stored = $fresh[ $check_key ];
+			if ( is_array( $check_val ) || is_array( $stored ) ) {
+				if ( wp_json_encode( $check_val ) !== wp_json_encode( $stored ) ) { $mismatch = true; break; }
+			} elseif ( (string) $stored !== (string) $check_val ) {
+				$mismatch = true; break;
+			}
+		}
+
+		if ( $mismatch ) {
+			// Écrit en base mais relu différemment : cache d'objets défectueux.
+			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=' . $tab . '&icod_msg=save_failed' ) );
+			exit;
+		}
+
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=' . $tab . '&icod_msg=saved' ) );
 		exit;
+	}
+
+	/**
+	 * Sauvegarde via admin-ajax (repli si admin-post.php est bloqué par un
+	 * pare-feu / WAF). Même logique, même nonce, réponse JSON + URL cible.
+	 *
+	 * @return void
+	 */
+	public function handle_save_ajax() {
+		check_ajax_referer( 'icod_save_settings' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ), 403 );
+		}
+
+		$tab = isset( $_POST['tab'] ) ? sanitize_key( wp_unslash( $_POST['tab'] ) ) : 'form';
+
+		$raw   = isset( $_POST['icod'] ) && is_array( $_POST['icod'] ) ? wp_unslash( $_POST['icod'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitisé champ par champ.
+		$clean = $this->sanitize_fields( $raw, $tab );
+
+		if ( 'form' === $tab && isset( $clean['checkout_fields'] ) && isset( $_POST['icod']['checkout_fields_new']['key'] ) ) {
+			$nk = sanitize_key( $_POST['icod']['checkout_fields_new']['key'] );
+			if ( $nk !== '' ) {
+				$fields = $clean['checkout_fields'];
+				$fields[] = array(
+					'key'   => substr( $nk, 0, 30 ),
+					'type'  => in_array( $_POST['icod']['checkout_fields_new']['type'] ?? 'text', array( 'text','tel','email','select','radio','checkbox','textarea','date','number' ), true ) ? $_POST['icod']['checkout_fields_new']['type'] : 'text',
+					'label' => sanitize_text_field( $_POST['icod']['checkout_fields_new']['label'] ?? '' ),
+					'on'    => 1,
+					'req'   => 0,
+				);
+				$clean['checkout_fields'] = $fields;
+			}
+		}
+
+		update_option( 'icod_settings_saved_at', current_time( 'mysql' ), false );
+		Settings::set( $clean );
+		$this->purge_page_caches();
+
+		// Vérification après écriture (même contrat que la voie native).
+		Settings::setCache( null );
+		$fresh    = \InfinityCod\Core\Settings::all();
+		foreach ( $clean as $check_key => $check_val ) {
+			if ( ! array_key_exists( $check_key, $fresh ) ) { continue; }
+			$stored = $fresh[ $check_key ];
+			$same   = ( is_array( $check_val ) || is_array( $stored ) )
+				? wp_json_encode( $check_val ) === wp_json_encode( $stored )
+				: (string) $stored === (string) $check_val;
+			if ( ! $same ) {
+				wp_send_json_error( array( 'message' => 'persist', 'redirect' => admin_url( 'admin.php?page=infinitycod-settings&tab=' . $tab . '&icod_msg=save_failed' ) ) );
+			}
+		}
+
+		wp_send_json_success( array( 'redirect' => admin_url( 'admin.php?page=infinitycod-settings&tab=' . $tab . '&icod_msg=saved' ) ) );
 	}
 
 	/**
