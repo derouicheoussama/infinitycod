@@ -46,7 +46,8 @@ class PixelManager {
 	public static function enabled() {
 		return Settings::get( 'pixel_fb_enabled' )
 			|| Settings::get( 'pixel_tiktok_enabled' )
-			|| Settings::get( 'pixel_snap_enabled' );
+			|| Settings::get( 'pixel_snap_enabled' )
+			|| Settings::get( 'ga4_measurement_id' );
 	}
 
 	/**
@@ -100,6 +101,9 @@ class PixelManager {
 			) : null,
 			'snap'      => Settings::get( 'pixel_snap_enabled' ) ? array(
 				'id' => (string) Settings::get( 'pixel_snap_id' ),
+			) : null,
+			'ga4'       => Settings::get( 'ga4_measurement_id' ) ? array(
+				'id' => (string) Settings::get( 'ga4_measurement_id' ),
 			) : null,
 			'consent'   => (int) Settings::get( 'pixel_consent_required' ),
 			'currency'  => Settings::currency(),

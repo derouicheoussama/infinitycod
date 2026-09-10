@@ -41,6 +41,12 @@ class RatesManager {
 	public function price( $wilaya_code, $commune_name = '', $mode = self::MODE_HOME ) {
 		$column = ( self::MODE_DESK === $mode ) ? 'price_desk' : 'price_home';
 
+		// Champ wilaya désactivé dans le Checkout Builder (code vide) :
+		// tarif par défaut global, la commande reste créable.
+		if ( '' === trim( (string) $wilaya_code ) ) {
+			return (float) Settings::get( ( self::MODE_DESK === $mode ) ? 'default_price_desk' : 'default_price_home', 0 );
+		}
+
 		// 1. Override par commune.
 		if ( '' !== $commune_name ) {
 			global $wpdb;
@@ -83,15 +89,6 @@ class RatesManager {
 	 * @return bool
 	 */
 	public function is_free( $wilaya_code, $quantity = 1, $subtotal = 0.0 ) {
-		global $wpdb;
-
-		$table = Schema::table( 'wilayas' );
-		$free  = $wpdb->get_var( $wpdb->prepare( "SELECT free_shipping FROM {$table} WHERE code = %s", $wilaya_code ) );
-
-		if ( $free && (int) $free ) {
-			return true;
-		}
-
 		$qty_threshold = (int) Settings::get( 'free_shipping_qty', 0 );
 		if ( $qty_threshold > 0 && $quantity >= $qty_threshold ) {
 			return true;
@@ -103,7 +100,16 @@ class RatesManager {
 			return true;
 		}
 
-		return false;
+		// Wilaya inconnue ou champ désactivé : pas de gratuité par wilaya.
+		if ( '' === trim( (string) $wilaya_code ) ) {
+			return false;
+		}
+
+		global $wpdb;
+		$table = Schema::table( 'wilayas' );
+		$free  = $wpdb->get_var( $wpdb->prepare( "SELECT free_shipping FROM {$table} WHERE code = %s", $wilaya_code ) );
+
+		return (bool) ( $free && (int) $free );
 	}
 
 	/**

@@ -1,0 +1,335 @@
+<?php
+define( 'INFINITYCOD_DEV_MODE', true );
+/**
+ * Harnais de test : Form Engine — Checkout Builder → Rendu → Validation.
+ *
+ * Vérifie la chaîne complète DASHBOARD → SETTINGS → CONFIG → FORM ENGINE :
+ * plan des champs (ordre / visibilité / requis / libellés), captcha par
+ * fournisseur, prix multi-devises, sanitization, migration idempotente,
+ * tarification wilaya vide, et anti-régressions de source (les bugs
+ * historiques : $tab utilisé avant définition, captcha lu dans $_POST,
+ * $rtl utilisé avant définition, regex /D/g).
+ *
+ * Usage : .tools/php/php.exe tools/test-form-engine.php
+ */
+
+error_reporting( E_ALL );
+ini_set( 'display_errors', '1' );
+
+define( 'ABSPATH', sys_get_temp_dir() . '/icod-fake-wp-engine/' );
+define( 'MINUTE_IN_SECONDS', 60 );
+define( 'HOUR_IN_SECONDS', 3600 );
+define( 'DAY_IN_SECONDS', 86400 );
+
+/* ---------- Stubs WordPress ---------- */
+
+$GLOBALS['__options']    = array();
+$GLOBALS['__transients'] = array();
+$GLOBALS['__captured_json'] = null;
+
+class wpdb_stub {
+	public $prefix = 'wp_';
+	public function prepare( $q, ...$a ) { return $q; }
+	public function get_var( $q ) { return null; }
+	public function get_row( $q, $o = null ) { return null; }
+	public function get_results( $q, $o = null ) { return array(); }
+	public function query( $q ) { return 0; }
+}
+$GLOBALS['wpdb'] = new wpdb_stub();
+
+function get_option( $k, $d = false ) { return array_key_exists( $k, $GLOBALS['__options'] ) ? $GLOBALS['__options'][ $k ] : $d; }
+function update_option( $k, $v, $autoload = null ) { $GLOBALS['__options'][ $k ] = $v; return true; }
+function add_option( $k, $v ) { $GLOBALS['__options'][ $k ] = $v; return true; }
+function delete_option( $k ) { unset( $GLOBALS['__options'][ $k ] ); return true; }
+function get_transient( $k ) { return array_key_exists( $k, $GLOBALS['__transients'] ) ? $GLOBALS['__transients'][ $k ] : false; }
+function set_transient( $k, $v, $e = 0 ) { $GLOBALS['__transients'][ $k ] = $v; return true; }
+function delete_transient( $k ) { unset( $GLOBALS['__transients'][ $k ] ); return true; }
+function add_action( ...$a ) { return true; }
+function add_filter( ...$a ) { return true; }
+function remove_filter( ...$a ) { return true; }
+function apply_filters( $t, $v ) { return $v; }
+function do_action( ...$a ) {}
+function __( $s, $d = null ) { return $s; }
+function _e( $s, $d = null ) { echo $s; }
+function esc_html__( $s, $d = null ) { return $s; }
+function esc_attr__( $s, $d = null ) { return $s; }
+function esc_html_e( $s, $d = null ) { echo htmlspecialchars( $s, ENT_QUOTES ); }
+function esc_attr_e( $s, $d = null ) { echo htmlspecialchars( $s, ENT_QUOTES ); }
+function esc_html( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
+function esc_attr( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
+function esc_js( $s ) { return (string) $s; }
+function esc_url( $s ) { return (string) $s; }
+function esc_url_raw( $s ) { return (string) $s; }
+function esc_textarea( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
+function wp_json_encode( $d, $f = 0 ) { return json_encode( $d, $f ); }
+function wp_parse_args( $args, $defaults = array() ) { return array_merge( $defaults, (array) $args ); }
+function wp_unslash( $v ) { return $v; }
+function sanitize_text_field( $v ) { return trim( strip_tags( (string) $v ) ); }
+function sanitize_textarea_field( $v ) { return trim( strip_tags( (string) $v ) ); }
+function sanitize_key( $v ) { return strtolower( preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $v ) ) ); }
+function sanitize_email( $v ) { return filter_var( (string) $v, FILTER_SANITIZE_EMAIL ); }
+function is_email( $v ) { return false !== filter_var( (string) $v, FILTER_VALIDATE_EMAIL ); }
+function absint( $v ) { return abs( (int) $v ); }
+function number_format_i18n( $n, $d = 0 ) { return number_format( (float) $n, (int) $d ); }
+function wp_generate_password( $len, $sp = true, $ex = true ) { return str_repeat( 'a', $len ); }
+function wp_rand( $min = 0, $max = 0 ) { return $min; }
+function current_user_can( ...$c ) { return true; }
+function check_admin_referer( ...$a ) {}
+function check_ajax_referer( ...$a ) {}
+function wp_create_nonce( ...$a ) { return 'nonce123'; }
+function wp_nonce_field( ...$a ) { return true; }
+function wp_nonce_url( $u, $a ) { return $u . '&_wpnonce=x'; }
+function admin_url( $p = '' ) { return 'https://example.test/wp-admin/' . $p; }
+function wp_safe_redirect( $u ) { throw new RuntimeException( 'redirect: ' . $u ); }
+function wp_send_json_success( $d = null ) { $GLOBALS['__captured_json'] = array( 'success' => true, 'data' => $d ); }
+function wp_send_json_error( $d = null ) { $GLOBALS['__captured_json'] = array( 'success' => false, 'data' => $d ); }
+function add_shortcode( ...$a ) {}
+function wp_register_style( ...$a ) { return true; }
+function wp_register_script( ...$a ) { return true; }
+function wp_enqueue_style( ...$a ) { return true; }
+function wp_enqueue_script( ...$a ) { return true; }
+function wp_style_is( ...$a ) { return false; }
+function wp_localize_script( ...$a ) { return true; }
+function did_action( $h ) { return 0; }
+function is_rtl() { return false; }
+function get_locale() { return 'fr_FR'; }
+function get_post( $id = 0 ) { return null; }
+function is_product() { return false; }
+function is_singular( $t = '' ) { return false; }
+function shortcode_atts( $d, $a, $s = '' ) { return array_merge( $d, (array) $a ); }
+function wc_get_product( $id = 0 ) { return null; }
+function wc_get_products( $a = array() ) { return array(); }
+function wp_get_attachment_image_url( ...$a ) { return ''; }
+function wp_next_scheduled( $h ) { return false; }
+function wp_schedule_event( ...$a ) { return true; }
+function register_activation_hook( ...$a ) { return true; }
+function register_deactivation_hook( ...$a ) { return true; }
+function load_plugin_textdomain( ...$a ) { return true; }
+function plugin_basename( $f ) { return basename( dirname( $f ) ) . '/' . basename( $f ); }
+function plugin_dir_path( $f ) { return trailingslashit( dirname( $f ) ); }
+function plugin_dir_url( $f ) { return 'https://example.test/wp-content/plugins/' . basename( dirname( $f ) ) . '/'; }
+function trailingslashit( $s ) { return rtrim( (string) $s, '/\\' ) . '/'; }
+function wp_die( $m = '' ) { throw new RuntimeException( 'wp_die: ' . $m ); }
+function selected( ...$a ) {}
+function checked( ...$a ) {}
+function disabled( ...$a ) {}
+function add_menu_page( ...$a ) { return true; }
+function add_submenu_page( ...$a ) { return true; }
+function register_rest_route( ...$a ) { return true; }
+function rest_url( $p = '' ) { return 'https://example.test/wp-json/' . $p; }
+function wp_remote_post( ...$a ) { return array( 'response' => array( 'code' => 200 ), 'body' => '{}' ); }
+function wp_remote_retrieve_response_code( $r ) { return is_array( $r ) ? (int) $r['response']['code'] : 0; }
+function wp_remote_retrieve_body( $r ) { return is_array( $r ) ? (string) $r['body'] : ''; }
+function is_wp_error( $t ) { return $t instanceof WP_Error; }
+function get_bloginfo( $k = 'name' ) { return '6.5'; }
+
+class WP_Error {
+	public $errors = array();
+	public function __construct( $code = '', $message = '' ) { $this->errors[ $code ] = $message; }
+	public function get_error_code() { return key( $this->errors ); }
+	public function get_error_message() { return (string) reset( $this->errors ); }
+}
+
+class FakeProduct {
+	public function get_id() { return 42; }
+}
+
+/* ---------- Chargement du plugin ---------- */
+
+$plugin_dir = dirname( __DIR__ ) . '/infinitycod/';
+define( 'INFINITYCOD_VERSION', 'test' );
+define( 'INFINITYCOD_DB_VERSION', 'test' );
+define( 'INFINITYCOD_PATH', $plugin_dir );
+define( 'INFINITYCOD_URL', 'https://example.test/wp-content/plugins/infinitycod/' );
+define( 'INFINITYCOD_BASENAME', 'infinitycod/infinitycod.php' );
+define( 'INFINITYCOD_AUTHOR', 'Derouiche Oussama' );
+
+require $plugin_dir . 'includes/Autoloader.php';
+\InfinityCod\Autoloader::register();
+
+/* ---------- Helpers ---------- */
+
+$pass = 0;
+$fail = 0;
+
+function check( $label, $condition ) {
+	global $pass, $fail;
+	if ( $condition ) {
+		echo "   ✓ {$label}\n";
+		$pass++;
+	} else {
+		echo "   ✗ {$label}\n";
+		$fail++;
+	}
+}
+
+$refm = static function ( $class, $method ) {
+	$m = new ReflectionMethod( $class, $method );
+	$m->setAccessible( true );
+	return $m;
+};
+
+$set_saved = static function ( array $saved ) {
+	$GLOBALS['__options']['infinitycod_settings'] = $saved;
+	\InfinityCod\Core\Settings::setCache( null );
+};
+
+echo "=== InfinityCod — Form Engine (Checkout Builder → Rendu → Validation) ===\n\n";
+
+/* ---------- 1. Plan des champs (défauts) ---------- */
+
+echo "1) Plan des champs par défaut\n";
+$plan = \InfinityCod\Form\FormManager::fields_plan();
+check( '7 champs standard présents', array( 'name','phone','email','wilaya','commune','address','note' ) === array_column( $plan, 'key' ) );
+$by_key = array_column( $plan, null, 'key' );
+check( 'nom + téléphone actifs et requis', $by_key['name']['on'] && $by_key['name']['req'] && $by_key['phone']['on'] && $by_key['phone']['req'] );
+check( 'wilaya + commune actives et requises', $by_key['wilaya']['on'] && $by_key['wilaya']['req'] && $by_key['commune']['on'] && $by_key['commune']['req'] );
+check( 'email / adresse / note masqués par défaut', ! $by_key['email']['on'] && ! $by_key['address']['on'] && ! $by_key['note']['on'] );
+check( 'field_state(email) = masqué', ! \InfinityCod\Form\FormManager::field_state( 'email' )['on'] );
+
+/* ---------- 2. Rendu piloté par le plan ---------- */
+
+echo "\n2) Rendu HTML piloté par le plan (reflexion render_fields_html)\n";
+$product = new FakeProduct();
+$render_fields = $refm( '\InfinityCod\Form\FormManager', 'render_fields_html' );
+$html = $render_fields->invoke( null, $plan, $product, '<option value="01">Adrar</option>', '' );
+check( 'nom + téléphone appariés (icod-duo)', false !== strpos( $html, 'icod-duo' ) );
+check( 'email ABSENT du HTML (champ masqué)', false === strpos( $html, 'name="icod_email"' ) );
+check( 'adresse ABSENTE du HTML (champ masqué)', false === strpos( $html, 'name="icod_address"' ) );
+check( 'lien « Ajouter une note » ABSENT (note masquée)', false === strpos( $html, 'data-note-toggle' ) );
+check( 'options wilaya injectées', false !== strpos( $html, '<option value="01">Adrar</option>' ) );
+
+/* Visibilité email ON */
+$saved = $GLOBALS['__options']['infinitycod_settings'] ?? array();
+$plan2 = json_decode( wp_json_encode( $plan ), true );
+foreach ( $plan2 as $i => $f ) { if ( 'email' === $f['key'] ) { $plan2[ $i ]['on'] = 1; } }
+$html2 = $render_fields->invoke( null, $plan2, $product, '', '' );
+check( 'email ACTIVÉ → champ réel dans le HTML', false !== strpos( $html2, 'name="icod_email"' ) );
+
+/* Adresse ON + note ON */
+$plan3 = $plan2;
+foreach ( $plan3 as $i => $f ) {
+	if ( 'address' === $f['key'] ) { $plan3[ $i ]['on'] = 1; $plan3[ $i ]['req'] = 1; }
+	if ( 'note' === $f['key'] ) { $plan3[ $i ]['on'] = 1; }
+}
+$html3 = $render_fields->invoke( null, $plan3, $product, '', '' );
+check( 'adresse ACTIVÉE requise → required + data-req="1" + astérisque CSS', false !== strpos( $html3, 'name="icod_address"' ) && false !== strpos( $html3, 'data-req="1"' ) && false !== strpos( $html3, 'icod-required' ) );
+check( 'note ACTIVÉE → lien toggle + textarea rendus', false !== strpos( $html3, 'data-note-toggle' ) && false !== strpos( $html3, 'name="icod_note"' ) );
+
+/* Ordre inversé : téléphone AVANT nom */
+$plan4 = array( $by_key['phone'], $by_key['name'] );
+$html4 = $render_fields->invoke( null, $plan4, $product, '', '' );
+check( 'ordre du builder respecté (phone avant name)', strpos( $html4, 'icod_phone' ) < strpos( $html4, 'icod_name' ) );
+
+/* Champ personnalisé requis */
+$plan5 = array( array( 'key' => 'cf_gouvernorat', 'type' => 'text', 'label' => 'Gouvernorat', 'on' => 1, 'req' => 1, 'custom' => true ) );
+$html5 = $render_fields->invoke( null, $plan5, $product, '', '' );
+check( 'champ cf_* requis rendu avec required', false !== strpos( $html5, 'name="cf_gouvernorat"' ) && false !== strpos( $html5, 'required data-req="1"' ) );
+
+/* ---------- 3. Captcha par fournisseur ---------- */
+
+echo "\n3) Captcha : OFF = rien ; ON = chaîne complète\n";
+check( 'captcha désactivé → provider "off"', 'off' === \InfinityCod\Form\FormManager::captcha_provider() );
+$set_saved( array( 'captcha_enabled' => 1, 'captcha_provider' => 'math' ) );
+check( 'activé + math → "math"', 'math' === \InfinityCod\Form\FormManager::captcha_provider() );
+$set_saved( array( 'captcha_enabled' => 1, 'captcha_provider' => 'recaptcha_v3' ) );
+check( 'reCAPTCHA sans clés → repli "off" (aucune commande bloquée)', 'off' === \InfinityCod\Form\FormManager::captcha_provider() );
+$set_saved( array( 'captcha_enabled' => 1, 'captcha_provider' => 'recaptcha_v3', 'recaptcha_v3_site_key' => 'SITE', 'recaptcha_v3_secret_key' => 'SECRET' ) );
+check( 'reCAPTCHA avec clés → "recaptcha_v3"', 'recaptcha_v3' === \InfinityCod\Form\FormManager::captcha_provider() );
+$set_saved( array() );
+
+/* ---------- 4. Prix multi-devises ---------- */
+
+echo "\n4) Prix multi-devises (format_price)\n";
+check( 'DZD après montant → « 600 DA »', '600 DA' === \InfinityCod\Core\Settings::format_price( 600 ) );
+$set_saved( array( 'currency' => 'USD', 'currency_position' => 'left' ) );
+check( 'USD avant montant → « $ 19.99 »', '$ 19.99' === \InfinityCod\Core\Settings::format_price( 19.99 ) );
+$set_saved( array() );
+
+/* ---------- 5. Sanitization (schéma déclaratif) ---------- */
+
+echo "\n5) Sanitization des réglages (schéma)\n";
+$page = new \InfinityCod\Admin\Pages\SettingsPage();
+$sanitize = $refm( '\InfinityCod\Admin\Pages\SettingsPage', 'sanitize_fields' );
+$clean = $sanitize->invoke( $page, array(
+	'accent_color'     => '<script>alert(1)</script>',
+	'captcha_provider' => 'evil',
+	'qty_min'          => '500',
+	'form_preset'      => 'aqua',
+), 'form' );
+check( 'couleur invalide rejetée (pas de XSS en CSS)', ! isset( $clean['accent_color'] ) || '#0e7a4f' === $clean['accent_color'] );
+check( 'enum invalide rejetée', ! isset( $clean['captcha_provider'] ) || 'math' === $clean['captcha_provider'] );
+check( 'entier borné (qty_min 500 → 99)', isset( $clean['qty_min'] ) && 99 === $clean['qty_min'] );
+check( 'enum valide acceptée', isset( $clean['form_preset'] ) && 'aqua' === $clean['form_preset'] );
+
+/* ---------- 6. Migration idempotente legacy → builder ---------- */
+
+echo "\n6) Migration idempotente (show_email legacy → builder)\n";
+delete_option( 'infinitycod_builder_migrated' );
+$defaults = \InfinityCod\Core\Settings::defaults();
+$saved = $defaults;
+foreach ( $saved['checkout_fields'] as $i => $f ) { if ( 'email' === $f['key'] ) { $saved['checkout_fields'][ $i ]['on'] = 0; } }
+$saved['show_email'] = 1; // Ancien site : email affiché via l'ancien toggle.
+$set_saved( $saved );
+$all = \InfinityCod\Core\Settings::all();
+$email_on = null;
+foreach ( $all['checkout_fields'] as $f ) { if ( 'email' === $f['key'] ) { $email_on = $f['on']; } }
+check( 'show_email=1 historique → email ACTIF dans le builder', 1 === $email_on );
+check( 'marker de migration posé', (bool) get_option( 'infinitycod_builder_migrated' ) );
+// Re-exécution : ne change plus rien (idempotence).
+$saved2 = $all;
+$saved2['show_email'] = 0;
+$set_saved( $saved2 );
+$all2 = \InfinityCod\Core\Settings::all();
+$email_on2 = null;
+foreach ( $all2['checkout_fields'] as $f ) { if ( 'email' === $f['key'] ) { $email_on2 = $f['on']; } }
+check( 'migration JAMAIS réexécutée (idempotente)', 1 === $email_on2 );
+
+/* ---------- 7. Tarification wilaya vide (champ masqué) ---------- */
+
+echo "\n7) Tarifs avec wilaya masquée (code vide → tarif par défaut)\n";
+$rates = new \InfinityCod\Shipping\RatesManager();
+check( 'domicile → 600 DA (défaut)', 600.0 === $rates->price( '' ) );
+check( 'stopdesk → 350 DA (défaut)', 350.0 === $rates->price( '', '', \InfinityCod\Shipping\RatesManager::MODE_DESK ) );
+check( 'pas de gratuité accidentelle', false === $rates->is_free( '', 10, 99999 ) );
+
+/* ---------- 8. Anti-régressions de source (bugs historiques) ---------- */
+
+echo "\n8) Anti-régressions de source\n";
+$routes_src = file_get_contents( $plugin_dir . 'includes/rest/class-routes.php' );
+check( 'captcha lu dans le corps JSON (pas $_POST)', false !== strpos( $routes_src, '$body[\'icod_captcha\']' ) && false === strpos( $routes_src, '$_POST[\'icod_captcha\']' ) );
+check( 'WP_Error qualifié pour le captcha (pas d\'erreur fatale)', false !== strpos( $routes_src, "new \\WP_Error( 'icod_captcha'" ) );
+
+$sp_src = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+$tab_pos = strpos( $sp_src, '$tab = isset( $_POST[' . "'tab']" . ' )' );
+$use_pos = strpos( $sp_src, 'sanitize_fields( $raw, $tab )' );
+check( '$tab défini AVANT usage (champs customs sauvegardés)', false !== $tab_pos && false !== $use_pos && $tab_pos < $use_pos );
+
+$fm_src = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
+$rtl_def = strpos( $fm_src, '$rtl = \InfinityCod\Core\I18n::is_rtl();' );
+$rtl_use = strpos( $fm_src, 'if ( $rtl ) {' );
+check( '$rtl défini AVANT usage (police arabe chargée)', false !== $rtl_def && false !== $rtl_use && $rtl_def < $rtl_use );
+
+$js_src = file_get_contents( $plugin_dir . 'assets/front/js/form.js' );
+check( 'form.js envoie le captcha + token + adresse', false !== strpos( $js_src, 'icod_captcha:' ) && false !== strpos( $js_src, 'icod_cap_token:' ) && false !== strpos( $js_src, 'address:' ) );
+check( 'regex téléphone JS correcte (/\\D/g, pas /D/g)', false !== strpos( $js_src, "replace(/\\D/g, '')" ) && false === strpos( $js_src, "replace(/D/g,'')" ) );
+
+/* ---------- 9. Handler aperçu (nonce + capability + brouillon) ---------- */
+
+echo "\n9) Aperçu en direct (handler AJAX, VRAI renderer)\n";
+$_GET = array();
+$GLOBALS['__captured_json'] = null;
+$page2 = new \InfinityCod\Admin\Pages\SettingsPage();
+$_POST = array(
+	'nonce'      => 'nonce123',
+	'product_id' => '0',
+	'icod'       => array( 'accent_color' => '#ff0000', 'form_title' => 'Aperçu test' ),
+);
+$page2->handle_preview_form();
+check( 'handler exécutable : JSON succès capturé', is_array( $GLOBALS['__captured_json'] ) && true === $GLOBALS['__captured_json']['success'] );
+check( 'brouillon NON enregistré en base', ! isset( $GLOBALS['__options']['infinitycod_settings']['form_title'] ) || 'Aperçu test' !== $GLOBALS['__options']['infinitycod_settings']['form_title'] );
+
+/* ---------- Bilan ---------- */
+
+echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
+exit( $fail > 0 ? 1 : 0 );

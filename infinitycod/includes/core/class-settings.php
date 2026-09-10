@@ -112,8 +112,9 @@ class Settings {
 			'shield_enabled'        => 1,
 			'min_submit_seconds'    => 3,
 			'max_per_ip_hour'       => 5,
-									'min_fraud_score_block' => 60,
-			'captcha_enabled'       => 0,    // Captcha mathématique anti-bot.
+			'min_fraud_score_block' => 60,
+			'captcha_enabled'       => 0,    // Captcha anti-bot.
+			'captcha_provider'      => 'math', // math | recaptcha_v3.
 			'block_disposable_email' => 0,
 			'max_orders_hour_global' => 0,
 
@@ -138,9 +139,6 @@ class Settings {
 			'abandoned_enabled'     => 0,
 			'abandoned_delay'       => 60,   // minutes avant 1ère relance.
 			'abandoned_max'         => 2,    // nombre de relances.
-
-			// Statuts couleur dashboard.
-			'order_status_labels'   => array(),
 
 			// Divers.
 			'delete_on_uninstall'   => 0,
@@ -191,6 +189,7 @@ class Settings {
 			'custom_update_url'     => '',
 			'timer_urgency_minutes'                       => 120,
 			'timer_urgency_enabled'                       => 0,
+			'timer_urgency_text'    => __( '⏳ Offre valable encore {time}', 'infinitycod' ),
 			'recaptcha_v3_secret_key'                       => '',
 			'recaptcha_v3_site_key'                       => '',
 			'ga4_measurement_id'                       => '',
@@ -216,7 +215,30 @@ class Settings {
 	}
 
 	/**
+	 * Montant formaté selon la devise et sa position (réglages).
+	 *
+	 * @param float     $amount  Montant.
+	 * @param int|null  $decimals Décimales (auto : 2 si montant non entier).
+	 * @return string Ex. « 1 200 DA » ou « $ 19.99 ».
+	 */
+	public static function format_price( $amount, $decimals = null ) {
+		$amount = (float) $amount;
+		if ( null === $decimals ) {
+			$decimals = fmod( $amount, 1 ) ? 2 : 0;
+		}
+		$num   = number_format_i18n( $amount, (int) $decimals );
+		$label = self::currency_label();
+		return 'left' === self::get( 'currency_position', 'right' )
+			? $label . ' ' . $num
+			: $num . ' ' . $label;
+	}
+
+	/**
 	 * Tous les réglages (défauts fusionnés avec la sauvegarde).
+	 *
+	 * Inclut la migration one-shot des anciens toggles show_email/show_note
+	 * vers le Checkout Builder (idempotente, marquée par une option dédiée,
+	 * n'écrase jamais une configuration déjà modifiée).
 	 *
 	 * @return array
 	 */
@@ -225,8 +247,69 @@ class Settings {
 			$saved          = get_option( self::OPTION, array() );
 			$saved          = is_array( $saved ) ? $saved : array();
 			self::$cache = wp_parse_args( $saved, self::defaults() );
+
+			self::migrate_legacy_field_toggles( $saved );
 		}
 		return self::$cache;
+	}
+
+	/**
+	 * Migration one-shot : un site installé avant le Checkout Builder pilotait
+	 * email/note par show_email/show_note. On aligne le builder sur ces choix
+	 * historiques UNE seule fois (option-marker), jamais réexécutée ensuite.
+	 *
+	 * @param array $saved Réglages sauvegardés bruts (peut être vide = neuve installation).
+	 * @return void
+	 */
+	private static function migrate_legacy_field_toggles( array $saved ) {
+		if ( get_option( 'infinitycod_builder_migrated' ) ) {
+			return;
+		}
+		update_option( 'infinitycod_builder_migrated', 1, true );
+
+		// Nouvelle installation : les défauts sont déjà alignés, rien à faire.
+		if ( empty( $saved ) ) {
+			return;
+		}
+
+		$fields = isset( $saved['checkout_fields'] ) && is_array( $saved['checkout_fields'] ) ? $saved['checkout_fields'] : array();
+		if ( empty( $fields ) ) {
+			return;
+		}
+
+		// Legacy : un ancien site peut avoir email/note actifs via ces toggles.
+		$legacy_on = array(
+			'email' => ! empty( $saved['show_email'] ),
+			'note'  => ! empty( $saved['show_note'] ),
+		);
+
+		$changed = false;
+		foreach ( $fields as $i => $f ) {
+			if ( ! is_array( $f ) || empty( $f['key'] ) || ! isset( $legacy_on[ $f['key'] ] ) ) {
+				continue;
+			}
+			// Uniquement si le marchand n'a JAMAIS touché au builder pour ce
+			// champ (valeur encore au défaut) : on respecte sinon on écrase pas.
+			$defaults   = self::defaults()['checkout_fields'];
+			$default_on = null;
+			foreach ( $defaults as $d ) {
+				if ( isset( $d['key'] ) && $d['key'] === $f['key'] ) {
+					$default_on = ! empty( $d['on'] );
+				}
+			}
+			if ( null !== $default_on && ! empty( $f['on'] ) === $default_on && $legacy_on[ $f['key'] ] !== $default_on ) {
+				$fields[ $i ]['on'] = $legacy_on[ $f['key'] ] ? 1 : 0;
+				$changed            = true;
+			}
+		}
+
+		if ( $changed ) {
+			$merged = array_merge( $saved, array( 'checkout_fields' => array_values( $fields ) ) );
+			update_option( self::OPTION, $merged, true );
+			// Le cache est repeuplé immédiatement : all() appelant ne doit
+			// jamais recevoir null.
+			self::$cache = wp_parse_args( $merged, self::defaults() );
+		}
 	}
 
 	/**
@@ -313,6 +396,17 @@ class Settings {
 		}
 
 		return array_key_exists( $key, $all ) ? $all[ $key ] : $fallback;
+	}
+
+	/**
+	 * Force le rechargement des réglages au prochain accès (invalidation
+	 * après sauvegarde, après reset, ou pour l'aperçu à brouillon).
+	 *
+	 * @param array|null $value Valeur du cache (null = recharger).
+	 * @return void
+	 */
+	public static function setCache( $value ) {
+		self::$cache = $value;
 	}
 
 	/**

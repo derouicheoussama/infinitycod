@@ -194,6 +194,25 @@ class DiagnosticsPage {
 			);
 		}
 
+		// Moteur de formulaire : configuration, plan de champs, captcha.
+		$settings_count = count( \InfinityCod\Core\Settings::all() );
+		$this->add( 'Configuration (moteur de réglages)', $settings_count . ' ' . __( 'clés chargées', 'infinitycod' ), $settings_count > 50 ? self::PASS : self::WARN, 'option : infinitycod_settings' );
+
+		$plan          = \InfinityCod\Form\FormManager::fields_plan();
+		$active_fields = array_values( array_filter( $plan, static function ( $f ) { return ! empty( $f['on'] ); } ) );
+		$active_keys   = implode( ', ', array_map( static function ( $f ) { return $f['key'] . ( ! empty( $f['req'] ) ? '*' : '' ); }, $active_fields ) );
+		$this->add( __( 'Moteur de formulaire', 'infinitycod' ), class_exists( '\InfinityCod\Form\FormManager' ) ? __( 'opérationnel', 'infinitycod' ) : __( 'absent', 'infinitycod' ), class_exists( '\InfinityCod\Form\FormManager' ) ? self::PASS : self::FAIL, '[infinitycod_form] · ' . sprintf( /* translators: 1 : nombre de champs actifs, 2 : nombre total. */ __( '%1$d champ(s) actif(s) sur %2$d', 'infinitycod' ), count( $active_fields ), count( $plan ) ) . ' : ' . $active_keys );
+
+		$provider_labels = array(
+			'off'          => __( 'désactivé', 'infinitycod' ),
+			'math'         => __( 'question mathématique', 'infinitycod' ),
+			'recaptcha_v3' => __( 'Google reCAPTCHA v3', 'infinitycod' ),
+		);
+		$provider = \InfinityCod\Form\FormManager::captcha_provider();
+		$this->add( __( 'Captcha', 'infinitycod' ), isset( $provider_labels[ $provider ] ) ? $provider_labels[ $provider ] : $provider, 'off' === $provider ? self::PASS : self::PASS, 'off' === $provider ? __( 'aucun script ni validation chargé', 'infinitycod' ) : '' );
+
+		$this->add( __( 'Devise', 'infinitycod' ), \InfinityCod\Core\Settings::currency() . ' · ' . \InfinityCod\Core\Settings::currency_label() . ' · ' . ( 'left' === \InfinityCod\Core\Settings::get( 'currency_position', 'right' ) ? __( 'avant le montant', 'infinitycod' ) : __( 'après le montant', 'infinitycod' ) ), self::PASS, '' );
+
 		// Canal.
 		$this->add( 'Canal de mise à jour', \InfinityCod\License\Updater::channel(), self::PASS, '' );
 	}

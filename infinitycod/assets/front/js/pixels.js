@@ -86,6 +86,15 @@
 		window.snaptr('track', 'PAGE_VIEW');
 	}
 
+	/* ---------- Google Analytics 4 ---------- */
+	var ga4 = CFG.ga4;
+	if (ga4 && ga4.id) {
+		window.dataLayer = window.dataLayer || [];
+		window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+		window.gtag('js', new Date());
+		window.gtag('config', ga4.id);
+	}
+
 	/* ---------- ViewContent (fiche produit) ---------- */
 	var p = CFG.product || { id: 0, name: '', price: 0 };
 	if (p.id) {
@@ -113,6 +122,13 @@
 				item_ids: [String(p.id)],
 				item_category: 'product',
 				price: p.price,
+				currency: CFG.currency
+			});
+		}
+		if (ga4 && ga4.id) {
+			window.gtag('event', 'view_item', {
+				items: [{ item_id: String(p.id), item_name: p.name, price: p.price }],
+				value: p.price,
 				currency: CFG.currency
 			});
 		}
@@ -197,6 +213,15 @@
 				transaction_id: eventId,
 				price: total,
 				currency: CFG.currency
+			});
+		}
+
+		if (ga4 && ga4.id) {
+			window.gtag('event', 'purchase', {
+				transaction_id: eventId,
+				value: total,
+				currency: CFG.currency,
+				items: [{ item_id: String(p.id), item_name: productName || p.name, quantity: 1, price: total }]
 			});
 		}
 	};

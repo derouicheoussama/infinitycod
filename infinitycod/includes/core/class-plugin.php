@@ -47,6 +47,7 @@ final class Plugin {
 		'rates'     => '\\InfinityCod\\Shipping\\RatesManager',
 		'shield'    => '\\InfinityCod\\AntiFraud\\Shield',
 		'orders'    => '\\InfinityCod\\Orders\\OrderStore',
+		'order_notifications' => '\\InfinityCod\\Orders\\AdminNotifications',
 		'form'      => '\\InfinityCod\\Form\\FormManager',
 		'payment'   => '\\InfinityCod\\Payment\\PaymentManager',
 		'rest'      => '\\InfinityCod\\Rest\\Routes',

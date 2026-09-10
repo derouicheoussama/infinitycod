@@ -338,79 +338,154 @@ class Routes {
 			}
 		}
 
-		// 1. Champs obligatoires.
-		$name  = isset( $body['name'] ) ? Validator::clean_name( $body['name'] ) : '';
-		$phone = isset( $body['phone'] ) ? Validator::normalize_phone( $body['phone'] ) : null;
+		// 1. Champs — MÊMES RÈGLES QUE LE RENDU : le plan du Checkout Builder
+		// décide de ce qui est affiché, requis ou ignoré. Un champ caché n'est
+		// jamais exigé ni enregistré ; un champ requis est validé ICI (serveur),
+		// pas seulement en JavaScript.
+		$plan  = \InfinityCod\Form\FormManager::fields_plan();
+		$state = array();
+		foreach ( $plan as $plan_field ) {
+			$state[ $plan_field['key'] ] = $plan_field;
+		}
+		$fld = static function ( $key ) use ( $state ) {
+			return isset( $state[ $key ] )
+				? $state[ $key ]
+				: array( 'key' => $key, 'on' => false, 'req' => false, 'custom' => 0 === strpos( $key, 'cf_' ) );
+		};
 
-		if ( ! Validator::is_valid_name( $name ) ) {
+		$name      = isset( $body['name'] ) ? Validator::clean_name( $body['name'] ) : '';
+		$phone_raw = isset( $body['phone'] ) ? (string) $body['phone'] : '';
+		$address   = isset( $body['address'] ) ? sanitize_text_field( $body['address'] ) : '';
+		$email_raw = isset( $body['email'] ) ? sanitize_email( $body['email'] ) : '';
+		$email     = is_email( $email_raw ) ? $email_raw : '';
+		$note      = isset( $body['note'] ) ? sanitize_textarea_field( (string) $body['note'] ) : '';
+
+		$name_def   = $fld( 'name' );
+		$phone_def  = $fld( 'phone' );
+		$email_def  = $fld( 'email' );
+		$wilaya_def = $fld( 'wilaya' );
+		$commune_def = $fld( 'commune' );
+		$address_def = $fld( 'address' );
+		$note_def    = $fld( 'note' );
+
+		if ( $name_def['on'] && $name_def['req'] && ! Validator::is_valid_name( $name ) ) {
+			return new \WP_Error( 'icod_name', __( 'Veuillez saisir votre nom complet.', 'infinitycod' ), array( 'status' => 400 ) );
+		}
+		if ( $name_def['on'] && '' !== $name && ! Validator::is_valid_name( $name ) ) {
 			return new \WP_Error( 'icod_name', __( 'Veuillez saisir votre nom complet.', 'infinitycod' ), array( 'status' => 400 ) );
 		}
 
 		// Validation souple ici (longueur) ; la règle stricte algérienne est
 		// appliquée après résolution du pays de livraison.
-		$phone_digits = isset( $body['phone'] ) ? preg_replace( '/\D/', '', (string) $body['phone'] ) : '';
-		if ( null === $phone || strlen( $phone_digits ) < 6 || strlen( $phone_digits ) > 15 ) {
+		$phone_digits = preg_replace( '/\D/', '', $phone_raw );
+		if ( $phone_def['on'] && $phone_def['req'] && ( strlen( $phone_digits ) < 6 || strlen( $phone_digits ) > 15 ) ) {
 			return new \WP_Error( 'icod_phone', __( 'Numéro de téléphone invalide.', 'infinitycod' ), array( 'status' => 400 ) );
+		}
+
+		// Champ email : caché → la donnée postée est IGNORÉE (jamais stockée).
+		if ( ! $email_def['on'] ) {
+			$email = '';
+		} elseif ( $email_def['req'] && '' === $email ) {
+			return new \WP_Error( 'icod_email', __( 'Veuillez indiquer une adresse email valide.', 'infinitycod' ), array( 'status' => 400 ) );
+		} elseif ( $email_def['req'] || '' !== $email_raw ) {
+			if ( '' !== $email_raw && ! is_email( $email_raw ) ) {
+				return new \WP_Error( 'icod_email', __( 'Adresse email invalide.', 'infinitycod' ), array( 'status' => 400 ) );
+			}
+		}
+
+		// Adresse / note : requis si configuré, ignorées si champ caché.
+		if ( $address_def['on'] && $address_def['req'] && '' === trim( $address ) ) {
+			return new \WP_Error( 'icod_address', __( 'Veuillez indiquer votre adresse.', 'infinitycod' ), array( 'status' => 400 ) );
+		}
+		if ( ! $address_def['on'] ) {
+			$address = '';
+		}
+		if ( ! $note_def['on'] ) {
+			$note = '';
 		}
 
 		$geo        = infinitycod()->module( 'geo' );
 		$wilaya_code = isset( $body['wilaya'] ) ? $this->normalize_wilaya_code( sanitize_text_field( $body['wilaya'] ) ) : '';
-		$wilaya     = $geo ? $geo->wilaya( $wilaya_code ) : null;
-		if ( ! $wilaya || empty( $wilaya['active'] ) ) {
+		$wilaya     = ( $wilaya_def['on'] && '' !== $wilaya_code && $geo ) ? $geo->wilaya( $wilaya_code ) : null;
+		if ( $wilaya_def['on'] && ( ! $wilaya || empty( $wilaya['active'] ) ) ) {
 			return new \WP_Error( 'icod_wilaya', __( 'Wilaya non desservie, veuillez en choisir une autre.', 'infinitycod' ), array( 'status' => 400 ) );
 		}
 
 		$commune_name = isset( $body['commune'] ) ? sanitize_text_field( $body['commune'] ) : '';
-		$commune      = $geo ? $geo->commune( $wilaya_code, $commune_name ) : null;
+		$commune      = ( $geo && $wilaya ) ? $geo->commune( $wilaya_code, $commune_name ) : null;
 		// Hors Algérie (régions sans communes en base) : la commune est un texte libre.
-		$is_foreign   = isset( $wilaya['country_code'] ) && 'DZ' !== $wilaya['country_code'];
-		if ( ! $commune && ! $is_foreign ) {
+		$is_foreign   = $wilaya && isset( $wilaya['country_code'] ) && 'DZ' !== $wilaya['country_code'];
+		if ( $commune_def['on'] && $wilaya_def['on'] && ! $commune && ! $is_foreign ) {
 			return new \WP_Error( 'icod_commune', __( 'Commune introuvable pour cette wilaya.', 'infinitycod' ), array( 'status' => 400 ) );
 		}
-		if ( $is_foreign && '' === trim( $commune_name ) ) {
+		if ( $commune_def['on'] && $is_foreign && '' === trim( $commune_name ) ) {
 			return new \WP_Error( 'icod_commune', __( 'Veuillez indiquer votre ville.', 'infinitycod' ), array( 'status' => 400 ) );
 		}
 
+		// Numéro final : normalisé DZ si possible, sinon chiffres bruts
+		// (commandes hors Algérie).
+		$phone = $phone_raw ? ( Validator::normalize_phone( $phone_raw ) ?? preg_replace( '/[^\d+]/', '', $phone_raw ) ) : '';
+
 		// Règle stricte algérienne (Mobilis/Djezzy/Ooredoo) : uniquement pour
 		// une livraison en Algérie, et si le marchand l'a activée.
-		if ( ! $is_foreign && Settings::get( 'phone_strict', 1 ) && ! Validator::is_valid_phone( isset( $body['phone'] ) ? $body['phone'] : '' ) ) {
+		if ( $phone_def['on'] && ! $is_foreign && Settings::get( 'phone_strict', 1 ) && '' !== $phone_raw && ! Validator::is_valid_phone( $phone_raw ) ) {
 			return new \WP_Error( 'icod_phone', __( 'Numéro de téléphone algérien invalide (ex. 0555123456).', 'infinitycod' ), array( 'status' => 400 ) );
 		}
 
 		$mode     = ( isset( $body['mode'] ) && 'desk' === $body['mode'] ) ? RatesManager::MODE_DESK : RatesManager::MODE_HOME;
 		$stopdesk = isset( $body['stopdesk'] ) ? sanitize_text_field( $body['stopdesk'] ) : '';
 		$payment  = ( isset( $body['payment'] ) && 'online' === $body['payment'] && \InfinityCod\Payment\PaymentManager::enabled() ) ? 'online' : 'cod';
-		$email    = isset( $body['email'] ) ? sanitize_email( $body['email'] ) : '';
-		if ( $email && ! is_email( $email ) ) {
-			$email = '';
-		}
 		if ( RatesManager::MODE_DESK === $mode && '' === $stopdesk ) {
 			return new \WP_Error( 'icod_desk', __( 'Veuillez choisir un bureau de retrait.', 'infinitycod' ), array( 'status' => 400 ) );
 		}
 
-		// 1b. Captcha mathématique (si activé).
-		if ( Settings::get( 'captcha_enabled' ) ) {
-			$cap_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-			$cap_key = 'icod_cap_' . md5( $cap_ip );
-			$expected = get_transient( $cap_key );
-			$user_answer = isset( $_POST['icod_captcha'] ) ? absint( $_POST['icod_captcha'] ) : -1;
+		// 1b. Champs personnalisés requis (cf_*) — validation serveur réelle.
+		foreach ( $plan as $plan_field ) {
+			if ( ! $plan_field['custom'] || ! $plan_field['on'] || ! $plan_field['req'] ) {
+				continue;
+			}
+			$cf_key   = isset( $body['cfields'] ) && is_array( $body['cfields'] ) && isset( $body['cfields'][ $plan_field['key'] ] ) ? (string) $body['cfields'][ $plan_field['key'] ] : '';
+			$cf_value = '' !== $cf_key ? $cf_key : (string) ( isset( $body[ $plan_field['key'] ] ) ? $body[ $plan_field['key'] ] : '' );
+			if ( '' === trim( $cf_value ) ) {
+				return new \WP_Error(
+					'icod_cf_' . $plan_field['key'],
+					sprintf( __( 'Le champ « %s » est obligatoire.', 'infinitycod' ), $plan_field['label'] ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
+		// 1c. Captcha (si activé) : réponse + token par formulaire, lus dans
+		// le corps JSON (jamais $_POST — ce endpoint reçoit du JSON).
+		$captcha_provider = \InfinityCod\Form\FormManager::captcha_provider();
+		if ( 'math' === $captcha_provider ) {
+			$cap_token  = isset( $body['icod_cap_token'] ) ? preg_replace( '/[^a-zA-Z0-9]/', '', (string) $body['icod_cap_token'] ) : '';
+			$cap_key    = 'icod_cap_' . $cap_token;
+			$expected   = '' !== $cap_token ? get_transient( $cap_key ) : false;
+			$user_answer = isset( $body['icod_captcha'] ) ? absint( $body['icod_captcha'] ) : -1;
 			if ( false === $expected || (int) $user_answer !== (int) $expected ) {
-				return new WP_Error( 'icod_captcha', __( 'Captcha incorrect. Réessayez.', 'infinitycod' ), array( 'status' => 400 ) );
+				return new \WP_Error( 'icod_captcha', __( 'Captcha incorrect. Réessayez.', 'infinitycod' ), array( 'status' => 400 ) );
 			}
 			delete_transient( $cap_key );
+		} elseif ( 'recaptcha_v3' === $captcha_provider ) {
+			$cap_token = isset( $body['icod_captcha'] ) ? sanitize_text_field( (string) $body['icod_captcha'] ) : '';
+			$verified  = $this->verify_recaptcha( $cap_token );
+			if ( ! $verified ) {
+				return new \WP_Error( 'icod_captcha', __( 'Vérification anti-bot échouée. Réessayez.', 'infinitycod' ), array( 'status' => 400 ) );
+			}
 		}
 
 		// 2. Bouclier anti-fraude.
 		$shield = infinitycod()->module( 'shield' );
 		$assessment = $shield ? $shield->assess( array(
 			'name'        => $name,
-			'phone'       => isset( $body['phone'] ) ? $body['phone'] : '',
+			'phone'       => $phone_raw,
 			'wilaya'      => $wilaya_code,
 			'commune'     => $commune_name,
 			'mode'        => $mode,
 			'quantity'    => isset( $body['quantity'] ) ? absint( $body['quantity'] ) : 1,
 			'product_id'  => isset( $body['product_id'] ) ? absint( $body['product_id'] ) : 0,
-			'email'       => isset( $body['email'] ) ? sanitize_email( $body['email'] ) : '',
+			'email'       => $email,
 			'honeypot'    => isset( $body['honeypot'] ) ? sanitize_text_field( $body['honeypot'] ) : '',
 			'ts'          => isset( $body['ts'] ) ? absint( $body['ts'] ) : 0,
 			'sig'         => isset( $body['sig'] ) ? sanitize_text_field( $body['sig'] ) : '',
@@ -427,10 +502,10 @@ class Routes {
 		}
 
 		// 2b. Protections additionnelles (email jetable, limite globale).
-		if ( ! empty( $body['email'] ) && Settings::get( 'block_disposable_email' ) ) {
+		if ( '' !== $email && Settings::get( 'block_disposable_email' ) ) {
 			$disposable = array( 'mailinator.com', 'yopmail.com', 'tempmail', '10minutemail', 'guerrillamail', 'trashmail', 'getnada', 'dispostable' );
 			foreach ( $disposable as $domain ) {
-				if ( false !== strpos( (string) $body['email'], $domain ) ) {
+				if ( false !== strpos( $email, $domain ) ) {
 					return new \WP_Error( 'icod_email', __( 'Email non accepté. Veuillez utiliser un email valide.', 'infinitycod' ), array( 'status' => 400 ) );
 				}
 			}
@@ -465,12 +540,13 @@ class Routes {
 			'name'         => $name,
 			'phone'        => $phone,
 			'email'        => $email,
+			'address'      => $address,
 			'wilaya_code'  => $wilaya_code,
 			'commune'      => $commune_name,
 			'mode'         => $mode,
 			'stopdesk'     => $stopdesk,
 			'payment'      => $payment,
-			'note'         => isset( $body['note'] ) ? $body['note'] : '',
+			'note'         => $note,
 			'coupon'       => isset( $body['coupon'] ) ? $body['coupon'] : '',
 			'cfields'      => array_filter( (array) ( $body['cfields'] ?? array() ), 'is_string' ),
 			'fraud_score'  => isset( $assessment['score'] ) ? $assessment['score'] : 0,
@@ -521,7 +597,7 @@ class Routes {
 					'nom'       => $name,
 					'telephone' => $phone,
 					'produit'   => $product ? wp_strip_all_tags( $product->get_name() ) : '',
-					'total'     => number_format_i18n( (float) $result['total'], 0 ) . ' DA',
+					'total'     => Settings::format_price( (float) $result['total'] ),
 					'wilaya'    => $wilaya['name_fr'],
 					'commune'   => $commune_name,
 				)
@@ -608,6 +684,39 @@ class Routes {
 		$ok   = $pay ? $pay->handle_webhook( $raw, $sig ) : false;
 
 		return rest_ensure_response( array( 'ok' => $ok ) );
+	}
+
+	/**
+	 * Vérifie un token reCAPTCHA v3 auprès de Google.
+	 *
+	 * @param string $token Token grecaptcha reçu du front.
+	 * @return bool
+	 */
+	private function verify_recaptcha( $token ) {
+		$secret = (string) Settings::get( 'recaptcha_v3_secret_key', '' );
+		if ( '' === $secret || '' === $token ) {
+			return false;
+		}
+		$response = wp_remote_post(
+			'https://www.google.com/recaptcha/api/siteverify',
+			array(
+				'timeout' => 8,
+				'body'    => array(
+					'secret'   => $secret,
+					'response' => $token,
+					'remoteip' => Shield::client_ip(),
+				),
+			)
+		);
+		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return false;
+		}
+		$data = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+		if ( empty( $data['success'] ) ) {
+			return false;
+		}
+		// v3 : score de confiance 0-1. En dessous de 0.3 → refusé.
+		return ! isset( $data['score'] ) || (float) $data['score'] >= 0.3;
 	}
 
 	/**

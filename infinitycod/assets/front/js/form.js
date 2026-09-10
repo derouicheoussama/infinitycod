@@ -5,9 +5,13 @@
  * @author Derouiche Oussama
  * @copyright © Derouiche Oussama
  * @license GPL-2.0-or-later
- * @link https://derouicheoussama.com (vanilla JS, ~14 Ko).
- * Cascade wilaya→commune→bureau, prix temps réel (serveur), anti-fraude passif,
+ * @link https://derouicheoussama.com (vanilla JS).
+ * Cascade wilaya→commune→bureau, prix temps réel (serveur), champs pilotés
+ * par le Checkout Builder (data-req), captcha (math / reCAPTCHA v3),
  * barre collante mobile, suivi des paniers abandonnés.
+ *
+ * Tolérant aux champs désactivés : chaque champ du Checkout Builder peut
+ * être absent du DOM — tous les accès sont null-safe.
  */
 (function () {
 	'use strict';
@@ -18,8 +22,8 @@
 
 	/* ---------- Utilitaires ---------- */
 
-	function el(root, selector) { return root.querySelector(selector); }
-	function els(root, selector) { return Array.prototype.slice.call(root.querySelectorAll(selector)); }
+	function el(root, selector) { return root ? root.querySelector(selector) : null; }
+	function els(root, selector) { return root ? Array.prototype.slice.call(root.querySelectorAll(selector)) : []; }
 
 	function money(amount) {
 		var n = Math.round((Number(amount) || 0) * 100) / 100;
@@ -29,7 +33,9 @@
 		} catch (e) {
 			formatted = String(n);
 		}
-		return formatted + ' ' + I18N.da;
+		var label = I18N.da || 'DA';
+		var pos = icodFront.currencyPosition || 'right';
+		return 'left' === pos ? label + ' ' + formatted : formatted + ' ' + label;
 	}
 
 	function debounce(fn, delay) {
@@ -46,7 +52,7 @@
 	   2. fuseau horaire (Africa/Casablanca → MA). */
 	var TZ_COUNTRY = {
 		algiers: 'DZ', casablanca: 'MA', tunis: 'TN', cairo: 'EG',
-		riyadh: 'SA', dubai: 'AE', abu_dhabi: 'AE', kuwait: 'KW',
+		riyadh: 'SA', dubai: 'AE', 'abu_dhabi': 'AE', kuwait: 'KW',
 		baghdad: 'IQ', tripoli: 'LY', khartoum: 'SD', doha: 'QA',
 		muscat: 'OM', manama: 'BH', amman: 'JO', damascus: 'SY',
 		sanaa: 'YE', nouakchott: 'MR'
@@ -63,7 +69,6 @@
 			var city = String(tz).split('/').pop().toLowerCase().replace(/_/g, '_');
 			return TZ_COUNTRY[city] || '';
 		} catch (e) { return ''; }
-		return '';
 	}
 
 	/* Exemples de numéro local par pays (placeholder du champ téléphone). */
@@ -107,6 +112,45 @@
 		} catch (e) { return ''; }
 	}
 
+	/* ---------- Compte à rebours d'urgence (evergreen par session) ---------- */
+
+	function initTimer(root, productId) {
+		var timer = el(root, '[data-timer]');
+		if (!timer) { return; }
+
+		var minutes = parseInt(timer.getAttribute('data-timer'), 10) || 120;
+		var labelEl = el(timer, '[data-timer-text]');
+		var template = labelEl ? (labelEl.getAttribute('data-timer-text') || '') : '';
+		var key = 'icod_timer_' + productId;
+		var start = 0;
+
+		try {
+			start = parseInt(window.sessionStorage.getItem(key), 10) || 0;
+			if (!start || start > Date.now() || (Date.now() - start) > minutes * 60000) {
+				start = Date.now();
+				window.sessionStorage.setItem(key, String(start));
+			}
+		} catch (e) { start = Date.now(); }
+
+		function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+		function tick() {
+			var elapsed = Math.floor((Date.now() - start) / 1000);
+			var remaining = minutes * 60 - elapsed;
+			if (remaining <= 0) { /* Boucle : nouvelle session de compte à rebours. */
+				start = Date.now();
+				try { window.sessionStorage.setItem(key, String(start)); } catch (e2) { /* ignoré */ }
+				remaining = minutes * 60;
+			}
+			if (labelEl) {
+				var clock = pad(Math.floor(remaining / 60)) + ':' + pad(remaining % 60);
+				labelEl.textContent = template ? template.replace('{time}', clock) : '⏳ ' + clock;
+			}
+		}
+		tick();
+		window.setInterval(tick, 1000);
+	}
+
 	/* ---------- Formulaire ---------- */
 
 	function initForm(root) {
@@ -117,6 +161,7 @@
 			productId: parseInt(root.getAttribute('data-product'), 10) || 0,
 			variations: JSON.parse(root.getAttribute('data-variations') || '[]'),
 			unitPrice: parseFloat(root.getAttribute('data-unit-price')) || 0,
+			qtyMin: parseInt(root.getAttribute('data-qty-min'), 10) || 1,
 			qtyMax: parseInt(root.getAttribute('data-qty-max'), 10) || 20,
 			variationId: 0,
 			quote: null,
@@ -126,8 +171,9 @@
 
 		var nameInput = el(form, '[data-icod-field="name"]');
 		var phoneInput = el(form, '[data-icod-field="phone"]');
-		var wilayaSelect = el(form, '.icod-wilaya');
-		var communeSelect = el(form, '.icod-commune');
+		var wilayaSelect = el(form, '[data-icod-field="wilaya"]');
+		var communeSelect = el(form, '[data-icod-field="commune"]');
+		var addressInput = el(form, '[name="icod_address"]');
 		var deskSelect = el(form, '.icod-desk');
 		var deskWrap = el(form, '.icod-stopdesk-wrap');
 		var qtyInput = el(root, '.icod-qty-input');
@@ -135,11 +181,11 @@
 		var submitBtn = el(form, '.icod-submit');
 		var fpInput = el(form, '.icod-fp');
 
-		fpInput.value = fingerprint();
+		if (fpInput) { fpInput.value = fingerprint(); }
+
+		function currentQty() { return qtyInput ? (parseInt(qtyInput.value, 10) || state.qtyMin) : state.qtyMin; }
 
 		/* --- Affichage permanent du prix (en-tête + récap) --- */
-		function currentQty() { return qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1; }
-
 		function updateHeadPrice() {
 			var live = el(root, '[data-head-price-live]');
 			if (live) { live.textContent = money(state.unitPrice); }
@@ -170,18 +216,25 @@
 			if (phoneInput) { phoneInput.setAttribute('placeholder', hint); }
 		}
 
+		/* Barre de progression : compte les champs réellement présents. */
+		var progressFields = [];
+		if (nameInput) { progressFields.push(function () { return nameInput.value.trim().length > 1; }); }
+		if (phoneInput) { progressFields.push(function () { return phoneInput.value.replace(/\D/g, '').length >= 9; }); }
+		if (wilayaSelect) { progressFields.push(function () { return !!wilayaSelect.value; }); }
+		if (communeSelect) {
+			progressFields.push(function () { return !!communeSelect.value || (communeText && !communeText.classList.contains('icod-hidden') && !!communeText.value.trim()); });
+		}
+		if (addressInput) { progressFields.push(function () { return !!addressInput.value.trim(); }); }
+
 		function updateProgress() {
 			var fill = el(root, '[data-progress-fill]');
-			if (!fill) { return; }
-			var total = 4, done = 0;
-			if (nameInput && nameInput.value.trim()) { done++; }
-			if (phoneInput && phoneInput.value.replace(/D/g,'').length >= 9) { done++; }
-			if (wilayaSelect && wilayaSelect.value) { done++; }
-			if (communeSelect && (communeSelect.value || (communeText && communeText.value.trim()))) { done++; }
-			fill.style.width = Math.round(done / total * 100) + '%';
-			fill.style.background = done >= total ? 'var(--icod-success,#0e7a4f)' : '';
+			if (!fill || !progressFields.length) { return; }
+			var done = 0;
+			progressFields.forEach(function (check) { if (check()) { done++; } });
+			fill.style.width = Math.round(done / progressFields.length * 100) + '%';
+			fill.style.background = done >= progressFields.length ? 'var(--icod-success,#0e7a4f)' : '';
 		}
-		['input','change'].forEach(function (evt) {
+		['input', 'change'].forEach(function (evt) {
 			root.addEventListener(evt, updateProgress, { passive: true });
 		});
 		updateProgress();
@@ -224,8 +277,9 @@
 
 		/* --- Cascade wilaya → communes --- */
 		function loadCommunes(wilayaCode) {
-			// Wilaya hors Algérie (code « XX-nn ») : ville en saisie libre.
-			if (/^[A-Z]{2}-\d{2}$/.test(wilayaCode)) {
+			if (!communeSelect) { return; }
+			/* Hors Algérie (code pays-région) : ville en saisie libre. */
+			if (/^[A-Z]{2}-/.test(wilayaCode)) {
 				setCommuneFree(true);
 				return;
 			}
@@ -268,7 +322,7 @@
 
 		function setCommuneFree(free) {
 			communeFree = free;
-			if (!communeText) { return; }
+			if (!communeText || !communeSelect) { return; }
 			communeSelect.classList.toggle('icod-hidden', free);
 			communeText.classList.toggle('icod-hidden', !free);
 			if (free) { communeSelect.disabled = true; }
@@ -276,7 +330,7 @@
 
 		/* Sélecteur de pays (multi-pays Premium) : filtre les wilayas. */
 		var countrySelect = el(root, '.icod-country');
-		if (countrySelect) {
+		if (countrySelect && wilayaSelect) {
 			countrySelect.addEventListener('change', function () {
 				var cc = countrySelect.value;
 				els(wilayaSelect, 'option').forEach(function (option) {
@@ -286,8 +340,10 @@
 					option.hidden = !match;
 				});
 				wilayaSelect.value = '';
-				communeSelect.innerHTML = '<option value="">' + I18N.chooseCommune + '</option>';
-				communeSelect.disabled = true;
+				if (communeSelect) {
+					communeSelect.innerHTML = '<option value="">' + I18N.chooseCommune + '</option>';
+					communeSelect.disabled = true;
+				}
 				setCommuneFree(false);
 				applyPhoneHint(cc);
 				refreshQuote();
@@ -312,18 +368,27 @@
 			applyPhoneHint(icodFront.defaultCountry);
 		}
 
-		wilayaSelect.addEventListener('change', function () {
-			communeSelect.innerHTML = '<option value="">' + I18N.chooseCommune + '</option>';
-			communeSelect.disabled = true;
-			deskSelect.innerHTML = '<option value="">' + I18N.chooseDesk + '</option>';
-			if (wilayaSelect.value) { loadCommunes(wilayaSelect.value); }
-			refreshQuote();
-		});
+		if (wilayaSelect) {
+			wilayaSelect.addEventListener('change', function () {
+				if (communeSelect) {
+					communeSelect.innerHTML = '<option value="">' + I18N.chooseCommune + '</option>';
+					communeSelect.disabled = true;
+				}
+				if (deskSelect) { deskSelect.innerHTML = '<option value="">' + I18N.chooseDesk + '</option>'; }
+				if (wilayaSelect.value) { loadCommunes(wilayaSelect.value); }
+				refreshQuote();
+			});
+		}
 
-		communeSelect.addEventListener('change', function () {
-			refreshQuote();
-			if (currentMode() === 'desk') { loadDesks(); }
-		});
+		if (communeSelect) {
+			communeSelect.addEventListener('change', function () {
+				refreshQuote();
+				if (currentMode() === 'desk') { loadDesks(); }
+			});
+		}
+		if (communeText) {
+			communeText.addEventListener('change', refreshQuote);
+		}
 
 		function currentMode() {
 			var radio = el(form, 'input[name="icod_mode"]:checked');
@@ -332,6 +397,7 @@
 
 		/* --- Bureaux stopdesk --- */
 		function loadDesks() {
+			if (!deskSelect || !wilayaSelect) { return; }
 			var wilaya = wilayaSelect.value;
 			if (!wilaya) { return; }
 			deskSelect.innerHTML = '<option value="">' + I18N.loading + '</option>';
@@ -356,27 +422,28 @@
 		els(form, '.icod-mode-radio').forEach(function (radio) {
 			radio.addEventListener('change', function () {
 				var isDesk = currentMode() === 'desk';
-				deskWrap.classList.toggle('icod-hidden', !isDesk);
+				if (deskWrap) { deskWrap.classList.toggle('icod-hidden', !isDesk); }
 				if (isDesk) { loadDesks(); }
 				refreshQuote();
 			});
 		});
 
 		/* --- Quantité --- */
+		function clampQty(value) {
+			return Math.max(state.qtyMin, Math.min(state.qtyMax, value));
+		}
 		els(root, '.icod-qty-btn').forEach(function (btn) {
 			btn.addEventListener('click', function () {
+				if (!qtyInput) { return; }
 				var step = parseInt(btn.getAttribute('data-step'), 10) || 1;
-				var value = (parseInt(qtyInput.value, 10) || 1) + step;
-				value = Math.max(1, Math.min(state.qtyMax, value));
-				qtyInput.value = value;
+				qtyInput.value = clampQty((parseInt(qtyInput.value, 10) || state.qtyMin) + step);
 				updateQtyBadge();
 				refreshQuote();
 			});
 		});
 		if (qtyInput) {
 			qtyInput.addEventListener('change', function () {
-				var value = parseInt(qtyInput.value, 10) || 1;
-				qtyInput.value = Math.max(1, Math.min(state.qtyMax, value));
+				qtyInput.value = clampQty(parseInt(qtyInput.value, 10) || state.qtyMin);
 				updateQtyBadge();
 				refreshQuote();
 			});
@@ -416,15 +483,15 @@
 
 		/* --- Prix temps réel : toujours recalculé par le serveur --- */
 		var refreshQuote = debounce(function () {
-			var wilaya = wilayaSelect.value;
-			if (!wilaya) { return; }
+			var wilaya = wilayaSelect ? wilayaSelect.value : '';
+			if (wilayaSelect && !wilaya) { return; }
 
 			var payload = {
 				product_id: state.productId,
 				variation_id: state.variationId,
-				quantity: qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1,
+				quantity: currentQty(),
 				wilaya: wilaya,
-				commune: communeSelect.value || '',
+				commune: (communeSelect && !communeFree) ? communeSelect.value : (communeText ? communeText.value.trim() : ''),
 				mode: currentMode(),
 				coupon: state.coupon
 			};
@@ -519,7 +586,7 @@
 
 		/* --- Barre collante mobile --- */
 		var sticky = null;
-		if (root.getAttribute('data-sticky') === '1') {
+		if (root.getAttribute('data-sticky') === '1' && submitBtn) {
 			sticky = document.createElement('div');
 			sticky.className = 'icod-sticky';
 			sticky.innerHTML =
@@ -563,38 +630,68 @@
 			input.classList.toggle('icod-invalid', !!invalid);
 		}
 
+		/* Validation pilotée par les attributs data-req posés par le rendu
+		   PHP (Checkout Builder) : un champ requis absent → erreur ; un champ
+		   non requis présent mais mal formaté → erreur format. */
 		function validate() {
 			var errors = [];
 
 			if (state.variations.length && !state.variationId) {
-				errors.push({ field: els(form, '.icod-attr')[0], message: I18N.errorAttrs });
+				errors.push({ field: el(form, '.icod-attr'), message: I18N.errorAttrs });
 			}
-			var name = nameInput.value.trim();
 
+			/* Champs data-req vides (hors selects gérés spécifiquement). */
+			els(form, '[data-req="1"]').forEach(function (input) {
+				var isEmpty;
+				if ('checkbox' === input.type) {
+					isEmpty = !input.checked;
+				} else if (input === communeSelect) {
+					isEmpty = !communeFree && !input.value;
+				} else {
+					isEmpty = !String(input.value || '').trim();
+				}
+				if (isEmpty && input !== wilayaSelect && input !== communeSelect) {
+					errors.push({ field: input, message: requiredMessage(input) });
+				}
+			});
+
+			/* Formats spécifiques (seulement si le champ existe). */
+			if (nameInput && nameInput.value.trim()) {
+				var name = nameInput.value.trim();
+				if (name.length < 2 || !/^[\p{L}\s'\-]+$/u.test(name)) {
+					errors.push({ field: nameInput, message: I18N.errorName });
+				}
+			}
+			if (phoneInput && phoneInput.value.trim()) {
+				if (!/^(\+?213|0)[567][0-9]{8}$/.test(phoneInput.value.replace(/[\s\-.]/g, ''))) {
+					errors.push({ field: phoneInput, message: I18N.errorPhone });
+				}
+			}
 			var emailInput = el(form, '[name="icod_email"]');
 			if (emailInput && emailInput.value.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailInput.value.trim())) {
 				errors.push({ field: emailInput, message: I18N.errorEmailFormat });
 			}
-			if (name.length < 2 || !/^[\p{L}\s'\-]+$/u.test(name)) {
-				errors.push({ field: nameInput, message: I18N.errorName });
-			}
-			if (!/^(\+?213|0)[567][0-9]{8}$/.test(phoneInput.value.replace(/[\s\-\.]/g, ''))) {
-				errors.push({ field: phoneInput, message: I18N.errorPhone });
-			}
-			if (!wilayaSelect.value) {
+
+			/* Sélecteurs géo requis mais vides. */
+			if (wilayaSelect && '1' === wilayaSelect.getAttribute('data-req') && !wilayaSelect.value) {
 				errors.push({ field: wilayaSelect, message: I18N.errorWilaya });
 			}
-			if (!communeSelect.value || communeSelect.disabled) {
-				errors.push({ field: communeSelect, message: I18N.errorCommune });
+			if (communeSelect && '1' === communeSelect.getAttribute('data-req')) {
+				if (!communeFree && !communeSelect.value) {
+					errors.push({ field: communeSelect, message: I18N.errorCommune });
+				}
+				if (communeFree && communeText && !communeText.value.trim()) {
+					errors.push({ field: communeText, message: I18N.errorCommune });
+				}
 			}
-			if (currentMode() === 'desk' && !deskSelect.value) {
+			if (currentMode() === 'desk' && deskSelect && !deskSelect.value) {
 				errors.push({ field: deskSelect, message: I18N.errorDesk });
 			}
 
-			[nameInput, phoneInput, wilayaSelect, communeSelect, deskSelect].forEach(function (input) {
-				if (input) { markInvalid(input, false); }
-			});
+			var marked = [nameInput, phoneInput, wilayaSelect, communeSelect, addressInput, deskSelect];
+			marked.forEach(function (input) { if (input) { markInvalid(input, false); } });
 			els(form, '.icod-attr').forEach(function (s) { markInvalid(s, false); });
+			els(form, '[data-req="1"]').forEach(function (input) { if (-1 === marked.indexOf(input)) { markInvalid(input, false); } });
 
 			if (errors.length) {
 				errors.forEach(function (error) { if (error.field) { markInvalid(error.field, true); } });
@@ -602,25 +699,36 @@
 			return errors;
 		}
 
+		function requiredMessage(input) {
+			if (input === nameInput) { return I18N.errorName; }
+			if (input === phoneInput) { return I18N.errorPhone; }
+			if (input === addressInput) { return I18N.errorAddress || I18N.error; }
+			if (input.name === 'icod_captcha') { return I18N.errorCaptcha || I18N.error; }
+			return input.getAttribute('data-msg') || I18N.error;
+		}
+
 		function showMsg(text, kind) {
+			if (!msgBox) { return; }
 			msgBox.textContent = text;
 			msgBox.className = 'icod-msg is-' + (kind || 'error');
 			msgBox.classList.remove('icod-hidden');
 			msgBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
 		}
 
-		function hideMsg() { msgBox.classList.add('icod-hidden'); }
+		function hideMsg() { if (msgBox) { msgBox.classList.add('icod-hidden'); } }
 
-		[nameInput, phoneInput].forEach(function (input) {
-			input.addEventListener('input', debounce(trackAbandoned, 900));
-		});
+		if (nameInput && phoneInput) {
+			[nameInput, phoneInput].forEach(function (input) {
+				input.addEventListener('input', debounce(trackAbandoned, 900));
+			});
+		}
 
 		/* --- Suivi paniers abandonnés (léger, anonyme tant que vide) --- */
 		function trackAbandoned() {
-			var wilaya = wilayaSelect.value;
-			var commune = communeSelect.value;
-			var phone = phoneInput.value.trim();
-			var name = nameInput.value.trim();
+			var wilaya = wilayaSelect ? wilayaSelect.value : '';
+			var commune = communeSelect ? communeSelect.value : '';
+			var phone = phoneInput ? phoneInput.value.trim() : '';
+			var name = nameInput ? nameInput.value.trim() : '';
 
 			if (!phone && !name) { return; }
 
@@ -641,6 +749,47 @@
 		/* --- Soumission --- */
 		var waBtn = el(form, '[data-icod-wa]');
 
+		function buildPayload(viaWhatsApp, captchaToken) {
+			var arOption = (communeSelect && !communeFree) ? communeSelect.options[communeSelect.selectedIndex] : null;
+			var payRadio = el(form, 'input[name="icod_payment"]:checked');
+			var emailInput = el(form, '[name="icod_email"]');
+			var captchaInput = el(form, '[name="icod_captcha"]');
+			var capTokenInput = el(form, '[name="icod_cap_token"]');
+
+			var payload = {
+				product_id: state.productId,
+				variation_id: state.variationId,
+				quantity: currentQty(),
+				name: nameInput ? nameInput.value.trim() : '',
+				phone: phoneInput ? phoneInput.value.trim() : '',
+				email: emailInput ? emailInput.value.trim() : '',
+				address: addressInput ? addressInput.value.trim() : '',
+				wilaya: wilayaSelect ? wilayaSelect.value : '',
+				commune: (communeSelect && !communeFree) ? communeSelect.value : (communeText ? communeText.value.trim() : ''),
+				commune_ar: arOption ? (arOption.getAttribute('data-ar') || '') : '',
+				mode: currentMode(),
+				coupon: state.coupon,
+				cfields: (function () {
+					var o = {};
+					els(form, '[name^="cf_"]').forEach(function (input) {
+						o[input.name.slice(3)] = 'checkbox' === input.type ? (input.checked ? '1' : '') : input.value;
+					});
+					return o;
+				})(),
+				stopdesk: currentMode() === 'desk' && deskSelect ? deskSelect.value : '',
+				payment: payRadio ? payRadio.value : 'cod',
+				via_whatsapp: viaWhatsApp ? 1 : 0,
+				note: (el(form, '.icod-note') || { value: '' }).value.trim(),
+				honeypot: (el(form, '.icod-hp') || { value: '' }).value,
+				ts: (el(form, '[name="icod_ts"]') || { value: '' }).value,
+				sig: (el(form, '[name="icod_sig"]') || { value: '' }).value,
+				fingerprint: fpInput ? fpInput.value : '',
+				icod_captcha: captchaToken || (captchaInput ? captchaInput.value : ''),
+				icod_cap_token: capTokenInput ? capTokenInput.value : ''
+			};
+			return payload;
+		}
+
 		function doSubmit(viaWhatsApp) {
 			hideMsg();
 
@@ -655,36 +804,16 @@
 			submitBtn.textContent = I18N.sending;
 			if (waBtn) { waBtn.disabled = true; }
 
-			var arOption = communeSelect.options[communeSelect.selectedIndex];
-			var communeFr = communeFree && communeText ? communeText.value.trim() : communeSelect.value;
-			var arOption = communeSelect.options[communeSelect.selectedIndex];
-			var communeAr = (!communeFree && arOption) ? (arOption.getAttribute('data-ar') || '') : '';
+			function send(captchaToken) {
+				api('submit', buildPayload(viaWhatsApp, captchaToken)).then(handleResponse).catch(function () {
+					submitBtn.disabled = false;
+					submitBtn.textContent = originalLabel;
+					if (waBtn) { waBtn.disabled = false; }
+					showMsg(I18N.error, 'error');
+				});
+			}
 
-			var payRadio = el(form, 'input[name="icod_payment"]:checked');
-			var emailInput = el(form, '[name="icod_email"]');
-
-			api('submit', {
-				product_id: state.productId,
-				variation_id: state.variationId,
-				quantity: qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1,
-				name: nameInput.value.trim(),
-				phone: phoneInput.value.trim(),
-				email: emailInput ? emailInput.value.trim() : '',
-				wilaya: wilayaSelect.value,
-				commune: communeFr,
-				commune_ar: communeAr,
-				mode: currentMode(),
-				coupon: state.coupon,
-				cfields: (function(){var o={};els(root,'[name^="cf_"]').forEach(function(el){o[el.name.slice(3)]=el.type==='checkbox'?(el.checked?'1':''):el.value;});return o;})(),
-				stopdesk: currentMode() === 'desk' ? deskSelect.value : '',
-				payment: payRadio ? payRadio.value : 'cod',
-				via_whatsapp: viaWhatsApp ? 1 : 0,
-				note: (el(form, '.icod-note') || { value: '' }).value.trim(),
-				honeypot: el(form, '.icod-hp').value,
-				ts: el(form, '[name="icod_ts"]').value,
-				sig: el(form, '[name="icod_sig"]').value,
-				fingerprint: fpInput.value
-			}).then(function (json) {
+			function handleResponse(json) {
 				submitBtn.disabled = false;
 				submitBtn.textContent = originalLabel;
 				if (waBtn) { waBtn.disabled = false; }
@@ -698,8 +827,6 @@
 						showMsg(I18N.blocked, 'error');
 					} else {
 						showMsg(json.message || I18N.error, 'error');
-						submitBtn.disabled = false;   // le bouton reste actif pour réessayer
-						submitBtn.textContent = originalLabel;
 					}
 					return;
 				}
@@ -729,7 +856,7 @@
 					var productName = '';
 					var headTitle = el(root, '.icod-summary-product-name');
 					if (headTitle) { productName = headTitle.textContent; }
-					sdProduct.textContent = productName + ' ×' + (qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1);
+					sdProduct.textContent = productName + ' ×' + currentQty();
 				}
 				var sdMode = el(root, '[data-sd-mode]');
 				if (sdMode) {
@@ -737,16 +864,19 @@
 					sdMode.textContent = (currentMode() === 'desk' ? '🏢 Bureau' : '🏠 Domicile') + (deskName ? ' — ' + deskName : '');
 				}
 				var sdTotal = el(root, '[data-sd-total]');
-				if (sdTotal) { sdTotal.textContent = money(json.total || state.unitPrice * (qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1)); }
+				if (sdTotal) { sdTotal.textContent = money(json.total || state.unitPrice * currentQty()); }
 
 				// Pixels : événement Purchase (Meta/TikTok/Snapchat, dédupliqué avec la CAPI).
 				if (window.icodFirePurchase) {
-					window.icodFirePurchase(json.order_id, json.total, '', phoneInput.value.trim());
+					window.icodFirePurchase(json.order_id, json.total, '', phoneInput ? phoneInput.value.trim() : '');
 				}
 
-				form.closest('.icod-card').classList.add('icod-hidden');
-				success.hidden = false;
-				success.classList.remove('icod-hidden');
+				var card = form.closest('.icod-card');
+				if (card) { card.classList.add('icod-hidden'); }
+				if (success) {
+					success.hidden = false;
+					success.classList.remove('icod-hidden');
+				}
 
 				// Montant de la commande.
 				var meta = el(root, '[data-icod-success-meta]');
@@ -759,8 +889,8 @@
 				var upsell = el(root, '[data-icod-upsell]');
 				if (upsell && upsell.querySelector('.icod-upsell-item')) {
 					upsell.classList.remove('icod-hidden');
-					var restart = el(root, '[data-icod-restart]');
-					if (restart) { restart.classList.add('icod-hidden'); }
+					var restartBtn = el(root, '[data-icod-restart]');
+					if (restartBtn) { restartBtn.classList.add('icod-hidden'); }
 				}
 
 				// Redirection personnalisée après commande.
@@ -776,7 +906,7 @@
 				}
 
 				if (sticky) { sticky.classList.remove('is-visible'); }
-				success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				if (success) { success.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
 
 				// Commande via WhatsApp : ouvrir la conversation pré-remplie.
 				if (json.wa_url) {
@@ -790,12 +920,19 @@
 						window.location.reload();
 					});
 				}
-			}).catch(function () {
-				submitBtn.disabled = false;
-				submitBtn.textContent = originalLabel;
-				if (waBtn) { waBtn.disabled = false; }
-				showMsg(I18N.error, 'error');
-			});
+			}
+
+			/* Captcha : reCAPTCHA v3 → token avant envoi ; math → valeur saisie. */
+			if ('recaptcha_v3' === root.getAttribute('data-captcha') && root.getAttribute('data-recaptcha-key') && window.grecaptcha) {
+				var siteKey = root.getAttribute('data-recaptcha-key');
+				window.grecaptcha.ready(function () {
+					window.grecaptcha.execute(siteKey, { action: 'icod_submit' }).then(send).catch(function () {
+						send('');
+					});
+				});
+			} else {
+				send('');
+			}
 		}
 
 		form.addEventListener('submit', function (event) {
@@ -808,6 +945,8 @@
 				doSubmit(true);
 			});
 		}
+
+		initTimer(root, state.productId);
 
 		refreshQuote();
 		updateHeadPrice();

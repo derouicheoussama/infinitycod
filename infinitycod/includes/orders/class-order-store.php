@@ -155,14 +155,17 @@ class OrderStore {
 		$ship->set_total( $shipping_price );
 		$order->add_item( $ship );
 
-		// Adresse et contact.
-		$address = array(
+		// Adresse et contact — mappées depuis les champs actifs du Checkout
+		// Builder (pays réel de la région livrée, pas seulement la DZ).
+		$country_code = ( $wilaya && isset( $wilaya['country_code'] ) && $wilaya['country_code'] ) ? $wilaya['country_code'] : 'DZ';
+		$address      = array(
 			'first_name' => $name,
 			'phone'      => isset( $data['phone'] ) ? $data['phone'] : '',
 			'email'      => isset( $data['email'] ) ? $data['email'] : '',
+			'address_1'  => isset( $data['address'] ) ? sanitize_text_field( (string) $data['address'] ) : '',
 			'city'       => $commune,
-			'state'      => $wilaya['name_fr'],
-			'country'    => 'DZ',
+			'state'      => $wilaya ? (string) $wilaya['name_fr'] : '',
+			'country'    => $country_code,
 		);
 		$order->set_address( $address, 'billing' );
 		$order->set_address( $address, 'shipping' );
@@ -177,6 +180,9 @@ class OrderStore {
 		$order->update_meta_data( '_icod_mode', $mode );
 		$order->update_meta_data( '_icod_stopdesk', isset( $data['stopdesk'] ) ? sanitize_text_field( $data['stopdesk'] ) : '' );
 		$order->update_meta_data( '_icod_phone', isset( $data['phone'] ) ? $data['phone'] : '' );
+		if ( ! empty( $data['address'] ) ) {
+			$order->update_meta_data( '_icod_address', sanitize_text_field( (string) $data['address'] ) );
+		}
 		$order->update_meta_data( '_icod_fraud_score', isset( $data['fraud_score'] ) ? (int) $data['fraud_score'] : 0 );
 
 		$order->set_currency( Settings::currency() );
@@ -191,12 +197,16 @@ class OrderStore {
 		global $wpdb;
 		$now = current_time( 'mysql' );
 
-		// Champs personnalisés cf_* → note de la commande.
+		// Champs personnalisés cf_* + adresse → note de la commande (traçable
+		// dans le dashboard COD même sans colonne dédiée).
 		$cf_text = '';
 		foreach ( $data as $dk => $dv ) {
 			if ( strpos( (string) $dk, 'cf_' ) === 0 && $dv !== '' && $dv !== null ) {
 				$cf_text .= ucfirst( substr( (string) $dk, 3 ) ) . ' : ' . sanitize_text_field( (string) $dv ) . "\n";
 			}
+		}
+		if ( ! empty( $data['address'] ) ) {
+			$cf_text .= __( 'Adresse', 'infinitycod' ) . ' : ' . sanitize_text_field( (string) $data['address'] ) . "\n";
 		}
 		$note_full = trim( ( isset( $data['note'] ) ? sanitize_textarea_field( (string) $data['note'] ) : '' ) . ( $cf_text !== '' ? "\n" . $cf_text : '' ) );
 

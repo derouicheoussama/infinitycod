@@ -32,6 +32,320 @@ class FormManager {
 	}
 
 	/**
+	 * Plan des champs du formulaire — SOURCE UNIQUE DE VÉRITÉ partagée par
+	 * le rendu front, la validation JavaScript et la validation serveur
+	 * (REST /submit). Issu du Checkout Builder (Réglages → Formulaire) :
+	 * ordre, visibilité (on), obligatoire (req) et libellé par champ.
+	 *
+	 * Chaque entrée : key, type, label (résolu), on (bool), req (bool), custom (bool).
+	 *
+	 * @return array[]
+	 */
+	public static function fields_plan() {
+		$fields = (array) Settings::get( 'checkout_fields', array() );
+		if ( empty( $fields ) ) {
+			$fields = Settings::defaults()['checkout_fields'];
+		}
+
+		$default_labels = array(
+			'name'    => Settings::get( 'label_name' ),
+			'phone'   => Settings::get( 'label_phone' ),
+			'email'   => Settings::get( 'label_email' ),
+			'wilaya'  => Settings::get( 'label_wilaya' ),
+			'commune' => Settings::get( 'label_commune' ),
+			'address' => __( 'Adresse', 'infinitycod' ),
+			'note'    => Settings::get( 'label_note' ),
+		);
+
+		$plan = array();
+		foreach ( $fields as $field ) {
+			if ( ! is_array( $field ) || empty( $field['key'] ) ) {
+				continue;
+			}
+			$key     = (string) $field['key'];
+			$custom  = 0 === strpos( $key, 'cf_' );
+			$plan[]  = array(
+				'key'    => $key,
+				'type'   => isset( $field['type'] ) ? (string) $field['type'] : 'text',
+				'label'  => ( isset( $field['label'] ) && '' !== trim( (string) $field['label'] ) )
+					? trim( (string) $field['label'] )
+					: ( isset( $default_labels[ $key ] ) ? $default_labels[ $key ] : $key ),
+				'on'     => ! empty( $field['on'] ),
+				'req'    => ! empty( $field['req'] ),
+				'custom' => $custom,
+			);
+		}
+
+		/**
+		 * Plan final des champs du formulaire (Checkout Builder).
+		 *
+		 * @param array[] $plan Champs normalisés.
+		 */
+		return apply_filters( 'infinitycod_fields_plan', $plan );
+	}
+
+	/**
+	 * État d'un champ du plan (pour la validation serveur).
+	 *
+	 * @param string $key Clé du champ (name, phone, email, wilaya, commune, address, note, cf_*).
+	 * @return array{key:string,on:bool,req:bool}
+	 */
+	public static function field_state( $key ) {
+		foreach ( self::fields_plan() as $field ) {
+			if ( $field['key'] === $key ) {
+				return $field;
+			}
+		}
+		return array( 'key' => (string) $key, 'type' => 'text', 'label' => $key, 'on' => false, 'req' => false, 'custom' => 0 === strpos( (string) $key, 'cf_' ) );
+	}
+
+	/**
+	 * Fournisseur de captcha effectif : le provider configuré, ou « off »
+	 * s'il est inutilisable (reCAPTCHA sans clés). Jamais de configuration
+	 * qui bloque toutes les commandes.
+	 *
+	 * @return string off|math|recaptcha_v3
+	 */
+	public static function captcha_provider() {
+		if ( ! Settings::get( 'captcha_enabled' ) ) {
+			return 'off';
+		}
+		$provider = Settings::get( 'captcha_provider', 'math' );
+		if ( 'recaptcha_v3' === $provider ) {
+			$site_key   = (string) Settings::get( 'recaptcha_v3_site_key', '' );
+			$secret_key = (string) Settings::get( 'recaptcha_v3_secret_key', '' );
+			return ( '' !== $site_key && '' !== $secret_key ) ? 'recaptcha_v3' : 'off';
+		}
+		return 'math';
+	}
+
+	/**
+	 * Construit le HTML de tous les champs pilotés par le Checkout Builder,
+	 * dans l'ordre exact du plan. Champs appariés (nom+téléphone,
+	 * wilaya+commune) regroupés côte à côte quand adjacents et actifs.
+	 *
+	 * @param array[]     $plan            Plan des champs.
+	 * @param \WC_Product $product         Produit courant.
+	 * @param string      $wilaya_options  Options <option> des wilayas (pré-échappées).
+	 * @param string      $country_select  HTML du sélecteur de pays (pré-construit, peut être vide).
+	 * @return string HTML (chaque élément déjà échappé).
+	 */
+	private static function render_fields_html( array $plan, $product, $wilaya_options, $country_select ) {
+		$pid  = $product->get_id();
+		$out  = '';
+		$n    = count( $plan );
+		$i    = 0;
+
+		while ( $i < $n ) {
+			$field = $plan[ $i ];
+			if ( ! $field['on'] ) {
+				$i++;
+				continue;
+			}
+
+			// Paires adjacentes actives : nom+téléphone, wilaya+commune.
+			$next = ( isset( $plan[ $i + 1 ] ) && $plan[ $i + 1 ]['on'] ) ? $plan[ $i + 1 ] : null;
+
+			if ( 'name' === $field['key'] && $next && 'phone' === $next['key'] ) {
+				$out .= '<div class="icod-duo">' . self::html_name( $field, $pid ) . self::html_phone( $next, $pid ) . '</div>';
+				$i   += 2;
+				continue;
+			}
+			if ( 'wilaya' === $field['key'] && $next && 'commune' === $next['key'] ) {
+				$out .= $country_select;
+				$out .= '<div class="icod-row">' . self::html_wilaya( $field, $pid, $wilaya_options ) . self::html_commune( $next, $pid ) . '</div>';
+				$i   += 2;
+				continue;
+			}
+
+			switch ( $field['key'] ) {
+				case 'name':
+					$out .= self::html_name( $field, $pid );
+					break;
+				case 'phone':
+					$out .= self::html_phone( $field, $pid );
+					break;
+				case 'email':
+					$out .= self::html_email( $field, $pid );
+					break;
+				case 'wilaya':
+					$out .= $country_select . self::html_wilaya( $field, $pid, $wilaya_options );
+					break;
+				case 'commune':
+					$out .= self::html_commune( $field, $pid );
+					break;
+				case 'address':
+					$out .= self::html_address( $field, $pid );
+					break;
+				case 'note':
+					$out .= self::html_note( $field, $pid );
+					break;
+				default:
+					$out .= $field['custom'] ? self::html_custom( $field ) : '';
+			}
+			$i++;
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Attributs communs d'un champ : obligatoire (requis HTML + data-req pour
+	 * la validation JavaScript, le formulaire étant en novalidate).
+	 *
+	 * @param array $field Champ du plan.
+	 * @return string Attributs à concaténer.
+	 */
+	private static function req_attrs( $field ) {
+		return empty( $field['req'] ) ? ' data-req="0"' : ' required data-req="1"';
+	}
+
+	/**
+	 * Classe « obligatoire » sur le conteneur (astérisque CSS).
+	 *
+	 * @param array $field Champ du plan.
+	 * @return string
+	 */
+	private static function req_class( $field ) {
+		return empty( $field['req'] ) ? '' : ' icod-required';
+	}
+
+	/**
+	 * HTML du champ nom.
+	 *
+	 * @param array $field Champ du plan.
+	 * @param int   $pid   ID produit.
+	 * @return string
+	 */
+	private static function html_name( $field, $pid ) {
+		return '<div class="icod-field' . self::req_class( $field ) . '">'
+			. '<label for="icod-name-' . esc_attr( $pid ) . '">' . esc_html( $field['label'] ) . '</label>'
+			. '<div class="icod-input-wrap">' . self::field_icon( 'user' )
+			. '<input type="text" name="icod_name" id="icod-name-' . esc_attr( $pid ) . '" class="icod-input icod-input-name" autocomplete="name" data-icod-field="name"' . self::req_attrs( $field ) . ' />'
+			. '</div></div>';
+	}
+
+	/**
+	 * HTML du champ téléphone.
+	 *
+	 * @param array $field Champ du plan.
+	 * @param int   $pid   ID produit.
+	 * @return string
+	 */
+	private static function html_phone( $field, $pid ) {
+		return '<div class="icod-field' . self::req_class( $field ) . '">'
+			. '<label for="icod-phone-' . esc_attr( $pid ) . '">' . esc_html( $field['label'] ) . '</label>'
+			. '<div class="icod-input-wrap">' . self::field_icon( 'phone' )
+			. '<input type="tel" name="icod_phone" id="icod-phone-' . esc_attr( $pid ) . '" class="icod-input icod-input-phone" inputmode="tel" autocomplete="tel" placeholder="' . esc_attr( Settings::get( 'phone_placeholder' ) ) . '" data-icod-field="phone"' . self::req_attrs( $field ) . ' />'
+			. '</div></div>';
+	}
+
+	/**
+	 * HTML du champ email.
+	 *
+	 * @param array $field Champ du plan.
+	 * @param int   $pid   ID produit.
+	 * @return string
+	 */
+	private static function html_email( $field, $pid ) {
+		return '<div class="icod-field' . self::req_class( $field ) . '">'
+			. '<label for="icod-email-' . esc_attr( $pid ) . '">' . esc_html( $field['label'] ) . '</label>'
+			. '<div class="icod-input-wrap">' . self::field_icon( 'email' )
+			. '<input type="email" name="icod_email" id="icod-email-' . esc_attr( $pid ) . '" class="icod-input" autocomplete="email"' . self::req_attrs( $field ) . ' />'
+			. '</div></div>';
+	}
+
+	/**
+	 * HTML du champ wilaya.
+	 *
+	 * @param array  $field          Champ du plan.
+	 * @param int    $pid            ID produit.
+	 * @param string $wilaya_options Options pré-échappées.
+	 * @return string
+	 */
+	private static function html_wilaya( $field, $pid, $wilaya_options ) {
+		return '<div class="icod-field' . self::req_class( $field ) . '">'
+			. '<label for="icod-wilaya-' . esc_attr( $pid ) . '">' . esc_html( $field['label'] ) . '</label>'
+			. '<div class="icod-input-wrap">' . self::field_icon( 'map' )
+			. '<select name="icod_wilaya" id="icod-wilaya-' . esc_attr( $pid ) . '" class="icod-input icod-wilaya" data-icod-field="wilaya"' . self::req_attrs( $field ) . '>'
+			. '<option value="">' . esc_html__( '— Wilaya —', 'infinitycod' ) . '</option>'
+			. $wilaya_options
+			. '</select></div></div>';
+	}
+
+	/**
+	 * HTML du champ commune (select DZ + texte libre hors Algérie).
+	 *
+	 * @param array $field Champ du plan.
+	 * @param int   $pid   ID produit.
+	 * @return string
+	 */
+	private static function html_commune( $field, $pid ) {
+		return '<div class="icod-field' . self::req_class( $field ) . '">'
+			. '<label for="icod-commune-' . esc_attr( $pid ) . '">' . esc_html( $field['label'] ) . '</label>'
+			. '<div class="icod-input-wrap">' . self::field_icon( 'pin' )
+			. '<select name="icod_commune" id="icod-commune-' . esc_attr( $pid ) . '" class="icod-input icod-commune" disabled data-icod-field="commune"' . self::req_attrs( $field ) . '>'
+			. '<option value="">' . esc_html__( '— Commune —', 'infinitycod' ) . '</option>'
+			. '</select>'
+			. '<input type="text" name="icod_commune_text" id="icod-commune-text-' . esc_attr( $pid ) . '" class="icod-input icod-commune-text icod-hidden" autocomplete="address-level2" placeholder="' . esc_attr__( 'Votre ville', 'infinitycod' ) . '" />'
+			. '</div></div>';
+	}
+
+	/**
+	 * HTML du champ adresse (rue, quartier…).
+	 *
+	 * @param array $field Champ du plan.
+	 * @param int   $pid   ID produit.
+	 * @return string
+	 */
+	private static function html_address( $field, $pid ) {
+		return '<div class="icod-field' . self::req_class( $field ) . '">'
+			. '<label for="icod-address-' . esc_attr( $pid ) . '">' . esc_html( $field['label'] ) . '</label>'
+			. '<div class="icod-input-wrap">' . self::field_icon( 'home' )
+			. '<input type="text" name="icod_address" id="icod-address-' . esc_attr( $pid ) . '" class="icod-input" autocomplete="street-address" maxlength="250"' . self::req_attrs( $field ) . ' />'
+			. '</div></div>';
+	}
+
+	/**
+	 * HTML du bloc note : lien d'ouverture + zone repliable.
+	 * N'est rendu QUE si le champ note est actif dans le plan.
+	 *
+	 * @param array $field Champ du plan.
+	 * @param int   $pid   ID produit.
+	 * @return string
+	 */
+	private static function html_note( $field, $pid ) {
+		$html  = '<a href="#" class="icod-note-toggle" data-note-toggle>＋ ' . esc_html__( 'Ajouter une note', 'infinitycod' ) . '</a>';
+		$html .= '<div class="icod-field">';
+		$html .= '<label for="icod-note-' . esc_attr( $pid ) . '">' . esc_html( $field['label'] ) . '</label>';
+		$html .= '<div class="icod-input-wrap icod-input-wrap-area">' . self::field_icon( 'note' );
+		$html .= '<textarea name="icod_note" id="icod-note-' . esc_attr( $pid ) . '" class="icod-input icod-note icod-hidden" rows="2" maxlength="500"' . ( empty( $field['req'] ) ? '' : ' required data-req="1"' ) . '></textarea>';
+		$html .= '</div></div>';
+		return $html;
+	}
+
+	/**
+	 * HTML d'un champ personnalisé cf_* du Checkout Builder.
+	 *
+	 * @param array $field Champ du plan.
+	 * @return string
+	 */
+	private static function html_custom( $field ) {
+		$req   = empty( $field['req'] ) ? '' : ' required data-req="1"';
+		$id    = 'icod-' . esc_attr( $field['key'] );
+		$html  = '<div class="icod-field' . self::req_class( $field ) . '"><label for="' . $id . '">' . esc_html( $field['label'] ) . '</label>';
+		if ( 'textarea' === $field['type'] ) {
+			$html .= '<textarea class="icod-input" name="' . esc_attr( $field['key'] ) . '" id="' . $id . '" rows="2" maxlength="500"' . $req . '></textarea>';
+		} elseif ( 'checkbox' === $field['type'] ) {
+			$html .= '<label class="icod-checkline"><input type="checkbox" name="' . esc_attr( $field['key'] ) . '" id="' . $id . '" value="1"' . $req . ' /> ' . esc_html( $field['label'] ) . '</label>';
+		} else {
+			$html .= '<input class="icod-input" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $field['key'] ) . '" id="' . $id . '"' . $req . ' />';
+		}
+		$html .= '</div>';
+		return $html;
+	}
+
+	/**
 	 * Attributs supportés : [infinitycod_form id="123" title="" button=""].
 	 *
 	 * @param array $atts Attributs du shortcode.
@@ -130,6 +444,8 @@ class FormManager {
 
 		$this->enqueue();
 
+		$rtl = \InfinityCod\Core\I18n::is_rtl();
+
 		// Arabe / RTL : la police Cairo est chargée uniquement pour le
 		// formulaire (jamais sur tout le site) et sert de 1re police.
 		if ( $rtl ) {
@@ -148,22 +464,13 @@ class FormManager {
 		$accent  = Settings::get( 'accent_color', '#0e7a4f' );
 		$title   = $custom_title ? $custom_title : Settings::get( 'form_title' );
 		$button  = $custom_button ? $custom_button : Settings::get( 'button_text' );
-		$rtl     = \InfinityCod\Core\I18n::is_rtl();
 
-		// Libellés personnalisés.
-		$label_name    = Settings::get( 'label_name' );
-		$label_phone   = Settings::get( 'label_phone' );
-		$label_wilaya  = Settings::get( 'label_wilaya' );
-		$label_commune = Settings::get( 'label_commune' );
-		$label_note    = Settings::get( 'label_note' );
-
-		// Blocs activables/désactivables.
+		// Blocs activables/désactivables (les CHAMPS, eux, viennent du plan
+		// Checkout Builder — voir fields_plan()).
 		$show_qty         = (bool) Settings::get( 'show_qty_selector', 1 );
 		$show_stopdesk    = (bool) Settings::get( 'show_stopdesk', 1 );
-		$show_note        = (bool) Settings::get( 'show_note', 0 );
 		$show_offers      = (bool) Settings::get( 'show_offers', 1 );
 		$show_reassurance = (bool) Settings::get( 'show_reassurance', 1 );
-		$show_email       = (bool) Settings::get( 'show_email', 0 );
 		$wa_order         = (bool) Settings::get( 'wa_order_enabled', 0 ) && Settings::get( 'whatsapp_number' );
 		$payment_online   = infinitycod()->module( 'payment' ) ? \InfinityCod\Payment\PaymentManager::enabled() : false;
 
@@ -226,6 +533,38 @@ class FormManager {
 		$upsell_enabled = (bool) Settings::get( 'upsell_enabled' );
 		$upsell_ids     = array_slice( array_filter( array_map( 'absint', (array) Settings::get( 'upsell_ids', array() ) ) ), 0, 3 );
 
+		// Champs pilotés par le Checkout Builder (ordre, visibilité, requis,
+		// libellés) — source unique partagée avec la validation serveur.
+		$plan         = self::fields_plan();
+		$fields_html  = self::render_fields_html( $plan, $product, $wilaya_options, $country_select );
+
+		// Captcha : token par formulaire (jamais par IP : NAT/proxy/onglets).
+		$captcha_provider = self::captcha_provider();
+		$captcha_html     = '';
+		if ( 'math' === $captcha_provider ) {
+			$c1        = wp_rand( 2, 12 );
+			$c2        = wp_rand( 2, 12 );
+			$cap_token = wp_generate_password( 20, false, false );
+			set_transient( 'icod_cap_' . $cap_token, $c1 + $c2, 15 * MINUTE_IN_SECONDS );
+			$captcha_html = '<div class="icod-field icod-captcha-field icod-required">'
+				. '<label for="icod-captcha-' . esc_attr( $cap_token ) . '">' . sprintf( esc_html__( 'Anti-bot : %d + %d = ?', 'infinitycod' ), $c1, $c2 ) . '</label>'
+				. '<input type="number" id="icod-captcha-' . esc_attr( $cap_token ) . '" name="icod_captcha" class="icod-input" required data-req="1" inputmode="numeric" />'
+				. '<input type="hidden" name="icod_cap_token" value="' . esc_attr( $cap_token ) . '" />'
+				. '</div>';
+		} elseif ( 'recaptcha_v3' === $captcha_provider ) {
+			$captcha_html = '<div class="icod-field icod-captcha-field icod-grecaptcha" aria-hidden="true"></div>';
+		}
+
+		// Compte à rebours d'urgence (jamais chargé si désactivé).
+		$timer_html = '';
+		if ( Settings::get( 'timer_urgency_enabled' ) ) {
+			$minutes = max( 1, min( 1440, (int) Settings::get( 'timer_urgency_minutes', 120 ) ) );
+			$timer_html = '<div class="icod-timer" data-timer="' . (int) $minutes . '"><span class="icod-timer-label" data-timer-text="' . esc_attr( Settings::get( 'timer_urgency_text' ) ) . '"></span></div>';
+		}
+
+		// Quantité minimale configurable.
+		$qty_min = max( 1, min( 99, (int) Settings::get( 'qty_min', 1 ) ) );
+
 		ob_start();
 		?>
 		<div class="icod-root icod-theme-<?php echo esc_attr( $theme ); ?>"
@@ -234,8 +573,11 @@ class FormManager {
 			data-variations="<?php echo esc_attr( $variations_json ); ?>"
 			data-unit-price="<?php echo esc_attr( $product->get_price() ); ?>"
 			data-regular-price="<?php echo esc_attr( $product->is_type( 'variable' ) ? '' : $product->get_regular_price() ); ?>"
+			data-qty-min="<?php echo esc_attr( $qty_min ); ?>"
 			data-qty-max="<?php echo esc_attr( (int) Settings::get( 'qty_max', 20 ) ); ?>"
 			data-sticky="<?php echo esc_attr( (int) Settings::get( 'sticky_bar', 1 ) ); ?>"
+			data-captcha="<?php echo esc_attr( $captcha_provider ); ?>"
+			data-recaptcha-key="<?php echo esc_attr( 'recaptcha_v3' === $captcha_provider ? Settings::get( 'recaptcha_v3_site_key', '' ) : '' ); ?>"
 			data-redirect="<?php echo $redirect_on ? esc_attr( Settings::get( 'redirect_url' ) ) : ''; ?>"
 			data-redirect-delay="<?php echo $redirect_on ? (int) $redirect_delay : 0; ?>"
 			style="max-width:<?php echo (int) $max_width; ?>px;--icod-accent:<?php echo esc_attr( $accent ); ?>"
@@ -265,24 +607,18 @@ class FormManager {
 						$decimals     = fmod( $head_price, 1 ) ? 2 : 0;
 						if ( $head_regular > $head_price && $head_regular > 0 && ! $product->is_type( 'variable' ) ) :
 							?>
-							<del data-head-price-regular><?php echo esc_html( number_format_i18n( $head_regular, fmod( $head_regular, 1 ) ? 2 : 0 ) . ' ' . __( 'DA', 'infinitycod' ) ); ?></del>
+							<del data-head-price-regular><?php echo esc_html( Settings::format_price( $head_regular ) ); ?></del>
 						<?php else : ?>
 							<del data-head-price-regular class="icod-hidden"></del>
 						<?php endif; ?>
-						<ins data-head-price-live><?php echo esc_html( number_format_i18n( $head_price, $decimals ) . ' ' . __( 'DA', 'infinitycod' ) ); ?></ins>
+						<ins data-head-price-live><?php echo esc_html( Settings::format_price( $head_price, $decimals ) ); ?></ins>
 					</span>
 				</header>
 			<?php if ( ! $product->is_type( 'variable' ) && $product->managing_stock() && $product->get_stock_quantity() !== null ) : ?>
 			<div class="icod-stock-badge" data-stock-badge><span class="dot"></span><?php printf( esc_html__( '%d pièces disponibles', 'infinitycod' ), (int) $product->get_stock_quantity() ); ?></div>
 			<?php endif; ?>
-			<?php if ( Settings::get( 'captcha_enabled' ) ) : ?>
-			<?php $c1 = wp_rand( 2, 12 ); $c2 = wp_rand( 2, 12 ); $cap_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : ''; ?>
-			<?php set_transient( 'icod_cap_' . md5( $cap_ip ), $c1 + $c2, 15 * MINUTE_IN_SECONDS ); ?>
-			<div class="icod-field icod-captcha-field">
-				<label for="icod-captcha"><?php printf( esc_html__( 'Anti-bot : %d + %d = ?', 'infinitycod' ), $c1, $c2 ); ?></label>
-				<input type="number" id="icod-captcha" name="icod_captcha" class="icod-input" required inputmode="numeric" />
-			</div>
-			<?php endif; ?>
+			<?php echo $captcha_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé. ?>
+			<?php echo $timer_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé. ?>
 
 			<div class="icod-progress" aria-hidden="true"><div class="icod-progress-fill" data-progress-fill></div></div>
 
@@ -316,62 +652,7 @@ class FormManager {
 								<?php endforeach; ?>
 							<?php endif; ?>
 
-							<div class="icod-duo">
-								<div class="icod-field">
-									<label for="icod-name-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( $label_name ); ?></label>
-									<div class="icod-input-wrap">
-										<?php echo self::field_icon( 'user' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
-										<input type="text" name="icod_name" id="icod-name-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-input-name" autocomplete="name" required data-icod-field="name" />
-									</div>
-								</div>
-
-								<div class="icod-field">
-									<label for="icod-phone-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( $label_phone ); ?></label>
-									<div class="icod-input-wrap">
-										<?php echo self::field_icon( 'phone' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
-										<input type="tel" name="icod_phone" id="icod-phone-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-input-phone" inputmode="tel" autocomplete="tel" placeholder="<?php echo esc_attr( Settings::get( 'phone_placeholder' ) ); ?>" required data-icod-field="phone" />
-									</div>
-								</div>
-							</div>
-
-							<?php if ( $show_email ) : ?>
-							<div class="icod-field">
-								<label for="icod-email-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( Settings::get( 'label_email' ) ); ?></label>
-								<div class="icod-input-wrap">
-									<?php echo self::field_icon( 'email' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
-									<input type="email" name="icod_email" id="icod-email-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input" autocomplete="email" />
-								</div>
-							</div>
-							<?php endif; ?>
-
-
-
-
-							<?php echo $country_select; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé. ?>
-
-							<div class="icod-row">
-								<div class="icod-field">
-									<label for="icod-wilaya-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( $label_wilaya ); ?></label>
-									<div class="icod-input-wrap">
-										<?php echo self::field_icon( 'map' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
-										<select name="icod_wilaya" id="icod-wilaya-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-wilaya" required data-icod-field="wilaya">
-											<option value=""><?php esc_html_e( '— Wilaya —', 'infinitycod' ); ?></option>
-											<?php echo $wilaya_options; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé. ?>
-										</select>
-									</div>
-								</div>
-
-								<div class="icod-field">
-									<label for="icod-commune-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( $label_commune ); ?></label>
-									<div class="icod-input-wrap">
-										<?php echo self::field_icon( 'pin' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
-										<select name="icod_commune" id="icod-commune-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-commune" disabled required data-icod-field="commune">
-											<option value=""><?php esc_html_e( '— Commune —', 'infinitycod' ); ?></option>
-										</select>
-										<input type="text" name="icod_commune_text" id="icod-commune-text-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-commune-text icod-hidden" autocomplete="address-level2" placeholder="<?php esc_attr_e( 'Votre ville', 'infinitycod' ); ?>" />
-									</div>
-								</div>
-							</div>
+							<?php echo $fields_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé par render_fields_html(). ?>
 
 							<?php if ( $show_stopdesk ) : ?>
 								<fieldset class="icod-mode">
@@ -414,37 +695,8 @@ class FormManager {
 									<label><?php esc_html_e( 'Quantité', 'infinitycod' ); ?></label>
 									<div class="icod-qty">
 										<button type="button" class="icod-qty-btn" data-step="-1" aria-label="<?php esc_attr_e( 'Diminuer', 'infinitycod' ); ?>">−</button>
-										<input type="number" class="icod-qty-input" value="1" min="1" max="<?php echo esc_attr( (int) Settings::get( 'qty_max', 20 ) ); ?>" inputmode="numeric" />
+										<input type="number" class="icod-qty-input" value="<?php echo esc_attr( $qty_min ); ?>" min="<?php echo esc_attr( $qty_min ); ?>" max="<?php echo esc_attr( (int) Settings::get( 'qty_max', 20 ) ); ?>" inputmode="numeric" />
 										<button type="button" class="icod-qty-btn" data-step="1" aria-label="<?php esc_attr_e( 'Augmenter', 'infinitycod' ); ?>">+</button>
-									</div>
-								</div>
-							<?php endif; ?>
-
-							<?php
-				// Champs personnalisés du Checkout Builder.
-				foreach ( (array) Settings::get( 'checkout_fields', array() ) as $cf ) {
-					if ( empty( $cf['on'] ) || strpos( (string) $cf['key'], 'cf_' ) !== 0 ) { continue; }
-					$_lbl = $cf['label'] !== '' ? $cf['label'] : $cf['key'];
-					$_req = ! empty( $cf['req'] ) ? ' required' : '';
-					$_id  = 'icod-' . esc_attr( $cf['key'] );
-					echo '<div class="icod-field"><label for="' . $_id . '">' . esc_html( $_lbl ) . '</label>';
-					if ( 'textarea' === $cf['type'] ) {
-						echo '<textarea class="icod-input" name="' . esc_attr( $cf['key'] ) . '" rows="2"' . $_req . '></textarea>';
-					} elseif ( 'checkbox' === $cf['type'] ) {
-						echo '<label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" name="' . esc_attr( $cf['key'] ) . '" value="1"' . $_req . ' /> ' . esc_html( $_lbl ) . '</label>';
-					} else {
-						echo '<input class="icod-input" type="' . esc_attr( $cf['type'] ) . '" name="' . esc_attr( $cf['key'] ) . '"' . $_req . ' />';
-					}
-					echo '</div>';
-				}
-				?>
-				<a href="#" class="icod-note-toggle" data-note-toggle>＋ <?php esc_html_e( 'Ajouter une note', 'infinitycod' ); ?></a>
-				<?php if ( $show_note ) : ?>
-								<div class="icod-field">
-									<label for="icod-note-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( $label_note ); ?></label>
-									<div class="icod-input-wrap icod-input-wrap-area">
-										<?php echo self::field_icon( 'note' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
-										<textarea name="icod_note" id="icod-note-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-note icod-hidden" rows="2" maxlength="500"></textarea>
 									</div>
 								</div>
 							<?php endif; ?>
@@ -497,8 +749,9 @@ class FormManager {
 						</div>
 
 						<div class="icod-summary icod-summary-bottom" role="status" aria-live="polite">
-								<button type="button" class="icod-summary-head" data-summary-toggle><span>🧾 <?php esc_html_e( 'Récapitulatif', 'infinitycod' ); ?></span><span class="chev">⌃</span></button><div class="icod-summary-body"><?php esc_html_e( '🧾 Récapitulatif', 'infinitycod' ); ?></p>
-								<div class="icod-summary-line icod-summary-product">
+								<button type="button" class="icod-summary-head" data-summary-toggle><span>🧾 <?php esc_html_e( 'Récapitulatif', 'infinitycod' ); ?></span><span class="chev">⌃</span></button>
+								<div class="icod-summary-body">
+									<div class="icod-summary-line icod-summary-product">
 									<span class="icod-summary-product-name"><?php echo esc_html( wp_trim_words( $product->get_name(), 6 ) ); ?></span>
 									<span class="icod-summary-qty" data-summary-qty>×1</span>
 								</div>
@@ -700,6 +953,20 @@ class FormManager {
 			wp_enqueue_script( 'icod-form' );
 		}
 
+		// reCAPTCHA v3 : le formulaire peut être rendu en cours de page
+		// (shortcode, Elementor) hors du passage wp_enqueue_scripts → on
+		// (re)met le script en file ici ; les scripts de pied de page
+		// restent imprimables tant que wp_footer n'est pas passé.
+		if ( 'recaptcha_v3' === self::captcha_provider() && ! wp_script_is( 'icod-recaptcha', 'enqueued' ) ) {
+			wp_enqueue_script(
+				'icod-recaptcha',
+				'https://www.google.com/recaptcha/api.js?render=' . rawurlencode( (string) Settings::get( 'recaptcha_v3_site_key', '' ) ),
+				array(),
+				null,
+				true
+			);
+		}
+
 		// wp_head déjà passé => le style ne serait pas imprimé : lien inline.
 		if ( function_exists( 'did_action' ) && did_action( 'wp_head' ) && ! wp_style_is( 'icod-form', 'done' ) ) {
 			global $wp_styles;
@@ -784,6 +1051,18 @@ class FormManager {
 		if ( $needs_form ) {
 			wp_enqueue_style( 'icod-form' );
 			wp_enqueue_script( 'icod-form' );
+
+			// reCAPTCHA v3 : chargé UNIQUEMENT si le provider est actif avec
+			// ses deux clés configurées (sinon zéro script tiers).
+			if ( 'recaptcha_v3' === self::captcha_provider() ) {
+				wp_enqueue_script(
+					'icod-recaptcha',
+					'https://www.google.com/recaptcha/api.js?render=' . rawurlencode( (string) Settings::get( 'recaptcha_v3_site_key', '' ) ),
+					array(),
+					null,
+					true
+				);
+			}
 		}
 
 		wp_localize_script( 'icod-form', 'icodFront', array(
@@ -791,6 +1070,7 @@ class FormManager {
 			'rtl'      => \InfinityCod\Core\I18n::is_rtl(),
 			'currency' => Settings::currency(),
 			'da'       => Settings::currency_label(),
+			'currencyPosition' => Settings::get( 'currency_position', 'right' ),
 			'defaultCountry' => Settings::default_country(),
 			'i18n'     => array(
 				'loading'        => __( 'Chargement…', 'infinitycod' ),
@@ -819,6 +1099,8 @@ class FormManager {
 				'freeBar'        => Settings::get( 'free_amount_message' ),
 				'freeTarget'     => (float) Settings::get( 'free_amount_threshold', 0 ),
 				'errorEmailFormat' => __( 'Adresse email invalide.', 'infinitycod' ),
+				'errorCaptcha'   => __( 'Veuillez répondre à la question anti-bot.', 'infinitycod' ),
+				'errorAddress'   => __( 'Veuillez indiquer votre adresse.', 'infinitycod' ),
 				'da'             => Settings::currency_label(),
 			),
 		) );

@@ -184,6 +184,15 @@ select.icod-input{appearance:none;background-image:linear-gradient(45deg,transpa
 
 .icod-captcha-field label{font-weight:700;color:var(--icod-accent)}
 .icod-captcha-field input{font-weight:800;text-align:center;font-size:18px}
+
+/* Champs obligatoires (Checkout Builder) : astérisque sur le libellé. */
+.icod-required>label::after{content:' *';color:#d63638;font-weight:800}
+.icod-checkline{display:flex;gap:8px;align-items:center;font-weight:400;font-size:.9rem;min-height:44px}
+
+/* Compte à rebours d'urgence. */
+.icod-timer{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 20px 12px;padding:8px 14px;border-radius:10px;background:rgba(214,54,54,.08);border:1.5px dashed rgba(214,54,54,.4);color:#b32d2d;font-weight:800;font-size:.9rem;animation:icod-fade-in .4s ease both}
+.icod-timer .icod-timer-label{font-variant-numeric:tabular-nums}
+
 .icod-note-toggle{display:inline-block;margin:2px 0 10px;font-size:12.5px;font-weight:700;color:var(--icod-accent);text-decoration:none}
 .icod-note-toggle.open::before{content:'− '}
 .icod-stock-badge{display:inline-flex;align-items:center;gap:6px;margin:0 20px 10px;padding:4px 12px;border-radius:99px;background:rgba(14,122,79,.1);color:#0e7a4f;font-size:12px;font-weight:700}

@@ -37,6 +37,8 @@ class SettingsPage {
 		add_action( 'admin_post_icod_verify_license', array( $this, 'handle_license_verify' ) );
 		add_action( 'admin_post_icod_deactivate_license', array( $this, 'handle_license_deactivate' ) );
 		add_action( 'admin_post_icod_save_paypal', array( $this, 'handle_paypal_settings' ) );
+		add_action( 'admin_post_icod_reset_settings', array( $this, 'handle_reset_settings' ) );
+		add_action( 'wp_ajax_icod_preview_form', array( $this, 'handle_preview_form' ) );
 	}
 
 	/**
@@ -52,6 +54,8 @@ class SettingsPage {
 
 			<?php if ( 'saved' === $saved ) : ?>
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Réglages enregistrés.', 'infinitycod' ); ?></p></div>
+			<?php elseif ( 'reset' === $saved ) : ?>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Réglages réinitialisés aux valeurs par défaut. Vos commandes n’ont pas été touchées.', 'infinitycod' ); ?></p></div>
 			<?php endif; ?>
 
 			<nav class="nav-tab-wrapper icod-tabs">
@@ -103,6 +107,18 @@ class SettingsPage {
 					<button type="submit" class="button button-primary button-hero"><?php esc_html_e( 'Enregistrer', 'infinitycod' ); ?></button>
 				</p>
 			</form>
+			<?php endif; ?>
+
+			<?php if ( 'advanced' === $this->tab ) : ?>
+				<div class="icod-card icod-danger-zone">
+					<h2>♻️ <?php esc_html_e( 'Réinitialiser les réglages', 'infinitycod' ); ?></h2>
+					<p class="description"><?php esc_html_e( 'Restaure TOUS les réglages InfinityCod (formulaire, commande, anti-fraude, WhatsApp, tracking, paiement) à leurs valeurs d’origine. Vos commandes, clients et statistiques NE SONT PAS touchés. Action irréversible.', 'infinitycod' ); ?></p>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Êtes-vous sûr de vouloir restaurer les paramètres par défaut ? Vos commandes ne sont pas affectées, mais toute la configuration InfinityCod revient à zéro.', 'infinitycod' ) ); ?>');">
+						<input type="hidden" name="action" value="icod_reset_settings" />
+						<?php wp_nonce_field( 'icod_reset_settings' ); ?>
+						<button type="submit" class="button button-link-delete"><?php esc_html_e( 'Réinitialiser tous les réglages', 'infinitycod' ); ?></button>
+					</form>
+				</div>
 			<?php endif; ?>
 		</div>
 		<?php
@@ -725,13 +741,13 @@ class SettingsPage {
 		);
 		?>
 		<div class="icod-card">
-		<div class="icod-card">
 			<h2>🧱 <?php esc_html_e( 'Checkout Builder — champs du formulaire', 'infinitycod' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'Activez, ordonnez (▲▼), rendez obligatoire et renommez chaque champ. Ajoutez vos propres champs personnalisés.', 'infinitycod' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Activez, ordonnez (▲▼), rendez obligatoire et renommez chaque champ. L’ordre, la visibilité et le caractère obligatoire sont appliqués RÉELLEMENT sur le formulaire et contrôlés à nouveau côté serveur. Ajoutez vos propres champs personnalisés.', 'infinitycod' ); ?></p>
 			<?php
 			$fields = (array) Settings::get( 'checkout_fields', array() );
 			$move = isset( $_GET['cfmove'] ) ? sanitize_text_field( wp_unslash( $_GET['cfmove'] ) ) : '';
 			if ( $move && strpos( $move, ':' ) !== false && current_user_can( 'manage_woocommerce' ) ) {
+				check_admin_referer( 'icod_cfmove' );
 				$parts = explode( ':', $move );
 				$i = absint( $parts[1] );
 				$dir = ( $parts[0] === 'up' ) ? -1 : 1;
@@ -743,10 +759,11 @@ class SettingsPage {
 					$fields = array_values( Settings::get( 'checkout_fields', array() ) );
 				}
 			}
+			$cfmove_nonce = wp_create_nonce( 'icod_cfmove' );
 			foreach ( $fields as $i => $fld ) : ?>
 			<div style="display:flex;gap:8px;align-items:center;border-bottom:1px solid #f0f0f1;padding:8px 0;flex-wrap:wrap">
-				<a href="?page=infinitycod-settings&tab=form&cfmove=up:<?php echo (int) $i; ?>" class="button" style="padding:2px 8px">▲</a>
-				<a href="?page=infinitycod-settings&tab=form&cfmove=down:<?php echo (int) $i; ?>" class="button" style="padding:2px 8px">▼</a>
+				<a href="?page=infinitycod-settings&tab=form&cfmove=up:<?php echo (int) $i; ?>&_wpnonce=<?php echo esc_attr( $cfmove_nonce ); ?>" class="button" style="padding:2px 8px">▲</a>
+				<a href="?page=infinitycod-settings&tab=form&cfmove=down:<?php echo (int) $i; ?>&_wpnonce=<?php echo esc_attr( $cfmove_nonce ); ?>" class="button" style="padding:2px 8px">▼</a>
 				<code dir="ltr" style="width:110px"><?php echo esc_html( $fld['key'] ); ?></code>
 				<select name="icod[checkout_fields][<?php echo (int) $i; ?>][type]">
 				<?php foreach ( array( 'text', 'tel', 'email', 'select', 'radio', 'checkbox', 'textarea', 'date', 'number' ) as $t ) : ?>
@@ -818,6 +835,10 @@ class SettingsPage {
 					</select>
 				</label>
 				<label>
+					<span><?php esc_html_e( 'Quantité minimale par commande', 'infinitycod' ); ?></span>
+					<input type="number" min="1" max="99" name="icod[qty_min]" value="<?php echo esc_attr( max( 1, (int) Settings::get( 'qty_min', 1 ) ) ); ?>" />
+				</label>
+				<label>
 					<span><?php esc_html_e( 'Quantité maximale par commande', 'infinitycod' ); ?></span>
 					<input type="number" min="1" max="999" name="icod[qty_max]" value="<?php echo esc_attr( Settings::get( 'qty_max' ) ); ?>" />
 				</label>
@@ -836,24 +857,12 @@ class SettingsPage {
 			</label>
 			<div class="icod-toggles">
 				<label class="icod-toggle">
-					<input type="checkbox" name="icod[show_email]" value="1" <?php checked( (int) Settings::get( 'show_email' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Afficher un champ email (facultatif, sert aux restrictions anti-abus)', 'infinitycod' ); ?></span>
-				</label>
-				<label class="icod-toggle">
 					<input type="checkbox" name="icod[show_qty_selector]" value="1" <?php checked( (int) Settings::get( 'show_qty_selector' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Afficher le sélecteur de quantité', 'infinitycod' ); ?></span>
 				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[show_stopdesk]" value="1" <?php checked( (int) Settings::get( 'show_stopdesk' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Proposer la livraison au bureau (Stopdesk)', 'infinitycod' ); ?></span>
-				</label>
-				<label class="icod-toggle">
-					<input type="checkbox" name="icod[show_note]" value="1" <?php checked( (int) Settings::get( 'show_note' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Champ « Note » libre pour le client', 'infinitycod' ); ?></span>
-				</label>
-				<label class="icod-toggle<?php echo \InfinityCod\License\LicenseManager::is_premium() ? '' : ' icod-premium-locked icod-premium-item'; ?>">
-					<input type="checkbox" name="icod[show_offers]" value="1" <?php checked( (int) Settings::get( 'show_offers' ), 1 ); ?> <?php disabled( ! \InfinityCod\License\LicenseManager::is_premium() ); ?> />
-					<span><?php esc_html_e( 'Afficher les paliers d‘offres par quantité', 'infinitycod' ); ?> <span class="icod-premium-mini">★ Premium</span></span>
 				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[show_reassurance]" value="1" <?php checked( (int) Settings::get( 'show_reassurance' ), 1 ); ?> />
@@ -864,8 +873,58 @@ class SettingsPage {
 					<span><?php esc_html_e( 'Barre « Commander maintenant » collante sur mobile (récapitulatif + total + bouton toujours visibles)', 'infinitycod' ); ?></span>
 				</label>
 				<label class="icod-toggle">
+					<input type="checkbox" name="icod[sticky_bar]" value="1" <?php checked( (int) Settings::get( 'sticky_bar' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Barre « Commander maintenant » collante sur mobile (récapitulatif + total + bouton toujours visibles)', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2>🤖 <?php esc_html_e( 'Captcha anti-bot', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Désactivé : aucun script, aucun champ, aucune validation. Activé : question mathématique (sans service externe) ou reCAPTCHA v3 (invisible, nécessite des clés Google).', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
 					<input type="checkbox" name="icod[captcha_enabled]" value="1" <?php checked( (int) Settings::get( 'captcha_enabled' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Activer le captcha mathématique anti-bot (ex: 5+6=?)', 'infinitycod' ); ?></span>
+					<span><?php esc_html_e( 'Activer le captcha anti-bot', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Fournisseur', 'infinitycod' ); ?></span>
+					<select name="icod[captcha_provider]">
+						<option value="math" <?php selected( Settings::get( 'captcha_provider', 'math' ), 'math' ); ?>><?php esc_html_e( 'Question mathématique (ex : 5+6=?) — aucun service externe', 'infinitycod' ); ?></option>
+						<option value="recaptcha_v3" <?php selected( Settings::get( 'captcha_provider' ), 'recaptcha_v3' ); ?>><?php esc_html_e( 'Google reCAPTCHA v3 (invisible)', 'infinitycod' ); ?></option>
+					</select>
+				</label>
+				<label>
+					<span><?php esc_html_e( 'reCAPTCHA — Clé du site', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[recaptcha_v3_site_key]" dir="ltr" value="<?php echo esc_attr( Settings::get( 'recaptcha_v3_site_key', '' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'reCAPTCHA — Clé secrète', 'infinitycod' ); ?></span>
+					<input type="password" name="icod[recaptcha_v3_secret_key]" dir="ltr" autocomplete="new-password" value="<?php echo esc_attr( Settings::get( 'recaptcha_v3_secret_key', '' ) ); ?>" />
+				</label>
+			</div>
+			<p class="description"><?php esc_html_e( 'Avec reCAPTCHA v3 : le script Google n’est chargé que si les DEUX clés sont remplies ; sinon le captcha reste inactif (aucune commande bloquée par erreur de configuration).', 'infinitycod' ); ?></p>
+		</div>
+
+		<div class="icod-card">
+			<h2>⏳ <?php esc_html_e( 'Compte à rebours d’urgence', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Affiche un compte à rebours au-dessus du formulaire (technique « offre à durée limitée » : il redémarre à chaque session visiteur). Variable : {time} (mm:ss).', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[timer_urgency_enabled]" value="1" <?php checked( (int) Settings::get( 'timer_urgency_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Afficher le compte à rebours', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Durée (minutes)', 'infinitycod' ); ?></span>
+					<input type="number" min="5" max="1440" name="icod[timer_urgency_minutes]" value="<?php echo esc_attr( (int) Settings::get( 'timer_urgency_minutes', 120 ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Texte affiché (variable : {time})', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[timer_urgency_text]" value="<?php echo esc_attr( Settings::get( 'timer_urgency_text' ) ); ?>" class="regular-text" />
 				</label>
 			</div>
 		</div>
@@ -922,6 +981,74 @@ class SettingsPage {
 					<input type="text" name="icod[label_note]" value="<?php echo esc_attr( Settings::get( 'label_note' ) ); ?>" />
 				</label>
 			</div>
+		</div>
+
+		<div class="icod-card" id="icod-preview-card">
+			<h2>👁️ <?php esc_html_e( 'Aperçu en direct', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Rendu par le MÊME moteur que le frontend, avec vos réglages en cours (non encore enregistrés). L’aperçu se rafraîchit à chaque modification ; « Enregistrer » reste nécessaire pour appliquer sur le site.', 'infinitycod' ); ?></p>
+			<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+				<?php
+				$preview_choices = array();
+				if ( function_exists( 'wc_get_products' ) ) {
+					foreach ( (array) wc_get_products( array( 'limit' => 50, 'status' => 'publish', 'orderby' => 'title', 'order' => 'ASC', 'return' => 'objects' ) ) as $p ) {
+						$preview_choices[ $p->get_id() ] = $p->get_name();
+					}
+				}
+				?>
+				<select id="icod-preview-product">
+					<?php foreach ( $preview_choices as $cid => $cname ) : ?>
+						<option value="<?php echo esc_attr( $cid ); ?>"><?php echo esc_html( $cname ); ?></option>
+					<?php endforeach; ?>
+				</select>
+				<button type="button" class="button" id="icod-preview-refresh"><?php esc_html_e( 'Actualiser l’aperçu', 'infinitycod' ); ?></button>
+				<span id="icod-preview-status" class="description" aria-live="polite"></span>
+			</div>
+			<iframe id="icod-preview-frame" title="<?php esc_attr_e( 'Aperçu du formulaire', 'infinitycod' ); ?>" style="width:100%;height:640px;border:1px solid #dcdcde;border-radius:8px;background:#fff" sandbox="allow-same-origin"></iframe>
+			<script>
+			(function () {
+				var form = document.getElementById('icod-preview-card');
+				if (!form) { return; }
+				form = form.closest('form');
+				var frame = document.getElementById('icod-preview-frame');
+				var product = document.getElementById('icod-preview-product');
+				var status = document.getElementById('icod-preview-status');
+				var nonce = <?php echo wp_json_encode( wp_create_nonce( 'icod_preview_form' ) ); ?>;
+				var ajax = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
+				var timer = null;
+
+				function refresh() {
+					if (status) { status.textContent = '…'; }
+					var params = new URLSearchParams(new FormData(form));
+					params.set('action', 'icod_preview_form');
+					params.set('nonce', nonce);
+					params.set('product_id', product ? (product.value || '0') : '0');
+					fetch(ajax, { method: 'POST', credentials: 'same-origin', body: params })
+						.then(function (r) { return r.json(); })
+						.then(function (json) {
+							if (json && json.success && json.data && json.data.html) {
+								frame.srcdoc = json.data.html;
+								if (status) { status.textContent = ''; }
+							} else if (status) {
+								status.textContent = <?php echo wp_json_encode( __( 'Aperçu indisponible (aucun produit publié ?)', 'infinitycod' ) ); ?>;
+							}
+						})
+						.catch(function () { if (status) { status.textContent = ''; } });
+				}
+
+				['input', 'change'].forEach(function (evt) {
+					form.addEventListener(evt, function (e) {
+						if (e.target.closest && e.target.closest('#icod-preview-card')) { return; } // Le sélecteur de produit déclenche déjà.
+						clearTimeout(timer);
+						timer = setTimeout(refresh, 700);
+					});
+				});
+				var btn = document.getElementById('icod-preview-refresh');
+				if (btn) { btn.addEventListener('click', refresh); }
+				if (product) { product.addEventListener('change', refresh); }
+				if (product || Object.keys(<?php echo wp_json_encode( $preview_choices ); ?>).length === 0) { /* premier rendu */ }
+				refresh();
+			})();
+			</script>
 		</div>
 		<?php
 	}
@@ -1072,10 +1199,6 @@ class SettingsPage {
 					<input type="checkbox" name="icod[block_disposable_email]" value="1" <?php checked( (int) Settings::get( 'block_disposable_email' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Rejeter les emails jetables (yopmail, tempmail, mailinator…)', 'infinitycod' ); ?></span>
 				</label>
-				<label class="icod-toggle">
-					<input type="checkbox" name="icod[max_orders_hour_global]" value="1" <?php checked( (int) Settings::get( 'max_orders_hour_global' ) > 0 ); ?> />
-					<span><?php esc_html_e( 'Limiter le nombre total de commandes par heure (toutes IP confondues)', 'infinitycod' ); ?></span>
-				</label>
 			</div>
 			<div class="icod-grid">
 				<label>
@@ -1089,6 +1212,10 @@ class SettingsPage {
 				<label>
 					<span><?php esc_html_e( 'Score de risque bloquant (0-100)', 'infinitycod' ); ?></span>
 					<input type="number" min="0" max="100" name="icod[min_fraud_score_block]" value="<?php echo esc_attr( Settings::get( 'min_fraud_score_block' ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Commandes max / heure sur tout le site (0 = illimité)', 'infinitycod' ); ?></span>
+					<input type="number" min="0" max="500" name="icod[max_orders_hour_global]" value="<?php echo esc_attr( (int) Settings::get( 'max_orders_hour_global', 0 ) ); ?>" />
 				</label>
 			</div>
 		</div>
@@ -1114,14 +1241,14 @@ class SettingsPage {
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[abandoned_enabled]" value="1" <?php checked( (int) Settings::get( 'abandoned_enabled' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Relancer automatiquement les paniers abandonnés', 'infinitycod' ); ?></span>
+				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[wa_on_confirm]" value="1" <?php checked( (int) Settings::get( 'wa_on_confirm' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Notifier le client par WhatsApp à la confirmation de la commande', 'infinitycod' ); ?></span>
+				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[email_on_confirm]" value="1" <?php checked( (int) Settings::get( 'email_on_confirm' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Envoyer le résumé de la commande par email à la confirmation', 'infinitycod' ); ?></span>
-				</label>
-				</label>
 				</label>
 			</div>
 			<div class="icod-grid">
@@ -1257,9 +1384,16 @@ class SettingsPage {
 							<option value="<?php echo esc_attr( $code ); ?>" <?php selected( Settings::currency(), $code ); ?>><?php echo esc_html( $label ); ?></option>
 						<?php endforeach; ?>
 					</select>
-				</label>
-			</div>
-		</div>
+					</label>
+					<label>
+						<span><?php esc_html_e( 'Position de la devise', 'infinitycod' ); ?></span>
+						<select name="icod[currency_position]">
+							<option value="right" <?php selected( Settings::get( 'currency_position', 'right' ), 'right' ); ?>><?php esc_html_e( 'Après le montant — 1 200 DA', 'infinitycod' ); ?></option>
+							<option value="left" <?php selected( Settings::get( 'currency_position' ), 'left' ); ?>><?php esc_html_e( 'Avant le montant — $ 19.99', 'infinitycod' ); ?></option>
+						</select>
+					</label>
+					</div>
+				</div>
 
 		<div class="icod-card">
 			<h2><?php esc_html_e( 'Pays livrés', 'infinitycod' ); ?> <span class="icod-premium-mini">★ Premium</span></h2>
@@ -1340,11 +1474,34 @@ class SettingsPage {
 		</div>
 
 		<div class="icod-card">
+			<h2>🔔 <?php esc_html_e( 'Notifications marchand — Discord / Telegram', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Recevez un résumé (client, téléphone, produit, wilaya, total) à CHAQUE nouvelle commande, directement dans votre salon Discord ou votre chat Telegram. Laissez vide pour désactiver — aucun envoi sans configuration.', 'infinitycod' ); ?></p>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Discord — URL du webhook (Paramètres du salon → Intégrations → Webhooks)', 'infinitycod' ); ?></span>
+					<input type="url" name="icod[discord_webhook_url]" dir="ltr" placeholder="https://discord.com/api/webhooks/…" value="<?php echo esc_attr( Settings::get( 'discord_webhook_url', '' ) ); ?>" class="regular-text" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Telegram — Token du bot (@BotFather)', 'infinitycod' ); ?></span>
+					<input type="password" name="icod[telegram_bot_token]" dir="ltr" autocomplete="new-password" value="<?php echo esc_attr( Settings::get( 'telegram_bot_token', '' ) ); ?>" class="regular-text" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Telegram — Chat ID (destinataire)', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[telegram_chat_id]" dir="ltr" placeholder="123456789" value="<?php echo esc_attr( Settings::get( 'telegram_chat_id', '' ) ); ?>" />
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
 			<h2><?php esc_html_e( 'Avancé', 'infinitycod' ); ?></h2>
 			<div class="icod-toggles">
+				<label class="icod-toggle<?php echo \InfinityCod\License\LicenseManager::is_premium() ? '' : ' icod-premium-locked icod-premium-item'; ?>">
+					<input type="checkbox" name="icod[show_offers]" value="1" <?php checked( (int) Settings::get( 'show_offers' ), 1 ); ?> <?php disabled( ! \InfinityCod\License\LicenseManager::is_premium() ); ?> />
+					<span><?php esc_html_e( 'Afficher les paliers d‘offres par quantité', 'infinitycod' ); ?> <span class="icod-premium-mini">★ Premium</span></span>
+				</label>
 				<label class="icod-toggle">
-					<input type="checkbox" name="icod[menu_badge]" value="1" <?php checked( (int) Settings::get( 'menu_badge' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Badge de commandes en attente sur le menu admin', 'infinitycod' ); ?></span>
+					<input type="checkbox" name="icod[show_reassurance]" value="1" <?php checked( (int) Settings::get( 'show_reassurance' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Bandeau de réassurance (COD, 58 wilayas, vérification colis)', 'infinitycod' ); ?></span>
 				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[auto_update]" value="1" <?php checked( (int) Settings::get( 'auto_update' ), 1 ); ?> />
@@ -1361,14 +1518,100 @@ class SettingsPage {
 						<input type="checkbox" name="icod[log_enabled]" value="1" <?php checked( (int) Settings::get( 'log_enabled', 1 ), 1 ); ?> />
 						<span><?php esc_html_e( 'Journal InfinityCod (logs techniques, sans données clients)', 'infinitycod' ); ?></span>
 					</label>
-cod-toggle-danger">
-					<input type="checkbox" name="icod[delete_on_uninstall]" value="1" <?php checked( (int) Settings::get( 'delete_on_uninstall' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Supprimer toutes les données (tables, réglages) à la désinstallation du plugin', 'infinitycod' ); ?></span>
-				</label>
+					<label class="icod-toggle icod-toggle-danger">
+						<input type="checkbox" name="icod[delete_on_uninstall]" value="1" <?php checked( (int) Settings::get( 'delete_on_uninstall' ), 1 ); ?> />
+						<span><?php esc_html_e( 'Supprimer toutes les données (tables, réglages) à la désinstallation du plugin', 'infinitycod' ); ?></span>
+					</label>
+					<label class="icod-toggle">
+						<input type="checkbox" name="icod[license_lock_form]" value="1" <?php checked( (int) Settings::get( 'license_lock_form' ), 1 ); ?> />
+						<span><?php esc_html_e( 'Verrouiller le formulaire si aucune licence n’est active (distribution commerciale)', 'infinitycod' ); ?></span>
+					</label>
+				</div>
 			</div>
 		</div>
 		<?php
 	}
+
+		/**
+		 * Réinitialisation des réglages (valeurs par défaut uniquement —
+		 * ne touche JAMAIS aux commandes, clients ou statistiques).
+		 *
+		 * @return void
+		 */
+		public function handle_reset_settings() {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+			}
+
+			check_admin_referer( 'icod_reset_settings' );
+
+			$defaults                      = \InfinityCod\Core\Settings::defaults();
+			$defaults['wizard_done']       = 1; // Ne pas relancer l'assistant d'installation.
+			\InfinityCod\Core\Settings::set( $defaults );
+
+			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&icod_msg=reset' ) );
+			exit;
+		}
+
+		/**
+		 * Aperçu en direct : rend le VRAI formulaire (FormManager::render())
+		 * avec les réglages en cours de saisie (brouillon POSTé), sans les
+		 * enregistrer. Même moteur que le frontend — pas de fausse maquette.
+		 *
+		 * @return void
+		 */
+		public function handle_preview_form() {
+			if ( ! current_user_can( 'manage_woocommerce' ) ) {
+				wp_send_json_error( array( 'message' => 'forbidden' ), 403 );
+			}
+			check_ajax_referer( 'icod_preview_form', 'nonce' );
+
+			$raw = isset( $_POST['icod'] ) && is_array( $_POST['icod'] ) ? wp_unslash( $_POST['icod'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitisé par le schéma.
+			$product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
+
+			// Brouillon = défauts + valeurs du formulaire d'admin (non enregistrées).
+			$draft = \InfinityCod\Core\Settings::defaults();
+			$clean = $this->sanitize_fields( $raw, 'form' );
+			foreach ( $clean as $key => $value ) {
+				$draft[ $key ] = $value;
+			}
+
+			// Le VRAI renderer lit Settings::all() → on filtre l'option le
+			// temps de ce rendu uniquement (jamais écrit en base).
+			$override = static function () use ( $draft ) {
+				return $draft;
+			};
+			add_filter( 'pre_option_infinitycod_settings', $override, 99 );
+			\InfinityCod\Core\Settings::setCache( null );
+
+			if ( ! $product_id && function_exists( 'wc_get_products' ) ) {
+				$found = wc_get_products( array( 'limit' => 1, 'status' => 'publish', 'return' => 'objects' ) );
+				if ( $found ) {
+					$product_id = $found[0]->get_id();
+				}
+			}
+
+			$html = '';
+			if ( $product_id ) {
+				$form = infinitycod()->module( 'form' );
+				$html = $form ? $form->render( $product_id, '', '' ) : '';
+			}
+			remove_filter( 'pre_option_infinitycod_settings', $override, 99 );
+			\InfinityCod\Core\Settings::setCache( null );
+
+			// L'aperçu vit dans un iframe srcdoc : les styles en file WordPress
+			// ne sont pas imprimés en admin-ajax → liens CSS injectés ici.
+			if ( '' !== $html ) {
+				$css = INFINITYCOD_URL . 'assets/front/css/form.css?ver=' . rawurlencode( INFINITYCOD_VERSION );
+				$head = '<link rel="stylesheet" href="' . esc_url( $css ) . '" media="all" />';
+				if ( \InfinityCod\Core\I18n::is_rtl() ) {
+					$head .= '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" media="all" />';
+				}
+				$html = $head . $html;
+			}
+
+			wp_send_json_success( array( 'html' => $html, 'product_id' => $product_id ) );
+		}
 
 	/**
 	 * Sauvegarde des réglages.
@@ -1449,6 +1692,9 @@ cod-toggle-danger">
 			'min_fraud_score_block'   => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 100 ),
 			'block_disposable_email'  => array( 'tab' => 'fraud', 'type' => 'toggle' ),
 			'captcha_enabled'         => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'captcha_provider'        => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'math', 'recaptcha_v3' ) ),
+			'timer_urgency_text'      => array( 'tab' => 'form', 'type' => 'text' ),
+			'qty_min'                 => array( 'tab' => 'form', 'type' => 'int', 'min' => 1, 'max' => 99 ),
 			'max_orders_hour_global'  => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 500 ),
 
 			// ——— Onglet WhatsApp ———
@@ -1534,8 +1780,10 @@ cod-toggle-danger">
 
 		check_admin_referer( 'icod_save_settings' );
 
+		$tab = isset( $_POST['tab'] ) ? sanitize_key( wp_unslash( $_POST['tab'] ) ) : 'form';
+
 		$raw   = isset( $_POST['icod'] ) && is_array( $_POST['icod'] ) ? wp_unslash( $_POST['icod'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitisé champ par champ.
-		$clean = $this->sanitize_fields( $raw, $this->tab );
+		$clean = $this->sanitize_fields( $raw, $tab );
 
 		// Checkout Builder : ajout des champs personnalisés soumis.
 		if ( 'form' === $tab && isset( $clean['checkout_fields'] ) && isset( $_POST['icod']['checkout_fields_new']['key'] ) ) {
@@ -1555,7 +1803,6 @@ cod-toggle-danger">
 
 		Settings::set( $clean );
 
-		$tab = isset( $_POST['tab'] ) ? sanitize_key( wp_unslash( $_POST['tab'] ) ) : 'form';
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=' . $tab . '&icod_msg=saved' ) );
 		exit;
 	}
