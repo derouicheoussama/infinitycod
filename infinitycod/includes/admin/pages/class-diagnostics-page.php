@@ -215,10 +215,14 @@ class DiagnosticsPage {
 		// qui ferait « disparaître » les sauvegardes.
 		$write_token = wp_generate_password( 12, false );
 		update_option( 'icod_write_test', $write_token, false );
+		wp_cache_delete( 'alloptions', 'options' );
 		$read_back   = (string) get_option( 'icod_write_test', '' );
 		delete_option( 'icod_write_test' );
 		$persist_ok  = hash_equals( $write_token, $read_back );
 		$this->add( __( 'Persistance (écriture → lecture immédiate)', 'infinitycod' ), $persist_ok ? __( 'OK — la sauvegarde fonctionne', 'infinitycod' ) : __( 'ÉCHEC — un cache d\'objets défectueux avale les sauvegardes', 'infinitycod' ), $persist_ok ? self::PASS : self::FAIL, '' );
+
+		$ext_cache = function_exists( 'wp_using_ext_object_cache' ) ? wp_using_ext_object_cache() : false;
+		$this->add( __( 'Cache d\'objets', 'infinitycod' ), $ext_cache ? __( 'externe actif (risque si mal configuré)', 'infinitycod' ) : __( 'interne (aucun risque)', 'infinitycod' ), $ext_cache ? self::WARN : self::PASS, $ext_cache ? __( 'Si les réglages ne s\'appliquent pas : vider le cache d\'objets du serveur.', 'infinitycod' ) : '' );
 
 		$plan          = \InfinityCod\Form\FormManager::fields_plan();
 		$active_fields = array_values( array_filter( $plan, static function ( $f ) { return ! empty( $f['on'] ); } ) );

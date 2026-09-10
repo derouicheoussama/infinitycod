@@ -1,5 +1,19 @@
 # Changelog
 
+## 5.8.2 — 2026-09-10
+
+Changement FORCÉ : les réglages sont désormais lus directement en base de données, immunisés contre tout cache d'objets serveur.
+
+### Corrigé
+- **Lecture directe en base (bypass du cache d'objets)** : sur certains hébergeurs (LiteSpeed LSMCD, Memcached), le cache d'objets ne s'invalide pas — les réglages étaient bien écrits en base mais les pages continuaient de servir les anciennes valeurs. Toutes les lectures InfinityCod contournent désormais ce cache : une couleur, un champ ou un captcha enregistré s'applique immédiatement, garantie.
+- Invalidation forcée du cache 'alloptions' après chaque écriture.
+- Diagnostics : affichage de l'état du cache d'objets (externe/interne).
+
+### Vérifié
+- Scan complet du code : aucun appel PHP 8 (compatible PHP 7.4 intégral) — aucune erreur fatale de syntaxe possible.
+- Harnais 93/93, non-régression Updater complète.
+
+
 ## 5.8.1 — 2026-09-10
 
 « Un preset choisit la couleur de départ » fonctionne maintenant réellement, même sans JavaScript.

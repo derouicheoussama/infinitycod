@@ -345,21 +345,42 @@ class Settings {
 	/**
 	 * Tous les réglages (défauts fusionnés avec la sauvegarde).
 	 *
-	 * Inclut la migration one-shot des anciens toggles show_email/show_note
-	 * vers le Checkout Builder (idempotente, marquée par une option dédiée,
-	 * n'écrase jamais une configuration déjà modifiée).
+	 * Lit la base de données DIRECTEMENT (bypass du cache d'objets) :
+	 * immunise contre les caches d'objets serveur qui ne s'invalident pas —
+	 * cause classique des réglages « enregistrés mais jamais appliqués ».
 	 *
 	 * @return array
 	 */
 	public static function all() {
 		if ( null === self::$cache ) {
-			$saved          = get_option( self::OPTION, array() );
-			$saved          = is_array( $saved ) ? $saved : array();
+			$saved       = self::read_saved();
 			self::$cache = wp_parse_args( $saved, self::defaults() );
 
 			self::migrate_legacy_field_toggles( $saved );
 		}
 		return self::$cache;
+	}
+
+	/**
+	 * Lecture brute de l'option infinitycod_settings directement en base.
+	 * Repli sur get_option() si la lecture directe n'est pas disponible.
+	 *
+	 * @return array
+	 */
+	private static function read_saved() {
+		global $wpdb;
+
+		if ( isset( $wpdb ) && $wpdb instanceof \wpdb && ! empty( $wpdb->options ) ) {
+			$row = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s LIMIT 1", self::OPTION ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- bypass volontaire du cache d'objets.
+			if ( null !== $row && '' !== $row ) {
+				$decoded = ( 0 === strpos( (string) $row, 'a:' ) ) ? unserialize( $row ) : json_decode( (string) $row, true );
+				return is_array( $decoded ) ? $decoded : array();
+			}
+			return array();
+		}
+
+		$saved = get_option( self::OPTION, array() );
+		return is_array( $saved ) ? $saved : array();
 	}
 
 	/**
@@ -416,7 +437,10 @@ class Settings {
 			$merged = array_merge( $saved, array( 'checkout_fields' => array_values( $fields ) ) );
 			update_option( self::OPTION, $merged, true );
 			// Le cache est repeuplé immédiatement : all() appelant ne doit
-			// jamais recevoir null.
+			// jamais recevoir null — et l'invalidation du cache d'objets est
+			// forcée (piège 'alloptions').
+			wp_cache_delete( 'alloptions', 'options' );
+			wp_cache_delete( self::OPTION, 'options' );
 			self::$cache = wp_parse_args( $merged, self::defaults() );
 		}
 	}
@@ -521,6 +545,11 @@ class Settings {
 	/**
 	 * Écrit un ou plusieurs réglages.
 	 *
+	 * FORCE l'invalidation du cache d'objets après écriture : sur certains
+	 * hébergeurs (LiteSpeed LSMCD, Memcached mal configuré), 'alloptions'
+	 * n'est pas purgé et les lectures suivantes servent les ANCIENNES
+	 * valeurs — d'où des réglages « qui ne s'appliquent jamais ».
+	 *
 	 * @param string|array $key   Clé ou tableau clé => valeur.
 	 * @param mixed        $value Valeur (ignoré si $key est un tableau).
 	 * @return bool
@@ -536,6 +565,11 @@ class Settings {
 		}
 
 		self::$cache = null;
-		return update_option( self::OPTION, $saved, true );
+		$ok          = update_option( self::OPTION, $saved, true );
+
+		wp_cache_delete( 'alloptions', 'options' );
+		wp_cache_delete( self::OPTION, 'options' );
+
+		return $ok;
 	}
 }
