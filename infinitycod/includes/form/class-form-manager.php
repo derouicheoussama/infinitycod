@@ -272,6 +272,9 @@ class FormManager {
 						<ins data-head-price-live><?php echo esc_html( number_format_i18n( $head_price, $decimals ) . ' ' . __( 'DA', 'infinitycod' ) ); ?></ins>
 					</span>
 				</header>
+			<?php if ( ! $product->is_type( 'variable' ) && $product->managing_stock() && $product->get_stock_quantity() !== null ) : ?>
+			<div class="icod-stock-badge" data-stock-badge><span class="dot"></span><?php printf( esc_html__( '%d pièces disponibles', 'infinitycod' ), (int) $product->get_stock_quantity() ); ?></div>
+			<?php endif; ?>
 			<div class="icod-progress" aria-hidden="true"><div class="icod-progress-fill" data-progress-fill></div></div>
 
 				<form class="icod-form" novalidate>
@@ -426,12 +429,13 @@ class FormManager {
 					echo '</div>';
 				}
 				?>
+				<a href="#" class="icod-note-toggle" data-note-toggle>＋ <?php esc_html_e( 'Ajouter une note', 'infinitycod' ); ?></a>
 				<?php if ( $show_note ) : ?>
 								<div class="icod-field">
 									<label for="icod-note-<?php echo esc_attr( $product->get_id() ); ?>"><?php echo esc_html( $label_note ); ?></label>
 									<div class="icod-input-wrap icod-input-wrap-area">
 										<?php echo self::field_icon( 'note' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?>
-										<textarea name="icod_note" id="icod-note-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-note" rows="2" maxlength="500"></textarea>
+										<textarea name="icod_note" id="icod-note-<?php echo esc_attr( $product->get_id() ); ?>" class="icod-input icod-note icod-hidden" rows="2" maxlength="500"></textarea>
 									</div>
 								</div>
 							<?php endif; ?>
@@ -484,7 +488,7 @@ class FormManager {
 						</div>
 
 						<div class="icod-summary icod-summary-bottom" role="status" aria-live="polite">
-								<p class="icod-summary-title"><?php esc_html_e( '🧾 Récapitulatif', 'infinitycod' ); ?></p>
+								<button type="button" class="icod-summary-head" data-summary-toggle><span>🧾 <?php esc_html_e( 'Récapitulatif', 'infinitycod' ); ?></span><span class="chev">⌃</span></button><div class="icod-summary-body"><?php esc_html_e( '🧾 Récapitulatif', 'infinitycod' ); ?></p>
 								<div class="icod-summary-line icod-summary-product">
 									<span class="icod-summary-product-name"><?php echo esc_html( wp_trim_words( $product->get_name(), 6 ) ); ?></span>
 									<span class="icod-summary-qty" data-summary-qty>×1</span>

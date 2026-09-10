@@ -813,3 +813,12 @@ select.icod-input{
 /* --- Barre de progression plus visible --- */
 .icod-progress{height:10px;margin:0 20px 12px;background:color-mix(in srgb,var(--icod-accent) 12%,var(--icod-border));box-shadow:inset 0 1px 3px rgba(0,0,0,.08)}
 .icod-progress-fill{box-shadow:0 0 8px color-mix(in srgb,var(--icod-accent) 60%,transparent)}
+
+/* ===== Style Pro : stock, note toggle, récap repliable ===== */
+.icod-stock-badge{display:inline-flex;align-items:center;gap:6px;margin:0 20px 10px;padding:4px 12px;border-radius:99px;background:color-mix(in srgb,var(--icod-success,#0e7a4f) 12%,transparent);color:var(--icod-success,#0e7a4f);font-size:12px;font-weight:700;width:fit-content}
+.icod-stock-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--icod-success,#0e7a4f)}
+.icod-note-toggle{display:inline-block;margin:2px 0 10px;font-size:12.5px;font-weight:700;color:var(--icod-accent);text-decoration:none}
+.icod-note-toggle.open::before{content:'− '}
+.icod-summary-head{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:0;padding:0 0 8px;cursor:pointer;font:inherit}
+.icod-summary-head .chev{transition:transform .2s}
+.icod-summary-head.closed .chev{transform:rotate(180deg)}

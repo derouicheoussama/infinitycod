@@ -382,6 +382,24 @@
 			});
 		}
 
+		/* --- Note repliable + récapitulatif repliable --- */
+		var noteToggle = el(root, '[data-note-toggle]');
+		if (noteToggle) {
+			noteToggle.addEventListener('click', function (e) {
+				e.preventDefault();
+				var area = el(root, '.icod-note');
+				if (area) { area.classList.toggle('icod-hidden'); if (!area.classList.contains('icod-hidden')) { area.focus(); } }
+				noteToggle.classList.toggle('open');
+			});
+		}
+		var sumHead = el(root, '[data-summary-toggle]');
+		if (sumHead) {
+			sumHead.addEventListener('click', function () {
+				var body = sumHead.nextElementSibling;
+				if (body) { body.classList.toggle('icod-hidden'); sumHead.classList.toggle('closed'); }
+			});
+		}
+
 		/* --- Code promo : appliquer / retirer --- */
 		var couponInput = el(root, '[data-icod-coupon-input]');
 		var couponApply = el(root, '[data-icod-coupon-apply]');
