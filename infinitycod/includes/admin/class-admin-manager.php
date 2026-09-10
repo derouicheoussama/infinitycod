@@ -1277,7 +1277,7 @@ class AdminManager {
 	 */
 	public function deactivate_dialog() {
 		global $pagenow;
-		if ( 'plugins.php' !==  ) { return; }
+		if ( 'plugins.php' !== $pagenow ) { return; }
 		?>
 		<script>
 		document.querySelectorAll('#the-list tr[data-plugin="<?php echo esc_attr( INFINITYCOD_BASENAME ); ?>"] .deactivate a').forEach(function(link){
