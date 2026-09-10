@@ -83,7 +83,15 @@ class UpdatesPage {
 				<div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Rollback impossible : sauvegarde introuvable pour cette version.', 'infinitycod' ); ?></p></div>
 			<?php endif; ?>
 
-			<div class="icod-card">
+			<div class="icod-updates-banner <?php echo $has_update ? 'has-upd' : ''; ?>">
+		<div><strong>🔄 <?php esc_html_e( 'Mises à jour automatiques actives.', 'infinitycod' ); ?></strong>
+		<?php if ( $has_update ) : ?>
+			<?php printf( esc_html__( 'La version %s est disponible — installez-la en un clic.', 'infinitycod' ), '<strong>' . esc_html( $latest ) . '</strong>' ); ?>
+		<?php else : ?>
+			<?php esc_html_e( 'Votre site vérifie GitHub toutes les heures. Vous serez notifié dès qu\’une nouvelle version sort.', 'infinitycod' ); ?>
+		<?php endif; ?></div>
+	</div>
+	<div class="icod-card">
 				<h2><?php esc_html_e( 'État des mises à jour', 'infinitycod' ); ?></h2>
 				<table class="icod-updates-state">
 					<tr>

@@ -915,3 +915,7 @@ body.icod-modal-open{overflow:hidden}
 .icod-carrier-logo{border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .icod-carrier-badge{display:inline-flex;align-items:center;justify-content:center;width:40px;height:28px;border-radius:6px;background:#eef3f9;color:#1d5fa8;font-weight:800;font-size:12px}
 .icod-carrier-head{display:flex;align-items:center;gap:12px}
+
+/* --- Mises à jour : bannière --- */
+.icod-updates-banner{display:flex;gap:10px;align-items:center;background:#eef4fb;border:1px solid #c9dff5;border-left-width:4px;border-radius:9px;padding:11px 15px;margin-bottom:14px;font-size:13px;color:#1d3a5f}
+.icod-updates-banner.has-upd{background:#e5f2e9;border-color:#0e7a4f;color:#0e5a3f}
