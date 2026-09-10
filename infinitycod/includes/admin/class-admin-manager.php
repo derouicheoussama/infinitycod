@@ -1276,7 +1276,7 @@ class AdminManager {
 	 * Pop-up avant désactivation : demande la raison (optionnel).
 	 */
 	public function deactivate_dialog() {
-		global ;
+		global $pagenow;
 		if ( 'plugins.php' !==  ) { return; }
 		?>
 		<script>
