@@ -1,5 +1,19 @@
 # Changelog
 
+## 5.12.1 — 2026-09-10
+
+Correction mobile complète à partir des captures réelles d'un site client (computime.dz).
+
+### Corrigé
+- **En-tête mobile** : plus jamais d'empilement mot par mot — en-tête compact sur une ligne (photo 42 px, icône 38 px, titre limité à 2 lignes, sous-titre 2 lignes, badge prix compact), l'ancien prix masqué sur petit écran.
+- **Barre collante** : total et bouton sur UNE seule ligne chacun (le bouton ne se replie plus sur deux lignes), texte nettoyé des espaces/éléments parasites, ellipsis de sécurité, paddings et ombre ajustés.
+- **Champ Quantité** : la bordure imposée par certains thèmes est neutralisée, stepper limité à 180 px.
+- Marges stock/timer/progression alignées sur le formulaire, bouton principal compact (48 px).
+
+### Mesuré
+- Aucun débordement à 390 px (vérification DOM élément par élément) ; compatible 320 px avec dégradation propre.
+
+
 ## 5.12.0 — 2026-09-10
 
 8 styles de compte à rebours, personnalisation étendue (police, hauteur, largeur 1400) et licence Premium UNIQUE avec bouton PayPal direct.

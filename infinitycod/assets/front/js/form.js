@@ -626,11 +626,12 @@
 		if (root.getAttribute('data-sticky') === '1' && submitBtn) {
 			sticky = document.createElement('div');
 			sticky.className = 'icod-sticky';
+			var stickyLabel = (submitBtn.textContent || 'Commander').replace(/\s+/g, ' ').trim();
 			sticky.innerHTML =
 				'<div class="icod-sticky-total"><span>' +
 				escapeHtml(el(root, '.icod-summary-total span') ? el(root, '.icod-summary-total span').textContent : '') +
 				'</span><strong data-icod-sticky-total>—</strong></div>' +
-				'<button type="button" class="icod-submit" data-icod-sticky-btn>' + escapeHtml(submitBtn.textContent) + '</button>';
+				'<button type="button" class="icod-submit" data-icod-sticky-btn>' + escapeHtml(stickyLabel) + '</button>';
 			root.appendChild(sticky);
 			root.classList.add('has-sticky');
 
