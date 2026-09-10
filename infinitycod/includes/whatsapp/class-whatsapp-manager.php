@@ -334,4 +334,28 @@ class WhatsappManager {
 
 		update_option( 'infinitycod_wa_log', array_slice( $log, 0, 100 ), false );
 	}
+
+	/**
+	 * Envoie le message WhatsApp de confirmation au client.
+	 *
+	 * @param int    $icod_id Ligne COD.
+	 * @param string $status  Nouveau statut.
+	 * @param array  $row     Ligne icod_orders.
+	 */
+	public function on_status_changed( $icod_id, $status, $row = array() ) {
+		if ( 'confirmed' !== $status || ! Settings::get( 'whatsapp_enabled' ) || ! Settings::get( 'wa_on_confirm' ) ) { return; }
+		if ( ! Settings::get( 'whatsapp_number' ) ) { return; }
+		$phone = isset( $row['phone'] ) ? (string) $row['phone'] : '';
+		if ( '' === $phone ) { return; }
+		$message = $this->render_template(
+			(string) Settings::get( 'msg_order_received' ),
+			array(
+				'nom'       => isset( $row['customer_name'] ) ? $row['customer_name'] : '',
+				'telephone' => $phone,
+				'commande'  => (int) $icod_id,
+				'total'     => isset( $row['total'] ) ? number_format_i18n( (float) $row['total'], 0 ) . ' DA' : '',
+			)
+		);
+		$this->send( $phone, $message );
+	}
 }

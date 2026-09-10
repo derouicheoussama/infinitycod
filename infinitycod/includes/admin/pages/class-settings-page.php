@@ -1101,6 +1101,10 @@ class SettingsPage {
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[abandoned_enabled]" value="1" <?php checked( (int) Settings::get( 'abandoned_enabled' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Relancer automatiquement les paniers abandonnés', 'infinitycod' ); ?></span>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[wa_on_confirm]" value="1" <?php checked( (int) Settings::get( 'wa_on_confirm' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Notifier le client par WhatsApp à la confirmation de la commande', 'infinitycod' ); ?></span>
+				</label>
 				</label>
 			</div>
 			<div class="icod-grid">
@@ -1425,6 +1429,7 @@ cod-toggle-danger">
 
 			// ——— Onglet WhatsApp ———
 			'whatsapp_enabled'         => array( 'tab' => 'whatsapp', 'type' => 'toggle' ),
+			'wa_on_confirm'            => array( 'tab' => 'whatsapp', 'type' => 'toggle' ),
 			'abandoned_enabled'        => array( 'tab' => 'whatsapp', 'type' => 'toggle' ),
 			'wa_order_enabled'         => array( 'tab' => 'whatsapp', 'type' => 'toggle' ),
 			'whatsapp_gateway'         => array( 'tab' => 'whatsapp', 'type' => 'enum', 'choices' => array( 'wame', 'cloud', 'ultramsg', 'textmebot' ) ),

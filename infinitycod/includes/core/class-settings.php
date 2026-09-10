@@ -130,6 +130,7 @@ class Settings {
 			'msg_order_shipped'     => __( 'Bonjour {nom}, votre commande #{commande} a été expédiée 📦. Suivi : {suivi}. Merci pour votre confiance !', 'infinitycod' ),
 			'msg_abandoned'         => __( 'Bonjour {nom} 👋 Votre commande de {produit} est restée inachevée 🛒. Répondez OUI et nous vous rappelons tout de suite pour la finaliser !', 'infinitycod' ),
 			'wa_textmebot_key'      => '',           // Clé API TextMeBot.
+			'wa_on_confirm'         => 1,    // WhatsApp automatique à la confirmation.
 			'abandoned_enabled'     => 0,
 			'abandoned_delay'       => 60,   // minutes avant 1ère relance.
 			'abandoned_max'         => 2,    // nombre de relances.
