@@ -535,6 +535,27 @@
 				if (shippingEl) { shippingEl.textContent = (json.shipping < 0) ? '—' : (json.free ? I18N.free : money(json.shipping)); }
 				if (totalEl) { totalEl.textContent = money(json.total); }
 
+				/* Délai de livraison de la wilaya (Wilayas & Tarifs). */
+				var estEl = el(root, '[data-delivery-estimate]');
+				if (estEl) {
+					var est = String(json.estimate || '').trim();
+					if (est) { estEl.textContent = '⏱ ' + est; estEl.classList.remove('icod-hidden'); }
+					else { estEl.classList.add('icod-hidden'); }
+				}
+
+				/* Commande minimum de la wilaya : avertissement immédiat
+				   (la validation finale reste côté serveur). */
+				var minEl = el(root, '[data-min-order-warn]');
+				if (minEl) {
+					var minAmt = parseFloat(json.min_order) || 0;
+					if (minAmt > 0 && json.subtotal < minAmt) {
+						minEl.textContent = (I18N.minOrder || 'Commande minimum : {min}.').replace('{min}', money(minAmt));
+						minEl.classList.remove('icod-hidden');
+					} else {
+						minEl.classList.add('icod-hidden');
+					}
+				}
+
 				if (discountRow && discountEl) {
 					var show = json.discount > 0;
 					discountRow.classList.toggle('icod-hidden', !show);

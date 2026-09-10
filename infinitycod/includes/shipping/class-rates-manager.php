@@ -201,9 +201,11 @@ class RatesManager {
 					'price_desk'    => isset( $data['desk'] ) ? (float) $data['desk'] : -1,
 					'active'        => empty( $data['active'] ) ? 0 : 1,
 					'free_shipping' => empty( $data['free'] ) ? 0 : 1,
+					'min_order'     => isset( $data['min'] ) ? (float) $data['min'] : 0,
+					'delivery_days' => isset( $data['days'] ) ? sanitize_text_field( (string) $data['days'] ) : '',
 				),
 				array( 'code' => $code ),
-				array( '%f', '%f', '%d', '%d' ),
+				array( '%f', '%f', '%d', '%d', '%f', '%s' ),
 				array( '%s' )
 			);
 			if ( false !== $updated ) {

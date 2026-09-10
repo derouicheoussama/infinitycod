@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.7.2 — 2026-09-10
+
+Deux réglages fantômes de Wilayas & Tarifs deviennent réellement fonctionnels + pied de page assagi.
+
+### Ajouté
+- **Colonnes « Délai (jours) » et « Min (DA) » de Wilayas & Tarifs enfin éditables** : les colonnes existaient dans le tableau mais leurs cellules de saisie avaient disparu. Saisie + sauvegarde + application réelle :
+  - **Commande minimum par wilaya** : le serveur refuse la commande avec un message clair (« Commande minimum de X DA pour Alger ») si le sous-total est insuffisant ; le formulaire prévient le client dès le choix de la wilaya.
+  - **Délai de livraison** : affiché dans le récapitulatif (« ⏱ 2-4 ») dès le choix de la wilaya.
+
+### Modifié
+- Crédit de pied de page raccourci et discret : « InfinityCod vX.Y · © Infinity Coder ».
+
+
 ## 5.7.1 — 2026-09-10
 
 Audit automatisé complet des écrans d'administration : un dernier réglage mort détecté et réparé.

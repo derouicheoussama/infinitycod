@@ -1036,3 +1036,6 @@ body.icod-modal-open{overflow:hidden}
 /* Badge rond rouge : commandes en attente (menu InfinityCod + Commandes COD). */
 .icod-menu-badge{display:inline-flex;min-width:19px;height:19px;align-items:center;justify-content:center;padding:0 6px;margin-inline-start:6px;border-radius:10px;background:#d63638;color:#fff!important;font-size:11px;font-weight:700;line-height:1;vertical-align:middle;text-decoration:none}
 #adminmenu .icod-menu-badge{margin-top:1px}
+
+/* Crédit pied de page : compact, aligné, discret. */
+.icod-footer-credit{opacity:.75;font-style:normal;letter-spacing:.01em}

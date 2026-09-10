@@ -456,6 +456,24 @@ check( 'handler lit et sauvegarde les 6 clés Geo', false !== strpos( $am2, "'fr
 $post_scan = shell_exec( 'node ' . escapeshellarg( dirname( __DIR__ ) . '/tools/check-post-fields.js' ) . ' 2>&1' );
 check( 'scan POST des écrans admin : aucun mismatch', false !== strpos( (string) $post_scan, 'OK :' ) );
 
+/* ---------- 18. Délai + commande minimum par wilaya (chaîne complète) ---------- */
+
+echo "\n18) Délai de livraison + commande minimum par wilaya\n";
+$geo2 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-geo-page.php' );
+check( 'cellules Délai/Min réellement présentes dans les lignes', false !== strpos( $geo2, "][days]" ) && false !== strpos( $geo2, "][min]" ) );
+$am3 = file_get_contents( $plugin_dir . 'includes/admin/class-admin-manager.php' );
+check( 'handler Geo lit min/days', false !== strpos( $am3, "'min'" ) && false !== strpos( $am3, "'days'" ) );
+$rates_src = file_get_contents( $plugin_dir . 'includes/shipping/class-rates-manager.php' );
+check( 'save_wilaya_prices persiste min_order + delivery_days', false !== strpos( $rates_src, "'min_order'" ) && false !== strpos( $rates_src, "'delivery_days'" ) );
+$rates2 = new \InfinityCod\Shipping\RatesManager();
+check( 'min_order()/delivery_estimate() lisibles (0/vide sans DB)', 0.0 === $rates2->min_order( '16' ) && '' === $rates2->delivery_estimate( '16' ) );
+$routes2 = file_get_contents( $plugin_dir . 'includes/rest/class-routes.php' );
+check( 'quote retourne estimate + min_order', false !== strpos( $routes2, "'estimate'" ) && false !== strpos( $routes2, "'min_order'" ) );
+check( 'submit applique la commande minimum (blocage serveur)', false !== strpos( $routes2, 'icod_min_order' ) && false !== strpos( $routes2, 'min_order(' ) );
+$fm3 = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
+$js2 = file_get_contents( $plugin_dir . 'assets/front/js/form.js' );
+check( 'formulaire : zones délai + min-order rendues et alimentées', false !== strpos( $fm3, 'data-delivery-estimate' ) && false !== strpos( $fm3, 'data-min-order-warn' ) && false !== strpos( $js2, 'data-delivery-estimate' ) && false !== strpos( $js2, 'data-min-order-warn' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

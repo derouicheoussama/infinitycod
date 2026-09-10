@@ -174,6 +174,8 @@ class GeoPage {
 									</td>
 									<td><input type="number" step="0.01" min="0" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][home]" value="<?php echo esc_attr( $w['price_home'] >= 0 ? $w['price_home'] : '' ); ?>" placeholder="<?php echo esc_attr( $default_home ); ?>" /></td>
 									<td><input type="number" step="0.01" min="0" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][desk]" value="<?php echo esc_attr( $w['price_desk'] >= 0 ? $w['price_desk'] : '' ); ?>" placeholder="<?php echo esc_attr( $default_desk ); ?>" /></td>
+									<td><input type="text" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][days]" value="<?php echo esc_attr( $w['delivery_days'] ); ?>" placeholder="2-4" /></td>
+									<td><input type="number" step="0.01" min="0" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][min]" value="<?php echo esc_attr( $w['min_order'] > 0 ? $w['min_order'] : '' ); ?>" /></td>
 									<td class="icod-col-check"><input type="checkbox" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][active]" <?php checked( ! empty( $w['active'] ) ); ?> /></td>
 									<td class="icod-col-check"><input type="checkbox" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][free]" <?php checked( ! empty( $w['free_shipping'] ) ); ?> /></td>
 								</tr>

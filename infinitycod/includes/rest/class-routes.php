@@ -227,6 +227,10 @@ class Routes {
 		$price_home = $rates ? $rates->price( $wilaya_code, $commune, RatesManager::MODE_HOME ) : -1;
 		$price_desk = $rates ? $rates->price( $wilaya_code, $commune, RatesManager::MODE_DESK ) : -1;
 
+		// Délai de livraison + commande minimum de la wilaya (Wilayas & Tarifs).
+		$estimate  = $rates ? $rates->delivery_estimate( $wilaya_code ) : '';
+		$min_order = $rates ? $rates->min_order( $wilaya_code ) : 0.0;
+
 		$unit_price = (float) $product->get_price();
 		$subtotal   = round( $unit_price * $quantity, 2 );
 		$free       = $rates ? $rates->is_free( $wilaya_code, $quantity, $subtotal ) : false;
@@ -268,6 +272,8 @@ class Routes {
 			'free'          => $free ? 1 : 0,
 			'free_remaining'=> $free_remaining,
 			'weight_fee'    => $weight_fee,
+			'estimate'      => $estimate,
+			'min_order'     => $min_order,
 			'total'         => max( 0, $subtotal - $discount['amount'] - $coupon_out['amount'] + max( 0, $shipping ) ),
 		) );
 	}
@@ -528,6 +534,28 @@ class Routes {
 
 		if ( ! $product || ! $product->is_purchasable() || ! $product->is_in_stock() ) {
 			return new \WP_Error( 'icod_product', __( 'Ce produit n‘est plus disponible.', 'infinitycod' ), array( 'status' => 400 ) );
+		}
+
+		// 3b. Commande minimum par wilaya (Wilayas & Tarifs) — le serveur
+		// recalcule le sous-total : jamais confiance au total envoyé.
+		$rates_mod = infinitycod()->module( 'rates' );
+		$min_order = $rates_mod ? $rates_mod->min_order( $wilaya_code ) : 0.0;
+		if ( $min_order > 0 ) {
+			$min_qty     = isset( $body['quantity'] ) ? max( 1, absint( $body['quantity'] ) ) : 1;
+			$min_product = wc_get_product( $variation_id ? $variation_id : $product_id );
+			$min_subtotal = $min_product ? round( (float) $min_product->get_price() * $min_qty, 2 ) : 0.0;
+			if ( $min_subtotal < $min_order ) {
+				return new \WP_Error(
+					'icod_min_order',
+					sprintf(
+						/* translators: 1 : montant minimum, 2 : wilaya. */
+						__( 'Commande minimum de %1$s pour %2$s.', 'infinitycod' ),
+						Settings::format_price( $min_order ),
+						is_array( $wilaya ) && isset( $wilaya['name_fr'] ) ? $wilaya['name_fr'] : $wilaya_code
+					),
+					array( 'status' => 400 )
+				);
+			}
 		}
 
 		// 4. Création effective.

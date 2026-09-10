@@ -858,6 +858,8 @@ class FormManager {
 								<div class="icod-summary-line icod-hidden" data-summary-discount-row><span data-summary-discount-label><?php esc_html_e( 'Remise', 'infinitycod' ); ?></span><span data-summary-discount>—</span></div>
 								<div class="icod-summary-line icod-hidden" data-summary-coupon-row><span data-summary-coupon-label><?php esc_html_e( 'Code promo', 'infinitycod' ); ?></span><span data-summary-coupon>—</span></div>
 								<div class="icod-summary-line"><span><?php esc_html_e( 'Livraison', 'infinitycod' ); ?></span><span data-summary-shipping>—</span></div>
+								<div class="icod-estimate icod-hidden" data-delivery-estimate></div>
+								<div class="icod-minwarn icod-hidden" data-min-order-warn role="status"></div>
 								<div class="icod-summary-total"><span><?php esc_html_e( 'Total à payer', 'infinitycod' ); ?></span><span data-summary-total><?php echo esc_html( Settings::format_price( $head_price ) ); ?></span></div>
 							</div>
 
@@ -1188,6 +1190,7 @@ class FormManager {
 				'errorEmailFormat' => __( 'Adresse email invalide.', 'infinitycod' ),
 				'errorCaptcha'   => __( 'Veuillez répondre à la question anti-bot.', 'infinitycod' ),
 				'errorAddress'   => __( 'Veuillez indiquer votre adresse.', 'infinitycod' ),
+				'minOrder'       => __( 'Commande minimum : {min} pour cette wilaya.', 'infinitycod' ),
 				'da'             => Settings::currency_label(),
 			),
 		) );

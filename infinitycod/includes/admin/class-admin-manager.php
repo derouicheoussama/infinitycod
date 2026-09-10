@@ -296,7 +296,8 @@ class AdminManager {
 	}
 
 	/**
-	 * Crédit en pied de page sur les écrans du plugin.
+	 * Crédit discret en pied de page des écrans du plugin (texte compact,
+	 * ne déborde pas de la barre admin).
 	 *
 	 * @param string $text Texte courant.
 	 * @return string
@@ -305,11 +306,7 @@ class AdminManager {
 		if ( function_exists( 'get_current_screen' ) ) {
 			$screen = get_current_screen();
 			if ( $screen && false !== strpos( (string) $screen->id, 'infinitycod' ) ) {
-				return sprintf(
-					/* translators: 1 : version. */
-					esc_html__( 'InfinityCod v%1$s — développé avec ❤️ par Infinity Coder (Oussama Derouiche)', 'infinitycod' ),
-					esc_html( INFINITYCOD_VERSION )
-				);
+				return '<span class="icod-footer-credit">InfinityCod v' . esc_html( INFINITYCOD_VERSION ) . ' · © Infinity Coder</span>';
 			}
 		}
 		return $text;
@@ -718,6 +715,8 @@ class AdminManager {
 				'desk'   => isset( $row['desk'] ) && '' !== $row['desk'] ? (float) $row['desk'] : -1,
 				'active' => empty( $row['active'] ) ? 0 : 1,
 				'free'   => empty( $row['free'] ) ? 0 : 1,
+				'min'    => isset( $row['min'] ) && '' !== $row['min'] ? (float) $row['min'] : 0,
+				'days'   => isset( $row['days'] ) ? sanitize_text_field( (string) $row['days'] ) : '',
 			);
 		}
 
