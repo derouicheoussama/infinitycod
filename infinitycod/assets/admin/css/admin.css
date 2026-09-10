@@ -969,3 +969,23 @@ body.icod-modal-open{overflow:hidden}
 	.icod-welcome-steps{grid-template-columns:1fr}
 	.icod-welcome-status-grid{grid-template-columns:1fr 1fr}
 }
+
+/* --- Carriers : redesign expert --- */
+.icod-carriers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-bottom:20px}
+.icod-carrier-card{background:#fff;border:1.5px solid #dbe5ef;border-radius:14px;padding:18px 20px;transition:transform .18s,box-shadow .18s,border-color .18s}
+.icod-carrier-card:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(11,34,57,.10)}
+.icod-carrier-card.icod-carrier-active{border-color:#0e7a4f;background:linear-gradient(135deg,#f0f9f4,#e8f5ee)}
+.icod-carrier-card.icod-carrier-active .icod-carrier-name{color:#0e7a4f}
+.icod-carrier-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.icod-carrier-logo{flex:none;width:52px;height:34px;object-fit:contain;border-radius:6px;background:#fff;border:1px solid #e2e8f0;padding:3px}
+.icod-carrier-badge{flex:none;width:48px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff}
+.icod-carrier-name{font-size:16px;font-weight:800;color:#0b2239}
+.icod-carrier-desc{font-size:12.5px;color:#5f7488;margin:4px 0 10px;line-height:1.5}
+.icod-carrier-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;margin-bottom:10px}
+.icod-carrier-status.on{background:#e0f2e9;color:#0e7a4f}
+.icod-carrier-status.off{background:#f0f0f1;color:#8c8f94}
+.icod-carrier-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.icod-carrier-test-result{margin-top:10px;padding:8px 12px;border-radius:8px;font-size:12.5px;font-weight:600;background:#f6f7f7;display:none}
+.icod-carrier-test-result.show{display:block}
+.icod-carrier-test-result.ok{background:#e0f2e9;color:#0e7a4f}
+.icod-carrier-test-result.ko{background:#fbe4e2;color:#b32d2e}
