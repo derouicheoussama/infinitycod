@@ -112,7 +112,8 @@ class Settings {
 			'shield_enabled'        => 1,
 			'min_submit_seconds'    => 3,
 			'max_per_ip_hour'       => 5,
-						'min_fraud_score_block' => 60,
+									'min_fraud_score_block' => 60,
+			'captcha_enabled'       => 0,    // Captcha mathématique anti-bot.
 			'block_disposable_email' => 0,
 			'max_orders_hour_global' => 0,
 

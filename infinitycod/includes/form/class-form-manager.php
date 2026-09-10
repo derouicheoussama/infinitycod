@@ -275,6 +275,15 @@ class FormManager {
 			<?php if ( ! $product->is_type( 'variable' ) && $product->managing_stock() && $product->get_stock_quantity() !== null ) : ?>
 			<div class="icod-stock-badge" data-stock-badge><span class="dot"></span><?php printf( esc_html__( '%d pièces disponibles', 'infinitycod' ), (int) $product->get_stock_quantity() ); ?></div>
 			<?php endif; ?>
+			<?php if ( Settings::get( 'captcha_enabled' ) ) : ?>
+			<?php $c1 = wp_rand( 2, 12 ); $c2 = wp_rand( 2, 12 ); $cap_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : ''; ?>
+			<?php set_transient( 'icod_cap_' . md5( $cap_ip ), $c1 + $c2, 15 * MINUTE_IN_SECONDS ); ?>
+			<div class="icod-field icod-captcha-field">
+				<label for="icod-captcha"><?php printf( esc_html__( 'Anti-bot : %d + %d = ?', 'infinitycod' ), $c1, $c2 ); ?></label>
+				<input type="number" id="icod-captcha" name="icod_captcha" class="icod-input" required inputmode="numeric" />
+			</div>
+			<?php endif; ?>
+
 			<div class="icod-progress" aria-hidden="true"><div class="icod-progress-fill" data-progress-fill></div></div>
 
 				<form class="icod-form" novalidate>

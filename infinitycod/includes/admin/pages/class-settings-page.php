@@ -863,6 +863,10 @@ class SettingsPage {
 					<input type="checkbox" name="icod[sticky_bar]" value="1" <?php checked( (int) Settings::get( 'sticky_bar' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Barre « Commander maintenant » collante sur mobile (récapitulatif + total + bouton toujours visibles)', 'infinitycod' ); ?></span>
 				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[captcha_enabled]" value="1" <?php checked( (int) Settings::get( 'captcha_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Activer le captcha mathématique anti-bot (ex: 5+6=?)', 'infinitycod' ); ?></span>
+				</label>
 			</div>
 		</div>
 
@@ -1436,6 +1440,7 @@ cod-toggle-danger">
 			'min_submit_seconds'      => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 60 ),
 			'min_fraud_score_block'   => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 100 ),
 			'block_disposable_email'  => array( 'tab' => 'fraud', 'type' => 'toggle' ),
+			'captcha_enabled'         => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'max_orders_hour_global'  => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 500 ),
 
 			// ——— Onglet WhatsApp ———

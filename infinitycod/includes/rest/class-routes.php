@@ -388,6 +388,18 @@ class Routes {
 			return new \WP_Error( 'icod_desk', __( 'Veuillez choisir un bureau de retrait.', 'infinitycod' ), array( 'status' => 400 ) );
 		}
 
+		// 1b. Captcha mathématique (si activé).
+		if ( Settings::get( 'captcha_enabled' ) ) {
+			$cap_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+			$cap_key = 'icod_cap_' . md5( $cap_ip );
+			$expected = get_transient( $cap_key );
+			$user_answer = isset( $_POST['icod_captcha'] ) ? absint( $_POST['icod_captcha'] ) : -1;
+			if ( false === $expected || (int) $user_answer !== (int) $expected ) {
+				return new WP_Error( 'icod_captcha', __( 'Captcha incorrect. Réessayez.', 'infinitycod' ), array( 'status' => 400 ) );
+			}
+			delete_transient( $cap_key );
+		}
+
 		// 2. Bouclier anti-fraude.
 		$shield = infinitycod()->module( 'shield' );
 		$assessment = $shield ? $shield->assess( array(
