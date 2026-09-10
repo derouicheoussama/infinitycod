@@ -357,5 +357,14 @@ class WhatsappManager {
 			)
 		);
 		$this->send( $phone, $message );
+
+		// Résumé par email à la confirmation (option distincte).
+		if ( Settings::get( 'email_on_confirm' ) && isset( $row['email'] ) && is_email( $row['email'] ) ) {
+			$subject = sprintf( /* translators: %1$d : numéro, %2$s : site. */ __( 'Commande #%1$d confirmée — %2$s', 'infinitycod' ), (int) $icod_id, get_bloginfo( 'name' ) );
+			$body = '<p>' . sprintf( esc_html__( 'Bonjour %1$s, votre commande #%2$d est confirmée.', 'infinitycod' ), esc_html( isset( $row['customer_name'] ) ? $row['customer_name'] : '' ), (int) $icod_id ) . '</p>'
+				. '<p><strong>' . esc_html__( 'Total : ', 'infinitycod' ) . wp_strip_all_tags( wc_price( (float) $row['total'] ) ) . '</strong></p>'
+				. '<p style="color:#777;font-size:12px">' . esc_html__( 'Merci pour votre confiance.', 'infinitycod' ) . '</p>';
+			wp_mail( $row['email'], $subject, $body, array( 'Content-Type: text/html; charset=UTF-8' ) );
+		}
 	}
 }
