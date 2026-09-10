@@ -315,11 +315,14 @@ class FormManager {
 	 * @return string
 	 */
 	private static function html_note( $field, $pid ) {
+		$req   = empty( $field['req'] ) ? '' : ' required data-req="1"';
 		$html  = '<a href="#" class="icod-note-toggle" data-note-toggle>＋ ' . esc_html__( 'Ajouter une note', 'infinitycod' ) . '</a>';
-		$html .= '<div class="icod-field">';
+		/* Le bloc entier est replié : aucun label « vide » tant que le
+		   client n'a pas cliqué. */
+		$html .= '<div class="icod-field icod-hidden">';
 		$html .= '<label for="icod-note-' . esc_attr( $pid ) . '">' . esc_html( $field['label'] ) . '</label>';
 		$html .= '<div class="icod-input-wrap icod-input-wrap-area">' . self::field_icon( 'note' );
-		$html .= '<textarea name="icod_note" id="icod-note-' . esc_attr( $pid ) . '" class="icod-input icod-note icod-hidden" rows="2" maxlength="500"' . ( empty( $field['req'] ) ? '' : ' required data-req="1"' ) . '></textarea>';
+		$html .= '<textarea name="icod_note" id="icod-note-' . esc_attr( $pid ) . '" class="icod-input icod-note" rows="2" maxlength="500"' . $req . '></textarea>';
 		$html .= '</div></div>';
 		return $html;
 	}
@@ -555,11 +558,15 @@ class FormManager {
 			$captcha_html = '<div class="icod-field icod-captcha-field icod-grecaptcha" aria-hidden="true"></div>';
 		}
 
-		// Compte à rebours d'urgence (jamais chargé si désactivé).
+		// Compte à rebours d'urgence (jamais chargé si désactivé). Le texte
+		// est pré-rempli avec la durée complète : même sans JS, aucun bloc
+		// vide n'est affiché.
 		$timer_html = '';
 		if ( Settings::get( 'timer_urgency_enabled' ) ) {
-			$minutes = max( 1, min( 1440, (int) Settings::get( 'timer_urgency_minutes', 120 ) ) );
-			$timer_html = '<div class="icod-timer" data-timer="' . (int) $minutes . '"><span class="icod-timer-label" data-timer-text="' . esc_attr( Settings::get( 'timer_urgency_text' ) ) . '"></span></div>';
+			$minutes    = max( 1, min( 1440, (int) Settings::get( 'timer_urgency_minutes', 120 ) ) );
+			$initial    = str_pad( (string) floor( $minutes / 60 ), 2, '0', STR_PAD_LEFT ) . ':' . str_pad( (string) ( $minutes % 60 ), 2, '0', STR_PAD_LEFT );
+			$timer_text = str_replace( '{time}', $initial, (string) Settings::get( 'timer_urgency_text' ) );
+			$timer_html = '<div class="icod-timer" data-timer="' . (int) $minutes . '"><span class="icod-timer-label" data-timer-text="' . esc_attr( Settings::get( 'timer_urgency_text' ) ) . '">' . esc_html( $timer_text ) . '</span></div>';
 		}
 
 		// Quantité minimale configurable.
@@ -755,7 +762,7 @@ class FormManager {
 									<span class="icod-summary-product-name"><?php echo esc_html( wp_trim_words( $product->get_name(), 6 ) ); ?></span>
 									<span class="icod-summary-qty" data-summary-qty>×1</span>
 								</div>
-								<div class="icod-summary-line"><span><?php esc_html_e( 'Prix unitaire', 'infinitycod' ); ?></span><span data-summary-unit>—</span></div>
+								<div class="icod-summary-line"><span><?php esc_html_e( 'Prix unitaire', 'infinitycod' ); ?></span><span data-summary-unit><?php echo esc_html( Settings::format_price( $head_price ) ); ?></span></div>
 								<div class="icod-coupon">
 									<input type="text" name="icod_coupon" class="icod-coupon-input" data-icod-coupon-input placeholder="<?php esc_attr_e( 'Code promo', 'infinitycod' ); ?>" autocomplete="off" aria-label="<?php esc_attr_e( 'Code promo', 'infinitycod' ); ?>" />
 									<button type="button" class="icod-coupon-apply" data-icod-coupon-apply><?php esc_html_e( 'Appliquer', 'infinitycod' ); ?></button>
@@ -767,11 +774,11 @@ class FormManager {
 									<div class="icod-freebar-track"><div class="icod-freebar-fill" data-icod-freebar-fill></div></div>
 								</div>
 								<?php endif; ?>
-								<div class="icod-summary-line"><span><?php esc_html_e( 'Sous-total', 'infinitycod' ); ?></span><span data-summary-subtotal>—</span></div>
+								<div class="icod-summary-line"><span><?php esc_html_e( 'Sous-total', 'infinitycod' ); ?></span><span data-summary-subtotal><?php echo esc_html( Settings::format_price( $head_price ) ); ?></span></div>
 								<div class="icod-summary-line icod-hidden" data-summary-discount-row><span data-summary-discount-label><?php esc_html_e( 'Remise', 'infinitycod' ); ?></span><span data-summary-discount>—</span></div>
 								<div class="icod-summary-line icod-hidden" data-summary-coupon-row><span data-summary-coupon-label><?php esc_html_e( 'Code promo', 'infinitycod' ); ?></span><span data-summary-coupon>—</span></div>
 								<div class="icod-summary-line"><span><?php esc_html_e( 'Livraison', 'infinitycod' ); ?></span><span data-summary-shipping>—</span></div>
-								<div class="icod-summary-total"><span><?php esc_html_e( 'Total à payer', 'infinitycod' ); ?></span><span data-summary-total>—</span></div>
+								<div class="icod-summary-total"><span><?php esc_html_e( 'Total à payer', 'infinitycod' ); ?></span><span data-summary-total><?php echo esc_html( Settings::format_price( $head_price ) ); ?></span></div>
 							</div>
 
 							<aside class="icod-aside">

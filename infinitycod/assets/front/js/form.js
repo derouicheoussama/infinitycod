@@ -206,8 +206,14 @@
 		function updateLocalTotals() {
 			var unitEl = el(root, '[data-summary-unit]');
 			if (unitEl) { unitEl.textContent = money(state.unitPrice); }
+			/* Sans devis serveur, sous-total et total suivent localement la
+			   quantité (jamais de montant périmé ni de tiret vide). */
+			if (state.quote) { return; }
+			var local = money(state.unitPrice * currentQty());
 			var subtotalEl = el(root, '[data-summary-subtotal]');
-			if (subtotalEl && !state.quote) { subtotalEl.textContent = money(state.unitPrice * currentQty()); }
+			if (subtotalEl) { subtotalEl.textContent = local; }
+			var totalEl = el(root, '[data-summary-total]');
+			if (totalEl) { totalEl.textContent = local; }
 		}
 
 		/* Placeholder téléphone adapté au pays de livraison. */
@@ -432,20 +438,28 @@
 		function clampQty(value) {
 			return Math.max(state.qtyMin, Math.min(state.qtyMax, value));
 		}
+		function onQtyChanged() {
+			updateQtyBadge();
+			/* Sans wilaya choisie, pas de devis serveur : le récap reste
+			   cohérent localement (jamais de montant périmé affiché). */
+			if (!wilayaSelect || !wilayaSelect.value) {
+				state.quote = null;
+				updateLocalTotals();
+			}
+			refreshQuote();
+		}
 		els(root, '.icod-qty-btn').forEach(function (btn) {
 			btn.addEventListener('click', function () {
 				if (!qtyInput) { return; }
 				var step = parseInt(btn.getAttribute('data-step'), 10) || 1;
 				qtyInput.value = clampQty((parseInt(qtyInput.value, 10) || state.qtyMin) + step);
-				updateQtyBadge();
-				refreshQuote();
+				onQtyChanged();
 			});
 		});
 		if (qtyInput) {
 			qtyInput.addEventListener('change', function () {
 				qtyInput.value = clampQty(parseInt(qtyInput.value, 10) || state.qtyMin);
-				updateQtyBadge();
-				refreshQuote();
+				onQtyChanged();
 			});
 		}
 
@@ -454,8 +468,10 @@
 		if (noteToggle) {
 			noteToggle.addEventListener('click', function (e) {
 				e.preventDefault();
+				/* Le bloc entier (label + zone) se déplie : jamais de libellé vide. */
 				var area = el(root, '.icod-note');
-				if (area) { area.classList.toggle('icod-hidden'); if (!area.classList.contains('icod-hidden')) { area.focus(); } }
+				var wrap = area ? (area.closest('.icod-field') || area) : null;
+				if (wrap) { wrap.classList.toggle('icod-hidden'); if (!wrap.classList.contains('icod-hidden') && area) { area.focus(); } }
 				noteToggle.classList.toggle('open');
 			});
 		}
