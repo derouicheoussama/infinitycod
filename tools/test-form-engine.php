@@ -358,6 +358,24 @@ try {
 	check( 'routes()/communes : ' . $e->getMessage(), false );
 }
 
+/* ---------- 11. Journal des modifications local (CHANGELOG.md embarqué) ---------- */
+
+echo "\n11) Onglet « Journal des modifications » : parseur local embarqué\n";
+$fixture = "# Changelog\n\n## 9.9.9 — 2026-01-01\n\n### Corrigé\n- **Gras** et texte <script>alert(1)</script>\n- deuxième item\n\n## 1.0.0 — ancienne version\n\ntexte\n";
+file_put_contents( $plugin_dir . 'CHANGELOG.md', $fixture );
+try {
+	$cl_parser = $refm( '\InfinityCod\License\Updater', 'changelog_local' );
+	$html_cl   = $cl_parser->invoke( new \InfinityCod\License\Updater() );
+	check( 'versions et puces converties en HTML', false !== strpos( $html_cl, '9.9.9' ) && false !== strpos( $html_cl, '<li>' ) );
+	check( 'XSS échappé (script neutralisé)', false === strpos( $html_cl, '<script>' ) && false !== strpos( $html_cl, '&lt;script&gt;' ) );
+	check( 'gras **x** converti en <strong>', false !== strpos( $html_cl, '<strong>Gras</strong>' ) );
+	check( 'plusieurs versions affichées', false !== strpos( $html_cl, '1.0.0' ) );
+} catch ( \Throwable $e ) {
+	check( 'parseur changelog : ' . $e->getMessage(), false );
+} finally {
+	@unlink( $plugin_dir . 'CHANGELOG.md' );
+}
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

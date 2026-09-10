@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.5.2 — 2026-09-10
+
+L'onglet « Journal des modifications » de wp-admin affiche désormais la liste complète des ajouts et corrections.
+
+### Ajouté
+- **Journal des modifications embarqué** : le CHANGELOG.md voyage dans le plugin et alimente l'onglet même sans accès réseau (indépendant de GitHub et des miroirs). Les 8 dernières versions, converties en HTML propre et échappé.
+- Le manifest update.json embarque désormais le journal de la dernière version : les miroirs CDN le servent aussi.
+
+
 ## 5.5.1 — 2026-09-10
 
 Correctif urgent : l'API REST du plugin (communes, devis, soumission) renvoyait une erreur 500 sur les sites — aucune commande ne pouvait passer.

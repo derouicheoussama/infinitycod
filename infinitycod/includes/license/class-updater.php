@@ -365,16 +365,23 @@ class Updater {
 
 			$download = 'https://github.com/' . $repo . '/releases/download/' . $tag . '/infinitycod.zip';
 
-			// update.json compagnon (best effort — donne le SHA-256 sans API).
-			$sha256 = '';
-			$mres   = wp_remote_get( 'https://github.com/' . $repo . '/releases/download/' . $tag . '/update.json', array(
+			// update.json compagnon (best effort — donne le SHA-256 et le
+			// journal des modifications sans API).
+			$sha256    = '';
+			$changelog = '';
+			$mres      = wp_remote_get( 'https://github.com/' . $repo . '/releases/download/' . $tag . '/update.json', array(
 				'timeout' => 10,
 				'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
 			) );
 			if ( ! is_wp_error( $mres ) && (int) wp_remote_retrieve_response_code( $mres ) === 200 ) {
 				$mdec = json_decode( wp_remote_retrieve_body( $mres ), true );
-				if ( is_array( $mdec ) && ! empty( $mdec['sha256'] ) ) {
-					$sha256 = (string) $mdec['sha256'];
+				if ( is_array( $mdec ) ) {
+					if ( ! empty( $mdec['sha256'] ) ) {
+						$sha256 = (string) $mdec['sha256'];
+					}
+					if ( ! empty( $mdec['changelog'] ) ) {
+						$changelog = (string) $mdec['changelog'];
+					}
 				}
 			}
 
@@ -382,7 +389,7 @@ class Updater {
 				'version'      => $version,
 				'download_url' => $download,
 				'homepage'     => 'https://github.com/' . $repo . '/releases/tag/' . $tag,
-				'changelog'    => '',
+				'changelog'    => $changelog,
 				'sha256'       => $sha256,
 				'requires_php' => '7.4',
 				'requires'     => '6.0',
@@ -543,7 +550,7 @@ class Updater {
 				'version'      => (string) $mirror['version'],
 				'download_url' => $base . 'infinitycod.zip',
 				'homepage'     => 'https://github.com/' . $repo . '/releases',
-				'changelog'    => '',
+				'changelog'    => isset( $mirror['changelog'] ) ? (string) $mirror['changelog'] : '',
 				'sha256'       => isset( $mirror['sha256'] ) ? (string) $mirror['sha256'] : '',
 				'requires_php' => isset( $mirror['requires_php'] ) ? (string) $mirror['requires_php'] : '7.4',
 				'requires'     => isset( $mirror['requires'] ) ? (string) $mirror['requires'] : '6.0',
@@ -871,8 +878,8 @@ class Updater {
 			. '<h4>' . esc_html__( 'Comment fonctionnent les mises à jour ?', 'infinitycod' ) . '</h4><p>' . esc_html__( 'Vérification horaire via GitHub ; mise à jour en 1 clic ou automatique ; intégrité SHA-256 vérifiée et sauvegarde créée avant installation.', 'infinitycod' ) . '</p>'
 			. '<h4>' . esc_html__( 'Le paiement en ligne est-il sécurisé ?', 'infinitycod' ) . '</h4><p>' . esc_html__( 'Le client paie sur la page sécurisée Chargily ; la confirmation est vérifiée par API et par webhook signé.', 'infinitycod' ) . '</p>';
 
-		$changelog = '';
-		if ( $remote && ! empty( $remote['changelog'] ) ) {
+		$changelog = $this->changelog_local();
+		if ( '' === $changelog && $remote && ! empty( $remote['changelog'] ) ) {
 			$changelog = '<pre style="white-space:pre-wrap;font-family:inherit">' . esc_html( (string) $remote['changelog'] ) . '</pre>';
 		}
 
@@ -894,6 +901,74 @@ class Updater {
 		);
 
 		return $info;
+	}
+
+	/**
+	 * Journal des modifications LUE LOCALEMENT (CHANGELOG.md embarqué dans
+	 * le plugin) : l'onglet « Journal des modifications » est toujours
+	 * renseigné, même quand toutes les sources réseau sont bloquées.
+	 *
+	 * Markdown simplifié → HTML échappé : titres de version (##), sections
+	 * (###), listes à puces, gras **…**. Les 8 dernières versions seulement.
+	 *
+	 * @param int $limit Nombre maximum de versions affichées.
+	 * @return string HTML.
+	 */
+	private function changelog_local( $limit = 8 ) {
+		static $cached = null;
+		if ( null !== $cached ) {
+			return $cached;
+		}
+
+		$file = INFINITYCOD_PATH . 'CHANGELOG.md';
+		$cached = '';
+		if ( ! file_exists( $file ) ) {
+			return $cached;
+		}
+		$md = file_get_contents( $file );
+		if ( false === $md || '' === trim( (string) $md ) ) {
+			return $cached;
+		}
+
+		$html    = '';
+		$in_list = false;
+		$count   = 0;
+
+		$inline = static function ( $text ) {
+			$text = esc_html( $text );
+			$text = preg_replace( '/\*\*([^*]+)\*\*/', '<strong>$1</strong>', (string) $text );
+			return (string) $text;
+		};
+
+		foreach ( preg_split( '/\r\n|\r|\n/', $md ) as $line ) {
+			$line = rtrim( (string) $line );
+
+			if ( preg_match( '/^##\s+(\S.*)$/', $line, $m ) ) {
+				if ( $count >= $limit ) { break; }
+				if ( $in_list ) { $html .= '</ul>'; $in_list = false; }
+				$count++;
+				$html .= '<h4 style="margin:18px 0 6px">' . $inline( $m[1] ) . '</h4>';
+				continue;
+			}
+			if ( preg_match( '/^###\s+(\S.*)$/', $line, $m ) ) {
+				if ( $in_list ) { $html .= '</ul>'; $in_list = false; }
+				$html .= '<p style="margin:10px 0 4px"><strong>' . $inline( $m[1] ) . '</strong></p>';
+				continue;
+			}
+			if ( preg_match( '/^[-*]\s+(.+)$/', $line, $m ) ) {
+				if ( ! $in_list ) { $html .= '<ul style="margin:4px 0 10px 18px;list-style:disc">'; $in_list = true; }
+				$html .= '<li>' . $inline( $m[1] ) . '</li>';
+				continue;
+			}
+			if ( '' === $line && $in_list ) {
+				$html .= '</ul>';
+				$in_list = false;
+			}
+		}
+		if ( $in_list ) { $html .= '</ul>'; }
+
+		$cached = $html;
+		return $cached;
 	}
 
 	/**

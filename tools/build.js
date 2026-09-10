@@ -37,6 +37,14 @@ const entries = [];
   }
 })(src, 'infinitycod/');
 
+// Journal des modifications embarqué : le CHANGELOG.md de la racine du
+// dépôt voyage DANS le plugin — l'onglet « Journal des modifications » de
+// wp-admin est alors renseigné même sans réseau (aucune source externe).
+const changelogPath = path.join(root, 'CHANGELOG.md');
+if (fs.existsSync(changelogPath)) {
+  entries.push({ name: 'infinitycod/CHANGELOG.md', data: fs.readFileSync(changelogPath) });
+}
+
 const totalKo = entries.reduce((sum, e) => sum + e.data.length, 0) / 1024;
 console.log(`Plugin : ${entries.length} fichiers, ${totalKo.toFixed(0)} Ko`);
 
@@ -75,6 +83,18 @@ fs.writeFileSync(zipPath + '.sha256', sha256 + '  infinitycod.zip\n');
 const header = fs.readFileSync(path.join(src, 'infinitycod.php'), 'utf8');
 const version = (header.match(/define\(\s*'INFINITYCOD_VERSION',\s*'([0-9.]+)'/) || [])[1];
 
+// Manifest update.json : le journal de la dernière version est embarqué —
+// les miroirs (raw / jsDelivr / miroir perso) servent alors le changelog
+// aussi, sans API GitHub.
+function latestChangelogSection(md) {
+  const start = md.indexOf('## ');
+  if (start === -1) { return ''; }
+  let end = md.indexOf('\n## ', start + 1);
+  if (end === -1) { end = md.length; }
+  return md.slice(start, end).trim().slice(0, 4000);
+}
+const changelogText = fs.existsSync(changelogPath) ? fs.readFileSync(changelogPath, 'utf8') : '';
+
 const manifest = {
   name: 'InfinityCod — Paiement à la livraison (COD Algérie)',
   slug: 'infinitycod',
@@ -87,6 +107,7 @@ const manifest = {
   sha256: sha256,
   release_date: new Date().toISOString(),
   channel: 'stable',
+  changelog: latestChangelogSection(changelogText),
 };
 fs.writeFileSync(path.join(dist, 'update.json'), JSON.stringify(manifest, null, 2));
 
