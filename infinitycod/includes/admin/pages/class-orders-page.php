@@ -126,10 +126,12 @@ class OrdersPage {
 						<option value=""><?php esc_html_e( 'Actions groupées', 'infinitycod' ); ?></option>
 						<option value="confirmed"><?php esc_html_e( '→ Confirmer', 'infinitycod' ); ?></option>
 						<option value="no_answer"><?php esc_html_e( '→ Sans réponse', 'infinitycod' ); ?></option>
+						<option value="shipped"><?php esc_html_e( '→ Expédier', 'infinitycod' ); ?></option>
 						<option value="cancelled"><?php esc_html_e( '→ Annuler', 'infinitycod' ); ?></option>
 						<option value="delivered"><?php esc_html_e( '→ Marquer livrée', 'infinitycod' ); ?></option>
 						<option value="returned"><?php esc_html_e( '→ Marquer retournée', 'infinitycod' ); ?></option>
 						<option value="blacklist"><?php esc_html_e( '→ Blacklister les téléphones', 'infinitycod' ); ?></option>
+						<option value="delete"><?php esc_html_e( '→ Supprimer (corbeille WC)', 'infinitycod' ); ?></option>
 					</select>
 					<button type="submit" class="button"><?php esc_html_e( 'Appliquer', 'infinitycod' ); ?></button>
 					<a class="button" href="<?php echo esc_url( $this->export_url() ); ?>">📥 <?php esc_html_e( 'Export CSV', 'infinitycod' ); ?></a>
@@ -259,6 +261,7 @@ class OrdersPage {
 				<?php if ( ! in_array( $status, array( 'delivered', 'cancelled' ), true ) ) : ?>
 					<button type="button" class="button button-small icod-quick icod-danger" data-id="<?php echo esc_attr( $row['id'] ); ?>" data-status="cancelled" title="<?php esc_attr_e( 'Annuler', 'infinitycod' ); ?>">✕</button>
 				<?php endif; ?>
+				<button type="button" class="button button-small icod-del icod-danger" data-id="<?php echo esc_attr( $row['id'] ); ?>" title="<?php esc_attr_e( 'Supprimer ( WooCommerce → corbeille )', 'infinitycod' ); ?>">🗑</button>
 			</td>
 		</tr>
 		<?php

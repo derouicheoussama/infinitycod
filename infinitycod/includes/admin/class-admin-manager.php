@@ -56,6 +56,7 @@ class AdminManager {
 		add_action( 'admin_post_icod_orders_bulk', array( $this, 'handle_orders_bulk' ) );
 		add_action( 'wp_ajax_icod_order_status', array( $this, 'handle_order_status' ) );
 		add_action( 'wp_ajax_icod_order_update', array( $this, 'handle_order_update' ) );
+		add_action( 'wp_ajax_icod_order_delete', array( $this, 'handle_order_delete' ) );
 		add_action( 'wp_ajax_icod_order_blacklist', array( $this, 'handle_order_blacklist' ) );
 		add_action( 'admin_post_icod_orders_export', array( $this, 'handle_orders_export' ) );
 		add_action( 'admin_post_icod_carrier_save', array( $this, 'handle_carrier_save' ) );
@@ -776,6 +777,12 @@ class AdminManager {
 				}
 				continue;
 			}
+			if ( 'delete' === $bulk ) {
+				if ( $orders ) {
+					$orders->delete( $id );
+				}
+				continue;
+			}
 			if ( $orders ) {
 				$orders->set_status( $id, $bulk );
 			}
@@ -883,15 +890,42 @@ class AdminManager {
 			wp_send_json_error( array( 'message' => 'db' ) );
 		}
 
-		// Synchronisation minimale avec la commande WooCommerce liée.
+		// Synchronisation COMPLÈTE avec la commande WooCommerce liée :
+		// identité, téléphone, adresse, ville, wilaya, quantité, note, total.
 		if ( ! empty( $order['wc_order_id'] ) && function_exists( 'wc_get_order' ) ) {
 			$wc = wc_get_order( (int) $order['wc_order_id'] );
 			if ( $wc ) {
 				try {
+					$geo = infinitycod()->module( 'geo' );
+					$w   = $geo ? $geo->wilaya( $wilaya ) : null;
+					$wc_address = array(
+						'first_name' => $name,
+						'phone'      => $phone,
+						'address_1'  => (string) ( $order['address'] ?? $wc->get_billing_address_1() ),
+						'city'       => $commune,
+						'state'      => $w ? (string) $w['name_fr'] : '',
+						'country'    => ( $w && ! empty( $w['country_code'] ) ) ? $w['country_code'] : 'DZ',
+					);
+					if ( method_exists( $wc, 'set_address' ) ) {
+						$wc->set_address( $wc_address, 'billing' );
+						$wc->set_address( $wc_address, 'shipping' );
+					}
+					// Quantité de la première ligne produit.
+					$items = method_exists( $wc, 'get_items' ) ? $wc->get_items() : array();
+					foreach ( $items as $item ) {
+						if ( $item instanceof \WC_Order_Item_Product && method_exists( $item, 'set_quantity' ) ) {
+							$item->set_quantity( $qty );
+							break;
+						}
+					}
 					if ( method_exists( $wc, 'set_total' ) ) {
 						$wc->set_total( $total );
-						$wc->save();
 					}
+					if ( method_exists( $wc, 'set_customer_note' ) && '' !== $note ) {
+						$wc->set_customer_note( $note );
+					}
+					$wc->update_meta_data( '_icod_phone', $phone );
+					$wc->save();
 					$wc->add_order_note( __( 'Commande modifiée depuis InfinityCod (client, destination, quantité ou note).', 'infinitycod' ) );
 				} catch ( \Throwable $e ) {
 					\InfinityCod\Logging\Logger::log( 'error', 'Sync commande WC : ' . $e->getMessage() );
@@ -900,6 +934,32 @@ class AdminManager {
 		}
 
 		wp_send_json_success( array( 'total' => $total ) );
+	}
+
+	/**
+	 * Suppression d'une commande (AJAX) : ligne interne + corbeille WC.
+	 *
+	 * @return void
+	 */
+	public function handle_order_delete() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+
+		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+		if ( ! $id ) {
+			wp_send_json_error( array( 'message' => 'invalid' ) );
+		}
+
+		$orders = infinitycod()->module( 'orders' );
+		$ok     = $orders ? $orders->delete( $id ) : false;
+
+		if ( $ok ) {
+			wp_send_json_success();
+		}
+		wp_send_json_error( array( 'message' => 'db' ) );
 	}
 
 	/**

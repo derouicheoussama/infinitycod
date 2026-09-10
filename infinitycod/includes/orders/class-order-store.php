@@ -262,6 +262,57 @@ class OrderStore {
 	}
 
 	/**
+	 * Supprime une commande COD (le D du CRUD, absent jusqu'ici).
+	 *
+	 * Supprime la ligne interne puis met la commande WooCommerce liée à la
+	 * CORBEILLE (récupérable — jamais de suppression définitive automatique).
+	 * Ne touche jamais aux produits, clients ou autres données.
+	 *
+	 * @param int  $icod_id  Ligne icod_orders.
+	 * @param bool $trash_wc Mettre aussi la commande WooCommerce à la corbeille.
+	 * @return bool
+	 */
+	public function delete( $icod_id, $trash_wc = true ) {
+		global $wpdb;
+
+		$icod_id = absint( $icod_id );
+		if ( ! $icod_id ) {
+			return false;
+		}
+
+		$table = Schema::table( 'orders' );
+		$row   = $wpdb->get_row( $wpdb->prepare( "SELECT wc_order_id FROM {$table} WHERE id = %d", $icod_id ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
+		if ( ! $row ) {
+			return false;
+		}
+
+		$deleted = false !== $wpdb->delete( $table, array( 'id' => $icod_id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
+		if ( $deleted && $trash_wc && ! empty( $row['wc_order_id'] ) && function_exists( 'wc_get_order' ) ) {
+			$wc = wc_get_order( (int) $row['wc_order_id'] );
+			if ( $wc ) {
+				try {
+					$wc->delete( false ); // Corbeille WooCommerce.
+				} catch ( \Throwable $e ) {
+					\InfinityCod\Logging\Logger::log( 'error', 'Corbeille WC : ' . $e->getMessage() );
+				}
+			}
+		}
+
+		if ( $deleted ) {
+			/**
+			 * Après suppression d'une commande COD.
+			 *
+			 * @param int   $icod_id Ligne supprimée.
+			 * @param array $row     Ligne avant suppression.
+			 */
+			do_action( 'infinitycod_order_deleted', $icod_id, $row );
+		}
+
+		return (bool) $deleted;
+	}
+
+	/**
 	 * Met à jour le statut COD interne + synchronise la commande WC.
 	 *
 	 * @param int    $icod_id Ligne icod_orders.

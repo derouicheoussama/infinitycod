@@ -119,6 +119,20 @@
 
 	/* ===== Modale commande : détails complets + édition + tous les statuts ===== */
 
+	/* ===== Suppression d'une commande (corbeille WC) ===== */
+	document.querySelectorAll('.icod-del').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			if (!window.confirm('Supprimer cette commande ? Elle ira dans la corbeille WooCommerce.')) { return; }
+			btn.disabled = true;
+			post('icod_order_delete', { id: btn.getAttribute('data-id') }).then(function (json) {
+				if (!json || !json.success) { window.alert(icodAdmin.i18n.error); btn.disabled = false; return; }
+				var tr = btn.closest('tr');
+				if (tr) { tr.remove(); } else { window.location.reload(); }
+			}).catch(function () { window.alert(icodAdmin.i18n.error); btn.disabled = false; });
+		});
+	});
+
+
 	var modal = document.getElementById('icod-order-modal');
 	var modalBody = document.getElementById('icod-modal-body');
 	var wilayas = window.icodWilayas || [];

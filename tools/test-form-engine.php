@@ -495,6 +495,20 @@ check( 'rendu : accent personnalisé gagne sur le preset', false !== strpos( $fm
 $adminjs = file_get_contents( $plugin_dir . 'assets/admin/js/admin.js' );
 check( 'admin : le clic preset déclenche input+change (aperçu immédiat)', false !== strpos( $adminjs, "accent.dispatchEvent" ) );
 
+/* ---------- 21. CRUD commandes complet + synchro WC ---------- */
+
+echo "\n21) Commandes : Create ✓ / Read ✓ / Update ✓ / Delete ✓ + synchro WC\n";
+$orders_src = file_get_contents( $plugin_dir . 'includes/orders/class-order-store.php' );
+check( 'Delete : OrderStore::delete existe (corbeille WC, hook)', false !== strpos( $orders_src, 'public function delete(' ) && false !== strpos( $orders_src, 'infinitycod_order_deleted' ) );
+$am4 = file_get_contents( $plugin_dir . 'includes/admin/class-admin-manager.php' );
+check( 'handler AJAX de suppression enregistré + capability', false !== strpos( $am4, 'wp_ajax_icod_order_delete' ) && false !== strpos( $am4, 'handle_order_delete' ) );
+check( 'édition : synchro WC complète (adresse + quantité + note + total)', false !== strpos( $am4, "set_address( \$wc_address, 'billing' )" ) && false !== strpos( $am4, 'set_quantity( $qty )' ) && false !== strpos( $am4, 'set_customer_note' ) );
+$orders_page = file_get_contents( $plugin_dir . 'includes/admin/pages/class-orders-page.php' );
+check( 'bulk : Expédier + Supprimer proposés', false !== strpos( $orders_page, "value=\"shipped\"" ) && false !== strpos( $orders_page, 'value="delete"' ) );
+check( 'bouton suppression par ligne', false !== strpos( $orders_page, 'icod-del' ) );
+$adminjs2 = file_get_contents( $plugin_dir . 'assets/admin/js/admin.js' );
+check( 'JS : suppression branchée avec confirmation + icod_order_delete', false !== strpos( $adminjs2, "post('icod_order_delete'" ) && false !== strpos( $adminjs2, 'window.confirm' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

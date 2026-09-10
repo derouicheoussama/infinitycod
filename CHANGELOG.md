@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.9.0 — 2026-09-10
+
+CRUD commandes complet (le D de Delete manquant est là) et synchronisation WooCommerce intégrale à l'édition.
+
+### Ajouté
+- **Suppression de commandes** : bouton 🗑 sur chaque ligne et action groupée « → Supprimer » — la ligne COD est supprimée et la commande WooCommerce part à la CORBEILLE (récupérable, jamais de suppression définitive automatique). Confirmation + capability + hook infinitycod_order_deleted.
+- **Action groupée « → Expédier »**.
+- **Édition 100 % synchronisée avec WooCommerce** : modifier client, téléphone, commune, wilaya ou quantité depuis le dashboard met à jour la commande WooCommerce (adresse facturation + livraison, quantité de la ligne produit, note client, total) — avant, seul le total était synchronisé.
+
+### Technique
+- Audits anti-régression étendus : 99 tests harnais + scan des champs POST + scan des méthodes.
+
+
 ## 5.8.3 — 2026-09-10
 
 Correctif pipeline : le harnais d'activation n'avait pas le stub du cache (échec CI v5.8.2 — relance automatique des tags précédents possible).
