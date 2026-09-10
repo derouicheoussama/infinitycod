@@ -485,6 +485,14 @@ check( 'bandeau 3 étapes + bouton Enregistrer collant', false !== strpos( $sp5,
 check( 'purge des caches appelée à la sauvegarde', false !== strpos( $sp5, 'purge_page_caches' ) );
 check( 'purge couvre LiteSpeed / WP Rocket / W3TC / Autoptimize', false !== strpos( $sp5, 'litespeed_purge_all' ) && false !== strpos( $sp5, 'rocket_clean_domain' ) && false !== strpos( $sp5, 'w3tc_flush_all' ) && false !== strpos( $sp5, 'autoptimizeCache' ) );
 
+/* ---------- 20. Presets : couleur de départ réelle, même sans JS ---------- */
+
+echo "\n20) Preset = couleur de départ quand l'accent n'est pas personnalisé\n";
+check( 'rendu : repli preset si accent au défaut (sans JS)', false !== strpos( $fm3, "=== '#0E7A4F'" ) );
+check( 'rendu : accent personnalisé gagne sur le preset', false !== strpos( $fm3, "Settings::get( 'accent_color', '#0e7a4f' )" ) );
+$adminjs = file_get_contents( $plugin_dir . 'assets/admin/js/admin.js' );
+check( 'admin : le clic preset déclenche input+change (aperçu immédiat)', false !== strpos( $adminjs, "accent.dispatchEvent" ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

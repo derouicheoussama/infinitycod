@@ -487,6 +487,14 @@ class FormManager {
 		$accent  = ( $preset !== $saved_preset && isset( $preset_colors[ $preset ] ) )
 			? $preset_colors[ $preset ] // Surcharge Elementor : couleur du preset.
 			: Settings::get( 'accent_color', '#0e7a4f' );
+
+		// « Un preset choisit la couleur de départ » : tant que le marchand
+		// n'a PAS personnalisé l'accent (valeur par défaut), c'est le preset
+		// qui donne la couleur — fonctionne même sans JavaScript. Dès que
+		// l'accent est personnalisé, il gagne partout.
+		if ( $preset === $saved_preset && strtoupper( (string) Settings::get( 'accent_color', '#0e7a4f' ) ) === '#0E7A4F' && isset( $preset_colors[ $saved_preset ] ) ) {
+			$accent = $preset_colors[ $saved_preset ];
+		}
 		$title   = $custom_title ? $custom_title : Settings::get( 'form_title' );
 		$button  = $custom_button ? $custom_button : Settings::get( 'button_text' );
 

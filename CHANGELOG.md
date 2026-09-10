@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.8.1 — 2026-09-10
+
+« Un preset choisit la couleur de départ » fonctionne maintenant réellement, même sans JavaScript.
+
+### Corrigé
+- **Presets réellement appliqués** : tant que la couleur d'accent n'a pas été personnalisée (valeur d'origine), choisir un preset (Océan, Royal, Sunset…) et enregistrer change réellement la couleur de tout le formulaire — côté serveur, indépendamment du navigateur.
+- Le clic sur un preset déclenche désormais le rafraîchissement immédiat de l'aperçu en direct (avant : le sélecteur changeait mais l'aperçu ne bougeait pas, d'où l'impression que rien ne fonctionnait).
+- Dès que la couleur d'accent est personnalisée, elle redevient prioritaire sur le preset — exactement le comportement annoncé.
+
+
 ## 5.8.0 — 2026-09-10
 
 L'interface Réglages est réorganisée en sections numérotées, et la cause n°1 du « rien ne change » est éliminée.

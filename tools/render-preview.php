@@ -204,6 +204,16 @@ $variants = array(
 			array( 'key' => 'commune', 'type' => 'select', 'label' => '', 'on' => 1, 'req' => 1 ),
 		),
 	),
+	// Preset royal SANS accent personnalisé : le preset donne la couleur.
+	'preset_royal' => array(
+		'form_preset'  => 'royal',
+		'checkout_fields' => array(
+			array( 'key' => 'name', 'type' => 'text', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'phone', 'type' => 'tel', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'wilaya', 'type' => 'select', 'label' => '', 'on' => 1, 'req' => 1 ),
+			array( 'key' => 'commune', 'type' => 'select', 'label' => '', 'on' => 1, 'req' => 1 ),
+		),
+	),
 	// Personnalisation avancée : chaque valeur remplie doit s'appliquer.
 	'personnalise' => array(
 		'accent_color'      => '#0E7A4F',

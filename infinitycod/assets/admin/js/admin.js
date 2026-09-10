@@ -339,6 +339,11 @@
 			var accent = document.querySelector('input[name="icod[accent_color]"]');
 			if (accent && radio.getAttribute('data-accent')) {
 				accent.value = radio.getAttribute('data-accent');
+				/* Déclenche les événements : l'aperçu en direct se rafraîchit
+				   immédiatement avec la couleur du preset. */
+				['input', 'change'].forEach(function (evt) {
+					accent.dispatchEvent(new window.Event(evt, { bubbles: true }));
+				});
 			}
 		});
 	});
