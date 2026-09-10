@@ -1346,10 +1346,6 @@ class SettingsPage {
 					<input type="checkbox" name="icod[auto_update]" value="1" <?php checked( (int) Settings::get( 'auto_update' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Mise à jour automatique du plugin (sans clic, dès qu‘une version GitHub est publiée)', 'infinitycod' ); ?></span>
 				</label>
-				<label class="icod-toggle">
-					<input type="checkbox" name="icod[license_lock_form]" value="1" <?php checked( (int) Settings::get( 'license_lock_form' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Verrouiller le formulaire COD tant qu‘aucune licence n‘est activée (les visiteurs ne voient pas le formulaire ; recommandé uniquement pour une distribution commerciale)', 'infinitycod' ); ?></span>
-				</label>
 				<div class="icod-grid">
 					<label>
 						<span><?php esc_html_e( 'Sauvegardes conservées avant purge (1-10)', 'infinitycod' ); ?></span>
