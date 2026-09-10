@@ -1,5 +1,17 @@
 # Changelog
 
+## 5.6.1 — 2026-09-10
+
+Badge de notification des commandes en attente + dernier réglage déconnecté branché.
+
+### Ajouté
+- **Badge rond rouge « commandes en attente »** sur le menu InfinityCod ET sur le sous-menu « Commandes COD » : le nombre de commandes à confirmer est visible d'un coup d'œil, mis à jour à chaque chargement de l'admin. Désactivable dans Réglages → Avancé.
+
+### Corrigé
+- Le réglage « Journal InfinityCod » (Réglages → Avancé) était ignoré : désactivé, aucune écriture de log n'a lieu désormais.
+- Rappel automatique après chaque enregistrement : si le formulaire public ne change pas, vider le cache du plugin de cache (LiteSpeed, WP Rocket…).
+
+
 ## 5.6.0 — 2026-09-10
 
 La couleur choisie dans le dashboard teinte DÉSORMAIS tout le formulaire, et le mode sombre fonctionne réellement.

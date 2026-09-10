@@ -53,7 +53,7 @@ class SettingsPage {
 			<h1 class="icod-title"><?php esc_html_e( 'Réglages InfinityCod', 'infinitycod' ); ?></h1>
 
 			<?php if ( 'saved' === $saved ) : ?>
-				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Réglages enregistrés.', 'infinitycod' ); ?></p></div>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Réglages enregistrés et appliqués au formulaire.', 'infinitycod' ); ?> <strong><?php esc_html_e( 'Si le formulaire public ne change pas : videz le cache de votre plugin de cache (LiteSpeed, WP Rocket…)', 'infinitycod' ); ?></strong></p></div>
 			<?php elseif ( 'reset' === $saved ) : ?>
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Réglages réinitialisés aux valeurs par défaut. Vos commandes n’ont pas été touchées.', 'infinitycod' ); ?></p></div>
 			<?php endif; ?>

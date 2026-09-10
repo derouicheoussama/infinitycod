@@ -247,10 +247,11 @@ class AdminManager {
 	}
 
 	/**
-	 * Badge de commandes en attente sur l'entrée de menu InfinityCod.
+	 * Badge de commandes en attente : petit rond rouge affiché sur l'entrée
+	 * InfinityCod ET sur le sous-menu « Commandes COD ».
 	 *
 	 * Attaché à admin_menu en priorité 999 : le menu est construit,
-	 * on enrichit le titre avant son rendu.
+	 * on enrichit les titres avant leur rendu.
 	 *
 	 * @return void
 	 */
@@ -268,13 +269,28 @@ class AdminManager {
 			return;
 		}
 
+		$badge = sprintf(
+			' <span class="awaiting-mod count-%1$d icod-menu-badge" aria-label="%2$s"><span class="pending-count">%1$d</span></span>',
+			$pending,
+			/* translators: %d : nombre de commandes en attente. */
+			esc_attr( sprintf( __( '%d commandes en attente', 'infinitycod' ), $pending ) )
+		);
+
+		// Menu principal InfinityCod.
 		foreach ( (array) $GLOBALS['menu'] as $index => $item ) {
 			if ( isset( $item[2] ) && 'infinitycod' === $item[2] ) {
-				$GLOBALS['menu'][ $index ][0] .= sprintf(
-					' <span class="awaiting-mod count-%1$d"><span class="pending-count">%1$d</span></span>',
-					$pending
-				);
+				$GLOBALS['menu'][ $index ][0] .= $badge;
 				break;
+			}
+		}
+
+		// Sous-menu « Commandes COD ».
+		if ( isset( $GLOBALS['submenu']['infinitycod'] ) && is_array( $GLOBALS['submenu']['infinitycod'] ) ) {
+			foreach ( $GLOBALS['submenu']['infinitycod'] as $sindex => $sitem ) {
+				if ( isset( $sitem[2] ) && 'infinitycod-orders' === $sitem[2] ) {
+					$GLOBALS['submenu']['infinitycod'][ $sindex ][0] .= $badge;
+					break;
+				}
 			}
 		}
 	}

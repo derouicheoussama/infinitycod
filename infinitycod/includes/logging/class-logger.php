@@ -37,11 +37,18 @@ class Logger {
 	/**
 	 * Écrit une entrée de log.
 	 *
+	 * Respecte le réglage « Journal InfinityCod » (Réglages → Avancé) :
+	 * désactivé = aucune écriture.
+	 *
 	 * @param string $category Catégorie (voir CATEGORIES).
 	 * @param string $message  Message court, sans données sensibles.
 	 * @return bool
 	 */
 	public static function log( $category, $message ) {
+		if ( ! \InfinityCod\Core\Settings::get( 'log_enabled', 1 ) ) {
+			return false;
+		}
+
 		$category = in_array( $category, self::CATEGORIES, true ) ? $category : 'error';
 
 		$file = self::current_file();

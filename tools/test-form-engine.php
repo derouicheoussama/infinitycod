@@ -392,6 +392,19 @@ check( 'CSS : les 5 styles d’écran de succès existent', false !== strpos( $c
 $fm_now = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
 check( 'PHP : data-theme + palette inline + surcharge Elementor appliquée', false !== strpos( $fm_now, 'data-theme=' ) && false !== strpos( $fm_now, "apply_filters( 'infinitycod_widget_preset'" ) && false !== strpos( $fm_now, 'accent_palette(' ) );
 
+/* ---------- 13. Badge commandes + réglages Avancé branchés ---------- */
+
+echo "\n13) Badge commandes en attente + réglages Avancé réellement lus\n";
+$am_src = file_get_contents( $plugin_dir . 'includes/admin/class-admin-manager.php' );
+check( 'badge présent sur le menu InfinityCod ET Commandes COD', false !== strpos( $am_src, "'infinitycod-orders' === \$sitem[2]" ) && false !== strpos( $am_src, "icod-menu-badge" ) );
+check( 'badge = comptage des commandes pending', false !== strpos( $am_src, "status = 'pending'" ) );
+
+$logger_src = file_get_contents( $plugin_dir . 'includes/logging/class-logger.php' );
+check( 'log_enabled respecté par le Logger (plus d\'option morte)', false !== strpos( $logger_src, "Settings::get( 'log_enabled', 1 )" ) );
+
+$shield_src = file_get_contents( $plugin_dir . 'includes/anti-fraud/class-shield.php' );
+check( 'anti-fraude : limites IP/téléphone/email par jour branchées', false !== strpos( $shield_src, 'max_per_ip_day' ) && false !== strpos( $shield_src, 'max_per_phone_day' ) && false !== strpos( $shield_src, 'max_per_email_day' ) && false !== strpos( $shield_src, 'block_duplicate_phone' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
