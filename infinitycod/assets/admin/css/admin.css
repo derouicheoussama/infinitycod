@@ -1001,3 +1001,17 @@ body.icod-modal-open{overflow:hidden}
 .icod-carrier-info .icod-carrier-name{font-size:15px}
 .icod-carrier-card .icod-grid{margin-top:12px}
 .icod-carrier-card .icod-grid label > span{font-size:11.5px;color:#5f7488}
+
+
+/* --- Checkout Builder : champ réordonnable --- */
+.icod-builder-row{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#fff;border:1.5px solid #d5dfe9;border-radius:10px;margin-bottom:6px;transition:border-color .15s,box-shadow .15s}
+.icod-builder-row:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(24,119,194,.08)}
+.icod-builder-row .move-btns{display:flex;flex-direction:column;gap:2px}
+.icod-builder-row .move-btns button{width:22px;height:18px;padding:0;border:1px solid #c3c4c7;border-radius:4px;background:#f0f0f1;cursor:pointer;font-size:9px;line-height:1;color:#50575e}
+.icod-builder-row .move-btns button:hover{background:#e2e8f0}
+.icod-builder-row .field-label{flex:1;font-weight:600;font-size:13px;color:#1d2327}
+.icod-builder-row .field-type{font-size:11px;color:#8c8f94;padding:2px 8px;background:#f0f0f1;border-radius:4px}
+.icod-builder-row .field-toggle{display:flex;align-items:center;gap:4px;font-size:11px;color:#50575e}
+.icod-builder-row .field-toggle input[type=checkbox]{margin:0}
+.icod-builder-row.drag-over{border-color:#1877c2;border-style:dashed;background:#f0f6fc}
+.icod-builder-row .cf-badge{display:inline-block;background:#1877c2;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:4px}
