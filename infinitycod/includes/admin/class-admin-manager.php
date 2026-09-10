@@ -145,6 +145,8 @@ class AdminManager {
 		if ( ! current_user_can( 'update_plugins' ) ) { return; }
 
 		$latest = '';
+		$push = get_option( 'infinitycod_gh_push', array() );
+		if ( is_array( $push ) && ! empty( $push['version'] ) && version_compare( INFINITYCOD_VERSION, $push['version'], '<' ) ) { $latest = (string) $push['version']; }
 		foreach ( array( 'icod_update_gh', 'icod_update_atom', 'icod_update_mirror' ) as $key ) {
 			$cached = get_transient( $key );
 			if ( is_array( $cached ) && ! empty( $cached['version'] ) ) { $latest = (string) $cached['version']; break; }
