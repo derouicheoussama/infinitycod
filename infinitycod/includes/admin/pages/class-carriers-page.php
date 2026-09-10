@@ -98,10 +98,11 @@ class CarriersPage {
 			<div class="icod-card icod-carrier-card <?php echo $is_cfg ? 'icod-carrier-active' : ''; ?>" data-code="<?php echo esc_attr( $entry['code'] ); ?>">
 				<div class="icod-carrier-head">
 					<?php echo $_logo; // phpcs:ignore WordPress.Security.EscapeOutput ?>
-					<h2 class="icod-carrier-name"><?php echo esc_html( $entry['name'] ); ?></h2>
-					<span class="icod-carrier-status <?php echo $is_cfg ? 'on' : 'off'; ?>"><?php echo $is_cfg ? '✓ Connecté' : '○ Non configuré'; ?></span>
-				</div>
-					<label class="icod-toggle">
+					<div class="icod-carrier-info">
+						<h2 class="icod-carrier-name"><?php echo esc_html( $entry['name'] ); ?></h2>
+						<span class="icod-carrier-status <?php echo $is_cfg ? 'on' : 'off'; ?>"><?php echo $is_cfg ? '✓ Connecté' : '○ Non configuré'; ?></span>
+					</div>
+					<label class="icod-toggle" style="margin-left:auto">
 						<input type="checkbox" name="icod_carrier[<?php echo esc_attr( $entry['code'] ); ?>][enabled]" value="1" <?php checked( $enabled ); ?> />
 						<span><?php esc_html_e( 'Activé', 'infinitycod' ); ?></span>
 					</label>

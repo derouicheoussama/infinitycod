@@ -989,3 +989,9 @@ body.icod-modal-open{overflow:hidden}
 .icod-carrier-test-result.show{display:block}
 .icod-carrier-test-result.ok{background:#e0f2e9;color:#0e7a4f}
 .icod-carrier-test-result.ko{background:#fbe4e2;color:#b32d2e}
+
+/* Carriers : header avec info block */
+.icod-carrier-info{display:flex;flex-direction:column;gap:2px}
+.icod-carrier-info .icod-carrier-name{font-size:15px}
+.icod-carrier-card .icod-grid{margin-top:12px}
+.icod-carrier-card .icod-grid label > span{font-size:11.5px;color:#5f7488}
