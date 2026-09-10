@@ -822,3 +822,7 @@ select.icod-input{
 .icod-summary-head{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:0;padding:0 0 8px;cursor:pointer;font:inherit}
 .icod-summary-head .chev{transition:transform .2s}
 .icod-summary-head.closed .chev{transform:rotate(180deg)}
+
+/* Champs personnalisés (cf_*) : même style que les champs natifs */
+input[name^="cf_"], textarea[name^="cf_"], select[name^="cf_"]{width:100%;min-height:48px;padding:12px 14px;border:1.5px solid var(--icod-border);border-radius:10px;background:var(--icod-surface);color:var(--icod-text);font:inherit;font-size:16px}
+input[name^="cf_"]:focus, textarea[name^="cf_"]:focus{outline:none;border-color:var(--icod-accent)}
