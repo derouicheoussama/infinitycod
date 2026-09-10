@@ -170,6 +170,21 @@
 			if (phoneInput) { phoneInput.setAttribute('placeholder', hint); }
 		}
 
+		function updateProgress() {
+			var fill = el(root, '[data-progress-fill]');
+			if (!fill) { return; }
+			var total = 4, done = 0;
+			if (nameInput && nameInput.value.trim()) { done++; }
+			if (phoneInput && phoneInput.value.replace(/D/g,'').length >= 9) { done++; }
+			if (wilayaSelect && wilayaSelect.value) { done++; }
+			if (communeSelect && (communeSelect.value || (communeText && communeText.value.trim()))) { done++; }
+			fill.style.width = Math.round(done / total * 100) + '%';
+			fill.style.background = done >= total ? 'var(--icod-success,#0e7a4f)' : '';
+		}
+		['input','change'].forEach(function (evt) {
+			root.addEventListener(evt, updateProgress, { passive: true });
+		});
+		updateProgress();
 		updateHeadPrice();
 		updateQtyBadge();
 		updateLocalTotals();

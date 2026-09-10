@@ -272,6 +272,7 @@ class FormManager {
 						<ins data-head-price-live><?php echo esc_html( number_format_i18n( $head_price, $decimals ) . ' ' . __( 'DA', 'infinitycod' ) ); ?></ins>
 					</span>
 				</header>
+			<div class="icod-progress" aria-hidden="true"><div class="icod-progress-fill" data-progress-fill></div></div>
 
 				<form class="icod-form" novalidate>
 					<input type="text" name="icod_hp" class="icod-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
@@ -482,8 +483,7 @@ class FormManager {
 
 						</div>
 
-						<aside class="icod-aside">
-							<div class="icod-summary" role="status" aria-live="polite">
+						<div class="icod-summary icod-summary-bottom" role="status" aria-live="polite">
 								<p class="icod-summary-title"><?php esc_html_e( '🧾 Récapitulatif', 'infinitycod' ); ?></p>
 								<div class="icod-summary-line icod-summary-product">
 									<span class="icod-summary-product-name"><?php echo esc_html( wp_trim_words( $product->get_name(), 6 ) ); ?></span>
@@ -508,6 +508,7 @@ class FormManager {
 								<div class="icod-summary-total"><span><?php esc_html_e( 'Total à payer', 'infinitycod' ); ?></span><span data-summary-total>—</span></div>
 							</div>
 
+							<aside class="icod-aside">
 							<div class="icod-msg icod-hidden" data-icod-msg role="alert"></div>
 
 							<button type="submit" class="icod-submit">

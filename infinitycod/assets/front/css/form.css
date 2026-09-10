@@ -793,3 +793,11 @@ select.icod-input{
 	.icod-input-wrap .icod-input{min-height:52px}
 	.icod-head-icon{width:42px;height:42px}
 }
+
+/* ===== Récapitulatif en bas + barre de progression ===== */
+.icod-progress{height:6px;background:var(--icod-border);border-radius:99px;overflow:hidden;margin:0 16px 10px}
+.icod-progress-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--icod-accent),color-mix(in srgb,var(--icod-accent) 60%,#fff));transition:width .35s ease,background .3s}
+.icod-summary-bottom{width:100%}
+.icod-summary-bottom .icod-summary-lines{display:grid;gap:2px}
+@media (min-width:720px){.icod-summary-bottom .icod-summary-lines{grid-template-columns:1fr 1fr;column-gap:26px}}
+.icod-summary-total{background:color-mix(in srgb,var(--icod-accent) 10%,transparent)}
