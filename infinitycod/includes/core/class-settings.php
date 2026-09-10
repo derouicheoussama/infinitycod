@@ -112,7 +112,9 @@ class Settings {
 			'shield_enabled'        => 1,
 			'min_submit_seconds'    => 3,
 			'max_per_ip_hour'       => 5,
-			'min_fraud_score_block' => 60,
+						'min_fraud_score_block' => 60,
+			'block_disposable_email' => 0,
+			'max_orders_hour_global' => 0,
 
 			// Téléphone.
 			'phone_strict'          => 1,    // Uniquement opérateurs DZ valides.
