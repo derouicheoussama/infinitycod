@@ -37,6 +37,7 @@ class AdminManager {
 	 */
 	public function register() {
 		add_action( 'admin_menu', array( $this, 'menu' ) );
+		add_action( 'admin_notices', array( $this, 'update_available_notice' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 
 		// IMPORTANT : ces pages enregistrent des handlers admin_post dans
@@ -129,6 +130,39 @@ class AdminManager {
 		}
 
 		return array_merge( $custom, (array) $actions );
+	}
+
+
+	/**
+	 * Notice pro sur les écrans plugins.php et update-core.php quand une
+	 * mise à jour InfinityCod est connue (cache de notre détecteur).
+	 *
+	 * @return void
+	 */
+	public function update_available_notice() {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || ! in_array( $screen->id, array( 'plugins', 'plugins-network', 'update-core' ), true ) ) { return; }
+		if ( ! current_user_can( 'update_plugins' ) ) { return; }
+
+		$latest = '';
+		foreach ( array( 'icod_update_gh', 'icod_update_atom', 'icod_update_mirror' ) as $key ) {
+			$cached = get_transient( $key );
+			if ( is_array( $cached ) && ! empty( $cached['version'] ) ) { $latest = (string) $cached['version']; break; }
+		}
+		if ( '' === $latest || version_compare( INFINITYCOD_VERSION, $latest, '>=' ) ) { return; }
+
+		$upgrade = wp_nonce_url(
+			self_admin_url( 'update.php?action=upgrade-plugin&plugin=' . urlencode( INFINITYCOD_BASENAME ) ),
+			'upgrade-plugin_' . INFINITYCOD_BASENAME
+		);
+		echo '<div class="notice notice-info is-dismissible" style="border-left-color:#1877c2"><p><strong>InfinityCod ' . esc_html( INFINITYCOD_VERSION ) . '</strong> → ';
+		printf(
+			/* translators: %s : numéro de version. */
+			esc_html__( 'La version %s est disponible.', 'infinitycod' ),
+			'<strong style="color:#0e7a4f">' . esc_html( $latest ) . '</strong>'
+		);
+		echo ' <a class="button button-primary" style="background:#0e7a4f;border-color:#0e7a4f" href="' . esc_url( $upgrade ) . '">⬆ ' . esc_html__( 'Mettre à jour maintenant', 'infinitycod' ) . '</a>';
+		echo ' <a class="button" href="' . esc_url( admin_url( 'admin.php?page=infinitycod-updates' ) ) . '">' . esc_html__( 'Voir les détails', 'infinitycod' ) . '</a></p></div>';
 	}
 
 	/**
