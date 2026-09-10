@@ -928,3 +928,6 @@ body.icod-modal-open{overflow:hidden}
 .icod-kpi-card:hover{transform:translateY(-2px);transition:transform .15s}
 .icod-actions-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
 .icod-actions-row .btn{display:inline-flex;gap:6px;align-items:center}
+
+@keyframes icod-toast-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.icod-dirty-btn{box-shadow:0 0 0 3px rgba(240,180,41,.45)!important}

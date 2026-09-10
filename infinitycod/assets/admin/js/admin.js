@@ -463,3 +463,54 @@ document.querySelectorAll('#icod-wilaya-search, #icod-commune-search').forEach(f
 		});
 	});
 });
+
+
+/* ===== Réglages : sauvegarde AJAX sans rechargement + indicateur de modifications ===== */
+(function () {
+	'use strict';
+	var form = document.querySelector('form[action*="admin-post.php"] input[value="icod_save_settings"]');
+	if (!form) { return; }
+	var settingsForm = form.closest('form');
+	var saveBtn = settingsForm ? settingsForm.querySelector('.icod-submit .button-hero, .icod-submit .button') : null;
+	var dirty = false;
+
+	// Détecter tout changement dans les champs du formulaire.
+	settingsForm.addEventListener('input', function () {
+		if (!dirty) {
+			dirty = true;
+			if (saveBtn) { saveBtn.classList.add('icod-dirty-btn'); saveBtn.textContent = saveBtn.textContent.replace(/^● /, '● '); saveBtn.textContent = '● ' + saveBtn.textContent.replace(/^● /, ''); }
+		}
+	});
+
+	// Sauvegarde AJAX : aucun rechargement, toast de confirmation.
+	settingsForm.addEventListener('submit', function (e) {
+		e.preventDefault();
+		var body = new FormData(settingsForm);
+		if (saveBtn) { saveBtn.disabled = true; saveBtn.classList.add('icod-saving'); }
+		window.fetch(settingsForm.action, { method: 'POST', credentials: 'same-origin', body: body, redirect: 'manual' })
+			.then(function () {
+				dirty = false;
+				if (saveBtn) {
+					saveBtn.disabled = false;
+					saveBtn.classList.remove('icod-saving', 'icod-dirty-btn');
+					saveBtn.textContent = '✓ Enregistré';
+					window.setTimeout(function () { saveBtn.textContent = 'Enregistrer'; }, 2000);
+				}
+				// Toast de confirmation.
+				var toast = document.createElement('div');
+				toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:999999;background:#0e7a4f;color:#fff;padding:12px 22px;border-radius:10px;font-weight:700;font-size:13.5px;box-shadow:0 8px 30px rgba(0,0,0,.25);animation:icod-toast-in .25s ease';
+				toast.textContent = '✓ Réglages enregistrés';
+				document.body.appendChild(toast);
+				window.setTimeout(function () { toast.remove(); }, 2500);
+			})
+			.catch(function () {
+				if (saveBtn) { saveBtn.disabled = false; saveBtn.classList.remove('icod-saving', 'icod-dirty-btn'); }
+				window.alert(icodAdmin.i18n.error);
+			});
+	});
+
+	// Avertir avant de quitter avec des modifications non enregistrées.
+	window.addEventListener('beforeunload', function (e) {
+		if (dirty) { e.preventDefault(); e.returnValue = ''; }
+	});
+})();
