@@ -453,3 +453,13 @@ document.querySelectorAll('form[action*="admin-post.php"]').forEach(function (fo
 		}
 	});
 });
+
+/* ===== Wilayas : filtre instantané ===== */
+document.querySelectorAll('#icod-wilaya-search, #icod-commune-search').forEach(function (input) {
+	input.addEventListener('input', function () {
+		var q = input.value.toLowerCase();
+		document.querySelectorAll('tr[data-search]').forEach(function (tr) {
+			tr.style.display = tr.getAttribute('data-search').toLowerCase().indexOf(q) !== -1 ? '' : 'none';
+		});
+	});
+});
