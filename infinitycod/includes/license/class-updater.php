@@ -478,7 +478,6 @@ class Updater {
 		$mirrors['jsdelivr'] = 'https://cdn.jsdelivr.net/gh/' . $repo . '@main/latest/';
 
 		foreach ( $mirrors as $kind => $base ) {
-			if ( ! $this->is_safe_url( $base ) ) { continue; }
 			$response = wp_remote_get(
 				$base . 'update.json',
 				array(
