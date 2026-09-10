@@ -1282,30 +1282,45 @@ class AdminManager {
 	 */
 	public function force_inject_update() {
 		if ( ! current_user_can( 'update_plugins' ) ) { return; }
-		$latest = '';
+
+		// Vérification directe du miroir le plus fiable (raw.githubusercontent.com).
+		$url = 'https://raw.githubusercontent.com/derouicheoussama/infinitycod-releases/main/latest/update.json';
+		$response = wp_remote_get( $url, array( 'timeout' => 15, 'headers' => array( 'User-Agent' => 'InfinityCod' ) ) );
+
+		$version = '';
 		$pkg = '';
-		foreach ( array( 'icod_update_gh', 'icod_update_atom', 'icod_update_mirror' ) as $key ) {
-			$cached = get_transient( $key );
-			if ( is_array( $cached ) && ! empty( $cached['version'] ) ) {
-				$latest = $cached['version'];
-				$pkg = isset( $cached['download_url'] ) ? $cached['download_url'] : '';
-				break;
+		if ( ! is_wp_error( $response ) && 200 === (int) wp_remote_retrieve_response_code( $response ) ) {
+			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( is_array( $data ) && ! empty( $data['version'] ) ) {
+				$version = (string) $data['version'];
+				$pkg = ! empty( $data['download_url'] ) ? (string) $data['download_url'] : '';
 			}
 		}
-		$push = get_option( 'infinitycod_gh_push', array() );
-		if ( is_array( $push ) && ! empty( $push['version'] ) && version_compare( $push['version'], $latest, '>' ) ) {
-			$latest = $push['version'];
-			$pkg = 'https://github.com/derouicheoussama/infinitycod-releases/releases/download/v' . $latest . '/infinitycod.zip';
+
+		// Fallback : lire les caches de nos détecteurs.
+		if ( empty( $version ) ) {
+			foreach ( array( 'icod_update_gh', 'icod_update_atom', 'icod_update_mirror' ) as $key ) {
+				$cached = get_transient( $key );
+				if ( is_array( $cached ) && ! empty( $cached['version'] ) ) {
+					$version = (string) $cached['version'];
+					$pkg = isset( $cached['download_url'] ) ? (string) $cached['download_url'] : '';
+					break;
+				}
+			}
 		}
-		if ( '' === $latest || version_compare( INFINITYCOD_VERSION, $latest, '>=' ) ) { return; }
+
+		if ( empty( $version ) || version_compare( INFINITYCOD_VERSION, $version, '>=' ) ) { return; }
+
+		// Injecter dans la transient WordPress pour la barre jaune native.
 		$current = get_site_transient( 'update_plugins' );
 		if ( ! is_object( $current ) ) { $current = new \stdClass(); }
 		if ( ! isset( $current->response ) ) { $current->response = array(); }
+		if ( ! isset( $current->checked ) ) { $current->checked = array(); }
 		$current->checked[ INFINITYCOD_BASENAME ] = INFINITYCOD_VERSION;
 		$current->response[ INFINITYCOD_BASENAME ] = (object) array(
 			'slug' => 'infinitycod',
 			'plugin' => INFINITYCOD_BASENAME,
-			'new_version' => $latest,
+			'new_version' => $version,
 			'url' => 'https://infinitycod.pro',
 			'package' => $pkg,
 		);
