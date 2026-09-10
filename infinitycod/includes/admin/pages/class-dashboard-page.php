@@ -149,6 +149,13 @@ class DashboardPage {
 			</div>
 			<?php endif; ?>
 
+			<div class="icod-actions-row">
+				<a class="btn" href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-orders' ) ); ?>">📦 <?php esc_html_e( 'Commandes', 'infinitycod' ); ?></a>
+				<a class="btn" href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-geo' ) ); ?>">🗺️ <?php esc_html_e( 'Wilayas & Tarifs', 'infinitycod' ); ?></a>
+				<a class="btn" href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=form' ) ); ?>">🎨 <?php esc_html_e( 'Formulaire', 'infinitycod' ); ?></a>
+				<a class="btn" href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=tracking' ) ); ?>">🎯 <?php esc_html_e( 'Tracking', 'infinitycod' ); ?></a>
+				<a class="btn" href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-updates' ) ); ?>">🔄 <?php esc_html_e( 'Mises à jour', 'infinitycod' ); ?></a>
+			</div>
 			<div class="icod-kpi-grid">
 				<?php foreach ( $periods as $key => $label ) : ?>
 					<div class="icod-card icod-kpi-card">
