@@ -53,7 +53,7 @@ class SettingsPage {
 
 		$saved = isset( $_GET['icod_msg'] ) ? sanitize_key( wp_unslash( $_GET['icod_msg'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		?>
-		<div class="wrap icod-wrap icod-admin-polish">
+		<div class="wrap icod-wrap icod-admin-polish <?php echo 'form' === $this->tab ? 'icod-split' : ''; ?>">
 			<h1 class="icod-title"><?php esc_html_e( 'Réglages InfinityCod', 'infinitycod' ); ?></h1>
 
 			<div class="icod-steps">
@@ -794,6 +794,9 @@ class SettingsPage {
 			'pro'     => array( 'label' => __( 'Pro (Yaxii+)', 'infinitycod' ), 'color' => '#7c3aed' ),
 		);
 		?>
+		<!-- Disposition 2 colonnes : réglages à gauche, aperçu collant à droite (écrans larges). -->
+		<div class="icod-form-layout">
+		<div class="icod-form-left">
 		<div class="icod-card">
 			<h2>1 — 📝 <?php esc_html_e( 'Contenu du formulaire', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Les textes affichés en haut du formulaire et sur le bouton.', 'infinitycod' ); ?></p>
@@ -1013,6 +1016,14 @@ class SettingsPage {
 			</div>
 			<div class="icod-grid">
 				<label>
+					<span><?php esc_html_e( 'Style du compte à rebours', 'infinitycod' ); ?></span>
+					<select name="icod[timer_style]">
+						<option value="bar" <?php selected( Settings::get( 'timer_style', 'bar' ), 'bar' ); ?>><?php esc_html_e( 'Barre rayée (défaut)', 'infinitycod' ); ?></option>
+						<option value="pill" <?php selected( Settings::get( 'timer_style' ), 'pill' ); ?>><?php esc_html_e( 'Pilule sombre avec point pulsant', 'infinitycod' ); ?></option>
+						<option value="ribbon" <?php selected( Settings::get( 'timer_style' ), 'ribbon' ); ?>><?php esc_html_e( 'Ruban en bannières (couleur accent)', 'infinitycod' ); ?></option>
+					</select>
+				</label>
+				<label>
 					<span><?php esc_html_e( 'Durée (minutes)', 'infinitycod' ); ?></span>
 					<input type="number" min="5" max="1440" name="icod[timer_urgency_minutes]" value="<?php echo esc_attr( (int) Settings::get( 'timer_urgency_minutes', 120 ) ); ?>" />
 				</label>
@@ -1076,7 +1087,9 @@ class SettingsPage {
 				</label>
 			</div>
 		</div>
+		</div><!-- /icod-form-left -->
 
+		<aside class="icod-form-preview">
 		<div class="icod-card" id="icod-preview-card">
 			<h2>👁️ <?php esc_html_e( 'Aperçu en direct', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Rendu par le MÊME moteur que le frontend, avec vos réglages en cours (non encore enregistrés). L’aperçu se rafraîchit à chaque modification ; « Enregistrer » reste nécessaire pour appliquer sur le site.', 'infinitycod' ); ?></p>
@@ -1133,7 +1146,7 @@ class SettingsPage {
 					form.addEventListener(evt, function (e) {
 						if (e.target.closest && e.target.closest('#icod-preview-card')) { return; } // Le sélecteur de produit déclenche déjà.
 						clearTimeout(timer);
-						timer = setTimeout(refresh, 700);
+						timer = setTimeout(refresh, 400);
 					});
 				});
 				var btn = document.getElementById('icod-preview-refresh');
@@ -1143,6 +1156,8 @@ class SettingsPage {
 			})();
 			</script>
 		</div>
+		</aside>
+		</div><!-- /icod-form-layout -->
 		<?php
 	}
 
@@ -1781,6 +1796,7 @@ class SettingsPage {
 			'captcha_enabled'         => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'captcha_provider'        => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'math', 'recaptcha_v3' ) ),
 			'timer_urgency_text'      => array( 'tab' => 'form', 'type' => 'text' ),
+			'timer_style'             => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'bar', 'pill', 'ribbon' ) ),
 			'qty_min'                 => array( 'tab' => 'form', 'type' => 'int', 'min' => 1, 'max' => 99 ),
 			'max_orders_hour_global'  => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 500 ),
 

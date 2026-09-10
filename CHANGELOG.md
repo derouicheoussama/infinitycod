@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.9.2 — 2026-09-10
+
+Trois styles de compte à rebours au choix + aperçu en direct en colonne collante à droite de l'écran.
+
+### Ajouté
+- **3 styles de compte à rebours** (Réglages → Formulaire → section 6) : Barre rayée animée (défaut), Pilule sombre avec point pulsant, Ruban en bannières aux couleurs de l'accent.
+- **Aperçu en direct repositionné** : sur les grands écrans (≥ 1660 px), l'onglet Formulaire passe en deux colonnes — les réglages à gauche, l'aperçu en direct en colonne collante À DROITE, face à vous, qui suit le défilement. Rafraîchissement accéléré à 400 ms pour un effet temps réel. Écrans plus étroits : disposition empilée classique.
+
+
 ## 5.9.1 — 2026-09-10
 
 Sauvegarde INFAILLIBLE : chaque enregistrement est vérifié en base et disposé d'un repli automatique.

@@ -518,6 +518,18 @@ check( 'JS : priorité admin-ajax + repli natif', false !== strpos( $sp5, 'icod_
 check( 'vérification après écriture (relecture + comparaison)', false !== strpos( $sp5, 'save_failed' ) && false !== strpos( $sp5, 'Settings::setCache( null )' ) );
 check( 'no-cache sur les écrans Réglages', false !== strpos( $sp5, 'nocache_headers()' ) );
 
+/* ---------- 23. Styles du timer + aperçu collant à droite ---------- */
+
+echo "
+23) Timer : 3 styles au choix + aperçu en colonne collante
+";
+check( 'schéma : timer_style enum', false !== strpos( $sp5, "'timer_style'" ) );
+check( 'UI : sélecteur des 3 styles', false !== strpos( $sp5, 'value="pill"' ) && false !== strpos( $sp5, 'value="ribbon"' ) );
+check( 'rendu : classe de style appliquée au timer', false !== strpos( $fm3, 'icod-timer-' ) );
+check( 'CSS : les 3 styles existent', false !== strpos( $css2, '.icod-timer-pill' ) && false !== strpos( $css2, '.icod-timer-ribbon' ) && false !== strpos( $css2, '.icod-timer-bar' ) );
+check( 'disposition : aperçu collant à droite (écrans larges)', false !== strpos( $sp5, 'icod-form-layout' ) && false !== strpos( $sp5, 'icod-form-preview' ) );
+check( 'rafraîchissement temps réel 400 ms', false !== strpos( $sp5, 'setTimeout(refresh, 400)' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

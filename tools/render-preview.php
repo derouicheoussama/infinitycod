@@ -204,6 +204,10 @@ $variants = array(
 			array( 'key' => 'commune', 'type' => 'select', 'label' => '', 'on' => 1, 'req' => 1 ),
 		),
 	),
+	// Styles du compte à rebours.
+	'timer_pill' => array( 'timer_urgency_enabled' => 1, 'timer_style' => 'pill', 'timer_urgency_minutes' => 45 ),
+	'timer_ribbon' => array( 'timer_urgency_enabled' => 1, 'timer_style' => 'ribbon', 'timer_urgency_minutes' => 30 ),
+
 	// Preset royal SANS accent personnalisé : le preset donne la couleur.
 	'preset_royal' => array(
 		'form_preset'  => 'royal',

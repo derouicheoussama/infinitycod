@@ -253,9 +253,22 @@ fieldset.icod-mode{min-width:0}
 .icod-captcha-field label{font-weight:700;color:var(--icod-accent)}
 .icod-captcha-field input{font-weight:800;text-align:center;font-size:18px}
 
-/* Compte à rebours d'urgence. */
-.icod-timer{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 22px 0;padding:8px 14px;border-radius:10px;background:color-mix(in srgb,var(--icod-danger) 8%,var(--icod-surface));border:1.5px dashed color-mix(in srgb,var(--icod-danger) 45%,transparent);color:var(--icod-danger);font-weight:800;font-size:.9rem;animation:icod-fade-in .4s ease both}
+/* Compte à rebours d'urgence — 3 styles (Réglages → Formulaire). */
+.icod-timer{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 22px 0;padding:8px 14px;border-radius:10px;color:var(--icod-danger);font-weight:800;font-size:.9rem;animation:icod-fade-in .4s ease both;position:relative}
 .icod-timer .icod-timer-label{font-variant-numeric:tabular-nums}
+/* Barre (défaut) : fond teinté + rayures animées. */
+.icod-timer-bar{background:color-mix(in srgb,var(--icod-danger) 8%,var(--icod-surface));border:1.5px dashed color-mix(in srgb,var(--icod-danger) 45%,transparent)}
+.icod-timer-bar::before{content:"";position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(45deg,transparent,transparent 12px,color-mix(in srgb,var(--icod-danger) 5%,transparent) 12px,color-mix(in srgb,var(--icod-danger) 5%,transparent) 24px);pointer-events:none;animation:icod-stripes 1.2s linear infinite}
+@keyframes icod-stripes{from{background-position:0 0}to{background-position:34px 0}}
+.icod-timer-bar .icod-timer-label{position:relative}
+/* Pilule : fond sombre, lueur accent, point pulsant. */
+.icod-timer-pill{background:#1d2327;color:#fff;border:none;border-radius:99px;padding:11px 26px;box-shadow:0 4px 18px rgba(0,0,0,.35);width:fit-content;margin-inline:auto}
+.icod-timer-pill::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--icod-danger);animation:icod-blink 1s ease-in-out infinite}
+@keyframes icod-blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+.icod-timer-pill .icod-timer-label{color:#fff}
+/* Ruban : bannière pleine largeur, dégradé accent, encoches latérales. */
+.icod-timer-ribbon{margin:12px 0 0;padding:10px 26px;border:none;border-radius:0;background:var(--icod-btn-bg);color:var(--icod-accent-ink,#fff);clip-path:polygon(3% 0,97% 0,100% 50%,97% 100%,3% 100%,0 50%);box-shadow:0 4px 14px color-mix(in srgb,var(--icod-accent) 40%,transparent)}
+.icod-timer-ribbon .icod-timer-label{color:var(--icod-accent-ink,#fff)}
 
 /* Stock */
 .icod-stock-badge{display:inline-flex;align-items:center;gap:6px;margin:12px 22px 0;padding:4px 12px;border-radius:99px;background:color-mix(in srgb,var(--icod-ok) 10%,var(--icod-surface));color:var(--icod-ok);font-size:12px;font-weight:700;width:fit-content}

@@ -1047,3 +1047,15 @@ body.icod-modal-open{overflow:hidden}
 .icod-save-sticky{position:sticky;bottom:10px;z-index:60;display:flex;align-items:center;gap:14px;margin:0;padding:12px 14px;background:#fff;border:1px solid #dcdcde;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.1)}
 .icod-save-hint{color:#646970;font-size:12.5px}
 @media (max-width:782px){.icod-save-hint{display:none}}
+
+/* Réglages → Formulaire : aperçu en direct en colonne collante à droite.
+   Écrans < 1660 px : disposition empilée classique. */
+.icod-form-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+.icod-form-layout .icod-form-left{min-width:0}
+.icod-wrap.icod-split{max-width:1780px}
+@media (min-width:1660px){
+	.icod-form-layout{grid-template-columns:minmax(0,1fr) 620px}
+	.icod-form-preview{position:sticky;top:56px;z-index:15}
+	.icod-form-preview #icod-preview-frame{height:calc(100vh - 250px)!important}
+}
+.icod-form-preview #icod-preview-frame{background:#fff}

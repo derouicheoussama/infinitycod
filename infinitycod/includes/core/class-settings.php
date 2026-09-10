@@ -199,6 +199,7 @@ class Settings {
 			'timer_urgency_minutes'                       => 120,
 			'timer_urgency_enabled'                       => 0,
 			'timer_urgency_text'    => __( '⏳ Offre valable encore {time}', 'infinitycod' ),
+			'timer_style'           => 'bar', // bar | pill | ribbon.
 			'recaptcha_v3_secret_key'                       => '',
 			'recaptcha_v3_site_key'                       => '',
 			'ga4_measurement_id'                       => '',

@@ -590,13 +590,14 @@ class FormManager {
 
 		// Compte à rebours d'urgence (jamais chargé si désactivé). Le texte
 		// est pré-rempli avec la durée complète : même sans JS, aucun bloc
-		// vide n'est affiché.
+		// vide n'est affiché. Trois styles au choix dans le dashboard.
 		$timer_html = '';
 		if ( Settings::get( 'timer_urgency_enabled' ) ) {
 			$minutes    = max( 1, min( 1440, (int) Settings::get( 'timer_urgency_minutes', 120 ) ) );
 			$initial    = str_pad( (string) floor( $minutes / 60 ), 2, '0', STR_PAD_LEFT ) . ':' . str_pad( (string) ( $minutes % 60 ), 2, '0', STR_PAD_LEFT );
 			$timer_text = str_replace( '{time}', $initial, (string) Settings::get( 'timer_urgency_text' ) );
-			$timer_html = '<div class="icod-timer" data-timer="' . (int) $minutes . '"><span class="icod-timer-label" data-timer-text="' . esc_attr( Settings::get( 'timer_urgency_text' ) ) . '">' . esc_html( $timer_text ) . '</span></div>';
+			$timer_style = in_array( Settings::get( 'timer_style', 'bar' ), array( 'bar', 'pill', 'ribbon' ), true ) ? Settings::get( 'timer_style', 'bar' ) : 'bar';
+			$timer_html = '<div class="icod-timer icod-timer-' . esc_attr( $timer_style ) . '" data-timer="' . (int) $minutes . '"><span class="icod-timer-label" data-timer-text="' . esc_attr( Settings::get( 'timer_urgency_text' ) ) . '">' . esc_html( $timer_text ) . '</span></div>';
 		}
 
 		// Palette dérivée de l'accent : la couleur du dashboard pilote tout
