@@ -1522,10 +1522,6 @@ class SettingsPage {
 						<input type="checkbox" name="icod[delete_on_uninstall]" value="1" <?php checked( (int) Settings::get( 'delete_on_uninstall' ), 1 ); ?> />
 						<span><?php esc_html_e( 'Supprimer toutes les données (tables, réglages) à la désinstallation du plugin', 'infinitycod' ); ?></span>
 					</label>
-					<label class="icod-toggle">
-						<input type="checkbox" name="icod[license_lock_form]" value="1" <?php checked( (int) Settings::get( 'license_lock_form' ), 1 ); ?> />
-						<span><?php esc_html_e( 'Verrouiller le formulaire si aucune licence n’est active (distribution commerciale)', 'infinitycod' ); ?></span>
-					</label>
 				</div>
 			</div>
 		</div>
@@ -1759,7 +1755,9 @@ class SettingsPage {
 			'github_token'         => array( 'tab' => 'advanced', 'type' => 'secret' ),
 			'menu_badge'           => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 			'auto_update'          => array( 'tab' => 'advanced', 'type' => 'toggle' ),
-			'license_lock_form'    => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			// license_lock_form : réglage de distribution réservé au
+			// développeur (constante INFINITYCOD_LOCK_FORM) — volontairement
+			// absent du schéma et de l'interface marchand.
 			'log_enabled'          => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 			'delete_on_uninstall'  => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 			'backup_retention'     => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 1, 'max' => 10 ),

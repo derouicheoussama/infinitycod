@@ -297,6 +297,24 @@ class Settings {
 	}
 
 	/**
+	 * Verrou du formulaire sans licence — réglage de DISTRIBUTION destiné au
+	 * développeur-vendeur (Infinity Coder), JAMAIS au marchand client :
+	 * absent de l'interface. Priorité à la constante wp-config.php, sinon
+	 * valeur stockée (masquée), sinon désactivé.
+	 *
+	 * Chez un client : define( 'INFINITYCOD_LOCK_FORM', true ); dans
+	 * wp-config.php (build licencié) — ou false pour débloquer.
+	 *
+	 * @return bool
+	 */
+	public static function lock_form_enabled() {
+		if ( defined( 'INFINITYCOD_LOCK_FORM' ) ) {
+			return (bool) constant( 'INFINITYCOD_LOCK_FORM' );
+		}
+		return (bool) self::get( 'license_lock_form', 0 );
+	}
+
+	/**
 	 * Montant formaté selon la devise et sa position (réglages).
 	 *
 	 * @param float     $amount  Montant.

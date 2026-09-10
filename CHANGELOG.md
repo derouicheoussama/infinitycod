@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.6.2 — 2026-09-10
+
+Nettoyage commercial : le verrou de formulaire n'apparaît plus dans le dashboard du marchand.
+
+### Modifié
+- **« Verrouiller le formulaire sans licence » retiré de l'interface** : c'est un réglage de distribution destiné au développeur-vendeur (Infinity Coder), pas aux marchands clients. Il se pilote désormais depuis wp-config.php du site client : define( 'INFINITYCOD_LOCK_FORM', true ); (ou false). Les verrous déjà actifs restent en place.
+
+
 ## 5.6.1 — 2026-09-10
 
 Badge de notification des commandes en attente + dernier réglage déconnecté branché.

@@ -405,6 +405,19 @@ check( 'log_enabled respecté par le Logger (plus d\'option morte)', false !== s
 $shield_src = file_get_contents( $plugin_dir . 'includes/anti-fraud/class-shield.php' );
 check( 'anti-fraude : limites IP/téléphone/email par jour branchées', false !== strpos( $shield_src, 'max_per_ip_day' ) && false !== strpos( $shield_src, 'max_per_phone_day' ) && false !== strpos( $shield_src, 'max_per_email_day' ) && false !== strpos( $shield_src, 'block_duplicate_phone' ) );
 
+/* ---------- 14. Verrou licence : option développeur, invisible marchand ---------- */
+
+echo "\n14) Verrou de formulaire : réservé au vendeur, absent du dashboard client\n";
+$sp2 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+check( 'AUCUNE case à cocher du verrou dans l\'UI marchand', false === strpos( $sp2, 'name="icod[license_lock_form]"' ) );
+check( 'verrou absent du schéma de sauvegarde', false === strpos( $sp2, "'license_lock_form'    => array" ) );
+$set_src = file_get_contents( $plugin_dir . 'includes/core/class-settings.php' );
+check( 'priorité constante wp-config (INFINITYCOD_LOCK_FORM)', false !== strpos( $set_src, "defined( 'INFINITYCOD_LOCK_FORM' )" ) );
+$set_saved( array( 'license_lock_form' => 1 ) );
+check( 'valeur stockée (masquée) toujours honorée', \InfinityCod\Core\Settings::lock_form_enabled() );
+check( 'FormManager lit le verrou centralisé', false !== strpos( $fm_now, 'Settings::lock_form_enabled()' ) );
+$set_saved( array() );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
