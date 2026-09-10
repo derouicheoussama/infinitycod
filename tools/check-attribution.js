@@ -79,7 +79,9 @@ if (!readmeOk) failed = true;
 /* Documentation. */
 let docOk = false;
 for (const d of fs.readdirSync('docs')) {
-  const s = fs.readFileSync(path.join('docs', d), 'utf8');
+  const full = path.join('docs', d);
+  if (fs.statSync(full).isDirectory()) continue;
+  const s = fs.readFileSync(full, 'utf8');
   if (s.includes(AUTHOR)) { docOk = true; break; }
 }
 results.push(['Documentation', docOk ? 'PASS' : 'FAIL', docOk ? 'attribution présente' : 'attribution absente']);
