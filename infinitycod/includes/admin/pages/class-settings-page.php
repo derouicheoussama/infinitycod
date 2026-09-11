@@ -1043,6 +1043,14 @@ class SettingsPage {
 					<span><?php esc_html_e( 'Bandeau de réassurance (COD, 58 wilayas, vérification colis)', 'infinitycod' ); ?></span>
 				</label>
 				<label class="icod-toggle">
+					<input type="checkbox" name="icod[disable_add_to_cart]" value="1" <?php checked( (int) Settings::get( 'disable_add_to_cart' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Désactiver « Ajouter au panier » de WooCommerce (le formulaire COD est le seul chemin d’achat)', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[show_signature]" value="1" <?php checked( (int) Settings::get( 'show_signature', 1 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Signature « 🔒 Protégé par Infinity Coder » sous le formulaire', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
 					<input type="checkbox" name="icod[sticky_bar]" value="1" <?php checked( (int) Settings::get( 'sticky_bar' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Barre « Commander maintenant » collante sur mobile — pleine largeur, récapitulatif + total + bouton toujours visibles', 'infinitycod' ); ?></span>
 				</label>

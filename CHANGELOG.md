@@ -1,5 +1,19 @@
 # Changelog
 
+## 5.20.0 — 2026-09-11
+
+Désactivation universelle d'« Ajouter au panier » + style visuel « clean animé » inspiré des meilleurs checkouts COD.
+
+### Ajouté
+- **Masquage universel d'« Ajouter au panier »** : en plus des hooks WooCommerce, un CSS injecté masque le bouton du thème (quelles que soient les classes utilisées) — le formulaire COD devient le seul chemin d'achat, comme Yaxii.
+- **Bandeau de réassurance repensé** : grille de 4 avantages avec hover animé (2×2 sur mobile), style pilule.
+- **Entrée animée des champs** : apparition en cascade (stagger) au chargement.
+- **Offres par quantité** en pilules rouges animées.
+
+### Modifié
+- Champ Quantité : ombre douce et style pilule renforcé (blindage thèmes).
+
+
 ## 5.19.0 — 2026-09-11
 
 Module complet de codes promo personnalisés + export Excel coloré des commandes.
