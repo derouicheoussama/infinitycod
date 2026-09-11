@@ -210,7 +210,11 @@ class Settings {
 			'timer_urgency_minutes'                       => 120,
 			'timer_urgency_enabled'                       => 0,
 			'timer_urgency_text'    => __( '⏳ Offre valable encore {time}', 'infinitycod' ),
-			'timer_style'           => 'bar', // bar | pill | ribbon.
+			'timer_style'           => 'bar',      // bar | pill | ribbon | flip | neon | minimal | banner | boxes.
+				'timer_position'        => 'top',      // top | bottom.
+				'timer_font_size'       => '',         // px, vide = défaut.
+				'timer_bg_color'        => '',         // vide = couleur du style.
+				'timer_text_color'      => '',         // vide = couleur du style.
 			'recaptcha_v3_secret_key'                       => '',
 			'recaptcha_v3_site_key'                       => '',
 			'ga4_measurement_id'                       => '',

@@ -603,7 +603,7 @@ class FormManager {
 			$initial    = str_pad( (string) floor( $minutes / 60 ), 2, '0', STR_PAD_LEFT ) . ':' . str_pad( (string) ( $minutes % 60 ), 2, '0', STR_PAD_LEFT );
 			$timer_text = str_replace( '{time}', $initial, (string) Settings::get( 'timer_urgency_text' ) );
 			$timer_style = in_array( Settings::get( 'timer_style', 'bar' ), array( 'bar', 'pill', 'ribbon' ), true ) ? Settings::get( 'timer_style', 'bar' ) : 'bar';
-			$timer_html = '<div class="icod-timer icod-timer-' . esc_attr( $timer_style ) . '" data-timer="' . (int) $minutes . '"><span class="icod-timer-label" data-timer-text="' . esc_attr( Settings::get( 'timer_urgency_text' ) ) . '">' . esc_html( $timer_text ) . '</span></div>';
+			$timer_html = '<div class="icod-timer icod-timer-' . esc_attr( $timer_style ) . '" data-timer="' . (int) $minutes . '" style="' . esc_attr( $timer_style_attr ) . '"><span class="icod-timer-label" data-timer-text="' . esc_attr( Settings::get( 'timer_urgency_text' ) ) . '">' . esc_html( $timer_text ) . '</span></div>';
 		}
 
 		// Palette dérivée de l'accent : la couleur du dashboard pilote tout
@@ -728,10 +728,11 @@ class FormManager {
 					<input type="hidden" name="icod_sig" value="<?php echo esc_attr( $sig ); ?>" />
 					<input type="hidden" name="icod_fp" class="icod-fp" value="" />
 					<?php
-					// Timer DANS le <form> et en haut (bannière d'urgence). Le
-					// captcha, lui, est rendu EN BAS du formulaire juste avant
-					// le bouton (meilleure conversion, bots confrontés à la fin).
-					echo $timer_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé.
+					// Timer en haut si position = top (défaut). Le captcha est,
+					// lui, rendu EN BAS juste avant le bouton de commande.
+					if ( 'top' === Settings::get( 'timer_position', 'top' ) ) {
+						echo $timer_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé.
+					}
 					?>
 
 					<div class="icod-layout">
@@ -888,6 +889,10 @@ class FormManager {
 							<div class="icod-msg icod-hidden" data-icod-msg role="alert"></div>
 
 							<?php
+							// Timer EN BAS (si position = bottom), avant le captcha.
+							if ( 'bottom' === Settings::get( 'timer_position', 'top' ) ) {
+								echo $timer_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé.
+							}
 							// Captcha EN BAS : juste avant le bouton de commande.
 							echo $captcha_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé.
 							?>

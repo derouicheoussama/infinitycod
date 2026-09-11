@@ -289,6 +289,26 @@ class SettingsPage {
 			<?php esc_html_e( 'Événements trackés automatiquement : ViewContent (fiche produit) → InitiateCheckout (début du formulaire) → Purchase (commande confirmée, montant réel en DZD). Aucun code à ajouter sur votre site.', 'infinitycod' ); ?>
 		</p>
 
+		<?php
+		// Panneau de statut : chaque plateforme, configurée ou non.
+		$track_status = array(
+			array( __( 'Meta — Pixel', 'infinitycod' ), (int) Settings::get( 'pixel_fb_enabled' ) && Settings::get( 'pixel_fb_id' ), (int) Settings::get( 'pixel_fb_enabled' ) ? __( 'ID manquant', 'infinitycod' ) : '' ),
+			array( __( 'Meta — Conversions API', 'infinitycod' ), (int) Settings::get( 'pixel_fb_enabled' ) && Settings::get( 'pixel_fb_capi_token' ), (int) Settings::get( 'pixel_fb_capi_token' ) ? '' : __( 'Token CAPI manquant (le pixel navigateur suffit)', 'infinitycod' ) ),
+			array( __( 'TikTok', 'infinitycod' ), (int) Settings::get( 'pixel_tiktok_enabled' ) && Settings::get( 'pixel_tiktok_id' ), '' ),
+			array( __( 'Snapchat', 'infinitycod' ), (int) Settings::get( 'pixel_snap_enabled' ) && Settings::get( 'pixel_snap_id' ), '' ),
+			array( __( 'Google Analytics 4', 'infinitycod' ), Settings::get( 'ga4_measurement_id' ), '' ),
+		);
+		?>
+		<div class="icod-track-status">
+			<?php foreach ( $track_status as $ts ) : ?>
+				<div class="icod-track-row">
+					<span class="icod-track-dot <?php echo $ts[1] ? 'on' : 'off'; ?>"></span>
+					<span class="icod-track-name"><?php echo esc_html( $ts[0] ); ?></span>
+					<span class="icod-track-state"><?php echo $ts[1] ? esc_html__( 'Actif', 'infinitycod' ) : esc_html__( 'Inactif', 'infinitycod' ) . ( $ts[2] ? ' — ' . esc_html( $ts[2] ) : '' ); ?></span>
+				</div>
+			<?php endforeach; ?>
+		</div>
+
 		<div class="icod-card">
 			<h2>🛡️ <?php esc_html_e( 'Conversions API Meta — exigences 2026', 'infinitycod' ); ?></h2>
 			<p class="description">
@@ -448,7 +468,7 @@ class SettingsPage {
 			array( __( 'Commande via WhatsApp (le client valide sur WhatsApp)', 'infinitycod' ), false ),
 			array( __( 'Transporteurs intégrés : Yalidine, ZR Express, Maystro, Noest, E-COM, DHD', 'infinitycod' ), false ),
 			array( __( 'Création de colis et suivi synchronisé (tracking)', 'infinitycod' ), false ),
-			array( __( 'Statistiques P&L : CA, taux de confirmation, retours, marge nette', 'infinitycod' ), false ),
+			array( __( 'Statistiques P&L : CA, taux de confirmation, retours, marge nette', 'infinitycod' ), true ),
 			array( __( 'Offres intelligentes par quantité (remises automatiques)', 'infinitycod' ), false ),
 		);
 		?>
@@ -464,7 +484,8 @@ class SettingsPage {
 		<?php endif; ?>
 
 		<div class="icod-card">
-			<h2><?php esc_html_e( 'Licence InfinityCod', 'infinitycod' ); ?></h2>
+			<h2>📋 <?php esc_html_e( 'Statut de la licence', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Vue d’ensemble : plan, titulaire, expiration et synchronisation avec le serveur de licences.', 'infinitycod' ); ?></p>
 
 			<div class="icod-lic-hero">
 				<div>
@@ -524,6 +545,20 @@ class SettingsPage {
 							<?php endif; ?>
 						<?php endif; ?>
 					</dd>
+
+					<?php
+					// Barre visuelle de temps restant (vert > 30 j, orange > 7, rouge ≤ 7).
+					if ( false !== $expires_ts && null !== $days_left ) :
+						$total_days = max( 1, (int) ( ( $expires_ts - ( ! empty( $license['activated_at'] ) ? strtotime( (string) $license['activated_at'] ) : strtotime( '-30 days' ) ) ) / DAY_IN_SECONDS ) );
+						$pct        = max( 0, min( 100, (int) round( $days_left / max( 1, $total_days ) * 100 ) ) );
+						$bar_color  = $days_left > 30 ? '#0e7a4f' : ( $days_left > 7 ? '#dba617' : '#d63638' );
+						?>
+						<dt><?php esc_html_e( 'Temps restant', 'infinitycod' ); ?></dt>
+						<dd>
+							<div class="icod-lic-bar"><span style="width:<?php echo (int) $pct; ?>%;background:<?php echo esc_attr( $bar_color ); ?>"></span></div>
+							<small><?php printf( esc_html__( '%d %% de la période restante', 'infinitycod' ), (int) $pct ); ?></small>
+						</dd>
+					<?php endif; ?>
 
 					<dt><?php esc_html_e( 'Vérification', 'infinitycod' ); ?></dt>
 					<dd><?php echo esc_html( $checked_txt ? $checked_txt : __( 'jamais vérifiée', 'infinitycod' ) ); ?></dd>
@@ -585,7 +620,7 @@ class SettingsPage {
 			<h2><?php $premium ? esc_html_e( 'Changer de clé', 'infinitycod' ) : esc_html_e( 'Activer votre licence Premium', 'infinitycod' ); ?></h2>
 			<?php if ( ! $premium ) : ?>
 				<p class="description">
-					<?php esc_html_e( 'Collez la clé reçue après votre achat : WhatsApp automatique, transporteurs, statistiques P&L et offres se débloquent immédiatement — sans réinstaller quoi que ce soit.', 'infinitycod' ); ?>
+					<?php esc_html_e( 'Collez la clé reçue après votre achat : WhatsApp automatique, transporteurs, offres par quantité et multi-pays se débloquent immédiatement — les statistiques P&L sont déjà incluses pour tous.', 'infinitycod' ); ?>
 				</p>
 			<?php endif; ?>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="icod-key-form">
@@ -1066,8 +1101,35 @@ class SettingsPage {
 					</select>
 				</label>
 				<label>
+					<span><?php esc_html_e( 'Position', 'infinitycod' ); ?></span>
+					<select name="icod[timer_position]">
+						<option value="top" <?php selected( Settings::get( 'timer_position', 'top' ), 'top' ); ?>><?php esc_html_e( 'En haut du formulaire', 'infinitycod' ); ?></option>
+						<option value="bottom" <?php selected( Settings::get( 'timer_position' ), 'bottom' ); ?>><?php esc_html_e( 'En bas, avant le bouton', 'infinitycod' ); ?></option>
+					</select>
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Taille du texte (12-22 px)', 'infinitycod' ); ?> <em>(vide = défaut)</em></span>
+					<input type="number" min="12" max="22" name="icod[timer_font_size]" value="<?php echo esc_attr( Settings::get( 'timer_font_size', '' ) ); ?>" />
+				</label>
+				<label>
 					<span><?php esc_html_e( 'Durée (minutes)', 'infinitycod' ); ?></span>
 					<input type="number" min="5" max="1440" name="icod[timer_urgency_minutes]" value="<?php echo esc_attr( (int) Settings::get( 'timer_urgency_minutes', 120 ) ); ?>" />
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Couleur du fond', 'infinitycod' ); ?> <em>(↺ = couleur du style)</em></span>
+					<?php $this->color_swatches( 'timer_bg_color', (string) Settings::get( 'timer_bg_color', '' ), array( '#FDECEC', '#FFF4E5', '#E7F5EF', '#E7F0FF', '#F3E8FF', '#1D2327', '#101418' ), true ); ?>
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Couleur du texte', 'infinitycod' ); ?> <em>(↺ = couleur du style)</em></span>
+					<?php $this->color_swatches( 'timer_text_color', (string) Settings::get( 'timer_text_color', '' ), array( '#B32D2D', '#E8590C', '#0E7A4F', '#1971C2', '#7048E8', '#1A1D21', '#FFFFFF' ), true ); ?>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Texte affiché (variable : {time})', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[timer_urgency_text]" value="<?php echo esc_attr( Settings::get( 'timer_urgency_text' ) ); ?>" class="regular-text" />
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Texte affiché (variable : {time})', 'infinitycod' ); ?></span>
@@ -1848,6 +1910,10 @@ class SettingsPage {
 			'captcha_provider'        => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'math', 'recaptcha_v3' ) ),
 			'timer_urgency_text'      => array( 'tab' => 'form', 'type' => 'text' ),
 			'timer_style'             => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'bar', 'pill', 'ribbon', 'flip', 'neon', 'minimal', 'banner', 'boxes' ) ),
+				'timer_position'          => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'top', 'bottom' ) ),
+				'timer_font_size'         => array( 'tab' => 'form', 'type' => 'int_opt', 'min' => 12, 'max' => 22 ),
+				'timer_bg_color'          => array( 'tab' => 'form', 'type' => 'color' ),
+				'timer_text_color'        => array( 'tab' => 'form', 'type' => 'color' ),
 			'qty_min'                 => array( 'tab' => 'form', 'type' => 'int', 'min' => 1, 'max' => 99 ),
 			'max_orders_hour_global'  => array( 'tab' => 'fraud', 'type' => 'int', 'min' => 0, 'max' => 500 ),
 

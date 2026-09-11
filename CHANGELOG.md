@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.14.0 — 2026-09-11
+
+Timer entièrement personnalisable, onglet Licence repensé, statuts du tracking, et statistiques P&L ouvertes à tous.
+
+### Ajouté
+- **Compte à rebours personnalisable** : position (haut ou bas, avant le bouton), taille du texte (12-22 px), couleurs du fond et du texte via palettes cliquables — en plus des 8 styles.
+- **Onglet Tracking** : panneau de statut par plateforme (Meta Pixel, Conversions API, TikTok, Snapchat, GA4) avec voyant actif/inactif et diagnostic des éléments manquants.
+- **Onglet Licence amélioré** : section « Statut de la licence » structurée avec barre visuelle du temps restant (vert/orange/rouge) et explications.
+
+### Modifié
+- **Statistiques P&L actives pour TOUS** : plus de verrou licence sur les statistiques — CA, taux de confirmation, répartitions accessibles à toutes les boutiques. La page Licence et les mentions ont été mises à jour en conséquence.
+
+
 ## 5.13.0 — 2026-09-11
 
 Champs harmonisés moins hauts, 5e style « Flat design moderne », captcha déplacé en bas et navigation au clavier.

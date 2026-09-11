@@ -577,6 +577,18 @@ check( 'captcha rendu EN BAS (dans l’aside, avant le bouton)', false !== $capt
 check( 'timer rendu EN HAUT (avant le captcha)', false !== $timer_pos && $timer_pos < $captcha_pos );
 check( 'navigation Entrée = champ suivant', false !== strpos( $js3, 'focusables' ) );
 
+/* ---------- 27. Tracking statut + Licence améliorée + timer perso ---------- */
+
+echo "
+27) Tracking statut, Licence améliorée, timer personnalisable
+";
+check( 'Tracking : panneau de statut par plateforme', false !== strpos( $sp7, 'icod-track-status' ) && false !== strpos( $sp7, 'icod-track-dot' ) );
+check( 'Licence : barre de temps restant', false !== strpos( $sp7, 'icod-lic-bar' ) );
+check( 'timer : position/taille/couleurs en schéma', false !== strpos( $sp7, "'timer_position'" ) && false !== strpos( $sp7, "'timer_font_size'" ) && false !== strpos( $sp7, "'timer_bg_color'" ) );
+check( 'rendu : couleurs/taille inline sur le timer', false !== strpos( $fm5, 'timer_style_attr' ) );
+check( 'stats P&L actives sans licence', false === strpos( $am4, 'Fonctionnalité Premium' ) );
+check( 'licence : P&L marqué gratuit', false !== strpos( $sp7, "taux de confirmation, retours, marge nette', 'infinitycod' ), true" ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

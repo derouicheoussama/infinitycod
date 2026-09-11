@@ -1065,3 +1065,17 @@ body.icod-modal-open{overflow:hidden}
 .icod-swatch{width:27px;height:27px;border-radius:7px;border:2px solid #fff;box-shadow:0 0 0 1px #dcdcde;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:14px;padding:0;line-height:1}
 .icod-swatch:hover{transform:translateY(-1px)}
 .icod-swatch.active{box-shadow:0 0 0 3px #1877c2;border-color:#fff}
+
+/* Onglet Tracking : statut par plateforme. */
+.icod-track-status{display:grid;gap:6px;margin:12px 0 4px}
+.icod-track-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #dcdcde;border-radius:8px}
+.icod-track-dot{width:10px;height:10px;border-radius:50%;flex:none}
+.icod-track-dot.on{background:#0e7a4f;box-shadow:0 0 0 3px rgba(14,122,79,.15)}
+.icod-track-dot.off{background:#c3c4c7}
+.icod-track-name{font-weight:600;flex:1}
+.icod-track-state{color:#646970;font-size:12.5px}
+
+/* Onglet Licence : barre de temps restant. */
+.icod-lic-bar{display:block;height:10px;border-radius:99px;background:#f0f0f1;overflow:hidden;max-width:280px}
+.icod-lic-bar span{display:block;height:100%;border-radius:99px}
+.icod-lic-bar + small{display:block;margin-top:3px;color:#646970}
