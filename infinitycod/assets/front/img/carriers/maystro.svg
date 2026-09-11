@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 76" width="88" height="56"><rect width="120" height="76" rx="8" fill="#1a1a2e"/><text x="60" y="38" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="18" fill="#e94560">MAYSTRO</text><text x="60" y="34" text-anchor="middle" font-family="Arial,Arial Black" font-weight="800" font-size="8" fill="#ffffff" letter-spacing="1">DELIVERY</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60" width="120" height="60" role="img" aria-label="Maystro Delivery">
+  <defs>
+    <linearGradient id="g-maystro" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6a4fd8"/><stop offset="1" stop-color="#3d2e91"/>
+    </linearGradient>
+  </defs>
+  <rect x="0.75" y="0.75" width="118.5" height="58.5" rx="9" fill="url(#g-maystro)"/>
+  <rect x="0.75" y="0.75" width="118.5" height="58.5" rx="9" fill="none" stroke="#2e2168" stroke-width="1.2"/>
+  <text x="60" y="34" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="15" letter-spacing="1" fill="#ffffff">MAYSTRO</text>
+  <text x="60" y="48" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="8.5" letter-spacing="2.5" fill="#cfc4ff">DELIVERY</text>
+</svg>

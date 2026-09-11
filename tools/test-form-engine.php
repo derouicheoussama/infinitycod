@@ -735,5 +735,19 @@ check( 'abandonnés : filtre statut sécurisé + badges français', false !== st
 check( 'abandonnés : KPI valeur en jeu + taux de récupération', false !== strpos( $abp, 'SUM(cart_total)' ) && false !== strpos( $abp, 'Valeur en jeu' ) );
 check( 'abandonnés : temps relatif + bannière relance auto + état vide soigné', false !== strpos( $abp, 'human_time_diff' ) && false !== strpos( $abp, 'La relance automatique est désactivée' ) && false !== strpos( $abp, 'Aucun panier abandonné ici' ) );
 
+/* ---------- 39. Transporteurs : grille 2 colonnes + logos + corrections ---------- */
+
+echo "\n39) Transporteurs : grille 2x2, logos embarqués, statuts fiables\n";
+$crp = file_get_contents( $plugin_dir . 'includes/admin/pages/class-carriers-page.php' );
+$adm_css = file_get_contents( $plugin_dir . 'assets/admin/css/admin.css' );
+$logos_ok = true;
+foreach ( array( 'yalidine', 'zrexpress', 'maystro', 'noest', 'ecom', 'dhd' ) as $cr_code ) {
+	if ( ! file_exists( $plugin_dir . 'assets/front/img/carriers/' . $cr_code . '.svg' ) ) { $logos_ok = false; }
+}
+check( 'transporteurs : logo SVG présent pour les 6 sociétés (zrexpress bien nommé)', $logos_ok && ! file_exists( $plugin_dir . 'assets/front/img/carriers/zr-express.svg' ) );
+check( 'transporteurs : grille 2 colonnes (1 colonne en dessous de 1100 px)', false !== strpos( $adm_css, 'grid-template-columns:repeat(2,minmax(0,1fr))' ) && false !== strpos( $adm_css, '@media (max-width:1100px){.icod-carriers-grid{grid-template-columns:1fr}}' ) );
+check( 'transporteurs : statut fiable (variable $manager, plus de $carriers fantôme)', false !== strpos( $crp, '$manager ? $manager->is_configured' ) && false === strpos( $crp, '$carriers ? $carriers->is_configured' ) );
+	check( 'transporteurs : bouton import bureaux branché sur le bon transporteur', false === strpos( $crp, 'data-code="yalidine"' ) && false !== strpos( $crp, "data-code=\"<?php echo esc_attr( \$entry['code'] ); ?>\"" ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

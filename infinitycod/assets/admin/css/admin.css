@@ -918,7 +918,7 @@ body.icod-modal-open{overflow:hidden}
 }
 
 /* --- Transporteurs : logos officiels (déposez dans assets/front/img/carriers/) --- */
-.icod-carrier-logo{border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.icod-carrier-logo{height:40px;width:auto;max-width:120px;object-fit:contain;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.12);background:#fff}
 .icod-carrier-badge{display:inline-flex;align-items:center;justify-content:center;width:40px;height:28px;border-radius:6px;background:#eef3f9;color:#1d5fa8;font-weight:800;font-size:12px}
 .icod-carrier-head{display:flex;align-items:center;gap:12px}
 
@@ -977,7 +977,8 @@ body.icod-modal-open{overflow:hidden}
 }
 
 /* --- Carriers : redesign expert --- */
-.icod-carriers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-bottom:20px}
+.icod-carriers-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:20px}
+@media (max-width:1100px){.icod-carriers-grid{grid-template-columns:1fr}}
 .icod-carrier-card{background:#fff;border:1.5px solid #dbe5ef;border-radius:14px;padding:18px 20px;transition:transform .18s,box-shadow .18s,border-color .18s}
 .icod-carrier-card:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(11,34,57,.10)}
 .icod-carrier-card.icod-carrier-active{border-color:#0e7a4f;background:linear-gradient(135deg,#f0f9f4,#e8f5ee)}

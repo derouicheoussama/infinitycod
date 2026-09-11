@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 76" width="88" height="56"><rect x="0.5" y="0.5" width="119" height="75" rx="8" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/><text x="60" y="38" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="18" fill="#e94560">NOEST</text><text x="60" y="34" text-anchor="middle" font-family="Arial,Arial Black" font-weight="800" font-size="8" fill="#333333" letter-spacing="1">DC</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60" width="120" height="60" role="img" aria-label="Noest Delivery">
+  <defs>
+    <linearGradient id="g-noest" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d5f86"/><stop offset="1" stop-color="#0e2f45"/>
+    </linearGradient>
+  </defs>
+  <rect x="0.75" y="0.75" width="118.5" height="58.5" rx="9" fill="url(#g-noest)"/>
+  <rect x="0.75" y="0.75" width="118.5" height="58.5" rx="9" fill="none" stroke="#0a2233" stroke-width="1.2"/>
+  <text x="60" y="34" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="17" letter-spacing="2" fill="#ffffff">NOEST</text>
+  <text x="60" y="48" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="8.5" letter-spacing="2.5" fill="#ffb340">DELIVERY</text>
+</svg>

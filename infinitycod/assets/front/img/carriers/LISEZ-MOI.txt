@@ -1,1 +1,8 @@
-Déposez les logos officiels : yalidine.svg, zr.svg, maystro.svg, noest.svg, ecom.svg, dhd.svg (ou .png/.webp) — chargés automatiquement.
+Logos des sociétés de livraison affichés dans Transporteurs.
+
+Par défaut : rendus vectoriels aux couleurs de marque (yalidine, zrexpress, maystro,
+noest, ecom, dhd, guepex), fournis avec le plugin pour l'identification du transporteur.
+
+Pour utiliser les fichiers officiels : déposez ici {code}.svg (ou .png/.webp) — par
+exemple yalidine.svg, zrexpress.svg, maystro.svg, noest.svg, ecom.svg, dhd.svg.
+Vos fichiers remplacent automatiquement les visuels par défaut.

@@ -1,5 +1,19 @@
 # Changelog
 
+## 5.25.3 — 2026-09-11
+
+Page Transporteurs : grille 2 colonnes, logos des sociétés de livraison, statuts fiables.
+
+### Corrigé
+- **Statut de connexion toujours « Non configuré »** : une variable fantôme ($carriers au lieu de $manager) forçait l'affichage « Non configuré » sur toutes les cartes, même pour un transporteur connecté. Le badge « ✓ Connecté » est de nouveau fiable.
+- **Logo ZR Express jamais chargé** : le fichier s'appelait zr-express.svg alors que le code cherche zrexpress.svg — renommé.
+- **Import des bureaux Stopdesk** : le bouton était toujours branché sur Yalidine, même sur les cartes d'autres transporteurs — désormais branché sur le transporteur de la carte.
+
+### Amélioré
+- **Grille 2 colonnes** : les cartes transporteurs s'affichent en 2×2 (une colonne en dessous de 1100 px).
+- **Logos des sociétés de livraison redessinés** en vectoriel aux couleurs de marque (Yalidine bleu, ZR Express rouge, Maystro indigo, Noest navy/orange, E-Com bleu, DHD vert) — nets sur tous les écrans, et remplaçables par les fichiers officiels en déposant {code}.svg dans assets/front/img/carriers/.
+
+
 ## 5.25.2 — 2026-09-11
 
 Arrondis 100 % harmonisés dans le formulaire et page Paniers abandonnés repensée.

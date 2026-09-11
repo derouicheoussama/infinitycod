@@ -75,6 +75,7 @@ class CarriersPage {
 		echo '<input type="hidden" name="action" value="icod_carrier_save" />';
 		wp_nonce_field( 'icod_carrier_save' );
 
+		echo '<div class="icod-carriers-grid">';
 		foreach ( CarrierManager::catalog() as $entry ) {
 			$config = CarrierManager::config( $entry['code'] );
 			$enabled = ! empty( $config['enabled'] );
@@ -93,7 +94,7 @@ class CarriersPage {
 					$_initials = strtoupper( substr( preg_replace( '/[^A-Za-z]/', '', $entry['name'] ), 0, 2 ) );
 					$_logo = '<span class="icod-carrier-badge" style="background:linear-gradient(135deg,#1877c2,#0e7a4f)">' . esc_html( $_initials ) . '</span>';
 				}
-				$is_cfg = $carriers ? $carriers->is_configured( $entry['code'] ) : false;
+				$is_cfg = $manager ? $manager->is_configured( $entry['code'] ) : false;
 			?>
 			<div class="icod-card icod-carrier-card <?php echo $is_cfg ? 'icod-carrier-active' : ''; ?>" data-code="<?php echo esc_attr( $entry['code'] ); ?>">
 				<div class="icod-carrier-head">
@@ -133,13 +134,14 @@ class CarriersPage {
 					<button type="button" class="button icod-test" data-code="<?php echo esc_attr( $entry['code'] ); ?>"><?php esc_html_e( 'Tester la connexion', 'infinitycod' ); ?></button>
 					<span class="icod-test-result" data-result="<?php echo esc_attr( $entry['code'] ); ?>"></span>
 					<?php if ( ! empty( $entry['offices'] ) ) : ?>
-						<button type="button" class="button icod-import-offices" data-code="yalidine"><?php esc_html_e( '📥 Importer les bureaux Stopdesk', 'infinitycod' ); ?></button>
+						<button type="button" class="button icod-import-offices" data-code="<?php echo esc_attr( $entry['code'] ); ?>"><?php esc_html_e( '📥 Importer les bureaux Stopdesk', 'infinitycod' ); ?></button>
 					<?php endif; ?>
 				</div>
 			</div>
 			<?php
 		}
 
+		echo '</div>';
 		echo '<p class="icod-submit"><button type="submit" class="button button-primary button-hero">' . esc_html__( 'Enregistrer les connexions', 'infinitycod' ) . '</button></p>';
 		echo '</form>';
 	}
