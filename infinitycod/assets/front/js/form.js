@@ -667,6 +667,9 @@
 				'<button type="button" class="icod-submit" data-icod-sticky-btn>' + escapeHtml(stickyLabel) + '</button>';
 			root.appendChild(sticky);
 			root.classList.add('has-sticky');
+			/* Total initial = prix du produit × quantité (jamais de tiret vide) ;
+			   le devis serveur le remplace dès que la wilaya est choisie. */
+			updateSticky(state.quote ? state.quote.total : state.unitPrice * currentQty());
 
 			sticky.addEventListener('click', function (event) {
 				if (event.target.closest('[data-icod-sticky-btn]')) {

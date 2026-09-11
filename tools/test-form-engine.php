@@ -647,6 +647,10 @@ check( 'arrondi des champs : variable CSS appliquée aux inputs', false !== strp
 check( 'À propos : bloc Nouveautés depuis le CHANGELOG embarqué', false !== strpos( $about, 'recent_changelog' ) && false !== strpos( $about, 'CHANGELOG.md' ) );
 check( 'À propos : fonctionnalités actualisées (Builder, promos, 8 timers, DMCA)', false !== strpos( $about, 'Checkout Builder' ) && false !== strpos( $about, 'Codes promo InfinityCod' ) && false !== strpos( $about, '8 styles' ) && false !== strpos( $about, 'DMCA' ) );
 check( 'mobile : stepper reste compact (max-width conservé)', false !== strpos( $css5, '.icod-qty{max-width:180px}' ) );
+$js4 = file_get_contents( $plugin_dir . 'assets/front/js/form.js' );
+check( 'stepper blindé thèmes : pilule max-content + largeur input bornée', false !== strpos( $css5, '.icod-qty{display:inline-flex;align-items:center;gap:4px;width:max-content' ) && false !== strpos( $css5, '.icod-qty-input{width:44px!important;min-width:44px;max-width:44px' ) );
+check( 'mode livraison : aucun tiret avant devis (span vide + :empty masqué)', false === strpos( $fm7, 'data-price-home>—' ) && false === strpos( $fm7, 'data-price-desk>—' ) && false !== strpos( $css5, '.icod-mode-price:empty{display:none}' ) );
+check( 'barre collante : total initial chiffré (jamais de tiret vide)', false !== strpos( $js4, 'updateSticky(state.quote ? state.quote.total : state.unitPrice * currentQty())' ) );
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

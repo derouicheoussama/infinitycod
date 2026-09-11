@@ -818,7 +818,7 @@ class FormManager {
 											<input type="radio" name="icod_mode" value="home" class="icod-mode-radio" checked />
 											<span class="icod-mode-box">
 												<span class="icod-mode-title">🏠 <?php esc_html_e( 'À domicile', 'infinitycod' ); ?></span>
-												<span class="icod-mode-price" data-price-home>—</span>
+												<span class="icod-mode-price" data-price-home></span>
 											</span>
 										</label>
 
@@ -826,7 +826,7 @@ class FormManager {
 											<input type="radio" name="icod_mode" value="desk" class="icod-mode-radio" />
 											<span class="icod-mode-box">
 												<span class="icod-mode-title">🏢 <?php esc_html_e( 'Au bureau', 'infinitycod' ); ?></span>
-												<span class="icod-mode-price" data-price-desk>—</span>
+												<span class="icod-mode-price" data-price-desk></span>
 											</span>
 										</label>
 									</div>

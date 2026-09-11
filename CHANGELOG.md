@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.21.1 — 2026-09-11
+
+Correctifs visuels constatés sur une boutique cliente (mobile) : Quantité étirée par le thème, tirets « — » en mode de livraison, total de la barre collante vide.
+
+### Corrigé
+- **Champ Quantité déformé sur certains thèmes** : le thème peut forcer `input{width:100%}` et étirer la pilule sur toute la ligne. La pilule est désormais en `width:max-content` et la largeur de l'input est triple-bornée (44 px) — la forme reste intacte quel que soit le thème.
+- **Cases « Mode de livraison »** : plus de tiret « — » qui ressemblait à un bug tant qu'aucune wilaya n'était choisie — la ligne de tarif reste masquée jusqu'à l'affichage du vrai prix (ou de « Gratuit »).
+- **Barre collante mobile** : le total affiche dès le chargement le prix du produit × quantité (au lieu d'un « — » vide) ; il intègre la livraison dès que la wilaya est sélectionnée.
+
+
 ## 5.21.0 — 2026-09-11
 
 Stepper quantité redessiné, arrondi des champs réglable au pixel, page À propos actualisée.
