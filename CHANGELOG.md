@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.20.2 — 2026-09-11
+
+Conformité WordPress.org : readme.txt aux normes (Stable tag, Screenshots, Requires Plugins, Services externes disclosés) et assets officiels (bannière, icône, captures). Mise à jour GitHub désactivée d'elle-même si le plugin est hébergé sur le répertoire officiel WordPress.org (pattern dual-hosted standard).
+
+
 ## 5.20.1 — 2026-09-11
 
 Page Mises à jour : affichage des détails réels (version, statut, empreinte) même quand le cache de détection est périmé.

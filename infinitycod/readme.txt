@@ -4,7 +4,8 @@ Tags: cod, algeria, woocommerce, delivery, payment, checkout, wilaya
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 5.4.1
+Requires Plugins: woocommerce
+Stable tag: 5.20.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +77,12 @@ Oui, utilisez le shortcode `[infinitycod_form]` pour un contrôle total.
 = Le paiement en ligne est-il sécurisé ? =
 Oui, le client paie sur la page sécurisée Chargily. La confirmation est vérifiée par API et par webhook signé.
 
+== Screenshots ==
+
+1. Formulaire COD une-page — vue desktop
+2. Mode sombre automatique
+3. Style E-commerce / personnalisation avancée
+
 == Changelog ==
 
 = 2.9.0 =
@@ -102,3 +109,10 @@ Délai de livraison par wilaya, montant minimum de commande, widget Elementor.
 * Developer : Derouiche Oussama — https://derouicheoussama.com
 * Product : InfinityCod — https://infinitycoder.app
 * Updates : GitHub Releases (derouicheoussama/infinitycod-releases)
+
+== Services externes ==
+
+* Mises à jour : vérification horaire sur github.com (dépôt public des releases). Aucune donnée client n’est envoyée.
+* Paiement en ligne (optionnel) : Chargily Pay (chargily.com) — activé uniquement par le marchand.
+* Google Sheets (optionnel) : envoi des commandes vers l’URL Apps Script configurée par le marchand.
+* WhatsApp / Discord / Telegram (optionnels) : notifications configurées par le marchand.

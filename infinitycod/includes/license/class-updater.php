@@ -300,6 +300,13 @@ class Updater {
 	 * @return array|null version, download_url, homepage, changelog, sha256.
 	 */
 	private function remote() {
+		// Plugin hébergé dans le répertoire officiel WordPress.org : .org sert
+		// lui-même les mises à jour — pas de mise à jour concurrente depuis GitHub.
+		$dotorg = get_site_transient( 'update_plugins' );
+		if ( ! empty( $dotorg->no_update ) && array_key_exists( INFINITYCOD_BASENAME, $dotorg->no_update ) ) {
+			return null;
+		}
+
 		try {
 			$tiers = ( 'beta' === self::channel() )
 				? array( 'api', 'atom', 'mirror' )
