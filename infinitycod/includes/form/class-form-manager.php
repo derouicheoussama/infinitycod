@@ -656,9 +656,9 @@ class FormManager {
 			$root_vars .= ';--icod-pad:' . max( 8, min( 48, (int) $padding ) ) . 'px';
 		}
 
-		// Style structurel du formulaire (Classique / Moderne / Tech / E-commerce).
+		// Style structurel du formulaire (Classique / Moderne / Tech / E-commerce / Flat).
 		$style = Settings::get( 'form_style', 'classic' );
-		if ( ! in_array( $style, array( 'classic', 'moderne', 'tech', 'ecommerce' ), true ) ) {
+		if ( ! in_array( $style, array( 'classic', 'moderne', 'tech', 'ecommerce', 'flat' ), true ) ) {
 			$style = 'classic';
 		}
 		$show_thumb   = (bool) Settings::get( 'show_head_thumb', 1 );
@@ -728,9 +728,9 @@ class FormManager {
 					<input type="hidden" name="icod_sig" value="<?php echo esc_attr( $sig ); ?>" />
 					<input type="hidden" name="icod_fp" class="icod-fp" value="" />
 					<?php
-					// Captcha + timer DANS le <form> : leurs champs doivent être
-					// soumis avec celui-ci (le JS les lit dans le formulaire).
-					echo $captcha_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé.
+					// Timer DANS le <form> et en haut (bannière d'urgence). Le
+					// captcha, lui, est rendu EN BAS du formulaire juste avant
+					// le bouton (meilleure conversion, bots confrontés à la fin).
 					echo $timer_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé.
 					?>
 
@@ -886,6 +886,11 @@ class FormManager {
 
 							<aside class="icod-aside">
 							<div class="icod-msg icod-hidden" data-icod-msg role="alert"></div>
+
+							<?php
+							// Captcha EN BAS : juste avant le bouton de commande.
+							echo $captcha_html; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé.
+							?>
 
 							<button type="submit" class="icod-submit">
 								<?php

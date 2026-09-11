@@ -463,6 +463,39 @@
 			});
 		}
 
+		/* --- Entrée = champ suivant (ne soumet pas avant la fin) --- */
+		var focusables = els(form, 'input:not([type=hidden]):not(.icod-hp), select, textarea').filter(function (el) { return el.offsetParent !== null; });
+		form.addEventListener('keydown', function (e) {
+			if (e.key !== 'Enter' || (e.target && e.target.tagName === 'TEXTAREA')) { return; }
+			var idx = focusables.indexOf(e.target);
+			if (idx > -1 && idx < focusables.length - 1) {
+				e.preventDefault();
+				focusables[idx + 1].focus();
+			} else if (idx === focusables.length - 1) {
+				e.preventDefault();
+				doSubmit(false);
+			}
+		});
+
+		/* --- Champ rempli : liseré vert --- */
+		form.addEventListener('input', function (e) {
+			var t = e.target;
+			if (t && t.classList && t.classList.contains('icod-input')) {
+				t.classList.toggle('is-filled', String(t.value || '').trim().length > 0);
+			}
+		});
+
+		/* --- Compteur de caractères de la note --- */
+		var noteArea = el(form, '.icod-note');
+		if (noteArea) {
+			var counter = document.createElement('div');
+			counter.className = 'icod-note-count';
+			noteArea.closest('.icod-field').appendChild(counter);
+			noteArea.addEventListener('input', function () {
+				counter.textContent = (noteArea.value || '').length + ' / 500';
+			});
+		}
+
 		/* --- Note repliable + récapitulatif repliable --- */
 		var noteToggle = el(root, '[data-note-toggle]');
 		if (noteToggle) {

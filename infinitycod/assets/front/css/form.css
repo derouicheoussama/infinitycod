@@ -97,13 +97,16 @@
 .icod-input-icon{position:absolute;inset-inline-start:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--icod-accent);opacity:.6;pointer-events:none;z-index:1;transition:opacity .15s}
 .icod-input-wrap:focus-within .icod-input-icon{opacity:1}
 .icod-input-wrap .icod-input,.icod-input-wrap select.icod-input{padding-inline-start:40px!important;width:100%}
-.icod-input{width:100%;min-width:0;padding:13px 14px;border:1.5px solid var(--icod-border);border-radius:var(--icod-radius-sm,12px);background:var(--icod-field);color:var(--icod-text);font:inherit;font-size:15px;transition:border-color .15s,box-shadow .15s,background .15s;background-image:none!important}
+.icod-input{width:100%;min-width:0;min-height:46px;padding:10px 13px;border:1.5px solid var(--icod-border);border-radius:var(--icod-radius-sm,12px);background:var(--icod-field);color:var(--icod-text);font:inherit;font-size:15px;transition:border-color .15s,box-shadow .15s,background .15s;background-image:none!important}
 .icod-input:hover{border-color:var(--icod-border-strong)}
 .icod-input:focus{outline:none;border-color:var(--icod-accent);box-shadow:0 0 0 3.5px rgba(24,119,194,.14);box-shadow:0 0 0 3.5px color-mix(in srgb,var(--icod-accent) 18%,transparent);background:var(--icod-field)}
 .icod-input::placeholder{color:var(--icod-placeholder)}
 .icod-input.icod-invalid{border-color:#d63638;box-shadow:0 0 0 3px rgba(214,54,56,.12)}
 select.icod-input{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--icod-muted) 50%),linear-gradient(135deg,var(--icod-muted) 50%,transparent 50%);background-position:calc(100% - 18px) 55%,calc(100% - 13px) 55%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-inline-end:34px!important}
 select.icod-input:disabled{background-color:var(--icod-surface-2);color:var(--icod-placeholder);cursor:not-allowed}
+textarea.icod-input{min-height:0;padding:11px 13px;resize:vertical;line-height:1.5}
+/* Champ rempli : liseré vert discret. */
+.icod-input.is-filled{border-color:color-mix(in srgb,var(--icod-ok) 55%,var(--icod-border))}
 
 /* Layout responsive */
 .icod-layout{display:grid;grid-template-columns:1fr;gap:4px}
@@ -305,7 +308,7 @@ fieldset.icod-mode{min-width:0}
 @media (max-width:480px){
 	.icod-input,.icod-chip span,.icod-coupon-input,.icod-coupon-apply,.icod-qty-input{font-size:16px!important}
 	.icod-field{margin-bottom:14px}
-	.icod-input-wrap .icod-input{min-height:52px}
+	.icod-input-wrap .icod-input{min-height:48px}
 	.icod-head-icon{width:42px;height:42px}
 	.icod-form{padding:14px 12px 18px}
 }
@@ -406,3 +409,24 @@ fieldset.icod-mode{min-width:0}
 /* Encadré : cadre accent sur fond surface. */
 .icod-timer-boxes{background:transparent;border:none;padding:6px}
 .icod-timer-boxes .icod-timer-label{background:var(--icod-surface);border:2px solid var(--icod-accent);color:var(--icod-accent);padding:8px 16px;border-radius:10px}
+
+/* Compteur de caractères de la note. */
+.icod-note-count{font-size:.72rem;color:var(--icod-muted);text-align:end;margin-top:-10px;margin-bottom:8px}
+
+/* ===== FLAT : design plat moderne, champs remplis sans ombres ===== */
+.icod-fs-flat{--icod-radius:16px;--icod-radius-sm:10px}
+.icod-fs-flat .icod-head{background:var(--icod-surface);color:var(--icod-text);border-bottom:1px solid var(--icod-border)}
+.icod-fs-flat .icod-head::after{display:none}
+.icod-fs-flat .icod-form-title{color:var(--icod-accent)}
+.icod-fs-flat .icod-form-subtitle{color:var(--icod-muted)}
+.icod-fs-flat .icod-head-price{background:var(--icod-accent);border-color:var(--icod-accent);color:var(--icod-accent-ink,#fff)}
+.icod-fs-flat .icod-head-price del{color:rgba(255,255,255,.7)}
+.icod-fs-flat .icod-input{border:0;background:var(--icod-surface-2);box-shadow:none!important}
+.icod-fs-flat .icod-input:focus{background:var(--icod-surface);outline:2px solid var(--icod-accent);outline-offset:-2px;box-shadow:none}
+.icod-fs-flat .icod-input.is-filled{background:var(--icod-surface);outline:1px solid var(--icod-ok);outline-offset:-1px;box-shadow:none}
+.icod-fs-flat .icod-submit{background:var(--icod-accent)!important;box-shadow:none!important;animation:none;border-radius:var(--icod-radius-sm)!important}
+.icod-fs-flat .icod-summary{background:var(--icod-surface-2);border:0;box-shadow:none}
+.icod-fs-flat .icod-summary-total{background:var(--icod-accent);color:var(--icod-accent-ink,#fff)}
+.icod-fs-flat .icod-summary-total [data-summary-total]{color:var(--icod-accent-ink,#fff)}
+.icod-fs-flat .icod-reassurance{background:transparent;border:0;padding-inline:0}
+.icod-fs-flat .icod-timer{border:0;background:color-mix(in srgb,var(--icod-accent) 10%,var(--icod-surface))}

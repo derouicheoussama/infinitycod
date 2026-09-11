@@ -885,6 +885,7 @@ class SettingsPage {
 						<option value="moderne" <?php selected( Settings::get( 'form_style' ), 'moderne' ); ?>><?php esc_html_e( 'Moderne — épuré, aéré, étiquettes fines', 'infinitycod' ); ?></option>
 						<option value="tech" <?php selected( Settings::get( 'form_style' ), 'tech' ); ?>><?php esc_html_e( 'Tech — angles nets, esprit terminal', 'infinitycod' ); ?></option>
 						<option value="ecommerce" <?php selected( Settings::get( 'form_style' ), 'ecommerce' ); ?>><?php esc_html_e( 'E-commerce — CTA puissant, prix mis en avant', 'infinitycod' ); ?></option>
+						<option value="flat" <?php selected( Settings::get( 'form_style' ), 'flat' ); ?>><?php esc_html_e( 'Flat design moderne — plat, rempli, sans ombres', 'infinitycod' ); ?></option>
 					</select>
 				</label>
 				<label>
@@ -1802,7 +1803,7 @@ class SettingsPage {
 			'timer_urgency_enabled' => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'timer_urgency_minutes' => array( 'tab' => 'form', 'type' => 'int', 'min' => 5, 'max' => 1440 ),
 			'form_preset'        => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'modern', 'elegant', 'sunset', 'ocean', 'minimal', 'rose', 'royal', 'cafe', 'aqua', 'pro' ) ),
-			'form_style'         => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'classic', 'moderne', 'tech', 'ecommerce' ) ),
+			'form_style'         => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'classic', 'moderne', 'tech', 'ecommerce', 'flat' ) ),
 			'show_head_thumb'    => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_stock_badge'   => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_progress_bar'  => array( 'tab' => 'form', 'type' => 'toggle' ),

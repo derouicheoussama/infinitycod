@@ -558,6 +558,25 @@ check( 'police + hauteur bouton variables', false !== strpos( $sp5, "'form_font_
 check( 'licence : carte Premium unique avec PayPal direct', false !== strpos( $sp5, 'paypal_price' ) && false === strpos( $sp5, "'Personal', 'infinitycod'" ) );
 check( 'quantité élargie (60 px)', false !== strpos( $css2, '.icod-qty-input{width:60px' ) );
 
+/* ---------- 26. Champs harmonisés + FLAT + captcha en bas + UX clavier ---------- */
+
+echo "\n26) Champs harmonisés + style FLAT + captcha en bas + navigation Entrée\n";
+$css4 = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
+$fm5  = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
+$js3  = file_get_contents( $plugin_dir . 'assets/front/js/form.js' );
+$sp7  = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+check( 'champs harmonisés 46 px + coins uniformes', false !== strpos( $css4, 'min-height:46px;padding:10px 13px' ) );
+check( 'textarea dédié (hauteur libre)', false !== strpos( $css4, 'textarea.icod-input{min-height:0' ) );
+check( 'liseré vert champ rempli', false !== strpos( $css4, '.icod-input.is-filled' ) );
+check( 'compteur de note (CSS + JS)', false !== strpos( $css4, '.icod-note-count' ) && false !== strpos( $js3, 'icod-note-count' ) );
+check( 'style FLAT : schéma + UI + CSS + whitelist', false !== strpos( $sp7, "'ecommerce', 'flat'" ) && false !== strpos( $sp7, 'value="flat"' ) && false !== strpos( $css4, '.icod-fs-flat' ) && false !== strpos( $fm5, "'ecommerce', 'flat'" ) );
+$captcha_pos = strrpos( $fm5, 'echo $captcha_html;' );
+$aside_pos   = strpos( $fm5, 'icod-aside' );
+$timer_pos   = strpos( $fm5, 'echo $timer_html;' );
+check( 'captcha rendu EN BAS (dans l’aside, avant le bouton)', false !== $captcha_pos && false !== $aside_pos && $captcha_pos > $aside_pos );
+check( 'timer rendu EN HAUT (avant le captcha)', false !== $timer_pos && $timer_pos < $captcha_pos );
+check( 'navigation Entrée = champ suivant', false !== strpos( $js3, 'focusables' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";

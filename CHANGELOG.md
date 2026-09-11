@@ -1,5 +1,20 @@
 # Changelog
 
+## 5.13.0 — 2026-09-11
+
+Champs harmonisés moins hauts, 5e style « Flat design moderne », captcha déplacé en bas et navigation au clavier.
+
+### Ajouté
+- **Style « Flat design moderne »** (5e style) : champs remplis sans bordures ni ombres, en-tête clair à titre accent, bouton plat — le design tendance des checkout modernes.
+- **Captcha déplacé EN BAS du formulaire**, juste avant le bouton « Confirmer » : le client remplit d'abord, le anti-bot intervient à la fin (meilleure conversion, bots en fin de parcours).
+- **Touche Entrée = champ suivant** (et sur le dernier champ, soumission) — saisie rapide au clavier.
+- **Champ rempli = liseré vert** : repérage visuel immédiat de ce qui est déjà saisi.
+- **Compteur de caractères** sur la note (0 / 500).
+
+### Modifié
+- **Champs harmonisés** : même hauteur (46 px), même forme et même arrondi partout — inputs, selects, textarea dédié. Moins hauts qu'avant, plus denses.
+
+
 ## 5.12.1 — 2026-09-10
 
 Correction mobile complète à partir des captures réelles d'un site client (computime.dz).
