@@ -712,5 +712,7 @@ check( 'freemius : carte d achat visible sans licence quand configuré', false !
 check( 'freemius : configuration vendeur (toggle + lien) dans l onglet licence', false !== strpos( $sp10, 'icod[freemius_enabled]' ) && false !== strpos( $sp10, 'icod[freemius_checkout_url]' ) );
 check( 'freemius : garde URL https avant ouverture du checkout', false !== strpos( $sp10, "preg_match( '#^https?://#i', \$freemius_url )" ) );
 
+check( 'quantité : libellé et stepper sur une ligne pleine largeur', false !== strpos( $css5, '.icod-qty-field{display:flex;align-items:center;justify-content:space-between;gap:10px}' ) && false !== strpos( $css5, '.icod-qty-field>label{margin:0}' ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

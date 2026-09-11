@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.24.1 — 2026-09-11
+
+Champ Quantité compact et bien placé : libellé et stepper sur une seule ligne.
+
+### Modifié
+- **Champ Quantité repensé** : le libellé « Quantité » et le stepper (− / +) partagent désormais **une seule ligne pleine largeur** — libellé à gauche, stepper à droite, alignés verticalement. Fini le libellé empilé au-dessus de la pilule qui faisait perdre une ligne entière sur mobile : le champ est plus compact, équilibré et reste parfaitement lisible.
+- Vérification complète du plugin avant publication : 192 vérifications du moteur de formulaire, audit des 141 clés de réglages (chaque option enregistrée ET appliquée), audits anti-corruption, imports, attributions, harnais d'activation — tout au vert.
+
+
 ## 5.24.0 — 2026-09-11
 
 Freemius : le passage à Premium se paie par carte bancaire, encaissé par Freemius (merchant of record).
