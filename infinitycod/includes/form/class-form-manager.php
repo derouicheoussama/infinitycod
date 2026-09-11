@@ -750,7 +750,10 @@ class FormManager {
 					<?php if ( $show_thumb && $thumb_url ) : ?>
 						<img class="icod-head-thumb" src="<?php echo esc_url( $thumb_url ); ?>" alt="" loading="lazy" decoding="async" />
 					<?php endif; ?>
-					<span class="icod-head-icon" aria-hidden="true"><?php echo esc_html( Settings::get( 'form_icon', '🛒' ) ); ?></span>
+					<?php $head_icon = trim( (string) Settings::get( 'form_icon', '' ) ); ?>
+					<?php if ( '' !== $head_icon ) : ?>
+						<span class="icod-head-icon" aria-hidden="true"><?php echo esc_html( $head_icon ); ?></span>
+					<?php endif; ?>
 					<div class="icod-head-text">
 						<h2 class="icod-form-title" id="icod-form-title"><?php echo esc_html( $title ); ?></h2>
 						<?php if ( Settings::get( 'form_subtitle' ) ) : ?>

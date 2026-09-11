@@ -79,7 +79,7 @@
 /* Header — dégradé issu de la palette d'accent (variables inline). */
 .icod-head{display:flex;align-items:center;gap:12px;padding:20px 22px;background:var(--icod-head-bg);color:var(--icod-head-ink);animation:icod-fade-in .4s ease both;position:relative}
 .icod-head::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.09) 50%,transparent 58%);pointer-events:none}
-.icod-head-thumb{width:56px;height:56px;flex:none;object-fit:cover;border-radius:14px;border:2px solid rgba(255,255,255,.35);box-shadow:0 3px 10px rgba(0,0,0,.15)}
+.icod-head-thumb{width:68px;height:68px;flex:none;object-fit:cover;border-radius:16px;border:2px solid rgba(255,255,255,.35);box-shadow:0 3px 10px rgba(0,0,0,.15)}
 .icod-head-icon{display:flex;align-items:center;justify-content:center;width:46px;height:46px;flex:none;font-size:1.35rem;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.3);border-radius:13px}
 .icod-head-text{flex:1;min-width:0}
 .icod-form-title{margin:0;font-size:1.1rem;font-weight:800;line-height:1.3;color:var(--icod-head-ink);letter-spacing:-.01em}
@@ -118,12 +118,12 @@ textarea.icod-input{min-height:0;padding:11px 13px;resize:vertical;line-height:1
 /* Quantité — pilule compacte, boutons ronds, chiffre exactement centré.
    Structure symétrique (1.5+3 | 30 | 38 | 30 | 3+1.5) et padding/text-align
    verrouillés : certains thèmes décalent le chiffre ou étirent l'input. */
-.icod-qty{display:inline-flex;align-items:center;gap:2px;width:max-content;max-width:100%;border:1.5px solid var(--icod-border);border-radius:99px;background:var(--icod-surface);padding:2px;box-shadow:0 2px 8px rgba(11,34,57,.07);transition:border-color .15s,box-shadow .15s}
-.icod-qty:focus-within{border-color:var(--icod-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--icod-accent) 12%,transparent)}
-.icod-qty-btn{width:26px;height:26px;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;line-height:1;color:var(--icod-accent);background:color-mix(in srgb,var(--icod-accent) 8%,transparent);border:none;border-radius:50%;cursor:pointer;transition:background .15s,transform .12s}
-.icod-qty-btn:hover{background:color-mix(in srgb,var(--icod-accent) 18%,transparent);transform:scale(1.08)}
-.icod-qty-btn:active{transform:scale(.92)}
-.icod-qty-input{width:34px!important;min-width:34px;max-width:34px;flex:0 0 auto;text-align:center!important;padding:0!important;height:26px;font-size:13px;font-weight:800;border:0!important;background:transparent!important;box-shadow:none!important;color:var(--icod-text);-moz-appearance:textfield;appearance:textfield}
+.icod-qty{display:inline-flex;align-items:stretch;width:max-content;max-width:100%;border:1.5px solid var(--icod-border);border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px));background:var(--icod-field);overflow:hidden;transition:border-color .15s}
+.icod-qty:focus-within{border-color:var(--icod-accent)}
+.icod-qty-btn{width:32px;height:34px;flex:none;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;line-height:1;color:var(--icod-accent);background:transparent;border:none;cursor:pointer;transition:background .15s}
+.icod-qty-btn:hover{background:color-mix(in srgb,var(--icod-accent) 10%,transparent)}
+.icod-qty-btn:active{background:color-mix(in srgb,var(--icod-accent) 18%,transparent)}
+.icod-qty-input{width:38px!important;min-width:38px;max-width:38px;flex:0 0 auto;text-align:center!important;padding:0!important;height:34px;font-size:14px;font-weight:800;border:none!important;border-inline:1px solid var(--icod-border)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:var(--icod-text);-moz-appearance:textfield;appearance:textfield}
 .icod-qty-input::-webkit-inner-spin-button{-webkit-appearance:none}
 /* Champ Quantité : libellé et stepper sur une seule ligne, répartis sur
    toute la largeur — le champ reste compact et bien placé (fini le
@@ -148,7 +148,7 @@ textarea.icod-input{min-height:0;padding:11px 13px;resize:vertical;line-height:1
 .icod-mode legend{font-weight:700;font-size:.84rem;color:var(--icod-heading);margin-bottom:8px;padding:0}
 fieldset.icod-mode{min-width:0}
 .icod-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.icod-mode-box{display:flex;flex-direction:column;gap:1px;padding:10px 12px;border:1.5px solid var(--icod-border);border-radius:var(--icod-radius-sm,12px);background:var(--icod-surface);transition:all .15s;cursor:pointer}
+.icod-mode-box{display:flex;flex-direction:column;gap:1px;padding:10px 12px;border:1.5px solid var(--icod-border);border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px));background:var(--icod-surface);transition:all .15s;cursor:pointer}
 .icod-mode-option{cursor:pointer;position:relative;display:block}
 /* Le radio natif reste dans le DOM (accessible) mais jamais visible :
    la carte .icod-mode-box EST l'état visuel. */
@@ -183,7 +183,7 @@ fieldset.icod-mode{min-width:0}
 
 /* Code promo */
 .icod-coupon{display:flex;gap:8px;margin:2px 0 10px}
-.icod-coupon-input{flex:1;min-width:0;min-height:40px;padding:8px 12px;border:1.5px dashed var(--icod-border);border-radius:10px;background:var(--icod-field);color:var(--icod-text);font:inherit;font-size:.86rem;text-transform:uppercase;letter-spacing:.04em}
+.icod-coupon-input{flex:1;min-width:0;min-height:40px;padding:8px 12px;border:1.5px dashed var(--icod-border);border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px));background:var(--icod-field);color:var(--icod-text);font:inherit;font-size:.86rem;text-transform:uppercase;letter-spacing:.04em}
 .icod-coupon-input:focus{border-color:var(--icod-accent);outline:none}
 .icod-coupon-apply{flex:none;min-height:40px;padding:8px 16px;border:1.5px solid var(--icod-accent);border-radius:10px;background:transparent;color:var(--icod-accent);font:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .15s}
 .icod-coupon-apply:hover{background:var(--icod-accent);color:var(--icod-accent-ink)}
@@ -331,7 +331,7 @@ fieldset.icod-mode{min-width:0}
 	/* En-tête : jamais d'empilement en colonnes. */
 	.icod-head{flex-wrap:nowrap!important;gap:10px!important;padding:14px;align-items:center!important}
 	.icod-head::after{display:none}
-	.icod-head-thumb{width:42px;height:42px;flex:0 0 42px;border-radius:10px}
+	.icod-head-thumb{width:52px;height:52px;flex:0 0 52px;border-radius:12px}
 	.icod-head-icon{width:38px;height:38px;flex:0 0 38px;font-size:1.05rem;border-radius:9px}
 	.icod-head-text{flex:1 1 0!important;min-width:0}
 	.icod-form-title{font-size:.95rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}

@@ -642,14 +642,14 @@ $sp8  = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-pa
 $set3 = file_get_contents( $plugin_dir . 'includes/core/class-settings.php' );
 $fm7  = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
 $about = file_get_contents( $plugin_dir . 'includes/admin/pages/class-about-page.php' );
-check( 'stepper : pilule + boutons circulaires + focus visible', false !== strpos( $css5, '.icod-qty-btn{width:26px;height:26px' ) && false !== strpos( $css5, 'border-radius:50%' ) && false !== strpos( $css5, '.icod-qty:focus-within{border-color:var(--icod-accent)' ) );
+check( 'stepper : contrôle segmenté (un bloc, séparateurs, rayon des champs)', false !== strpos( $css5, '.icod-qty-btn{width:32px;height:34px' ) && false !== strpos( $css5, 'border-inline:1px solid var(--icod-border)!important' ) && false !== strpos( $css5, 'border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px));background:var(--icod-field);overflow:hidden' ) );
 check( 'arrondi des champs : schéma + défaut + UI', false !== strpos( $sp8, "'field_radius'" ) && false !== strpos( $sp8, 'icod[field_radius]' ) && false !== strpos( $set3, "'field_radius'" ) );
 check( 'arrondi des champs : variable CSS appliquée aux inputs', false !== strpos( $fm7, '--icod-radius-fields' ) && false !== strpos( $css5, 'border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px))' ) );
 check( 'À propos : bloc Nouveautés depuis le CHANGELOG embarqué', false !== strpos( $about, 'recent_changelog' ) && false !== strpos( $about, 'CHANGELOG.md' ) );
 check( 'À propos : fonctionnalités actualisées (Builder, promos, 8 timers, DMCA)', false !== strpos( $about, 'Checkout Builder' ) && false !== strpos( $about, 'Codes promo InfinityCod' ) && false !== strpos( $about, '8 styles' ) && false !== strpos( $about, 'DMCA' ) );
 check( 'mobile : stepper reste compact (max-width conservé)', false !== strpos( $css5, '.icod-qty{max-width:150px}' ) );
 $js4 = file_get_contents( $plugin_dir . 'assets/front/js/form.js' );
-check( 'stepper blindé thèmes : pilule max-content + largeur input bornée', false !== strpos( $css5, '.icod-qty{display:inline-flex;align-items:center;gap:2px;width:max-content' ) && false !== strpos( $css5, '.icod-qty-input{width:34px!important;min-width:34px;max-width:34px' ) );
+check( 'stepper blindé thèmes : pilule max-content + largeur input bornée', false !== strpos( $css5, '.icod-qty{display:inline-flex;align-items:stretch;width:max-content' ) && false !== strpos( $css5, '.icod-qty-input{width:38px!important;min-width:38px;max-width:38px' ) );
 check( 'stepper : chiffre exactement centré (padding/text-align verrouillés)', false !== strpos( $css5, 'text-align:center!important;padding:0!important' ) );
 check( 'mode livraison : aucun tiret avant devis (span vide + :empty masqué)', false === strpos( $fm7, 'data-price-home>—' ) && false === strpos( $fm7, 'data-price-desk>—' ) && false !== strpos( $css5, '.icod-mode-price:empty{display:none}' ) );
 check( 'barre collante : total initial chiffré (jamais de tiret vide)', false !== strpos( $js4, 'updateSticky(state.quote ? state.quote.total : state.unitPrice * currentQty())' ) );
@@ -713,6 +713,8 @@ check( 'freemius : configuration vendeur (toggle + lien) dans l onglet licence',
 check( 'freemius : garde URL https avant ouverture du checkout', false !== strpos( $sp10, "preg_match( '#^https?://#i', \$freemius_url )" ) );
 
 check( 'quantité : libellé et stepper sur une ligne pleine largeur (blindés !important)', false !== strpos( $css5, '.icod-qty-field.icod-qty-field{display:flex!important' ) && false !== strpos( $css5, '.icod-qty-field.icod-qty-field>label{display:block!important' ) && false !== strpos( $css5, '.icod-qty-field .icod-qty{flex:0 0 auto!important' ) );
+check( 'en-tête : icône panier optionnelle (vide par défaut) + vignette agrandie', false !== strpos( $fm8, '$head_icon' ) && false !== strpos( $set3, "'form_icon'             => ''" ) && false !== strpos( $css5, '.icod-head-thumb{width:68px;height:68px' ) );
+check( 'rayons : mode livraison + code promo alignés sur l arrondi des champs', false !== strpos( $css5, '.icod-mode-box{display:flex;flex-direction:column;gap:1px;padding:10px 12px;border:1.5px solid var(--icod-border);border-radius:var(--icod-radius-fields' ) );
 
 /* ---------- 37. Scanner de sécurité permanent + secrets hors HTML ---------- */
 

@@ -42,7 +42,7 @@ class Settings {
 			'free_shipping_qty'     => 0,    // 0 = désactivé.
 
 			// Formulaire.
-			'form_icon'             => '🛒',
+			'form_icon'             => '',             // Icône d'en-tête optionnelle (vide = aucune).
 			'form_title'            => __( 'Commandez maintenant — paiement à la livraison', 'infinitycod' ),
 			'form_subtitle'         => __( 'Remplissez le formulaire, nous vous appelons pour confirmer.', 'infinitycod' ),
 			'button_text'           => __( 'Confirmer la commande', 'infinitycod' ),

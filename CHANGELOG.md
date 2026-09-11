@@ -1,5 +1,16 @@
 # Changelog
 
+## 5.25.1 — 2026-09-11
+
+Interface du formulaire affinée : en-tête épuré, champ Quantité redessiné, arrondis parfaitement uniformes.
+
+### Modifié
+- **Icône panier de l'en-tête supprimée** : elle occupait un carré pour rien. Elle devient optionnelle — si vous voulez une icône, renseignez-la dans Réglages → Formulaire → « Icône » (vide par défaut = aucune).
+- **Vignette produit agrandie** : 68 px sur desktop (au lieu de 56), 52 px sur mobile — le produit est bien visible dans l'en-tête.
+- **Champ Quantité restylé en contrôle segmenté** : un seul bloc arrondi `− │ 1 │ +` avec séparateurs fins, à la couleur d'accent — fini les deux gros boutons ronds flottants. Le bloc utilise exactement le même arrondi que les autres champs.
+- **Arrondis unifiés** : les boîtes « À domicile / Au bureau » et le champ code promo suivent désormais le même arrondi que tous les champs (réglage « Arrondi des champs » s'applique partout).
+
+
 ## 5.25.0 — 2026-09-11
 
 Audit de sécurité complet du plugin (style revue de code automatisée) + scanner permanent.
