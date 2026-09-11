@@ -488,7 +488,8 @@ check( 'show_offers présent exactement UNE fois (plus de disparition silencieus
 check( 'sticky_bar présent exactement UNE fois (doublon supprimé)', 1 === substr_count( $sp5, 'name="icod[sticky_bar]"' ) );
 check( 'bandeau 3 étapes + bouton Enregistrer collant', false !== strpos( $sp5, 'icod-steps' ) && false !== strpos( $sp5, 'icod-save-sticky' ) );
 check( 'purge des caches appelée à la sauvegarde', false !== strpos( $sp5, 'purge_page_caches' ) );
-check( 'purge couvre LiteSpeed / WP Rocket / W3TC / Autoptimize', false !== strpos( $sp5, 'litespeed_purge_all' ) && false !== strpos( $sp5, 'rocket_clean_domain' ) && false !== strpos( $sp5, 'w3tc_flush_all' ) && false !== strpos( $sp5, 'autoptimizeCache' ) );
+$cachepurge_src = file_get_contents( $plugin_dir . 'includes/core/class-cache-purge.php' );
+check( 'purge couvre LiteSpeed / WP Rocket / W3TC / Autoptimize (CachePurge)', false !== strpos( $cachepurge_src, 'litespeed_purge_all' ) && false !== strpos( $cachepurge_src, 'rocket_clean_domain' ) && false !== strpos( $cachepurge_src, 'w3tc_flush_all' ) && false !== strpos( $cachepurge_src, 'autoptimizeCache' ) );
 
 /* ---------- 20. Presets : couleur de départ réelle, même sans JS ---------- */
 
@@ -748,6 +749,15 @@ check( 'transporteurs : logo SVG présent pour les 6 sociétés (zrexpress bien 
 check( 'transporteurs : grille 2 colonnes (1 colonne en dessous de 1100 px)', false !== strpos( $adm_css, 'grid-template-columns:repeat(2,minmax(0,1fr))' ) && false !== strpos( $adm_css, '@media (max-width:1100px){.icod-carriers-grid{grid-template-columns:1fr}}' ) );
 check( 'transporteurs : statut fiable (variable $manager, plus de $carriers fantôme)', false !== strpos( $crp, '$manager ? $manager->is_configured' ) && false === strpos( $crp, '$carriers ? $carriers->is_configured' ) );
 	check( 'transporteurs : bouton import bureaux branché sur le bon transporteur', false === strpos( $crp, 'data-code="yalidine"' ) && false !== strpos( $crp, "data-code=\"<?php echo esc_attr( \$entry['code'] ); ?>\"" ) );
+
+/* ---------- 40. Purge des caches de pages après mise à jour du plugin ---------- */
+
+echo "\n40) Caches : purge automatique après mise à jour (front = frais)\n";
+$cp = file_get_contents( $plugin_dir . 'includes/core/class-cache-purge.php' );
+$upd = file_get_contents( $plugin_dir . 'includes/license/class-updater.php' );
+check( 'caches : helper central CachePurge::purge_all() présent', false !== strpos( $cp, 'class CachePurge' ) && false !== strpos( $cp, 'litespeed_purge_all' ) );
+	check( 'caches : purge branchée sur mise à jour + installation du plugin', false !== strpos( $upd, 'CachePurge::purge_all()' ) && false !== strpos( $upd, "'plugin' !== \$type" ) );
+check( 'caches : sauvegarde des réglages délègue au même helper', false !== strpos( $sp8, 'CachePurge::purge_all()' ) );
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

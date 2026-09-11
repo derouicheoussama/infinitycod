@@ -2315,27 +2315,7 @@ class SettingsPage {
 	 * @return void
 	 */
 	private function purge_page_caches() {
-		if ( defined( 'LSCWP_V' ) ) {
-			do_action( 'litespeed_purge_all' );
-		}
-		if ( function_exists( 'rocket_clean_domain' ) ) {
-			rocket_clean_domain();
-		}
-		if ( function_exists( 'w3tc_flush_all' ) ) {
-			w3tc_flush_all();
-		}
-		if ( function_exists( 'wp_cache_clear_cache' ) ) {
-			wp_cache_clear_cache();
-		}
-		if ( function_exists( 'sg_cachepress_purge_cache' ) ) {
-			sg_cachepress_purge_cache();
-		}
-		if ( function_exists( 'wpfc_clear_all_cache' ) ) {
-			wpfc_clear_all_cache();
-		}
-		if ( class_exists( 'autoptimizeCache' ) && method_exists( 'autoptimizeCache', 'clearall' ) ) {
-			\autoptimizeCache::clearall();
-		}
+		\InfinityCod\Core\CachePurge::purge_all();
 	}
 
 	/**

@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.25.4 — 2026-09-11
+
+Pourquoi les nouveautés n'apparaissaient pas pour les visiteurs : correction du cache.
+
+### Corrigé
+- **Caches de pages purgés après chaque mise à jour du plugin** : le diagnostic était clair — l'aperçu admin (rendu à la fraîche) montrait les nouveautés, mais les visiteurs continuaient de voir l'ancien formulaire servi par le cache de pages (LiteSpeed, WP Rocket, W3TC, SiteGround, WP Super Cache, WP Fastest Cache, Autoptimize…). Désormais, dès que le plugin est mis à jour — automatiquement, manuellement ou installé depuis un zip — tous ces caches sont purgés automatiquement, ainsi que via l'action `infinitycod_purge_page_caches` pour les CDN et hébergeurs spécifiques.
+- La purge centralisée (nouveau helper `CachePurge`) est aussi déclenchée par chaque sauvegarde de réglages et couvre désormais Breeze en plus des caches précédents.
+- La purge post-mise-à-jour couvre à la fois l'action « update » (mise à jour WordPress) et « install » (installation manuelle depuis un zip sur la page Mises à jour).
+
+
 ## 5.25.3 — 2026-09-11
 
 Page Transporteurs : grille 2 colonnes, logos des sociétés de livraison, statuts fiables.

@@ -1379,15 +1379,28 @@ class Updater {
 	 * @return void
 	 */
 	public function on_upgrade_complete( $upgrader, $hook_extra ) {
-		if ( empty( $hook_extra['type'] ) || 'plugin' !== $hook_extra['type'] || empty( $hook_extra['plugins'] ) ) {
+		$type    = isset( $hook_extra['type'] ) ? (string) $hook_extra['type'] : '';
+		if ( 'plugin' !== $type ) {
 			return;
 		}
-		if ( ! in_array( INFINITYCOD_BASENAME, (array) $hook_extra['plugins'], true ) ) {
+		// 'update' fournit une liste 'plugins', 'install' fournit 'plugin'.
+		$done = false;
+		if ( ! empty( $hook_extra['plugins'] ) && in_array( INFINITYCOD_BASENAME, (array) $hook_extra['plugins'], true ) ) {
+			$done = true;
+		}
+		if ( ! empty( $hook_extra['plugin'] ) && INFINITYCOD_BASENAME === (string) $hook_extra['plugin'] ) {
+			$done = true;
+		}
+		if ( ! $done ) {
 			return;
 		}
 
 		$this->record_history( INFINITYCOD_VERSION, INFINITYCOD_VERSION, 'update', 'success', '' );
 		\InfinityCod\Logging\Logger::log( 'update', 'Plugin updated via WordPress (installed now: ' . INFINITYCOD_VERSION . ').' );
+
+		// Indispensable : sans purge, les visiteurs voient l'ancien HTML/CSS
+		// servi par le cache de pages (l'aperçu admin, lui, rend à la fraîche).
+		\InfinityCod\Core\CachePurge::purge_all();
 	}
 
 	/**
