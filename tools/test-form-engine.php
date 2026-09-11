@@ -627,6 +627,7 @@ $fm6  = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' 
 $carr = file_get_contents( $plugin_dir . 'includes/carriers/class-carrier-manager.php' );
 check( 'autosync transporteurs ON par défaut (toggle + gate + handler)', false !== strpos( $geo2, 'icod_carrier_autosync' ) && false !== strpos( $am5, "'carrier_autosync'" ) && false !== strpos( $carr, 'carrier_autosync' ) );
 check( 'add-to-cart WC désactivable (3 hooks retirés)', false !== strpos( $fm6, 'maybe_disable_add_to_cart' ) && false !== strpos( $fm6, 'woocommerce_template_single_add_to_cart' ) );
+	check( 'add-to-cart + quantité thème masqués dès l’installation (défaut = 1)', false !== strpos( file_get_contents( $plugin_dir . 'includes/core/class-settings.php' ), "'disable_add_to_cart'   => 1" ) && false !== strpos( $fm6, 'sticky-add-to-cart' ) );
 check( 'signature Infinity Coder sous le formulaire', false !== strpos( $fm6, 'icod-signed' ) && false !== strpos( $fm6, 'infinitycoder.app' ) );
 check( 'stock faible : pilule rouge « Seulement X restants »', false !== strpos( $fm6, 'icod-stock-low' ) && false !== strpos( $fm6, 'Seulement %d restants' ) );
 check( 'logos CIB/Edahabia téléversables prioritaires', false !== strpos( $fm6, 'logo_cib_id' ) && false !== strpos( $fm6, 'logo_edahabia_id' ) );

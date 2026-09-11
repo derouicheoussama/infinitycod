@@ -1097,7 +1097,7 @@ class SettingsPage {
 				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[disable_add_to_cart]" value="1" <?php checked( (int) Settings::get( 'disable_add_to_cart' ), 1 ); ?> />
-					<span><?php esc_html_e( 'Désactiver « Ajouter au panier » de WooCommerce (le formulaire COD est le seul chemin d’achat)', 'infinitycod' ); ?></span>
+				<span><?php echo esc_html( 'Masquer « Ajouter au panier » + quantité du thème (actif dès l’installation) — le formulaire COD, avec son propre sélecteur de quantité, est le seul chemin d’achat' ); ?></span>
 				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[show_signature]" value="1" <?php checked( (int) Settings::get( 'show_signature', 1 ), 1 ); ?> />

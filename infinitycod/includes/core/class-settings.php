@@ -117,7 +117,7 @@ class Settings {
 			'show_progress_bar'     => 1,    // Barre de progression.
 			'show_summary_coupon'   => 1,    // Champ code promo.
 			'hide_when_sold_out'    => 0,    // Masquer le formulaire si épuisé.
-				'disable_add_to_cart'   => 0,    // Désactiver « Ajouter au panier » WooCommerce.
+				'disable_add_to_cart'   => 1,    // Dès l'installation : « Ajouter au panier » + quantité du thème masqués (seul le formulaire COD vend).
 				'show_signature'        => 1,    // Signature « Protégé par Infinity Coder ».
 				'logo_cib_id'           => 0,    // Logo CIB officiel (média).
 				'logo_edahabia_id'      => 0,    // Logo Edahabia officiel (média).

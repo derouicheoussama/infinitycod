@@ -53,12 +53,14 @@ class FormManager {
 		remove_action( 'woocommerce_variable_add_to_cart', 'woocommerce_template_variable_add_to_cart', 30 );
 
 		// 2. Les thèmes ajoutent souvent leur propre bouton : on masque tout
-		//    le bloc panier du thème via CSS injecté (spécificité maximale).
+		//    le bloc panier du thème via CSS injecté (spécificité maximale),
+		//    y compris le champ quantité du thème et les barres collantes.
 		add_action( 'wp_head', function () {
 			echo '<style id="icod-hide-atc">'
 				. '.single-product form.cart,.single-product .single_add_to_cart_button,'
 				. '.single-product .woocommerce-variation-add-to-cart,'
-				. '.single-product .quantity,.single-product .woocommerce-Price-amount+form'
+				. '.single-product .quantity,.single-product .woocommerce-Price-amount+form,'
+				. '.single-product .sticky-add-to-cart,.single-product [class*="sticky-add-to-cart"]'
 				. '{display:none!important}</style>';
 		}, 99 );
 	}

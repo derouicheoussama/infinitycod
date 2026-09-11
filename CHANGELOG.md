@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.22.1 — 2026-09-11
+
+« Ajouter au panier » et quantité du thème masqués dès l'installation.
+
+### Modifié
+- **Par défaut à l'installation (et à la mise à jour, si le réglage n'a jamais été touché)** : l'option « Masquer Ajouter au panier + quantité du thème » est désormais **activée d'origine** — le bouton « Ajouter au panier », le champ quantité et les barres d'achat collantes du thème disparaissent des fiches produit ; le formulaire COD, avec son propre sélecteur de quantité, est le seul chemin d'achat.
+- La barre « add-to-cart » collante des thèmes (type Flatsome) est aussi couverte par le masquage.
+- Le marchand peut réactiver le bouton du thème à tout moment : Réglages → Formulaire → décocher « Masquer Ajouter au panier… » (son choix explicite reste prioritaire).
+
+
 ## 5.22.0 — 2026-09-11
 
 Essai Premium : 7 jours, tout inclus, un clic — sans carte bancaire.
