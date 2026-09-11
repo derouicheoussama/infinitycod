@@ -1,5 +1,19 @@
 # Changelog
 
+## 5.21.3 — 2026-09-11
+
+Stepper Quantité compact et rapidité : dashboard allégé, scripts non bloquants.
+
+### Modifié
+- **Champ Quantité redimensionné** : pilule plus compacte (boutons 30 px au lieu de 36, saisie 38 px) — et le chiffre est désormais **exactement centré** quel que soit le thème : `padding` et `text-align` verrouillés contre les styles du thème qui décalaient le nombre.
+
+### Rapidité
+- **Badge « commandes en attente »** : le `COUNT(*)` qui s'exécutait sur CHAQUE page d'administration est mis en cache et invalidé à chaque création / changement de statut / suppression de commande (hooks du cycle de vie) + filet de sécurité 10 minutes — plus de requête de comptage inutile sur les boutiques à fort volume.
+- **Scripts non bloquants** : `defer` appliqué au JS du formulaire, au JS admin et à Chart.js (page Statistiques) — le rendu de la page ne les attend plus.
+- **reCAPTCHA v3** : pré-connexion au domaine Google quand le captcha est actif (~100-300 ms gagnées au premier chargement).
+- **Vignette produit** du formulaire : décodage asynchrone.
+
+
 ## 5.21.2 — 2026-09-11
 
 Audit complet « chaque réglage s'enregistre et s'applique » : deux bugs du compte à rebours détectés et corrigés, nouveau garde-fou permanent.

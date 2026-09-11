@@ -641,14 +641,15 @@ $sp8  = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-pa
 $set3 = file_get_contents( $plugin_dir . 'includes/core/class-settings.php' );
 $fm7  = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
 $about = file_get_contents( $plugin_dir . 'includes/admin/pages/class-about-page.php' );
-check( 'stepper : pilule + boutons circulaires + focus visible', false !== strpos( $css5, '.icod-qty-btn{width:36px;height:36px' ) && false !== strpos( $css5, 'border-radius:50%' ) && false !== strpos( $css5, '.icod-qty:focus-within{border-color:var(--icod-accent)' ) );
+check( 'stepper : pilule + boutons circulaires + focus visible', false !== strpos( $css5, '.icod-qty-btn{width:30px;height:30px' ) && false !== strpos( $css5, 'border-radius:50%' ) && false !== strpos( $css5, '.icod-qty:focus-within{border-color:var(--icod-accent)' ) );
 check( 'arrondi des champs : schéma + défaut + UI', false !== strpos( $sp8, "'field_radius'" ) && false !== strpos( $sp8, 'icod[field_radius]' ) && false !== strpos( $set3, "'field_radius'" ) );
 check( 'arrondi des champs : variable CSS appliquée aux inputs', false !== strpos( $fm7, '--icod-radius-fields' ) && false !== strpos( $css5, 'border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px))' ) );
 check( 'À propos : bloc Nouveautés depuis le CHANGELOG embarqué', false !== strpos( $about, 'recent_changelog' ) && false !== strpos( $about, 'CHANGELOG.md' ) );
 check( 'À propos : fonctionnalités actualisées (Builder, promos, 8 timers, DMCA)', false !== strpos( $about, 'Checkout Builder' ) && false !== strpos( $about, 'Codes promo InfinityCod' ) && false !== strpos( $about, '8 styles' ) && false !== strpos( $about, 'DMCA' ) );
-check( 'mobile : stepper reste compact (max-width conservé)', false !== strpos( $css5, '.icod-qty{max-width:180px}' ) );
+check( 'mobile : stepper reste compact (max-width conservé)', false !== strpos( $css5, '.icod-qty{max-width:150px}' ) );
 $js4 = file_get_contents( $plugin_dir . 'assets/front/js/form.js' );
-check( 'stepper blindé thèmes : pilule max-content + largeur input bornée', false !== strpos( $css5, '.icod-qty{display:inline-flex;align-items:center;gap:4px;width:max-content' ) && false !== strpos( $css5, '.icod-qty-input{width:44px!important;min-width:44px;max-width:44px' ) );
+check( 'stepper blindé thèmes : pilule max-content + largeur input bornée', false !== strpos( $css5, '.icod-qty{display:inline-flex;align-items:center;gap:2px;width:max-content' ) && false !== strpos( $css5, '.icod-qty-input{width:38px!important;min-width:38px;max-width:38px' ) );
+check( 'stepper : chiffre exactement centré (padding/text-align verrouillés)', false !== strpos( $css5, 'text-align:center!important;padding:0!important' ) );
 check( 'mode livraison : aucun tiret avant devis (span vide + :empty masqué)', false === strpos( $fm7, 'data-price-home>—' ) && false === strpos( $fm7, 'data-price-desk>—' ) && false !== strpos( $css5, '.icod-mode-price:empty{display:none}' ) );
 check( 'barre collante : total initial chiffré (jamais de tiret vide)', false !== strpos( $js4, 'updateSticky(state.quote ? state.quote.total : state.unitPrice * currentQty())' ) );
 
@@ -661,6 +662,18 @@ check( 'timer : les 8 styles rendus (garde élargie aux 5 styles 2025)', false !
 check( 'timer : plus de variable indéfinie $timer_style_attr', false !== strpos( $fm8, '$timer_style_attr         = \'\';' ) || false !== strpos( $fm8, "\$timer_style_attr = '';" ) );
 check( 'audit-apply : présent dans le pipeline npm check', false !== strpos( file_get_contents( dirname( $plugin_dir ) . '/package.json' ), 'audit-apply.js' ) );
 check( 'schéma : trio PayPal 3 offres retiré (licence unique)', false === strpos( $sp8, 'paypal_price_personal' ) && false === strpos( $sp8, 'paypal_price_agency' ) );
+
+/* ---------- 33. Rapidité : badge menu en cache, scripts defer ---------- */
+
+echo "\n33) Rapidité : badge menu caché + invalidation, scripts non bloquants\n";
+$am6 = file_get_contents( $plugin_dir . 'includes/admin/class-admin-manager.php' );
+$os1 = file_get_contents( $plugin_dir . 'includes/orders/class-order-store.php' );
+$sp9 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-stats-page.php' );
+check( 'badge : COUNT(*) mis en cache (transient + TTL)', false !== strpos( $am6, "get_transient( 'icod_pending_count' )" ) && false !== strpos( $am6, 'set_transient' ) );
+check( 'badge : invalidation sur created/status_changed/deleted', false !== strpos( $am6, 'infinitycod_order_created' ) && false !== strpos( $am6, 'infinitycod_order_status_changed' ) && false !== strpos( $am6, 'infinitycod_order_deleted' ) && false !== strpos( $os1, "do_action( 'infinitycod_order_status_changed'" ) );
+check( 'scripts : defer sur form, admin et chart (jamais bloquants)', false !== strpos( $fm8, "'icod-form', 'strategy', 'defer'" ) && false !== strpos( $am6, "'icod-admin', 'strategy', 'defer'" ) && false !== strpos( $sp9, "'icod-chart', 'strategy', 'defer'" ) );
+check( 'reCAPTCHA : preconnect www.google.com', false !== strpos( $fm8, 'recaptcha_resource_hints' ) );
+check( 'vignette produit : décodage asynchrone', false !== strpos( $fm8, 'loading="lazy" decoding="async"' ) );
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

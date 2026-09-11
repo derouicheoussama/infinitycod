@@ -49,6 +49,7 @@ class StatsPage {
 		$series = $stats->daily_series( $from, $to );
 
 		wp_enqueue_script( 'icod-chart', INFINITYCOD_URL . 'assets/admin/js/chart.umd.min.js', array(), '4.4.1', true );
+		wp_script_add_data( 'icod-chart', 'strategy', 'defer' );
 
 		$chart_data = array(
 			'labels'  => array_map( function ( $point ) { return mysql2date( 'd/m', $point['date'] ); }, $series ),

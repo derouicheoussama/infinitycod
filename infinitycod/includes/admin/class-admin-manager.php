@@ -40,6 +40,12 @@ class AdminManager {
 		add_action( 'admin_notices', array( $this, 'update_available_notice' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 
+		// Le badge « commandes en attente » est mis en cache : invalidation
+		// à chaque événement du cycle de vie d'une commande COD.
+		add_action( 'infinitycod_order_created', array( __CLASS__, 'flush_pending_count' ) );
+		add_action( 'infinitycod_order_status_changed', array( __CLASS__, 'flush_pending_count' ) );
+		add_action( 'infinitycod_order_deleted', array( __CLASS__, 'flush_pending_count' ) );
+
 		// IMPORTANT : ces pages enregistrent des handlers admin_post dans
 		// leur constructeur. Ils doivent donc exister dès le chargement du
 		// plugin — y compris quand admin-post.php reçoit le POST de
@@ -267,6 +273,17 @@ class AdminManager {
 	}
 
 	/**
+	 * Invalide le compteur de commandes en attente (badge du menu).
+	 * Appelé par OrderStore à chaque création / changement de statut /
+	 * suppression — le badge reste exact sans COUNT(*) sur chaque page admin.
+	 *
+	 * @return void
+	 */
+	public static function flush_pending_count() {
+		delete_transient( 'icod_pending_count' );
+	}
+
+	/**
 	 * Badge de commandes en attente : petit rond rouge affiché sur l'entrée
 	 * InfinityCod ET sur le sous-menu « Commandes COD ».
 	 *
@@ -283,7 +300,17 @@ class AdminManager {
 		global $wpdb;
 
 		$orders_table = \InfinityCod\Core\Schema::table( 'orders' );
-		$pending      = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$orders_table} WHERE status = 'pending'" ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
+
+		// Compteur mis en cache : un COUNT(*) sur CHAQUE page admin coûte cher
+		// sur les boutiques à fort volume. Invalidé à chaque changement de
+		// statut (OrderStore) + filet de sécurité 10 minutes.
+		$pending = get_transient( 'icod_pending_count' );
+		if ( false === $pending ) {
+			$pending = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$orders_table} WHERE status = 'pending'" ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
+			set_transient( 'icod_pending_count', $pending, 10 * MINUTE_IN_SECONDS );
+		} else {
+			$pending = (int) $pending;
+		}
 
 		if ( $pending < 1 ) {
 			return;
@@ -495,6 +522,7 @@ class AdminManager {
 			INFINITYCOD_VERSION,
 			true
 		);
+		wp_script_add_data( 'icod-admin', 'strategy', 'defer' );
 
 		wp_localize_script( 'icod-admin', 'icodAdmin', array(
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),

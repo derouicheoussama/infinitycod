@@ -746,7 +746,7 @@ class FormManager {
 				<header class="icod-head">
 					<?php $thumb_url = wp_get_attachment_image_url( $product->get_image_id(), 'woocommerce_thumbnail' ); ?>
 					<?php if ( $show_thumb && $thumb_url ) : ?>
-						<img class="icod-head-thumb" src="<?php echo esc_url( $thumb_url ); ?>" alt="" loading="lazy" />
+						<img class="icod-head-thumb" src="<?php echo esc_url( $thumb_url ); ?>" alt="" loading="lazy" decoding="async" />
 					<?php endif; ?>
 					<span class="icod-head-icon" aria-hidden="true"><?php echo esc_html( Settings::get( 'form_icon', '🛒' ) ); ?></span>
 					<div class="icod-head-text">
@@ -1227,6 +1227,22 @@ class FormManager {
 	}
 
 	/**
+	 * Pré-connexion au domaine reCAPTCHA (uniquement si actif).
+	 *
+	 * @param array  $urls     URLs/indices actuels.
+	 * @param string $relation Type d'indice (preconnect, dns-prefetch…).
+	 * @return array
+	 */
+	public function recaptcha_resource_hints( $urls, $relation ) {
+		if ( 'preconnect' === $relation ) {
+			$urls[] = array(
+				'href' => 'https://www.google.com',
+			);
+		}
+		return $urls;
+	}
+
+	/**
 	 * Enregistre les assets front.
 	 *
 	 * Chargement ANTICIPÉ quand la page courante en aura besoin (fiche
@@ -1250,6 +1266,8 @@ class FormManager {
 			INFINITYCOD_VERSION,
 			true
 		);
+		// Jamais bloquant pour le rendu (WP ≥ 6.3 ; sans effet avant).
+		wp_script_add_data( 'icod-form', 'strategy', 'defer' );
 
 		$needs_form = false;
 
@@ -1276,6 +1294,9 @@ class FormManager {
 					null,
 					true
 				);
+				// Connexion anticipée au domaine Google : gagne ~100-300 ms
+				// sur le premier chargement du captcha.
+				add_filter( 'wp_resource_hints', array( $this, 'recaptcha_resource_hints' ), 10, 2 );
 			}
 		}
 
