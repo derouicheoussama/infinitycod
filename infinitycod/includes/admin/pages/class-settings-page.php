@@ -37,6 +37,7 @@ class SettingsPage {
 		add_action( 'admin_post_icod_activate_license', array( $this, 'handle_license' ) );
 		add_action( 'admin_post_icod_verify_license', array( $this, 'handle_license_verify' ) );
 		add_action( 'admin_post_icod_deactivate_license', array( $this, 'handle_license_deactivate' ) );
+		add_action( 'admin_post_icod_start_trial', array( $this, 'handle_trial_start' ) );
 		add_action( 'admin_post_icod_save_paypal', array( $this, 'handle_paypal_settings' ) );
 		add_action( 'admin_post_icod_reset_settings', array( $this, 'handle_reset_settings' ) );
 		add_action( 'wp_ajax_icod_preview_form', array( $this, 'handle_preview_form' ) );
@@ -583,7 +584,35 @@ class SettingsPage {
 					<?php esc_html_e( 'Une licence est liée à ce site (une machine = un site). La vérification hebdomadaire est automatique ; en cas de coupure, une période de grâce conserve vos fonctionnalités Premium.', 'infinitycod' ); ?>
 				</p>
 			<?php endif; ?>
+
+			<?php if ( \InfinityCod\License\LicenseManager::trial_active() ) : ?>
+				<?php
+				$trial_end = (int) ( \InfinityCod\License\LicenseManager::trial()['until'] ?? 0 );
+				?>
+				<p class="icod-lic-trial" style="margin:10px 0 0;padding:10px 14px;border-radius:8px;background:#edf7f0;border:1.5px solid #0e7a4f;color:#0e7a4f;font-weight:600">
+					⏳ <?php
+					printf(
+						/* translators: 1 : jours restants, 2 : date de fin. */
+						esc_html__( 'Essai Premium en cours : %1$d jour(s) restant(s) — jusqu’au %2$s. Tout est débloqué ; activez votre licence à tout moment pour continuer sans interruption.', 'infinitycod' ),
+						(int) \InfinityCod\License\LicenseManager::trial_days_left(),
+						esc_html( mysql2date( get_option( 'date_format', 'd/m/Y' ), gmdate( 'Y-m-d H:i:s', $trial_end ) ) )
+					);
+					?>
+				</p>
+			<?php endif; ?>
 		</div>
+
+		<?php if ( ! $premium && ! \InfinityCod\License\LicenseManager::trial_used() ) : ?>
+			<div class="icod-card" style="border-inline-start:4px solid #0e7a4f">
+				<h2>🚀 <?php esc_html_e( 'Essayer Premium gratuitement — 7 jours', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Toutes les fonctionnalités Premium débloquées immédiatement : WhatsApp automatique, transporteurs (Yalidine, ZR Express…), relances paniers abandonnés, commande WhatsApp, offres par quantité. Sans carte bancaire, sans engagement — une seule fois par site.', 'infinitycod' ); ?></p>
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+					<input type="hidden" name="action" value="icod_start_trial" />
+					<?php wp_nonce_field( 'icod_start_trial' ); ?>
+					<button type="submit" class="button button-primary button-hero">🚀 <?php esc_html_e( 'Démarrer mon essai de 7 jours', 'infinitycod' ); ?></button>
+				</form>
+			</div>
+		<?php endif; ?>
 
 		<?php
 		// ——— Achat Pro via PayPal (visible sans licence, si configuré) ———
@@ -796,6 +825,25 @@ class SettingsPage {
 
 		$manager = new \InfinityCod\License\LicenseManager();
 		$result  = $manager->deactivate();
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=license&icod_msg=' . rawurlencode( $result['message'] ) . '&icod_ok=' . ( $result['ok'] ? '1' : '0' ) ) );
+		exit;
+	}
+
+	/**
+	 * Démarre l'essai Premium (7 jours, une fois par site).
+	 *
+	 * @return void
+	 */
+	public function handle_trial_start() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_start_trial' );
+
+		$manager = new \InfinityCod\License\LicenseManager();
+		$result  = $manager->start_trial();
 
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-settings&tab=license&icod_msg=' . rawurlencode( $result['message'] ) . '&icod_ok=' . ( $result['ok'] ? '1' : '0' ) ) );
 		exit;

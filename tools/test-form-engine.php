@@ -677,5 +677,15 @@ check( 'vignette produit : décodage asynchrone', false !== strpos( $fm8, 'loadi
 check( 'logos cartes : fichiers vectoriels embarqués (CIB + Edahabia)', file_exists( $plugin_dir . 'assets/front/img/pay/cib.svg' ) && file_exists( $plugin_dir . 'assets/front/img/pay/edahabia.svg' ) );
 check( 'logos cartes : rendu prioritaire depuis les fichiers embarqués', false !== strpos( file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' ), "array( 'svg', 'png', 'webp' )" ) );
 
+/* ---------- 34. Essai Premium 7 jours ---------- */
+
+echo "\n34) Essai Premium : débloque tout pendant 7 jours, une fois par site\n";
+$lm1 = file_get_contents( $plugin_dir . 'includes/license/class-license-manager.php' );
+check( 'essai : option dédiée + démarrage une seule fois', false !== strpos( $lm1, "const TRIAL_OPTION = 'infinitycod_trial'" ) && false !== strpos( $lm1, 'function start_trial' ) && false !== strpos( $lm1, 'trial_used' ) );
+check( 'essai : is_premium() débloqué pendant l’essai', false !== strpos( $lm1, 'if ( self::trial_active() )' ) && false !== strpos( $lm1, 'return true;' ) );
+check( 'essai : statut avec jours restants', false !== strpos( $lm1, 'trial_days_left' ) && false !== strpos( $lm1, 'Essai Premium — %d j restants' ) );
+check( 'essai : handler admin_post + nonce + capacité', false !== strpos( $sp8, 'icod_start_trial' ) && false !== strpos( $sp8, 'handle_trial_start' ) && false !== strpos( $sp8, 'check_admin_referer( \'icod_start_trial\' )' ) );
+check( 'essai : bouton « Démarrer mon essai de 7 jours » visible sans licence', false !== strpos( $sp8, 'Démarrer mon essai de 7 jours' ) && false !== strpos( $sp8, '! \\InfinityCod\\License\\LicenseManager::trial_used()' ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

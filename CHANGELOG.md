@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.22.0 — 2026-09-11
+
+Essai Premium : 7 jours, tout inclus, un clic — sans carte bancaire.
+
+### Ajouté
+- **Essai gratuit Premium (7 jours)** : nouveau bouton « 🚀 Démarrer mon essai de 7 jours » dans l'onglet Licence. Toutes les fonctionnalités Premium sont débloquées immédiatement (WhatsApp automatique, transporteurs, relances paniers, commande WhatsApp, offres par quantité) — une seule fois par site, sans carte ni engagement.
+- Pendant l'essai, le statut affiche « Essai Premium — X j restants » avec la date de fin ; la clé de licence reste activable à tout moment pour continuer sans interruption.
+- Le badge de statut (menu, pages du plugin) reflète l'état de l'essai ; à son terme, retour automatique et propre à la version gratuite — aucune donnée n'est perdue.
+
+
 ## 5.21.4 — 2026-09-11
 
 Nouveaux logos des cartes CIB et Edahabia embarqués directement dans le plugin.

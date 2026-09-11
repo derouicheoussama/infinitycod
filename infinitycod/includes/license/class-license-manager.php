@@ -20,7 +20,10 @@ defined( 'ABSPATH' ) || exit;
 
 class LicenseManager {
 
-	const OPTION = 'infinitycod_license';
+	const OPTION       = 'infinitycod_license';
+	const TRIAL_OPTION = 'infinitycod_trial';
+
+	const TRIAL_DAYS = 7;
 
 	/**
 	 * Url du serveur de licences (modifiable, ex. copie dédiée).
@@ -306,7 +309,7 @@ class LicenseManager {
 	 *
 	 * Tolérance hors-ligne : une licence UNKNOWN (serveur injoignable lors
 	 * de la dernière vérification réussie) reste active, comme le protocole
-	 * du serveur le prévoit.
+	 * du serveur le prévoit. Un essai gratuit en cours débloque aussi tout.
 	 *
 	 * @return bool
 	 */
@@ -321,8 +324,90 @@ class LicenseManager {
 			return (bool) $override;
 		}
 
+		if ( self::trial_active() ) {
+			return true;
+		}
+
 		$stored = self::stored();
 		return ! empty( $stored['key_hash'] ) && in_array( isset( $stored['status'] ) ? $stored['status'] : '', array( 'ACTIVE', 'UNKNOWN' ), true );
+	}
+
+	/**
+	 * État de l'essai Premium (7 jours, une seule fois par site).
+	 *
+	 * @return array{used: bool, until: int, started_at: int}
+	 */
+	public static function trial() {
+		$t = get_option( self::TRIAL_OPTION, array() );
+		return is_array( $t ) ? $t : array();
+	}
+
+	/**
+	 * L'essai gratuit a-t-il déjà été consommé sur ce site ?
+	 *
+	 * @return bool
+	 */
+	public static function trial_used() {
+		$t = self::trial();
+		return ! empty( $t['used'] );
+	}
+
+	/**
+	 * L'essai gratuit est-il en cours ?
+	 *
+	 * @return bool
+	 */
+	public static function trial_active() {
+		$t = self::trial();
+		return ! empty( $t['until'] ) && (int) $t['until'] > time();
+	}
+
+	/**
+	 * Jours restants de l'essai (0 si terminé).
+	 *
+	 * @return int
+	 */
+	public static function trial_days_left() {
+		$t = self::trial();
+		if ( empty( $t['until'] ) ) {
+			return 0;
+		}
+		return max( 0, (int) ceil( ( (int) $t['until'] - time() ) / DAY_IN_SECONDS ) );
+	}
+
+	/**
+	 * Démarre l'essai Premium : tout est débloqué pendant 7 jours,
+	 * une seule fois par site, sans carte ni engagement.
+	 *
+	 * @return array{ok: bool, message: string}
+	 */
+	public function start_trial() {
+		if ( self::trial_active() ) {
+			return array( 'ok' => false, 'message' => __( 'L’essai Premium est déjà en cours sur ce site.', 'infinitycod' ) );
+		}
+		if ( self::trial_used() ) {
+			return array( 'ok' => false, 'message' => __( 'L’essai gratuit a déjà été utilisé sur ce site.', 'infinitycod' ) );
+		}
+		$stored = self::stored();
+		if ( ! empty( $stored['key_hash'] ) && in_array( isset( $stored['status'] ) ? $stored['status'] : '', array( 'ACTIVE', 'UNKNOWN' ), true ) ) {
+			return array( 'ok' => false, 'message' => __( 'Une licence Premium est déjà active — pas besoin d’essai.', 'infinitycod' ) );
+		}
+
+		update_option(
+			self::TRIAL_OPTION,
+			array(
+				'used'       => 1,
+				'until'      => time() + self::TRIAL_DAYS * DAY_IN_SECONDS,
+				'started_at' => time(),
+			),
+			false
+		);
+
+		return array(
+			'ok'      => true,
+			/* translators: %d : nombre de jours. */
+			'message' => sprintf( __( 'Essai Premium activé : tout est débloqué pendant %d jours 🎉', 'infinitycod' ), self::TRIAL_DAYS ),
+		);
 	}
 
 	/**
@@ -331,6 +416,10 @@ class LicenseManager {
 	 * @return string
 	 */
 	public static function status_label() {
+		if ( self::trial_active() ) {
+			/* translators: %d : jours restants. */
+			return sprintf( __( 'Essai Premium — %d j restants', 'infinitycod' ), self::trial_days_left() );
+		}
 		if ( self::is_premium() ) {
 			return __( 'Premium actif', 'infinitycod' );
 		}
