@@ -702,5 +702,15 @@ check( 'admin : succès sonores (commune enregistrée, commande supprimée)', fa
 check( 'front : bouton envoi en état chargement (spinner)', false !== strpos( $frm_js, "classList.add('is-loading')" ) && false !== strpos( $frm_css, '.icod-submit.is-loading::before' ) );
 check( 'front : erreur de validation → scroll + focus du premier champ invalide', false !== strpos( $frm_js, "scrollIntoView({ behavior: 'smooth', block: 'center' });" ) && false !== strpos( $frm_js, 'firstInvalid.focus(' ) );
 
+/* ---------- 36. Freemius : achat Premium par carte (merchant of record) ---------- */
+
+echo "\n36) Freemius : checkout par carte pour le passage en Premium\n";
+$sp10 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+$set4 = file_get_contents( $plugin_dir . 'includes/core/class-settings.php' );
+check( 'freemius : schéma toggle + URL checkout (onglet licence)', false !== strpos( $sp10, "'freemius_enabled'" ) && false !== strpos( $sp10, "'freemius_checkout_url'" ) && false !== strpos( $set4, "'freemius_checkout_url'" ) );
+check( 'freemius : carte d achat visible sans licence quand configuré', false !== strpos( $sp10, 'Acheter Premium maintenant' ) && false !== strpos( $sp10, 'esc_url( $freemius_url )' ) );
+check( 'freemius : configuration vendeur (toggle + lien) dans l onglet licence', false !== strpos( $sp10, 'icod[freemius_enabled]' ) && false !== strpos( $sp10, 'icod[freemius_checkout_url]' ) );
+check( 'freemius : garde URL https avant ouverture du checkout', false !== strpos( $sp10, "preg_match( '#^https?://#i', \$freemius_url )" ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

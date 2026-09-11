@@ -233,6 +233,12 @@ class Settings {
 			'paypal_email'          => '',           // Email PayPal du vendeur.
 			'paypal_currency'       => 'USD',        // USD | EUR.
 				'paypal_price'          => 79,             // Licence Premium unique (tout inclus).
+
+			// Vente Freemius : le client paie par carte CHEZ Freemius (merchant
+			// of record — compatible avec un vendeur résidant en Algérie), puis
+			// colle la clé reçue par email dans le champ d'activation.
+			'freemius_enabled'      => 0,
+			'freemius_checkout_url' => '',           // Lien de checkout copié depuis le dashboard Freemius.
 			'payment_return_text'   => __( 'Merci ! Votre paiement a bien été reçu et votre commande est confirmée. Nous vous contacterons très vite.', 'infinitycod' ),
 
 			// Mises à jour via GitHub.

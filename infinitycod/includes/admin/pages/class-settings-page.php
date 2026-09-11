@@ -615,6 +615,25 @@ class SettingsPage {
 		<?php endif; ?>
 
 		<?php
+		// ——— Achat Pro via Freemius (paiement par carte, merchant of record) ———
+		// Le vendeur encaisse via son payout Freemius (virement bancaire) :
+		// solution adaptée quand PayPal ne peut pas recevoir les fonds.
+		$freemius_url = trim( (string) Settings::get( 'freemius_checkout_url', '' ) );
+		$freemius_on  = (int) Settings::get( 'freemius_enabled' ) && '' !== $freemius_url && (bool) preg_match( '#^https?://#i', $freemius_url );
+
+		if ( ! $premium && $freemius_on ) :
+			?>
+			<div class="icod-card" style="border-inline-start:4px solid #2271b1">
+				<h2>💳 <?php esc_html_e( 'Passer à InfinityCod Premium — paiement sécurisé par carte', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Paiement traité par Freemius (carte bancaire, conformité et facturation incluses). Après le paiement, votre clé de licence arrive par email : collez-la dans le champ d’activation ci-dessous — Premium s’active immédiatement.', 'infinitycod' ); ?></p>
+				<p>
+					<a class="button button-primary button-hero" href="<?php echo esc_url( $freemius_url ); ?>" target="_blank" rel="noopener">💳 <?php esc_html_e( 'Acheter Premium maintenant', 'infinitycod' ); ?></a>
+				</p>
+				<p class="description"><?php esc_html_e( 'Référence de votre installation (à coller dans le checkout si demandé) :', 'infinitycod' ); ?> <code dir="ltr"><?php echo esc_html( \InfinityCod\License\LicenseManager::install_id() ); ?></code></p>
+			</div>
+		<?php endif; ?>
+
+		<?php
 		// ——— Achat Pro via PayPal (visible sans licence, si configuré) ———
 		$paypal_email    = Settings::get( 'paypal_email', '' );
 		$paypal_on       = (int) Settings::get( 'paypal_enabled' ) && is_email( $paypal_email );
@@ -710,15 +729,32 @@ class SettingsPage {
 
 		<?php if ( current_user_can( 'manage_options' ) ) : ?>
 			<div class="icod-card">
-				<h2>⚙️ <?php esc_html_e( 'Vente Pro via PayPal — configuration vendeur', 'infinitycod' ); ?></h2>
-				<p class="description"><?php esc_html_e( 'Renseignez votre email PayPal et vos tarifs : les cartes d‘achat apparaissent automatiquement pour vos clients sans licence. La référence unique de leur installation est jointe au paiement pour identifier l‘acheteur.', 'infinitycod' ); ?></p>
+				<h2>⚙️ <?php esc_html_e( 'Vente Pro — configuration vendeur', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Deux canaux possibles : Freemius (paiement par carte du client chez Freemius — recommandé, fonctionne depuis l’Algérie avec un payout virement bancaire) et PayPal direct (nécessite un PayPal capable de recevoir). Les cartes d’achat apparaissent automatiquement pour vos clients sans licence.', 'infinitycod' ); ?></p>
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 					<input type="hidden" name="action" value="icod_save_paypal" />
 					<?php wp_nonce_field( 'icod_save_paypal' ); ?>
+
+					<h3 style="margin:14px 0 6px">💳 Freemius — paiement par carte (recommandé)</h3>
+					<div class="icod-toggles">
+						<label class="icod-toggle">
+							<input type="checkbox" name="icod[freemius_enabled]" value="1" <?php checked( (int) Settings::get( 'freemius_enabled' ), 1 ); ?> />
+							<span><?php esc_html_e( 'Afficher la carte d’achat Freemius (paiement par carte) aux clients sans licence', 'infinitycod' ); ?></span>
+						</label>
+					</div>
+					<div class="icod-grid">
+						<label>
+							<span><?php esc_html_e( 'Lien de checkout Freemius', 'infinitycod' ); ?></span>
+							<input type="url" name="icod[freemius_checkout_url]" dir="ltr" placeholder="https://checkout.freemius.com/…" value="<?php echo esc_attr( Settings::get( 'freemius_checkout_url', '' ) ); ?>" class="regular-text" />
+						</label>
+					</div>
+					<p class="description"><?php esc_html_e( 'Dans votre dashboard Freemius : Plans → votre plan Premium → « Checkout Link » — copiez le lien ici. Le client paie par carte, reçoit sa clé par email et la colle dans le champ d’activation.', 'infinitycod' ); ?></p>
+
+					<h3 style="margin:18px 0 6px">🅿️ PayPal direct (avancé)</h3>
 					<div class="icod-toggles">
 						<label class="icod-toggle">
 							<input type="checkbox" name="icod[paypal_enabled]" value="1" <?php checked( (int) Settings::get( 'paypal_enabled' ), 1 ); ?> />
-							<span><?php esc_html_e( 'Afficher les cartes d‘achat PayPal aux clients sans licence', 'infinitycod' ); ?></span>
+							<span><?php esc_html_e( 'Afficher les cartes d’achat PayPal aux clients sans licence', 'infinitycod' ); ?></span>
 						</label>
 					</div>
 					<div class="icod-grid">
@@ -2059,6 +2095,8 @@ class SettingsPage {
 			'paypal_email'          => array( 'tab' => 'license', 'type' => 'email' ),
 			'paypal_currency'       => array( 'tab' => 'license', 'type' => 'enum', 'choices' => array( 'USD', 'EUR' ) ),
 			'paypal_price'          => array( 'tab' => 'license', 'type' => 'price' ),
+			'freemius_enabled'      => array( 'tab' => 'license', 'type' => 'toggle' ),
+			'freemius_checkout_url' => array( 'tab' => 'license', 'type' => 'url' ),
 			'custom_update_url'    => array( 'tab' => 'advanced', 'type' => 'url' ),
 			'github_webhook_secret' => array( 'tab' => 'advanced', 'type' => 'secret' ),
 			'github_repo'          => array( 'tab' => 'advanced', 'type' => 'id' ),

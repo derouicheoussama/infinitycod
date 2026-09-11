@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.24.0 — 2026-09-11
+
+Freemius : le passage à Premium se paie par carte bancaire, encaissé par Freemius (merchant of record).
+
+### Ajouté
+- **Canal de vente Freemius** : dans l'onglet Licence, nouvelle carte « Passer à Premium — paiement sécurisé par carte » qui ouvre le checkout hébergé Freemius. Le client paie par carte (conformité, facturation et TVA gérées par Freemius), reçoit sa clé par email et la colle dans le champ d'activation — Premium s'active immédiatement.
+- **Configuration vendeur** : dans la carte « Vente Pro — configuration vendeur », activez Freemius et collez votre lien de checkout (dashboard Freemius → Plans → Checkout Link). Le canal PayPal direct reste disponible en parallèle — les deux cartes peuvent coexister ou l'un masquer l'autre selon vos activations.
+- Solution adaptée aux vendeurs résidant en Algérie : le client paie chez Freemius, le vendeur reçoit un payout par virement bancaire (sans dépendre d'un PayPal récepteur).
+
+
 ## 5.23.0 — 2026-09-11
 
 Notifications modernisées et micro-UX : plus aucune alerte bloquante, retours visuels clairs partout.

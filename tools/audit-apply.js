@@ -69,6 +69,8 @@ const WHITELIST = {
   paypal_email: 'rendu des boutons PayPal, onglet Licence',
   paypal_currency: 'rendu des boutons PayPal, onglet Licence',
   paypal_price: 'rendu des boutons PayPal, onglet Licence',
+  freemius_enabled: 'rendu de la carte d achat Freemius, onglet Licence',
+  freemius_checkout_url: 'rendu de la carte d achat Freemius, onglet Licence',
 };
 
 const real = orphans.filter(k => !WHITELIST[k]);
