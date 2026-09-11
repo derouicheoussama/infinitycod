@@ -94,6 +94,13 @@ class Promo {
 			return $out;
 		}
 
+		// Produits exclus : le code ne s'applique pas sur ces produits.
+		$excluded = array_filter( array_map( 'absint', explode( ',', (string) ( $row['excluded_ids'] ?? '' ) ) ) );
+		if ( ! empty( $excluded ) && $product_id && in_array( $product_id, $excluded, true ) ) {
+			$out['error'] = 'excluded';
+			return $out;
+		}
+
 		// Montant de la remise.
 		$type  = ( 'fixed' === (string) $row['discount_type'] ) ? 'fixed' : 'percent';
 		$value = (float) $row['discount_value'];
@@ -105,6 +112,12 @@ class Promo {
 		$amount = ( 'percent' === $type )
 			? round( $base * $value / 100, 2 )
 			: min( $value, $base ); // Un code fixe ne rend jamais le total négatif.
+
+		// Plafond de remise (utile pour les codes en pourcentage).
+		$max_discount = (float) ( $row['max_discount'] ?? 0 );
+		if ( $max_discount > 0 && $amount > $max_discount ) {
+			$amount = $max_discount;
+		}
 
 		$out['valid']  = $amount > 0;
 		$out['amount'] = $amount;

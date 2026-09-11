@@ -138,57 +138,88 @@ class PromosPage {
 				<input type="hidden" name="promo_id" value="<?php echo (int) ( $row['id'] ?? 0 ); ?>" />
 				<?php wp_nonce_field( 'icod_promo_save' ); ?>
 				<div class="icod-grid">
-					<label>
-						<span><?php esc_html_e( 'Code *', 'infinitycod' ); ?></span>
-						<input type="text" name="promo_code" dir="ltr" maxlength="40" value="<?php echo esc_attr( $code ); ?>" placeholder="SOLDE2026" required />
-					</label>
-					<label>
-						<span><?php esc_html_e( 'Type de remise', 'infinitycod' ); ?></span>
-						<select name="promo_type">
-							<option value="percent" <?php selected( $type, 'percent' ); ?>><?php esc_html_e( 'Pourcentage (%)', 'infinitycod' ); ?></option>
-							<option value="fixed" <?php selected( $type, 'fixed' ); ?>><?php esc_html_e( 'Montant fixe (DA)', 'infinitycod' ); ?></option>
-						</select>
-					</label>
-					<label>
-						<span><?php esc_html_e( 'Valeur *', 'infinitycod' ); ?></span>
-						<input type="number" step="0.01" min="0.01" name="promo_value" value="<?php echo esc_attr( $value ); ?>" required />
-					</label>
-					<label>
-						<span><?php esc_html_e( 'Début de validité', 'infinitycod' ); ?></span>
-						<input type="date" name="promo_starts" value="<?php echo esc_attr( $starts ); ?>" />
-					</label>
-					<label>
-						<span><?php esc_html_e( 'Fin de validité', 'infinitycod' ); ?></span>
-						<input type="date" name="promo_ends" value="<?php echo esc_attr( $ends ); ?>" />
-					</label>
-					<label>
-						<span><?php esc_html_e( 'Minimum de commande (DA)', 'infinitycod' ); ?></span>
-						<input type="number" step="0.01" min="0" name="promo_min_total" value="<?php echo esc_attr( $min ); ?>" />
-					</label>
-					<label>
-						<span><?php esc_html_e( 'Limite d’utilisations (0 = illimité)', 'infinitycod' ); ?></span>
-						<input type="number" min="0" name="promo_usage_limit" value="<?php echo esc_attr( $limit ); ?>" />
-					</label>
-					<label class="icod-toggle" style="align-self:end">
-						<input type="checkbox" name="promo_active" value="1" <?php checked( $active ); ?> />
-						<span><?php esc_html_e( 'Code actif', 'infinitycod' ); ?></span>
-					</label>
-				</div>
-				<p class="description"><strong><?php esc_html_e( 'Produits concernés', 'infinitycod' ); ?></strong> — <?php esc_html_e( 'ne rien cocher = tous les produits.', 'infinitycod' ); ?></p>
-				<?php
-				$products = function_exists( 'wc_get_products' ) ? wc_get_products( array( 'limit' => 300, 'status' => 'publish', 'orderby' => 'title', 'order' => 'ASC', 'return' => 'objects' ) ) : array();
-				$selected = $pids;
-				if ( $products ) :
-					?>
-					<div class="icod-promo-products" style="max-height:180px;overflow-y:auto;border:1px solid #dcdcde;border-radius:8px;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px">
-						<?php foreach ( $products as $product ) : ?>
-							<label style="display:flex;gap:6px;align-items:center">
-								<input type="checkbox" name="promo_products[]" value="<?php echo (int) $product->get_id(); ?>" <?php checked( in_array( (int) $product->get_id(), $selected, true ) ); ?> />
-								<span><?php echo esc_html( $product->get_name() ); ?></span>
-							</label>
-						<?php endforeach; ?>
+				<label>
+					<span><?php esc_html_e( ‘Code *’, ‘infinitycod’ ); ?></span>
+					<div style="display:flex;gap:6px">
+						<input type="text" name="promo_code" id="icod-promo-code" dir="ltr" maxlength="40" value="<?php echo esc_attr( $code ); ?>" placeholder="SOLDE2026" required style="flex:1" />
+						<button type="button" class="button" id="icod-promo-gen" title="<?php esc_attr_e( ‘Générer un code aléatoire’, ‘infinitycod’ ); ?>">🎲</button>
 					</div>
-				<?php endif; ?>
+				</label>
+				<label>
+					<span><?php esc_html_e( ‘Type de remise’, ‘infinitycod’ ); ?></span>
+					<select name="promo_type">
+						<option value="percent" <?php selected( $type, ‘percent’ ); ?>><?php esc_html_e( ‘Pourcentage (%)’, ‘infinitycod’ ); ?></option>
+						<option value="fixed" <?php selected( $type, ‘fixed’ ); ?>><?php esc_html_e( ‘Montant fixe (DA)’, ‘infinitycod’ ); ?></option>
+					</select>
+				</label>
+				<label>
+					<span><?php esc_html_e( ‘Valeur *’, ‘infinitycod’ ); ?></span>
+					<input type="number" step="0.01" min="0.01" name="promo_value" value="<?php echo esc_attr( $value ); ?>" required />
+				</label>
+				<label>
+					<span><?php esc_html_e( ‘Plafond de remise (DA, vide = aucun)’, ‘infinitycod’ ); ?></span>
+					<input type="number" step="0.01" min="0" name="promo_max_discount" value="<?php echo esc_attr( $row[‘max_discount’] > 0 ? $row[‘max_discount’] : ‘’ ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( ‘Début de validité’, ‘infinitycod’ ); ?></span>
+					<input type="date" name="promo_starts" value="<?php echo esc_attr( $starts ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( ‘Fin de validité’, ‘infinitycod’ ); ?></span>
+					<input type="date" name="promo_ends" value="<?php echo esc_attr( $ends ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( ‘Minimum de commande (DA)’, ‘infinitycod’ ); ?></span>
+					<input type="number" step="0.01" min="0" name="promo_min_total" value="<?php echo esc_attr( $min ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( ‘Limite d’utilisations (0 = illimité)’, ‘infinitycod’ ); ?></span>
+					<input type="number" min="0" name="promo_usage_limit" value="<?php echo esc_attr( $limit ); ?>" />
+				</label>
+				<label class="icod-toggle" style="align-self:end">
+					<input type="checkbox" name="promo_active" value="1" <?php checked( $active ); ?> />
+					<span><?php esc_html_e( ‘Code actif’, ‘infinitycod’ ); ?></span>
+				</label>
+			</div>
+			<p class="description"><strong><?php esc_html_e( ‘Produits concernés’, ‘infinitycod’ ); ?></strong> — <?php esc_html_e( ‘ne rien cocher = tous les produits.’, ‘infinitycod’ ); ?></p>
+			<?php
+			$products = function_exists( ‘wc_get_products’ ) ? wc_get_products( array( ‘limit’ => 300, ‘status’ => ‘publish’, ‘orderby’ => ‘title’, ‘order’ => ‘ASC’, ‘return’ => ‘objects’ ) ) : array();
+			$selected = $pids;
+			if ( $products ) :
+				?>
+				<div class="icod-promo-products" style="max-height:180px;overflow-y:auto;border:1px solid #dcdcde;border-radius:8px;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px">
+					<?php foreach ( $products as $product ) : ?>
+						<label style="display:flex;gap:6px;align-items:center">
+							<input type="checkbox" name="promo_products[]" value="<?php echo (int) $product->get_id(); ?>" <?php checked( in_array( (int) $product->get_id(), $selected, true ) ); ?> />
+							<span><?php echo esc_html( $product->get_name() ); ?></span>
+						</label>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+			<p class="description" style="margin-top:10px"><strong><?php esc_html_e( ‘Produits exclus’, ‘infinitycod’ ); ?></strong> — <?php esc_html_e( ‘cochez les produits sur lesquels le code NE s’applique PAS.’, ‘infinitycod’ ); ?></p>
+			<?php if ( $products ) : ?>
+				<div class="icod-promo-products" style="max-height:180px;overflow-y:auto;border:1px solid #dcdcde;border-radius:8px;padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px">
+					<?php foreach ( $products as $product ) : ?>
+						<label style="display:flex;gap:6px;align-items:center">
+							<input type="checkbox" name="promo_excluded[]" value="<?php echo (int) $product->get_id(); ?>" <?php checked( in_array( (int) $product->get_id(), array_filter( array_map( ‘absint’, explode( ‘,’, (string) ( $row[‘excluded_ids’] ?? ‘’ ) ) ) ), true ) ); ?> />
+							<span><?php echo esc_html( $product->get_name() ); ?></span>
+						</label>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+			<script>
+			(function () {
+				var btn = document.getElementById(‘icod-promo-gen’);
+				if (!btn) { return; }
+				btn.addEventListener(‘click’, function () {
+					var input = document.getElementById(‘icod-promo-code’);
+					var chars = ‘ABCDEFGHJKLMNPQRSTUVWXYZ23456789’;
+					var code = ‘PROMO-’;
+					for (var i = 0; i < 6; i++) { code += chars.charAt(Math.floor(Math.random() * chars.length)); }
+					if (input) { input.value = code; input.dispatchEvent(new window.Event(‘change’, { bubbles: true })); }
+				});
+			})();
+			</script>
 				<p class="icod-submit">
 					<button type="submit" class="button button-primary button-hero"><?php $is_edit ? esc_html_e( 'Mettre à jour le code', 'infinitycod' ) : esc_html_e( 'Créer le code promo', 'infinitycod' ); ?></button>
 				</p>

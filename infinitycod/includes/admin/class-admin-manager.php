@@ -1039,6 +1039,11 @@ class AdminManager {
 		$min    = isset( $_POST['promo_min_total'] ) ? (float) $_POST['promo_min_total'] : 0;
 		$limit  = isset( $_POST['promo_usage_limit'] ) ? absint( $_POST['promo_usage_limit'] ) : 0;
 		$active = empty( $_POST['promo_active'] ) ? 0 : 1;
+		$excluded = isset( $_POST['promo_excluded'] ) && is_array( $_POST['promo_excluded'] )
+			? implode( ',', array_map( 'absint', wp_unslash( $_POST['promo_excluded'] ) ) )
+			: '';
+
+		$max_discount = isset( $_POST['promo_max_discount'] ) ? (float) $_POST['promo_max_discount'] : 0;
 
 		$products = isset( $_POST['promo_products'] ) && is_array( $_POST['promo_products'] )
 			? implode( ',', array_map( 'absint', wp_unslash( $_POST['promo_products'] ) ) )
@@ -1057,11 +1062,13 @@ class AdminManager {
 			'starts_at'      => $starts,
 			'ends_at'        => $ends,
 			'product_ids'    => $products,
+			'excluded_ids'   => $excluded,
+			'max_discount'   => $max_discount,
 			'min_total'      => $min,
 			'usage_limit'    => $limit,
 			'active'         => $active,
 		);
-		$format = array( '%s', '%s', '%f', '%s', '%s', '%s', '%f', '%d', '%d' );
+		$format = array( '%s', '%s', '%f', '%s', '%s', '%s', '%f', '%f', '%f', '%d', '%d' );
 
 		if ( $id ) {
 			$wpdb->update( $table, $data, array( 'id' => $id ), $format, array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
