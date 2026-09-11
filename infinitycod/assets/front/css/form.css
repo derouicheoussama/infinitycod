@@ -128,8 +128,11 @@ textarea.icod-input{min-height:0;padding:11px 13px;resize:vertical;line-height:1
 /* Champ Quantité : libellé et stepper sur une seule ligne, répartis sur
    toute la largeur — le champ reste compact et bien placé (fini le
    libellé empilé au-dessus de la pilule). */
-.icod-qty-field{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.icod-qty-field>label{margin:0}
+/* Blindage maximal : certains thèmes forcent label{width:100%;float:left}
+   ou réécrivent le display du conteneur — le champ doit tenir sur une ligne. */
+.icod-qty-field.icod-qty-field{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:space-between!important;gap:10px!important}
+.icod-qty-field.icod-qty-field>label{display:block!important;width:auto!important;max-width:60%!important;float:none!important;flex:1 1 auto!important;margin:0!important;text-align:start!important}
+.icod-qty-field .icod-qty{flex:0 0 auto!important;width:max-content!important}
 
 /* Variantes */
 .icod-chipset{display:flex;flex-wrap:wrap;gap:8px}

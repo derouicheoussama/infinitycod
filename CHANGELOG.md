@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.24.2 — 2026-09-11
+
+Champ Quantité : blindage maximal contre les thèmes.
+
+### Modifié
+- **Champ Quantité blindé** : la ligne « Quantité + stepper » est verrouillée en `!important` (display flex, une seule ligne non repliable, libellé sans largeur imposée ni flottant, stepper non compressible) — les thèmes qui forcent `label{width:100%}` ou réécrivent le display du conteneur ne peuvent plus déformer le champ.
+
+
 ## 5.24.1 — 2026-09-11
 
 Champ Quantité compact et bien placé : libellé et stepper sur une seule ligne.
