@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.16.0 — 2026-09-11
+
+Dashboard Commandes : modale Détails enrichie et animée, actions rapides et recherche fluide.
+
+### Ajouté
+- **Modale Détails enrichie et animée** : ouverture/fermeture fluides (fondu + zoom), cartes détaillées (coordonnées, destination, produit, montants avec code promo, note complète, risque/transporteur), bouton 📋 copier le téléphone avec notification toast, bouton 🚫 Blacklister et 🗑 Supprimer directement dans la modale.
+- **Recherche fluide** : la recherche (nom, téléphone) filtre automatiquement après la saisie, sans cliquer.
+- **Suppression groupée sécurisée** : confirmation avant mise à la corbeille.
+
+### Modifié
+- Le champ Quantité et les boîtes de livraison sont neutralisés contre les styles des thèmes (plus de cadres parasites).
+
+
 ## 5.15.0 — 2026-09-11
 
 Modèles de formulaire en un clic, glisser-déposer fluide dans le Builder, champs et options de livraison compactés.

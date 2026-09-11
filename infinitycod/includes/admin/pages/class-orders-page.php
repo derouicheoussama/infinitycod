@@ -116,7 +116,7 @@ class OrdersPage {
 				</div>
 			</form>
 
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="icod-orders-form">
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="icod-orders-form" data-confirm-delete="<?php esc_attr_e( 'Supprimer les commandes sélectionnées ? Elles partiront dans la corbeille WooCommerce.', 'infinitycod' ); ?>">
 				<input type="hidden" name="action" value="icod_orders_bulk" />
 				<?php wp_nonce_field( 'icod_orders_bulk' ); ?>
 
@@ -299,9 +299,10 @@ class OrdersPage {
 			'carrier'        => (string) ( $row['carrier'] ?? '' ),
 			'tracking'       => (string) ( $row['tracking'] ?? '' ),
 			'carrier_status' => (string) ( $row['carrier_status'] ?? '' ),
-			'fraud_score'    => (int) ( $row['fraud_score'] ?? 0 ),
-			'fraud_flags'    => (string) ( $row['fraud_flags'] ?? '' ),
-			'ip'             => (string) ( $row['ip'] ?? '' ),
+				'fraud_score'    => (int) ( $row['fraud_score'] ?? 0 ),
+				'fraud_flags'    => (string) ( $row['fraud_flags'] ?? '' ),
+				'coupon'         => (string) ( $row['coupon'] ?? '' ),
+				'ip'             => (string) ( $row['ip'] ?? '' ),
 			'wc_order_id'    => (int) ( $row['wc_order_id'] ?? 0 ),
 			'edit_url'       => ! empty( $row['wc_order_id'] ) ? (string) get_edit_post_link( (int) $row['wc_order_id'] ) : '',
 			'created_at'     => mysql2date( 'd/m/Y H:i', $row['created_at'] ),

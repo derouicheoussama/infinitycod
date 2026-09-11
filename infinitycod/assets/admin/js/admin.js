@@ -155,9 +155,24 @@
 	}
 
 	function closeModal() {
-		if (!modal) { return; }
-		modal.hidden = true;
-		document.body.classList.remove('icod-modal-open');
+		if (!modal || modal.hidden) { return; }
+		/* Fermeture animée : fondu + léger rétrécissement. */
+		modal.classList.add('closing');
+		window.setTimeout(function () {
+			modal.hidden = true;
+			modal.classList.remove('closing');
+			document.body.classList.remove('icod-modal-open');
+		}, 160);
+	}
+
+	function toast(msg) {
+		var t = document.createElement('div');
+		t.className = 'icod-toast';
+		t.textContent = msg;
+		document.body.appendChild(t);
+		window.setTimeout(function () { t.classList.add('show'); }, 10);
+		window.setTimeout(function () { t.classList.remove('show'); }, 1800);
+		window.setTimeout(function () { t.remove(); }, 2200);
 	}
 
 	if (modal) {
@@ -203,8 +218,9 @@
 				'<section class="icod-m-card">' +
 					'<h4>👤 Coordonnées</h4>' +
 					'<p><strong>' + escHtml(o.name) + '</strong><br />' +
-					'<a href="tel:' + escHtml(o.phone) + '">' + escHtml(o.phone) + '</a><br />' +
-					'<a class="button button-small" href="' + wa + '" target="_blank" rel="noopener">💬 WhatsApp</a></p>' +
+					'<a href="tel:' + escHtml(o.phone) + '">' + escHtml(o.phone) + '</a> ' +
+					'<button type="button" class="button button-small icod-m-copy" data-copy="' + escHtml(o.phone) + '" title="Copier">📋</button> ' +
+					'<a class="button button-small" href="' + wa + '" target="_blank" rel="noopener">💬</a></p>' +
 					((o.email) ? '<p class="icod-sub">✉️ ' + escHtml(o.email) + '</p>' : '') +
 				'</section>' +
 
@@ -226,10 +242,13 @@
 					'<p class="icod-m-lines">' +
 						'<span>Sous-total <b>' + moneyAdmin(o.subtotal) + '</b></span>' +
 						((o.discount > 0) ? '<span>Remise <b>−' + moneyAdmin(o.discount) + '</b></span>' : '') +
+						((o.coupon) ? '<span>Code promo <b>' + escHtml(o.coupon) + '</b></span>' : '') +
 						'<span>Livraison <b>' + moneyAdmin(o.shipping) + '</b></span>' +
 						'<span class="icod-m-total">Total <b>' + moneyAdmin(o.total) + '</b></span>' +
 					'</p>' +
 				'</section>' +
+
+				((o.note) ? '<section class="icod-m-card icod-m-full"><h4>📝 Note</h4><p class="icod-m-note">' + escHtml(o.note) + '</p></section>' : '') +
 
 				'<section class="icod-m-card">' +
 					'<h4>🛡️ Risque & suivi</h4>' +
@@ -240,13 +259,16 @@
 						((o.carrier) ? escHtml(o.carrier) + (o.tracking ? ' · ' + escHtml(o.tracking) : '') + (o.carrier_status ? ' · ' + escHtml(o.carrier_status) : '') : 'aucun transporteur') +
 						((o.ip) ? '<br />IP : ' + escHtml(o.ip) : '') +
 					'</p>' +
-					((o.note) ? '<p class="icod-sub">📝 ' + escHtml(o.note) + '</p>' : '') +
 				'</section>' +
 
 				'<section class="icod-m-card">' +
 					'<h4>⚡ Actions</h4>' +
 					'<p class="icod-m-statuses">' + statusBtns + '</p>' +
-					((o.edit_url) ? '<p><a class="button button-small" href="' + escHtml(o.edit_url) + '" target="_blank" rel="noopener">Voir dans WooCommerce ↗</a></p>' : '') +
+					'<p class="icod-m-actions">' +
+						((o.edit_url) ? '<a class="button button-small" href="' + escHtml(o.edit_url) + '" target="_blank" rel="noopener">WooCommerce ↗</a> ' : '') +
+						'<button type="button" class="button button-small" data-icod-bl-phone="' + escHtml(o.phone) + '">🚫 Blacklister</button> ' +
+						'<button type="button" class="button button-small icod-m-delete" data-id="' + o.id + '">🗑 Supprimer</button>' +
+					'</p>' +
 				'</section>' +
 			'</div>' +
 
@@ -273,6 +295,41 @@
 
 		modal.hidden = false;
 		document.body.classList.add('icod-modal-open');
+
+		/* Copie du téléphone. */
+		modalBody.querySelectorAll('.icod-m-copy').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				var v = btn.getAttribute('data-copy') || '';
+				if (navigator.clipboard && navigator.clipboard.writeText) {
+					navigator.clipboard.writeText(v).then(function () { toast('📋 Copié'); }, function () { toast(v); });
+				} else { toast(v); }
+			});
+		});
+
+		/* Blacklist depuis la modale. */
+		modalBody.querySelectorAll('[data-icod-bl-phone]').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				if (!window.confirm('Blacklister ce numéro ?')) { return; }
+				btn.disabled = true;
+				post('icod_order_blacklist', { phone: btn.getAttribute('data-icod-bl-phone') }).then(function (json) {
+					if (!json || !json.success) { window.alert(icodAdmin.i18n.error); btn.disabled = false; return; }
+					toast('🚫 Numéro blacklisté');
+				}).catch(function () { window.alert(icodAdmin.i18n.error); btn.disabled = false; });
+			});
+		});
+
+		/* Suppression depuis la modale (corbeille WC). */
+		modalBody.querySelectorAll('.icod-m-delete').forEach(function (btn) {
+			btn.addEventListener('click', function () {
+				if (!window.confirm('Supprimer cette commande ? Elle ira dans la corbeille WooCommerce.')) { return; }
+				btn.disabled = true;
+				post('icod_order_delete', { id: btn.getAttribute('data-id') }).then(function (json) {
+					if (!json || !json.success) { window.alert(icodAdmin.i18n.error); btn.disabled = false; return; }
+					closeModal();
+					window.location.reload();
+				}).catch(function () { window.alert(icodAdmin.i18n.error); btn.disabled = false; });
+			});
+		});
 
 		/* Actions statut dans la modale. */
 		modalBody.querySelectorAll('.icod-m-status').forEach(function (btn) {
@@ -572,4 +629,26 @@ document.querySelectorAll('#icod-wilaya-search, #icod-commune-search').forEach(f
 			row.parentNode.insertBefore(dragged, after ? row.nextSibling : row);
 		});
 	});
+})();
+
+/* ===== Commandes : recherche fluide + confirmation suppression groupée ===== */
+(function () {
+	var bulkForm = document.getElementById('icod-orders-form');
+	if (bulkForm) {
+		bulkForm.addEventListener('submit', function (e) {
+			var sel = document.getElementById('icod-bulk-action');
+			if (sel && sel.value === 'delete' && !window.confirm(bulkForm.getAttribute('data-confirm-delete') || 'Supprimer ?')) {
+				e.preventDefault();
+			}
+		});
+	}
+	var search = document.querySelector('.icod-orders-filters input[name=q]');
+	var filterForm = search ? search.closest('form') : null;
+	if (search && filterForm) {
+		var t = null;
+		search.addEventListener('input', function () {
+			clearTimeout(t);
+			t = window.setTimeout(function () { filterForm.submit(); }, 700);
+		});
+	}
 })();

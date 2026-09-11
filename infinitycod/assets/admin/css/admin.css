@@ -1084,3 +1084,13 @@ body.icod-modal-open{overflow:hidden}
 .icod-bdrag{cursor:grab;color:#a7aaad;font-size:16px;padding:0 2px;user-select:none}
 .icod-bdrag:hover{color:#1877c2}
 .icod-builder-row.dragging{opacity:.45;outline:2px dashed #1877c2;border-radius:6px}
+
+/* Modale : ouverture/fermeture animées + note + copie + toast. */
+.icod-modal-overlay{transition:opacity .16s ease}
+.icod-modal-dialog{transition:opacity .16s ease,transform .16s cubic-bezier(.22,1,.36,1)}
+.icod-modal.closing .icod-modal-overlay{opacity:0}
+.icod-modal.closing .icod-modal-dialog{opacity:0;transform:scale(.96) translateY(10px)}
+.icod-m-note{white-space:pre-wrap;background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:8px 10px;font-size:12.5px;max-height:130px;overflow-y:auto}
+.icod-m-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 0}
+.icod-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);z-index:100100;background:#1d2327;color:#fff;padding:9px 18px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none}
+.icod-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
