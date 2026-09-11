@@ -64,13 +64,14 @@
 				.then(function (response) { return response.json(); })
 				.then(function (json) {
 					if (!json || !json.success) {
-						window.alert(icodAdmin.i18n.error);
+						toast(icodAdmin.i18n.error, 'error');
 						return;
 					}
 					tr.classList.add('icod-row-saved');
 					window.setTimeout(function () { tr.classList.remove('icod-row-saved'); }, 900);
+					toast(icodAdmin.i18n.saved, 'success');
 				})
-				.catch(function () { window.alert(icodAdmin.i18n.error); });
+				.catch(function () { toast(icodAdmin.i18n.error, 'error'); });
 		});
 	}
 	/**
@@ -105,13 +106,14 @@
 				status: btn.getAttribute('data-status')
 			}).then(function (json) {
 				if (!json || !json.success) {
-					window.alert(icodAdmin.i18n.error);
+					toast(icodAdmin.i18n.error, 'error');
 					btn.disabled = false;
 					return;
 				}
+					try { window.sessionStorage.setItem('icod_toast', JSON.stringify({ msg: icodAdmin.i18n.statusChanged || 'Statut mis à jour ✓', type: 'success' })); } catch (e) {}
 				window.location.reload();
 			}).catch(function () {
-				window.alert(icodAdmin.i18n.error);
+				toast(icodAdmin.i18n.error, 'error');
 				btn.disabled = false;
 			});
 		});
@@ -125,10 +127,11 @@
 			if (!window.confirm('Supprimer cette commande ? Elle ira dans la corbeille WooCommerce.')) { return; }
 			btn.disabled = true;
 			post('icod_order_delete', { id: btn.getAttribute('data-id') }).then(function (json) {
-				if (!json || !json.success) { window.alert(icodAdmin.i18n.error); btn.disabled = false; return; }
+				if (!json || !json.success) { toast(icodAdmin.i18n.error, 'error'); btn.disabled = false; return; }
 				var tr = btn.closest('tr');
 				if (tr) { tr.remove(); } else { window.location.reload(); }
-			}).catch(function () { window.alert(icodAdmin.i18n.error); btn.disabled = false; });
+				toast(icodAdmin.i18n.deleted || 'Commande supprimée — restaurable dans la corbeille WooCommerce.', 'success');
+			}).catch(function () { toast(icodAdmin.i18n.error, 'error'); btn.disabled = false; });
 		});
 	});
 
@@ -165,15 +168,43 @@
 		}, 160);
 	}
 
-	function toast(msg) {
+	var toastBox = null;
+	function toast(msg, type) {
+		if (!toastBox) {
+			toastBox = document.createElement('div');
+			toastBox.id = 'icod-toasts';
+			toastBox.setAttribute('aria-live', 'polite');
+			document.body.appendChild(toastBox);
+		}
 		var t = document.createElement('div');
-		t.className = 'icod-toast';
-		t.textContent = msg;
-		document.body.appendChild(t);
+		t.className = 'icod-toast icod-toast-' + (type || 'info');
+		t.setAttribute('role', 'status');
+		var ico = 'success' === type ? '✓' : ('error' === type ? '⚠' : 'ℹ');
+		var icoSpan = document.createElement('span');
+		icoSpan.className = 'icod-toast-ico';
+		icoSpan.textContent = ico;
+		var txtSpan = document.createElement('span');
+		txtSpan.className = 'icod-toast-txt';
+		txtSpan.textContent = msg;
+		t.appendChild(icoSpan);
+		t.appendChild(txtSpan);
+		toastBox.appendChild(t);
+		while (toastBox.children.length > 4) { toastBox.removeChild(toastBox.firstChild); }
 		window.setTimeout(function () { t.classList.add('show'); }, 10);
-		window.setTimeout(function () { t.classList.remove('show'); }, 1800);
-		window.setTimeout(function () { t.remove(); }, 2200);
+		var life = 'error' === type ? 6000 : 2600;
+		window.setTimeout(function () { t.classList.remove('show'); }, life);
+		window.setTimeout(function () { t.remove(); }, life + 400);
 	}
+
+	/* Toast planifié avant un rechargement (ex. statut modifié : la table se rafraîchit). */
+	try {
+		var icodPendingToast = window.sessionStorage.getItem('icod_toast');
+		if (icodPendingToast) {
+			window.sessionStorage.removeItem('icod_toast');
+			var icodPt = JSON.parse(icodPendingToast);
+			window.setTimeout(function () { toast(icodPt.msg, icodPt.type); }, 400);
+		}
+	} catch (e) { /* stockage indisponible */ }
 
 	if (modal) {
 		modal.querySelectorAll('[data-icod-modal-close]').forEach(function (el) {
@@ -312,9 +343,9 @@
 				if (!window.confirm('Blacklister ce numéro ?')) { return; }
 				btn.disabled = true;
 				post('icod_order_blacklist', { phone: btn.getAttribute('data-icod-bl-phone') }).then(function (json) {
-					if (!json || !json.success) { window.alert(icodAdmin.i18n.error); btn.disabled = false; return; }
+					if (!json || !json.success) { toast(icodAdmin.i18n.error, 'error'); btn.disabled = false; return; }
 					toast('🚫 Numéro blacklisté');
-				}).catch(function () { window.alert(icodAdmin.i18n.error); btn.disabled = false; });
+				}).catch(function () { toast(icodAdmin.i18n.error, 'error'); btn.disabled = false; });
 			});
 		});
 
@@ -324,10 +355,10 @@
 				if (!window.confirm('Supprimer cette commande ? Elle ira dans la corbeille WooCommerce.')) { return; }
 				btn.disabled = true;
 				post('icod_order_delete', { id: btn.getAttribute('data-id') }).then(function (json) {
-					if (!json || !json.success) { window.alert(icodAdmin.i18n.error); btn.disabled = false; return; }
+					if (!json || !json.success) { toast(icodAdmin.i18n.error, 'error'); btn.disabled = false; return; }
 					closeModal();
 					window.location.reload();
-				}).catch(function () { window.alert(icodAdmin.i18n.error); btn.disabled = false; });
+				}).catch(function () { toast(icodAdmin.i18n.error, 'error'); btn.disabled = false; });
 			});
 		});
 
@@ -338,9 +369,9 @@
 				btn.disabled = true;
 				post('icod_order_status', { id: btn.getAttribute('data-id'), status: btn.getAttribute('data-status') })
 					.then(function (json) {
-						if (!json || !json.success) { window.alert(icodAdmin.i18n.error); btn.disabled = false; return; }
+						if (!json || !json.success) { toast(icodAdmin.i18n.error, 'error'); btn.disabled = false; return; }
 						window.location.reload();
-					}).catch(function () { window.alert(icodAdmin.i18n.error); btn.disabled = false; });
+					}).catch(function () { toast(icodAdmin.i18n.error, 'error'); btn.disabled = false; });
 			});
 		});
 
@@ -360,14 +391,14 @@
 
 				post('icod_order_update', body).then(function (json) {
 					if (!json || !json.success) {
-						window.alert(icodAdmin.i18n.error);
+						toast(icodAdmin.i18n.error, 'error');
 						submitBtn.disabled = false;
 						submitBtn.textContent = icodAdmin.i18n.save;
 						return;
 					}
 					window.location.reload();
 				}).catch(function () {
-					window.alert(icodAdmin.i18n.error);
+					toast(icodAdmin.i18n.error, 'error');
 					submitBtn.disabled = false;
 					submitBtn.textContent = icodAdmin.i18n.save;
 				});
@@ -392,13 +423,13 @@
 			post('icod_order_blacklist', { phone: btn.getAttribute('data-phone') })
 				.then(function (json) {
 					if (!json || !json.success) {
-						window.alert(icodAdmin.i18n.error);
+						toast(icodAdmin.i18n.error, 'error');
 						btn.disabled = false;
 						return;
 					}
 					btn.textContent = '✓ ' + icodAdmin.i18n.saved;
 				}).catch(function () {
-					window.alert(icodAdmin.i18n.error);
+					toast(icodAdmin.i18n.error, 'error');
 					btn.disabled = false;
 				});
 		});
@@ -486,11 +517,11 @@
 					btn.textContent = '✅ ' + payload.tracking;
 				} else {
 					btn.disabled = false;
-					window.alert(payload.message || icodAdmin.i18n.error);
+					toast(payload.message || icodAdmin.i18n.error, 'error');
 				}
 			}).catch(function () {
 				btn.disabled = false;
-				window.alert(icodAdmin.i18n.error);
+				toast(icodAdmin.i18n.error, 'error');
 			});
 		});
 	});
@@ -507,11 +538,11 @@
 				if (json && json.success) {
 					window.location.reload();
 				} else {
-					window.alert(icodAdmin.i18n.error);
+					toast(icodAdmin.i18n.error, 'error');
 				}
 			}).catch(function () {
 				syncBtn.disabled = false;
-				window.alert(icodAdmin.i18n.error);
+				toast(icodAdmin.i18n.error, 'error');
 			});
 		});
 	}
@@ -581,7 +612,7 @@ document.querySelectorAll('#icod-wilaya-search, #icod-commune-search').forEach(f
 			})
 			.catch(function () {
 				if (saveBtn) { saveBtn.disabled = false; saveBtn.classList.remove('icod-saving', 'icod-dirty-btn'); }
-				window.alert(icodAdmin.i18n.error);
+				toast(icodAdmin.i18n.error, 'error');
 			});
 	});
 

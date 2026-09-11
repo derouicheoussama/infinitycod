@@ -532,6 +532,8 @@ class AdminManager {
 				'loading'   => __( 'Chargement…', 'infinitycod' ),
 				'error'     => __( 'Une erreur est survenue.', 'infinitycod' ),
 				'saved'     => __( 'Enregistré ✓', 'infinitycod' ),
+				'statusChanged' => __( 'Statut mis à jour ✓', 'infinitycod' ),
+				'deleted'   => __( 'Commande supprimée — restaurable dans la corbeille WooCommerce.', 'infinitycod' ),
 				'confirm'   => __( 'Confirmer ?', 'infinitycod' ),
 				'inherit'   => __( 'Hérite', 'infinitycod' ),
 				'saving'    => __( 'Enregistrement…', 'infinitycod' ),

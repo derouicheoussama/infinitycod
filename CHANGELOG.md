@@ -1,5 +1,16 @@
 # Changelog
 
+## 5.23.0 — 2026-09-11
+
+Notifications modernisées et micro-UX : plus aucune alerte bloquante, retours visuels clairs partout.
+
+### Ajouté
+- **Toasts empilés dans le dashboard** : les 21 `alert()` bloquants du JavaScript admin sont remplacés par des notifications non bloquantes en bas d'écran, typées (succès vert / erreur rouge / info), avec icône, fermeture automatique (6 s pour les erreurs, 2,6 s sinon), limite de 4 empilées et compatibilité lecteurs d'écran (`aria-live`).
+- **Retours de succès** : commune enregistrée ✓, commande supprimée (rappel : restaurable dans la corbeille WooCommerce) ✓, et changement de statut confirmé par un toast qui **survit au rechargement** de la table.
+- **Formulaire front — envoi visuel** : le bouton « Commander » affiche un spinner animé pendant l'envoi (état non cliquable), en plus du texte « Envoi en cours… ».
+- **Formulaire front — erreur de validation** : au lieu de seulement afficher le message, la page **fait défiler jusqu'au premier champ invalide et le met en focus** — le client sait exactement quoi corriger, surtout sur mobile.
+
+
 ## 5.22.1 — 2026-09-11
 
 « Ajouter au panier » et quantité du thème masqués dès l'installation.

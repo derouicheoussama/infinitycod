@@ -688,5 +688,19 @@ check( 'essai : statut avec jours restants', false !== strpos( $lm1, 'trial_days
 check( 'essai : handler admin_post + nonce + capacité', false !== strpos( $sp8, 'icod_start_trial' ) && false !== strpos( $sp8, 'handle_trial_start' ) && false !== strpos( $sp8, 'check_admin_referer( \'icod_start_trial\' )' ) );
 check( 'essai : bouton « Démarrer mon essai de 7 jours » visible sans licence', false !== strpos( $sp8, 'Démarrer mon essai de 7 jours' ) && false !== strpos( $sp8, '! \\InfinityCod\\License\\LicenseManager::trial_used()' ) );
 
+/* ---------- 35. Notifications + UX : toasts admin, spinner envoi, focus erreur ---------- */
+
+echo "\n35) Notifications modernisées + micro-UX\n";
+$adm_js = file_get_contents( $plugin_dir . 'assets/admin/js/admin.js' );
+$adm_css = file_get_contents( $plugin_dir . 'assets/admin/css/admin.css' );
+$frm_js = file_get_contents( $plugin_dir . 'assets/front/js/form.js' );
+$frm_css = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
+check( 'admin : zéro window.alert (tout en toasts non bloquants)', false === strpos( $adm_js, 'window.alert(' ) );
+check( 'admin : toasts empilés typés (succès/erreur/info) + aria-live', false !== strpos( $adm_js, "icod-toast-' + (type || 'info')" ) && false !== strpos( $adm_js, "setAttribute('aria-live', 'polite')" ) && false !== strpos( $adm_css, '#icod-toasts{' ) );
+check( 'admin : toast de statut conservé à travers le rechargement', false !== strpos( $adm_js, "sessionStorage.setItem('icod_toast'" ) && false !== strpos( $adm_js, "sessionStorage.getItem('icod_toast'" ) );
+check( 'admin : succès sonores (commune enregistrée, commande supprimée)', false !== strpos( $adm_js, "toast(icodAdmin.i18n.saved, 'success')" ) && false !== strpos( $adm_js, 'i18n.deleted' ) );
+check( 'front : bouton envoi en état chargement (spinner)', false !== strpos( $frm_js, "classList.add('is-loading')" ) && false !== strpos( $frm_css, '.icod-submit.is-loading::before' ) );
+check( 'front : erreur de validation → scroll + focus du premier champ invalide', false !== strpos( $frm_js, "scrollIntoView({ behavior: 'smooth', block: 'center' });" ) && false !== strpos( $frm_js, 'firstInvalid.focus(' ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

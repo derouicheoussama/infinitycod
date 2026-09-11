@@ -870,10 +870,16 @@
 			var errors = validate();
 			if (errors.length) {
 				showMsg(errors[0].message, 'error');
+				var firstInvalid = el(root, '.icod-invalid');
+				if (firstInvalid) {
+					firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					try { firstInvalid.focus({ preventScroll: true }); } catch (e) { firstInvalid.focus(); }
+				}
 				return;
 			}
 
 			submitBtn.disabled = true;
+			submitBtn.classList.add('is-loading');
 			var originalLabel = submitBtn.textContent;
 			submitBtn.textContent = I18N.sending;
 			if (waBtn) { waBtn.disabled = true; }
@@ -881,6 +887,7 @@
 			function send(captchaToken) {
 				api('submit', buildPayload(viaWhatsApp, captchaToken)).then(handleResponse).catch(function () {
 					submitBtn.disabled = false;
+					submitBtn.classList.remove('is-loading');
 					submitBtn.textContent = originalLabel;
 					if (waBtn) { waBtn.disabled = false; }
 					showMsg(I18N.error, 'error');
@@ -889,6 +896,7 @@
 
 			function handleResponse(json) {
 				submitBtn.disabled = false;
+				submitBtn.classList.remove('is-loading');
 				submitBtn.textContent = originalLabel;
 				if (waBtn) { waBtn.disabled = false; }
 

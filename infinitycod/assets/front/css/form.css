@@ -459,3 +459,8 @@ fieldset.icod-mode{min-width:0}
 .icod-main>*:nth-child(5){animation-delay:.16s}
 .icod-main>*:nth-child(6){animation-delay:.2s}
 @keyframes icod-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* Envoi en cours : spinner dans le bouton + état non cliquable. */
+.icod-submit.is-loading{pointer-events:none}
+.icod-submit.is-loading::before{content:'';display:inline-block;width:15px;height:15px;margin-inline-end:9px;border-radius:50%;border:2.5px solid currentColor;border-top-color:transparent;vertical-align:-2px;animation:icod-spin .7s linear infinite}
+@keyframes icod-spin{to{transform:rotate(360deg)}}
