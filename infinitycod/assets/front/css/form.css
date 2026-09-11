@@ -176,23 +176,23 @@ fieldset.icod-mode{min-width:0}
 .icod-summary-line span:last-child{font-weight:600;color:var(--icod-heading)}
 /* Délai de livraison + commande minimum (par wilaya). */
 .icod-estimate{font-size:.78rem;color:var(--icod-muted);padding:0 2px 4px}
-.icod-minwarn{margin:6px 0 8px;padding:8px 12px;border-radius:10px;font-size:.82rem;font-weight:700;background:rgba(214,54,56,.1);background:color-mix(in srgb,var(--icod-danger) 10%,var(--icod-surface));color:var(--icod-danger)}
+.icod-minwarn{margin:6px 0 8px;padding:8px 12px;border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px));font-size:.82rem;font-weight:700;background:rgba(214,54,56,.1);background:color-mix(in srgb,var(--icod-danger) 10%,var(--icod-surface));color:var(--icod-danger)}
 [data-summary-discount],[data-summary-coupon]{color:var(--icod-ok);font-weight:700}
-.icod-summary-total{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-top:10px;padding:12px 14px;border-radius:12px;background:rgba(24,119,194,.07);background:color-mix(in srgb,var(--icod-accent) 9%,var(--icod-surface));font-weight:800;font-size:.95rem;color:var(--icod-text)}
+.icod-summary-total{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-top:10px;padding:12px 14px;border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px));background:rgba(24,119,194,.07);background:color-mix(in srgb,var(--icod-accent) 9%,var(--icod-surface));font-weight:800;font-size:.95rem;color:var(--icod-text)}
 .icod-summary-total [data-summary-total]{color:var(--icod-accent);font-size:1.32rem;white-space:nowrap}
 
 /* Code promo */
 .icod-coupon{display:flex;gap:8px;margin:2px 0 10px}
 .icod-coupon-input{flex:1;min-width:0;min-height:40px;padding:8px 12px;border:1.5px dashed var(--icod-border);border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px));background:var(--icod-field);color:var(--icod-text);font:inherit;font-size:.86rem;text-transform:uppercase;letter-spacing:.04em}
 .icod-coupon-input:focus{border-color:var(--icod-accent);outline:none}
-.icod-coupon-apply{flex:none;min-height:40px;padding:8px 16px;border:1.5px solid var(--icod-accent);border-radius:10px;background:transparent;color:var(--icod-accent);font:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .15s}
+.icod-coupon-apply{flex:none;min-height:40px;padding:8px 16px;border:1.5px solid var(--icod-accent);border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px));background:transparent;color:var(--icod-accent);font:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .15s}
 .icod-coupon-apply:hover{background:var(--icod-accent);color:var(--icod-accent-ink)}
 .icod-coupon-msg{font-size:.8rem;font-weight:700;padding:0 2px 6px}
 .icod-coupon-ok{color:var(--icod-ok)}
 .icod-coupon-ko{color:var(--icod-danger)}
 
 /* Barre « livraison gratuite » */
-.icod-freebar{margin:0 0 10px;padding:8px 10px;border-radius:10px;background:var(--icod-surface-2);font-size:.78rem;color:var(--icod-muted)}
+.icod-freebar{margin:0 0 10px;padding:8px 10px;border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px));background:var(--icod-surface-2);font-size:.78rem;color:var(--icod-muted)}
 .icod-freebar-track{height:6px;border-radius:99px;margin-top:6px;background:var(--icod-border);overflow:hidden}
 .icod-freebar-fill{height:100%;width:0;border-radius:99px;background:var(--icod-ok);transition:width .4s ease}
 

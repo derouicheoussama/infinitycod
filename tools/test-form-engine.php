@@ -726,5 +726,14 @@ check( 'secrets : vide soumis = clé conservée (sanitizeur + placeholder)', fal
 check( 'scanner : intégré au pipeline npm check', false !== strpos( $pk, 'security-scan.js' ) );
 check( 'scanner : détecte les champs secrets rendus', false !== strpos( file_get_contents( dirname( $plugin_dir ) . '/tools/security-scan.js' ), 'type="password"' ) );
 
+/* ---------- 38. Rayons 100% harmonisés + page Paniers abandonnés repensée ---------- */
+
+echo "\n38) Rayons harmonisés + page Paniers abandonnés\n";
+$abp = file_get_contents( $plugin_dir . 'includes/admin/pages/class-abandoned-page.php' );
+check( 'rayons : total + minwarn + freebar + coupon-apply unifiés sur l arrondi des champs', false !== strpos( $css5, 'padding:12px 14px;border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px));background' ) && false !== strpos( $css5, '.icod-minwarn{margin:6px 0 8px;padding:8px 12px;border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px))' ) && false !== strpos( $css5, '.icod-freebar{margin:0 0 10px;padding:8px 10px;border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px))' ) && false !== strpos( $css5, 'border:1.5px solid var(--icod-accent);border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px))' ) );
+check( 'abandonnés : filtre statut sécurisé + badges français', false !== strpos( $abp, "sanitize_key( wp_unslash( \$_GET['status'] ) )" ) && false !== strpos( $abp, 'En attente' ) && false !== strpos( $abp, 'Récupéré' ) && false !== strpos( $abp, 'Archivé' ) );
+check( 'abandonnés : KPI valeur en jeu + taux de récupération', false !== strpos( $abp, 'SUM(cart_total)' ) && false !== strpos( $abp, 'Valeur en jeu' ) );
+check( 'abandonnés : temps relatif + bannière relance auto + état vide soigné', false !== strpos( $abp, 'human_time_diff' ) && false !== strpos( $abp, 'La relance automatique est désactivée' ) && false !== strpos( $abp, 'Aucun panier abandonné ici' ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

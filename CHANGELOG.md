@@ -1,5 +1,24 @@
 # Changelog
 
+## 5.25.2 — 2026-09-11
+
+Arrondis 100 % harmonisés dans le formulaire et page Paniers abandonnés repensée.
+
+### Modifié
+- **Arrondis unifiés de bout en bout** : le message d'avertissement, la barre « livraison gratuite », le bloc « Total à payer » et le bouton « Appliquer » du code promo suivent désormais le même réglage « Arrondi des champs » que tous les autres champs — plus aucun élément du formulaire ne détone.
+
+### Amélioré
+- **Page Paniers abandonnés repensée** :
+  - **KPI « Valeur en jeu »** : la somme des paniers ouverts s'affiche en tête — l'argent à aller chercher en un coup d'œil.
+  - **Taux de récupération** sur la carte Récupérés.
+  - **Filtres par statut** (Tous / En attente / Récupérés / Archivés) avec compteurs, façon WordPress.
+  - **Statuts en français** avec badges colorés (En attente · Récupéré · Archivé) au lieu des clés techniques.
+  - **Temps relatif** sur chaque ligne (« il y a 12 min ») en plus de la date.
+  - **Téléphone cliquable** : le numéro ouvre directement WhatsApp avec le message de relance pré-rempli.
+  - **Bannière d'activation** si la relance automatique est désactivée, avec lien direct vers le réglage.
+  - **État vide soigné** avec explication du fonctionnement.
+
+
 ## 5.25.1 — 2026-09-11
 
 Interface du formulaire affinée : en-tête épuré, champ Quantité redessiné, arrondis parfaitement uniformes.
