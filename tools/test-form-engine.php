@@ -652,5 +652,15 @@ check( 'stepper blindé thèmes : pilule max-content + largeur input bornée', f
 check( 'mode livraison : aucun tiret avant devis (span vide + :empty masqué)', false === strpos( $fm7, 'data-price-home>—' ) && false === strpos( $fm7, 'data-price-desk>—' ) && false !== strpos( $css5, '.icod-mode-price:empty{display:none}' ) );
 check( 'barre collante : total initial chiffré (jamais de tiret vide)', false !== strpos( $js4, 'updateSticky(state.quote ? state.quote.total : state.unitPrice * currentQty())' ) );
 
+/* ---------- 32. Audit d'application : timer personnalisé réellement rendu ---------- */
+
+echo "\n32) Timer : apparence personnalisée appliquée + 8 styles rendus\n";
+$fm8 = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
+check( 'timer : attribut style construit (taille + fond + couleur du texte)', false !== strpos( $fm8, "\$timer_style_attr .= 'font-size:'" ) && false !== strpos( $fm8, "\$timer_style_attr .= 'background:'" ) && false !== strpos( $fm8, "\$timer_style_attr .= 'color:'" ) );
+check( 'timer : les 8 styles rendus (garde élargie aux 5 styles 2025)', false !== strpos( $fm8, "'flip', 'neon', 'minimal', 'banner', 'boxes'" ) );
+check( 'timer : plus de variable indéfinie $timer_style_attr', false !== strpos( $fm8, '$timer_style_attr         = \'\';' ) || false !== strpos( $fm8, "\$timer_style_attr = '';" ) );
+check( 'audit-apply : présent dans le pipeline npm check', false !== strpos( file_get_contents( dirname( $plugin_dir ) . '/package.json' ), 'audit-apply.js' ) );
+check( 'schéma : trio PayPal 3 offres retiré (licence unique)', false === strpos( $sp8, 'paypal_price_personal' ) && false === strpos( $sp8, 'paypal_price_agency' ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

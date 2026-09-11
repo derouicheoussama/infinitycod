@@ -634,7 +634,26 @@ class FormManager {
 			$minutes    = max( 1, min( 1440, (int) Settings::get( 'timer_urgency_minutes', 120 ) ) );
 			$initial    = str_pad( (string) floor( $minutes / 60 ), 2, '0', STR_PAD_LEFT ) . ':' . str_pad( (string) ( $minutes % 60 ), 2, '0', STR_PAD_LEFT );
 			$timer_text = str_replace( '{time}', $initial, (string) Settings::get( 'timer_urgency_text' ) );
-			$timer_style = in_array( Settings::get( 'timer_style', 'bar' ), array( 'bar', 'pill', 'ribbon' ), true ) ? Settings::get( 'timer_style', 'bar' ) : 'bar';
+			$timer_style = Settings::get( 'timer_style', 'bar' );
+			if ( ! in_array( $timer_style, array( 'bar', 'pill', 'ribbon', 'flip', 'neon', 'minimal', 'banner', 'boxes' ), true ) ) {
+				$timer_style = 'bar';
+			}
+			// Apparence personnalisée (Apparence du compte à rebours) : taille,
+			// fond, couleur du texte — vide = style par défaut du thème choisi.
+			$hex_only         = '/[^#0-9a-fA-F]/';
+			$timer_style_attr = '';
+			$timer_fs = Settings::get( 'timer_font_size', '' );
+			if ( '' !== $timer_fs && is_numeric( (string) $timer_fs ) ) {
+				$timer_style_attr .= 'font-size:' . max( 12, min( 22, (int) $timer_fs ) ) . 'px;';
+			}
+			$timer_bg = trim( (string) Settings::get( 'timer_bg_color', '' ) );
+			if ( '' !== $timer_bg ) {
+				$timer_style_attr .= 'background:' . preg_replace( $hex_only, '', $timer_bg ) . ';';
+			}
+			$timer_fg = trim( (string) Settings::get( 'timer_text_color', '' ) );
+			if ( '' !== $timer_fg ) {
+				$timer_style_attr .= 'color:' . preg_replace( $hex_only, '', $timer_fg ) . ';';
+			}
 			$timer_html = '<div class="icod-timer icod-timer-' . esc_attr( $timer_style ) . '" data-timer="' . (int) $minutes . '" style="' . esc_attr( $timer_style_attr ) . '"><span class="icod-timer-label" data-timer-text="' . esc_attr( Settings::get( 'timer_urgency_text' ) ) . '">' . esc_html( $timer_text ) . '</span></div>';
 		}
 

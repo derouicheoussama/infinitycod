@@ -232,9 +232,6 @@ class Settings {
 			'paypal_enabled'        => 0,
 			'paypal_email'          => '',           // Email PayPal du vendeur.
 			'paypal_currency'       => 'USD',        // USD | EUR.
-			'paypal_price_personal' => 39,
-			'paypal_price_business' => 79,
-			'paypal_price_agency'   => 149,
 				'paypal_price'          => 79,             // Licence Premium unique (tout inclus).
 			'payment_return_text'   => __( 'Merci ! Votre paiement a bien été reçu et votre commande est confirmée. Nous vous contacterons très vite.', 'infinitycod' ),
 

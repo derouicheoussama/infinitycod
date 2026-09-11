@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.21.2 — 2026-09-11
+
+Audit complet « chaque réglage s'enregistre et s'applique » : deux bugs du compte à rebours détectés et corrigés, nouveau garde-fou permanent.
+
+### Corrigé
+- **Apparence du compte à rebours jamais appliquée** : la taille du texte, la couleur du fond et la couleur du texte (Apparence du compte à rebours) s'enregistraient mais n'étaient jamais rendues — la variable de style n'était jamais construite (notice PHP incluse). Désormais appliquées en inline sur le timer.
+- **5 des 8 styles de compte à rebours ignorés** : Flip, Néon, Minimal, Bandeau et Encadré étaient reforcés en « Barre rayée » par une liste blanche périmée côté rendu (l'interface proposait bien les 8). Les 8 styles s'affichent maintenant réellement.
+- Nettoyage : suppression des réglages morts `paypal_price_personal/business/agency` (remplacés depuis par le prix unique de la licence Premium).
+
+### Ajouté
+- **Audit d'application permanent** (`npm run check`) : chaque clé du schéma de réglages doit avoir un consommateur réel dans le plugin — une option qui s'enregistre sans jamais s'applique fait échouer la CI. 139 clés vérifiées.
+
+
 ## 5.21.1 — 2026-09-11
 
 Correctifs visuels constatés sur une boutique cliente (mobile) : Quantité étirée par le thème, tirets « — » en mode de livraison, total de la barre collante vide.
