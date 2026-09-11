@@ -1,2 +1,9 @@
-Déposez ici les logos officiels : cib.svg, edahabia.svg, baridimob.svg, ccp.svg, cash.svg (ou .png/.webp).
-Ils remplacent automatiquement les visuels par défaut dans le formulaire et l'admin.
+Logos des moyens de paiement affichés dans le formulaire.
+
+Par défaut : cib.svg et edahabia.svg (rendus vectoriels aux couleurs de marque,
+fournis avec le plugin pour l'identification du moyen de paiement).
+
+Pour utiliser les fichiers officiels de votre établissement (SATIM / Algérie Poste) :
+déposez ici cib.svg, edahabia.svg, baridimob.svg, ccp.svg, cash.svg (ou .png/.webp),
+ou téléversez vos visuels dans Réglages → Paiement (champs « Logo CIB » / « Logo Edahabia »).
+Vos fichiers remplacent automatiquement les visuels par défaut.

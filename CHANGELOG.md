@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.21.4 — 2026-09-11
+
+Nouveaux logos des cartes CIB et Edahabia embarqués directement dans le plugin.
+
+### Modifié
+- **Logos officiels des cartes** : les visuels génériques remplacés par des rendus vectoriels soignés aux couleurs de marque — badge carte blanche, swoosh doré et lettrage italique bleu pour **CIB** ; carte dorée dégradée avec le mot « EDAHABIA » et « الذهبية » pour **Edahabia**. Embarqués en SVG dans le plugin : nets sur tous les écrans, affichés directement dans le formulaire (bloc Méthode de paiement) et dans Réglages → Paiement, sans aucune configuration.
+- Personnalisable à tout moment : téléversement dans Réglages → Paiement ou dépôt de fichiers dans `assets/front/img/pay/` — vos visuels restent prioritaires.
+
+
 ## 5.21.3 — 2026-09-11
 
 Stepper Quantité compact et rapidité : dashboard allégé, scripts non bloquants.

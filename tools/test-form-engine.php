@@ -674,6 +674,8 @@ check( 'badge : invalidation sur created/status_changed/deleted', false !== strp
 check( 'scripts : defer sur form, admin et chart (jamais bloquants)', false !== strpos( $fm8, "'icod-form', 'strategy', 'defer'" ) && false !== strpos( $am6, "'icod-admin', 'strategy', 'defer'" ) && false !== strpos( $sp9, "'icod-chart', 'strategy', 'defer'" ) );
 check( 'reCAPTCHA : preconnect www.google.com', false !== strpos( $fm8, 'recaptcha_resource_hints' ) );
 check( 'vignette produit : décodage asynchrone', false !== strpos( $fm8, 'loading="lazy" decoding="async"' ) );
+check( 'logos cartes : fichiers vectoriels embarqués (CIB + Edahabia)', file_exists( $plugin_dir . 'assets/front/img/pay/cib.svg' ) && file_exists( $plugin_dir . 'assets/front/img/pay/edahabia.svg' ) );
+check( 'logos cartes : rendu prioritaire depuis les fichiers embarqués', false !== strpos( file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' ), "array( 'svg', 'png', 'webp' )" ) );
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );
