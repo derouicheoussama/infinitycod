@@ -66,6 +66,7 @@ class AdminManager {
 		add_action( 'wp_ajax_icod_import_offices', array( $this, 'handle_import_offices' ) );
 		add_action( 'admin_menu', array( $this, 'apply_menu_badge' ), 999 );
 		add_filter( 'admin_footer_text', array( $this, 'footer_credit' ) );
+		add_action( 'admin_notices', array( $this, 'license_nag' ) );
 
 		// Liste des extensions : liens d'action et de meta pro.
 		add_filter( 'plugin_action_links_' . INFINITYCOD_BASENAME, array( $this, 'action_links' ) );
@@ -248,6 +249,20 @@ class AdminManager {
 	}
 
 	/**
+	 * Avertissement persistant : verrou actif sans licence (copie non
+	 * autorisée du plugin). Visible sur tout l'admin jusqu'à activation.
+	 *
+	 * @return void
+	 */
+	public function license_nag() {
+		if ( ! \InfinityCod\Core\Settings::lock_form_enabled() || \InfinityCod\License\LicenseManager::is_premium() ) {
+			return;
+		}
+		$url = admin_url( 'admin.php?page=infinitycod-settings&tab=license' );
+		echo '<div class="notice notice-error"><p><strong>🔒 InfinityCod est verrouillé :</strong> aucune licence active sur ce site — le formulaire et la création de commandes sont désactivés. <a href="' . esc_url( $url ) . '">Activer ma licence</a></p></div>';
+	}
+
+	/**
 	 * Badge de commandes en attente : petit rond rouge affiché sur l'entrée
 	 * InfinityCod ET sur le sous-menu « Commandes COD ».
 	 *
@@ -307,7 +322,7 @@ class AdminManager {
 		if ( function_exists( 'get_current_screen' ) ) {
 			$screen = get_current_screen();
 			if ( $screen && false !== strpos( (string) $screen->id, 'infinitycod' ) ) {
-				return '<span class="icod-footer-credit">InfinityCod v' . esc_html( INFINITYCOD_VERSION ) . ' · © Infinity Coder</span>';
+				return '<span class="icod-footer-credit">InfinityCod v' . esc_html( INFINITYCOD_VERSION ) . ' · © Infinity Coder · 🔒 DMCA</span>';
 			}
 		}
 		return $text;

@@ -12,6 +12,8 @@ Solution COD tout-en-un pour WooCommerce Algérie : formulaire rapide, 58 wilaya
 
 == Description ==
 
+Protégé par le DMCA — toute copie ou distribution non autorisée fera l’objet d’une plainte.
+
 InfinityCod transforme votre boutique WooCommerce en machine de vente COD pour l'Algérie.
 
 = Formulaire COD rapide =

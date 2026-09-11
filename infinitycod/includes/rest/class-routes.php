@@ -324,7 +324,13 @@ class Routes {
 	private function do_submit( $request ) {
 		$body = $this->body( $request );
 
-		// 0. Restriction horaire des commandes.
+		// 0. Protection : sans licence active (verrou développeur), aucune
+		// commande ne peut être créée sur une copie non autorisée.
+		if ( Settings::lock_form_enabled() && ! \InfinityCod\License\LicenseManager::is_premium() ) {
+			return new \WP_Error( 'icod_locked', __( 'Formulaire verrouillé : licence requise.', 'infinitycod' ), array( 'status' => 403 ) );
+		}
+
+		// 0b. Restriction horaire des commandes.
 		if ( Settings::get( 'restrict_hours_enabled' ) ) {
 			$from = max( 0, min( 23, (int) Settings::get( 'restrict_hours_from', 9 ) ) );
 			$to   = max( 0, min( 23, (int) Settings::get( 'restrict_hours_to', 22 ) ) );

@@ -1,5 +1,22 @@
 # Changelog
 
+## 5.17.0 — 2026-09-11
+
+Protection contre l'utilisation sans autorisation + mention DMCA + purge du code (plugin plus léger).
+
+### Ajouté
+- **Verrou d'autorisation serveur** : quand le verrou développeur est actif (constante wp-config), l'API de création de commandes refuse toute soumission (403) sur les copies sans licence — le formulaire ET le backend sont protégés.
+- **Bannière admin persistante** si le verrou est actif sans licence : « 🔒 InfinityCod est verrouillé — Activer ma licence ».
+- Mention **DMCA** : en-tête du plugin, README et readme.txt.
+
+### Modifié
+- **Purge** : règles CSS mortes retirées du stylesheet front (styles admin dupliqués) — assets plus légers.
+- Le pied de page admin affiche « 🔒 DMCA ».
+
+### Note
+- Le système de mise à jour GitHub n'a PAS été touché (non-régression vérifiée).
+
+
 ## 5.16.0 — 2026-09-11
 
 Dashboard Commandes : modale Détails enrichie et animée, actions rapides et recherche fluide.

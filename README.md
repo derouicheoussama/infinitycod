@@ -1,5 +1,8 @@
 # InfinityCod — Le plugin COD #1 pour WooCommerce (Algérie & marché arabe)
 
+> 🔒 **Protégé par le DMCA** — plugin protégé. Toute copie, distribution ou utilisation non autorisée fera l’objet d’une plainte DMCA.
+
+
 > **Paiement à la livraison tout-en-un** : formulaire de commande express, géographie complète, anti-fraude, transporteurs, WhatsApp automatique, pixels publicitaires avec Conversions API, multi-devise et multi-pays.
 
 **Développeur : [Derouiche Oussama](https://derouicheoussama.com) — Infinity Coder** · Site : [infinitycoder.app](https://infinitycoder.app)

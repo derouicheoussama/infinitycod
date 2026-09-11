@@ -608,6 +608,16 @@ check( 'JS drag & drop + renumérotation', false !== strpos( $admjs, 'icod-build
 $orders_css = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
 check( 'mode de livraison compact + qty neutralisée', false !== strpos( $css3, 'padding:10px 12px' ) && false !== strpos( $css3, 'border:0!important;background:transparent!important' ) );
 
+/* ---------- 29. Protection autorisation + DMCA + purge ---------- */
+
+echo "\n29) Protection sans autorisation + DMCA + purge\n";
+check( 'REST : garde licence avant création de commande', false !== strpos( $routes_src, 'lock_form_enabled' ) && false !== strpos( $routes_src, 'icod_locked' ) );
+check( 'nag admin si verrou actif sans licence', false !== strpos( $am4, 'license_nag' ) );
+$set_src2 = file_get_contents( $plugin_dir . 'includes/core/class-settings.php' );
+check( 'constante wp-config : INFINITYCOD_LOCK_FORM documentée', false !== strpos( $set_src2, 'INFINITYCOD_LOCK_FORM' ) );
+check( 'DMCA : mention dans README + header plugin', false !== strpos( file_get_contents( dirname( $plugin_dir ) . '/README.md' ), 'DMCA' ) && false !== strpos( file_get_contents( $plugin_dir . 'infinitycod.php' ), 'Protection:' ) );
+check( 'purge : règles admin mortes retirées du CSS front', false === strpos( $css4, '.icod-lic-hero' ) && false === strpos( $css4, '.icod-kpi-grid' ) );
+
 /* ---------- Bilan ---------- */
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
