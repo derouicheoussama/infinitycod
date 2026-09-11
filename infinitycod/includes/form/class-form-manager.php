@@ -27,8 +27,28 @@ class FormManager {
 		add_shortcode( 'icod_form', array( $this, 'shortcode' ) );
 
 		add_action( 'wp', array( $this, 'maybe_auto_insert' ) );
+		add_action( 'wp', array( $this, 'maybe_disable_add_to_cart' ), 5 );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'assets' ) );
+	}
+
+	/**
+	 * Désactive « Ajouter au panier » WooCommerce sur les fiches produit
+	 * quand le réglage est actif : le formulaire COD est le seul chemin
+	 * d'achat. Réglage : Options du formulaire.
+	 *
+	 * @return void
+	 */
+	public function maybe_disable_add_to_cart() {
+		if ( ! Settings::get( 'disable_add_to_cart' ) ) {
+			return;
+		}
+		if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+			return;
+		}
+		remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
+		remove_action( 'woocommerce_simple_add_to_cart', 'woocommerce_template_simple_add_to_cart', 30 );
+		remove_action( 'woocommerce_variable_add_to_cart', 'woocommerce_template_variable_add_to_cart', 30 );
 	}
 
 	/**
@@ -714,8 +734,20 @@ class FormManager {
 						<ins data-head-price-live><?php echo esc_html( Settings::format_price( $head_price, $decimals ) ); ?></ins>
 					</span>
 				</header>
-			<?php if ( $show_stock && ! $product->is_type( 'variable' ) && $product->managing_stock() && $product->get_stock_quantity() !== null ) : ?>
-			<div class="icod-stock-badge" data-stock-badge><span class="dot"></span><?php printf( esc_html__( '%d pièces disponibles', 'infinitycod' ), (int) $product->get_stock_quantity() ); ?></div>
+			<?php if ( $show_stock && ! $product->is_type( 'variable' ) && $product->managing_stock() && $product->get_stock_quantity() !== null ) :
+				$stock_qty = (int) $product->get_stock_quantity();
+				$stock_low = $stock_qty > 0 && $stock_qty <= 5;
+				?>
+			<div class="icod-stock-badge<?php echo $stock_low ? ' icod-stock-low' : ''; ?>" data-stock-badge><span class="dot"></span>
+				<?php
+				if ( $stock_low ) {
+					/* translators: %d : quantité restante. */
+					printf( esc_html__( 'Seulement %d restants !', 'infinitycod' ), $stock_qty );
+				} else {
+					printf( esc_html__( '%d pièces disponibles', 'infinitycod' ), $stock_qty );
+				}
+				?>
+			</div>
 			<?php endif; ?>
 
 			<?php if ( $show_prog ) : ?>
@@ -925,6 +957,10 @@ class FormManager {
 				</form>
 			</section>
 
+			<?php if ( Settings::get( 'show_signature', 1 ) ) : ?>
+			<div class="icod-signed">🔒 Protégé par <a href="https://infinitycoder.app" target="_blank" rel="noopener">Infinity Coder</a></div>
+			<?php endif; ?>
+
 			<div class="icod-success icod-success-<?php echo esc_attr( Settings::get( 'success_style', 'classic' ) ); ?> icod-hidden" data-icod-success hidden>
 				<div class="icod-success-icon" aria-hidden="true"><span>✓</span></div>
 				<h3 data-icod-success-title><?php echo esc_html( Settings::get( 'success_title' ) ); ?></h3>
@@ -999,20 +1035,37 @@ class FormManager {
 	}
 
 	/**
-	 * Logos SVG des moyens de paiement algériens (style officiel simplifié).
+	 * Logos des moyens de paiement : logo officiel téléversé prioritaire
+	 * (Réglages → Paiement → médias), sinon SVG intégré.
 	 *
-	 * @param string $method cash|cib|edahabia|baridimob|ccp.
-	 * @return string SVG inline.
+	 * @param string $method cib|edahabia|baridimob|ccp|cash.
+	 * @return string HTML.
 	 */
 	public static function payment_logo( $method ) {
-		// Priorité aux logos officiels : déposez cib.svg/png, edahabia.svg/png, etc.
-		// dans assets/front/img/pay/ — ils remplacent automatiquement les visuels par défaut.
+		// 1. Logo officiel téléversé (ID média) : CIB et Edahabia.
+		$map = array(
+			'cib'      => 'logo_cib_id',
+			'edahabia' => 'logo_edahabia_id',
+		);
+		if ( isset( $map[ $method ] ) ) {
+			$att_id = absint( Settings::get( $map[ $method ], 0 ) );
+			if ( $att_id ) {
+				$src = wp_get_attachment_image_url( $att_id, 'full' );
+				if ( $src ) {
+					return '<img class="icod-paylogo" src="' . esc_url( $src ) . '" alt="' . esc_attr( $method ) . '" width="52" height="33" loading="lazy" />';
+				}
+			}
+		}
+
+		// 2. Fichiers déposés manuellement : assets/front/img/pay/{method}.svg|png|webp.
 		foreach ( array( 'svg', 'png', 'webp' ) as $ext ) {
 			$file = INFINITYCOD_PATH . 'assets/front/img/pay/' . $method . '.' . $ext;
 			if ( file_exists( $file ) ) {
 				return '<img class="icod-paylogo" src="' . esc_url( INFINITYCOD_URL . 'assets/front/img/pay/' . $method . '.' . $ext ) . '" alt="' . esc_attr( $method ) . '" width="52" height="33" loading="lazy" />';
 			}
 		}
+
+		// 3. SVG intégrés par défaut.
 		$common = 'class="icod-paylogo" role="img" width="52" height="33" viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"';
 
 		switch ( $method ) {

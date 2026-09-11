@@ -726,7 +726,7 @@ class AdminManager {
 			);
 		}
 
-		// Livraison gratuite intelligente + poids.
+		// Livraison gratuite intelligente + poids + sync transporteurs.
 		\InfinityCod\Core\Settings::set( array(
 			'free_amount_enabled'   => empty( $_POST['icod_free_amount_enabled'] ) ? 0 : 1,
 			'free_amount_threshold' => isset( $_POST['icod_free_amount_threshold'] ) ? (float) $_POST['icod_free_amount_threshold'] : 0,
@@ -734,6 +734,7 @@ class AdminManager {
 			'weight_fee_enabled'    => empty( $_POST['icod_weight_fee_enabled'] ) ? 0 : 1,
 			'weight_fee_per_kg'     => isset( $_POST['icod_weight_fee_per_kg'] ) ? (float) $_POST['icod_weight_fee_per_kg'] : 0,
 			'weight_fee_free_kg'    => isset( $_POST['icod_weight_fee_free_kg'] ) ? (float) $_POST['icod_weight_fee_free_kg'] : 0,
+			'carrier_autosync'      => empty( $_POST['icod_carrier_autosync'] ) ? 0 : 1,
 		) );
 
 		// Défauts globaux éditables sur le même écran.

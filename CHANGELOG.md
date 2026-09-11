@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.18.0 — 2026-09-11
+
+Protection, synchronisation transporteurs et personnalisation paiement : tout ce qui était demandé dans cette itération.
+
+### Ajouté
+- **Protection contre l'utilisation sans autorisation** : garde serveur sur l'API de commandes (403 sans licence quand le verrou est actif) + bannière admin persistante « 🔒 InfinityCod est verrouillé ». Activation : define( 'INFINITYCOD_LOCK_FORM', true ); dans wp-config.php du site client.
+- **Mention DMCA** : en-tête du plugin, README, readme.txt et pied de page admin (« 🔒 DMCA »).
+- **Wilayas & Tarifs** : case « Synchronisation automatique du suivi transporteur (chaque heure) » — activée par défaut, le cron ne tourne plus si vous la décochez.
+- **Onglet Paiement** : champs ID média pour les logos officiels CIB et Edahabia — vos logos remplacent les visuels intégrés dans le formulaire.
+- **Formulaire** : signature « 🔒 Protégé par Infinity Coder » sous le formulaire (désactivable) et badge de stock en alerte rouge « Seulement X restants ! » quand le stock est ≤ 5.
+- **Réglages → Options** : « Désactiver « Ajouter au panier » WooCommerce » — le formulaire COD devient le seul chemin d'achat sur la fiche produit.
+
+
 ## 5.17.0 — 2026-09-11
 
 Protection contre l'utilisation sans autorisation + mention DMCA + purge du code (plugin plus léger).

@@ -247,6 +247,12 @@ class CarrierManager {
 	public function sync_tracking() {
 		global $wpdb;
 
+		// Synchronisation automatique : ACTIVÉE PAR DÉFAUT, désactivable
+		// (Wilayas & Tarifs → « Synchronisation automatique »).
+		if ( '0' === (string) Settings::get( 'carrier_autosync', '1' ) ) {
+			return array( 'checked' => 0, 'updated' => 0 );
+		}
+
 		$table = Schema::table( 'orders' );
 
 		$rows = $wpdb->get_results(

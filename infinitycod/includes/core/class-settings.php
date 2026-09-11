@@ -93,6 +93,7 @@ class Settings {
 
 			// Supplément poids (produits lourds / encombrants).
 			'weight_fee_enabled'    => 0,
+				'carrier_autosync'      => '1',    // Synchronisation auto transporteurs (ON par défaut).
 			'weight_fee_per_kg'     => 100,  // DA par kg au-delà de l'inclus.
 			'weight_fee_free_kg'    => 2,    // kg inclus sans frais.
 
@@ -116,6 +117,10 @@ class Settings {
 			'show_progress_bar'     => 1,    // Barre de progression.
 			'show_summary_coupon'   => 1,    // Champ code promo.
 			'hide_when_sold_out'    => 0,    // Masquer le formulaire si épuisé.
+				'disable_add_to_cart'   => 0,    // Désactiver « Ajouter au panier » WooCommerce.
+				'show_signature'        => 1,    // Signature « Protégé par Infinity Coder ».
+				'logo_cib_id'           => 0,    // Logo CIB officiel (média).
+				'logo_edahabia_id'      => 0,    // Logo Edahabia officiel (média).
 
 			// Anti-fraude.
 			'shield_enabled'        => 1,

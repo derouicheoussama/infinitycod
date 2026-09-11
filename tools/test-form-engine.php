@@ -618,7 +618,20 @@ check( 'constante wp-config : INFINITYCOD_LOCK_FORM documentée', false !== strp
 check( 'DMCA : mention dans README + header plugin', false !== strpos( file_get_contents( dirname( $plugin_dir ) . '/README.md' ), 'DMCA' ) && false !== strpos( file_get_contents( $plugin_dir . 'infinitycod.php' ), 'Protection:' ) );
 check( 'purge : règles admin mortes retirées du CSS front', false === strpos( $css4, '.icod-lic-hero' ) && false === strpos( $css4, '.icod-kpi-grid' ) );
 
-/* ---------- Bilan ---------- */
+/* ---------- 30. Autosync transporteurs + add-to-cart + logos + signature + stock faible ---------- */
+
+echo "\n30) Autosync, add-to-cart, logos officiels, signature, stock faible\n";
+$geo2 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-geo-page.php' );
+$am5  = file_get_contents( $plugin_dir . 'includes/admin/class-admin-manager.php' );
+$fm6  = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
+$carr = file_get_contents( $plugin_dir . 'includes/carriers/class-carrier-manager.php' );
+check( 'autosync transporteurs ON par défaut (toggle + gate + handler)', false !== strpos( $geo2, 'icod_carrier_autosync' ) && false !== strpos( $am5, "'carrier_autosync'" ) && false !== strpos( $carr, 'carrier_autosync' ) );
+check( 'add-to-cart WC désactivable (3 hooks retirés)', false !== strpos( $fm6, 'maybe_disable_add_to_cart' ) && false !== strpos( $fm6, 'woocommerce_template_single_add_to_cart' ) );
+check( 'signature Infinity Coder sous le formulaire', false !== strpos( $fm6, 'icod-signed' ) && false !== strpos( $fm6, 'infinitycoder.app' ) );
+check( 'stock faible : pilule rouge « Seulement X restants »', false !== strpos( $fm6, 'icod-stock-low' ) && false !== strpos( $fm6, 'Seulement %d restants' ) );
+check( 'logos CIB/Edahabia téléversables prioritaires', false !== strpos( $fm6, 'logo_cib_id' ) && false !== strpos( $fm6, 'logo_edahabia_id' ) );
+$sp7 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+check( 'réglages Paiement : champs ID logos', false !== strpos( $sp7, 'icod[logo_cib_id]' ) && false !== strpos( $sp7, 'icod[logo_edahabia_id]' ) );
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

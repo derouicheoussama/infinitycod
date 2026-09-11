@@ -397,6 +397,19 @@ class SettingsPage {
 				<?php esc_html_e( 'Webhook automatique :', 'infinitycod' ); ?>
 				<code><?php echo esc_html( rest_url( 'infinitycod/v1/chargily/webhook' ) ); ?></code>
 			</p>
+
+			<h3 style="margin-top:16px"><?php esc_html_e( '🖼️ Logos officiels des cartes', 'infinitycod' ); ?></h3>
+			<p class="description"><?php esc_html_e( 'Téléversez les logos officiels CIB et Edahabia depuis votre médiathèque (Médiathèque → image → ID dans l’URL d’édition). Format conseillé : 260×164.', 'infinitycod' ); ?></p>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Logo CIB (ID du média)', 'infinitycod' ); ?></span>
+					<input type="number" min="0" class="small-text" name="icod[logo_cib_id]" value="<?php echo esc_attr( (int) Settings::get( 'logo_cib_id', 0 ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Logo Edahabia (ID du média)', 'infinitycod' ); ?></span>
+					<input type="number" min="0" class="small-text" name="icod[logo_edahabia_id]" value="<?php echo esc_attr( (int) Settings::get( 'logo_edahabia_id', 0 ) ); ?>" />
+				</label>
+			</div>
 		</div>
 
 		<div class="icod-card">
@@ -1882,6 +1895,10 @@ class SettingsPage {
 			'show_progress_bar'  => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_summary_coupon' => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'hide_when_sold_out' => array( 'tab' => 'form', 'type' => 'toggle' ),
+				'disable_add_to_cart' => array( 'tab' => 'form', 'type' => 'toggle' ),
+				'show_signature'      => array( 'tab' => 'form', 'type' => 'toggle' ),
+				'logo_cib_id'         => array( 'tab' => 'payment', 'type' => 'id' ),
+				'logo_edahabia_id'    => array( 'tab' => 'payment', 'type' => 'id' ),
 			'form_position'      => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'before_summary', 'after_price', 'after_excerpt', 'before_cart', 'after_cart', 'after_summary', 'end_product' ) ),
 			'form_max_width'     => array( 'tab' => 'form', 'type' => 'int', 'min' => 400, 'max' => 1400 ),
 			'qty_max'            => array( 'tab' => 'form', 'type' => 'int', 'min' => 1, 'max' => 999 ),

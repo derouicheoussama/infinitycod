@@ -138,6 +138,10 @@ class GeoPage {
 						<span><?php esc_html_e( 'Kg inclus sans frais', 'infinitycod' ); ?></span>
 						<input type="number" min="0" step="1" name="icod_weight_fee_free_kg" value="<?php echo esc_attr( Settings::get( 'weight_fee_free_kg' ) ); ?>" />
 					</label>
+					<label class="icod-toggle">
+						<input type="checkbox" name="icod_carrier_autosync" value="1" <?php checked( '1', (string) Settings::get( 'carrier_autosync', '1' ) ); ?> />
+						<span><?php esc_html_e( 'Synchronisation automatique du suivi transporteur (chaque heure)', 'infinitycod' ); ?></span>
+					</label>
 				</div>
 			</div>
 
