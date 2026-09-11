@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.24.3 — 2026-09-11
+
+Stepper Quantité encore plus léger et discret.
+
+### Modifié
+- **Taille réduite** : boutons − / + ramenés à 26 px (au lieu de 30), saisie 34 px, padding de la pilule resserré — le stepper pèse désormais visuellement autant qu'un champ normal au lieu de dominer la ligne. Le libellé « Quantité » et le stepper restent alignés sur une seule ligne pleine largeur.
+
+
 ## 5.24.2 — 2026-09-11
 
 Champ Quantité : blindage maximal contre les thèmes.

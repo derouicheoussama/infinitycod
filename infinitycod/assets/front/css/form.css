@@ -118,12 +118,12 @@ textarea.icod-input{min-height:0;padding:11px 13px;resize:vertical;line-height:1
 /* Quantité — pilule compacte, boutons ronds, chiffre exactement centré.
    Structure symétrique (1.5+3 | 30 | 38 | 30 | 3+1.5) et padding/text-align
    verrouillés : certains thèmes décalent le chiffre ou étirent l'input. */
-.icod-qty{display:inline-flex;align-items:center;gap:2px;width:max-content;max-width:100%;border:1.5px solid var(--icod-border);border-radius:99px;background:var(--icod-surface);padding:3px;box-shadow:0 2px 8px rgba(11,34,57,.07);transition:border-color .15s,box-shadow .15s}
+.icod-qty{display:inline-flex;align-items:center;gap:2px;width:max-content;max-width:100%;border:1.5px solid var(--icod-border);border-radius:99px;background:var(--icod-surface);padding:2px;box-shadow:0 2px 8px rgba(11,34,57,.07);transition:border-color .15s,box-shadow .15s}
 .icod-qty:focus-within{border-color:var(--icod-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--icod-accent) 12%,transparent)}
-.icod-qty-btn{width:30px;height:30px;flex:none;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;line-height:1;color:var(--icod-accent);background:color-mix(in srgb,var(--icod-accent) 8%,transparent);border:none;border-radius:50%;cursor:pointer;transition:background .15s,transform .12s}
+.icod-qty-btn{width:26px;height:26px;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;line-height:1;color:var(--icod-accent);background:color-mix(in srgb,var(--icod-accent) 8%,transparent);border:none;border-radius:50%;cursor:pointer;transition:background .15s,transform .12s}
 .icod-qty-btn:hover{background:color-mix(in srgb,var(--icod-accent) 18%,transparent);transform:scale(1.08)}
 .icod-qty-btn:active{transform:scale(.92)}
-.icod-qty-input{width:38px!important;min-width:38px;max-width:38px;flex:0 0 auto;text-align:center!important;padding:0!important;height:30px;font-size:14px;font-weight:800;border:0!important;background:transparent!important;box-shadow:none!important;color:var(--icod-text);-moz-appearance:textfield;appearance:textfield}
+.icod-qty-input{width:34px!important;min-width:34px;max-width:34px;flex:0 0 auto;text-align:center!important;padding:0!important;height:26px;font-size:13px;font-weight:800;border:0!important;background:transparent!important;box-shadow:none!important;color:var(--icod-text);-moz-appearance:textfield;appearance:textfield}
 .icod-qty-input::-webkit-inner-spin-button{-webkit-appearance:none}
 /* Champ Quantité : libellé et stepper sur une seule ligne, répartis sur
    toute la largeur — le champ reste compact et bien placé (fini le
