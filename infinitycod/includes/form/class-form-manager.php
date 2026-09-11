@@ -684,6 +684,10 @@ class FormManager {
 		if ( '' !== $btn_h && is_numeric( (string) $btn_h ) ) {
 			$root_vars .= ';--icod-btn-h:' . max( 48, min( 80, (int) $btn_h ) ) . 'px';
 		}
+		$field_r = Settings::get( 'field_radius', '' );
+		if ( '' !== $field_r && is_numeric( (string) $field_r ) ) {
+			$root_vars .= ';--icod-radius-fields:' . max( 0, min( 30, (int) $field_r ) ) . 'px';
+		}
 		if ( '' !== $padding && is_numeric( (string) $padding ) ) {
 			$root_vars .= ';--icod-pad:' . max( 8, min( 48, (int) $padding ) ) . 'px';
 		}

@@ -1,5 +1,21 @@
 # Changelog
 
+## 5.21.0 — 2026-09-11
+
+Stepper quantité redessiné, arrondi des champs réglable au pixel, page À propos actualisée.
+
+### Ajouté
+- **Réglage « Arrondi des champs » (0-30 px)** dans Apparence du formulaire : contrôle dédié appliqué à tous les champs (nom, téléphone, e-mail, wilaya, commune, adresse, note) via la variable CSS `--icod-radius-fields`. Vide = arrondi du thème.
+- **Page À propos enrichie** : bloc « Nouveautés récentes » (3 dernières versions du journal embarqué) et liste des fonctionnalités entièrement actualisée (Builder, codes promo, 8 styles de timer, export Excel, DMCA…).
+
+### Modifié
+- **Stepper Quantité redessiné** : pilule douce avec ombre légère, boutons − / + circulaires avec effet hover/appui, saisie centrale sans cadre, halo de focus à la couleur d'accent.
+
+### Corrigé
+- Import manquant `Settings` dans le gestionnaire des transporteurs (synchronisation automatique du suivi).
+- L'arrondi des champs Nom complet / Téléphone est désormais identique à celui des autres champs (variable commune), et pilotable depuis les réglages.
+
+
 ## 5.20.2 — 2026-09-11
 
 Conformité WordPress.org : readme.txt aux normes (Stable tag, Screenshots, Requires Plugins, Services externes disclosés) et assets officiels (bannière, icône, captures). Mise à jour GitHub désactivée d'elle-même si le plugin est hébergé sur le répertoire officiel WordPress.org (pattern dual-hosted standard).

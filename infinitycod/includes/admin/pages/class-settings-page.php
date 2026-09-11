@@ -998,6 +998,11 @@ class SettingsPage {
 					<span><?php esc_html_e( 'Hauteur du bouton (48-80 px)', 'infinitycod' ); ?> <em>(vide = 56 px)</em></span>
 					<input type="number" min="48" max="80" name="icod[button_height]" value="<?php echo esc_attr( Settings::get( 'button_height', '' ) ); ?>" />
 				</label>
+				<label>
+					<span><?php esc_html_e( 'Arrondi des champs (0-30 px)', 'infinitycod' ); ?> <em>(vide = arrondi du thème)</em></span>
+					<input type="number" min="0" max="30" name="icod[field_radius]" value="<?php echo esc_attr( Settings::get( 'field_radius', '' ) ); ?>" />
+					<em><?php esc_html_e( 'S’applique à tous les champs : nom, téléphone, e-mail, wilaya, commune, adresse, note.', 'infinitycod' ); ?></em>
+				</label>
 			</div>
 		</div>
 
@@ -1885,6 +1890,7 @@ class SettingsPage {
 			'form_padding'       => array( 'tab' => 'form', 'type' => 'int_opt', 'min' => 8, 'max' => 48 ),
 			'form_font_size'     => array( 'tab' => 'form', 'type' => 'int_opt', 'min' => 13, 'max' => 20 ),
 			'button_height'      => array( 'tab' => 'form', 'type' => 'int_opt', 'min' => 48, 'max' => 80 ),
+			'field_radius'       => array( 'tab' => 'form', 'type' => 'int_opt', 'min' => 0, 'max' => 30 ),
 			'form_theme'         => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'light', 'dark', 'auto' ) ),
 			'success_style'      => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'classic', 'confetti', 'minimal', 'ticket', 'celebration' ) ),
 			'checkout_fields'    => array( 'tab' => 'form', 'type' => 'json' ),

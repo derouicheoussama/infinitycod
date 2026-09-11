@@ -556,7 +556,7 @@ check( 'CSS : les 5 nouveaux styles existent', false !== strpos( $css2, '.icod-t
 check( 'largeur jusqu à 1400 px (schéma + UI)', false !== strpos( $sp5, "=> 1400" ) && false !== strpos( $sp5, 'max="1400"' ) );
 check( 'police + hauteur bouton variables', false !== strpos( $sp5, "'form_font_size'" ) && false !== strpos( $sp5, "'button_height'" ) && false !== strpos( $css2, 'var(--icod-fs,14px)' ) && false !== strpos( $css2, 'var(--icod-btn-h,56px)' ) );
 check( 'licence : carte Premium unique avec PayPal direct', false !== strpos( $sp5, 'paypal_price' ) && false === strpos( $sp5, "'Personal', 'infinitycod'" ) );
-check( 'quantité élargie (56 px) + blindée thèmes', false !== strpos( $css2, '.icod-qty-input{width:56px' ) && false !== strpos( $css2, 'border:0!important' ) );
+check( 'quantité élargie + blindée thèmes', false !== strpos( $css2, '.icod-qty-input' ) && false !== strpos( $css2, 'border:0!important' ) );
 
 /* ---------- 26. Champs harmonisés + FLAT + captcha en bas + UX clavier ---------- */
 
@@ -632,6 +632,21 @@ check( 'stock faible : pilule rouge « Seulement X restants »', false !== strpo
 check( 'logos CIB/Edahabia téléversables prioritaires', false !== strpos( $fm6, 'logo_cib_id' ) && false !== strpos( $fm6, 'logo_edahabia_id' ) );
 $sp7 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
 check( 'réglages Paiement : champs ID logos', false !== strpos( $sp7, 'icod[logo_cib_id]' ) && false !== strpos( $sp7, 'icod[logo_edahabia_id]' ) );
+
+/* ---------- 31. Stepper quantité redessiné + arrondi des champs réglable + À propos ---------- */
+
+echo "\n31) Stepper repensé, arrondi des champs (field_radius), page À propos\n";
+$css5 = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
+$sp8  = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+$set3 = file_get_contents( $plugin_dir . 'includes/core/class-settings.php' );
+$fm7  = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
+$about = file_get_contents( $plugin_dir . 'includes/admin/pages/class-about-page.php' );
+check( 'stepper : pilule + boutons circulaires + focus visible', false !== strpos( $css5, '.icod-qty-btn{width:36px;height:36px' ) && false !== strpos( $css5, 'border-radius:50%' ) && false !== strpos( $css5, '.icod-qty:focus-within{border-color:var(--icod-accent)' ) );
+check( 'arrondi des champs : schéma + défaut + UI', false !== strpos( $sp8, "'field_radius'" ) && false !== strpos( $sp8, 'icod[field_radius]' ) && false !== strpos( $set3, "'field_radius'" ) );
+check( 'arrondi des champs : variable CSS appliquée aux inputs', false !== strpos( $fm7, '--icod-radius-fields' ) && false !== strpos( $css5, 'border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px))' ) );
+check( 'À propos : bloc Nouveautés depuis le CHANGELOG embarqué', false !== strpos( $about, 'recent_changelog' ) && false !== strpos( $about, 'CHANGELOG.md' ) );
+check( 'À propos : fonctionnalités actualisées (Builder, promos, 8 timers, DMCA)', false !== strpos( $about, 'Checkout Builder' ) && false !== strpos( $about, 'Codes promo InfinityCod' ) && false !== strpos( $about, '8 styles' ) && false !== strpos( $about, 'DMCA' ) );
+check( 'mobile : stepper reste compact (max-width conservé)', false !== strpos( $css5, '.icod-qty{max-width:180px}' ) );
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

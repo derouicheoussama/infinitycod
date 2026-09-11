@@ -11,6 +11,7 @@
 namespace InfinityCod\Carriers;
 
 use InfinityCod\Core\Schema;
+use InfinityCod\Core\Settings;
 
 defined( 'ABSPATH' ) || exit;
 

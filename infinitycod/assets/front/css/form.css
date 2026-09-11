@@ -97,7 +97,7 @@
 .icod-input-icon{position:absolute;inset-inline-start:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--icod-accent);opacity:.6;pointer-events:none;z-index:1;transition:opacity .15s}
 .icod-input-wrap:focus-within .icod-input-icon{opacity:1}
 .icod-input-wrap .icod-input,.icod-input-wrap select.icod-input{padding-inline-start:40px!important;width:100%}
-.icod-input{width:100%;min-width:0;min-height:46px;padding:10px 13px;border:1.5px solid var(--icod-border);border-radius:var(--icod-radius-sm,12px);background:var(--icod-field);color:var(--icod-text);font:inherit;font-size:15px;transition:border-color .15s,box-shadow .15s,background .15s;background-image:none!important}
+.icod-input{width:100%;min-width:0;min-height:46px;padding:10px 13px;border:1.5px solid var(--icod-border);border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px));background:var(--icod-field);color:var(--icod-text);font:inherit;font-size:15px;transition:border-color .15s,box-shadow .15s,background .15s;background-image:none!important}
 .icod-input:hover{border-color:var(--icod-border-strong)}
 .icod-input:focus{outline:none;border-color:var(--icod-accent);box-shadow:0 0 0 3.5px rgba(24,119,194,.14);box-shadow:0 0 0 3.5px color-mix(in srgb,var(--icod-accent) 18%,transparent);background:var(--icod-field)}
 .icod-input::placeholder{color:var(--icod-placeholder)}
@@ -115,12 +115,13 @@ textarea.icod-input{min-height:0;padding:11px 13px;resize:vertical;line-height:1
 .icod-layout>*{min-width:0}
 .icod-main,.icod-aside{min-width:0}
 
-/* Quantité */
-.icod-qty{display:inline-flex;align-items:center;gap:0;border:1.5px solid var(--icod-border);border-radius:99px;overflow:hidden;background:var(--icod-surface);transition:border-color .15s}
-.icod-qty:focus-within{border-color:var(--icod-accent)}
-.icod-qty-btn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--icod-accent);background:none;border:none;cursor:pointer;transition:background .15s}
-.icod-qty-btn:hover{background:color-mix(in srgb,var(--icod-accent) 8%,transparent)}
-.icod-qty-input{width:56px;text-align:center;font-size:16px;font-weight:800;border:0!important;background:transparent!important;box-shadow:none!important;color:var(--icod-text);-moz-appearance:textfield;appearance:textfield;height:44px;padding:0}
+/* Quantité — pilule douce, boutons circulaires, saisie sans cadre. */
+.icod-qty{display:inline-flex;align-items:center;gap:4px;border:1.5px solid var(--icod-border);border-radius:99px;background:var(--icod-surface);padding:4px 6px;box-shadow:0 2px 8px rgba(11,34,57,.07);transition:border-color .15s,box-shadow .15s}
+.icod-qty:focus-within{border-color:var(--icod-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--icod-accent) 12%,transparent)}
+.icod-qty-btn{width:36px;height:36px;flex:none;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;line-height:1;color:var(--icod-accent);background:color-mix(in srgb,var(--icod-accent) 8%,transparent);border:none;border-radius:50%;cursor:pointer;transition:background .15s,transform .12s}
+.icod-qty-btn:hover{background:color-mix(in srgb,var(--icod-accent) 18%,transparent);transform:scale(1.06)}
+.icod-qty-btn:active{transform:scale(.92)}
+.icod-qty-input{width:50px;text-align:center;font-size:16px;font-weight:800;border:0!important;background:transparent!important;box-shadow:none!important;color:var(--icod-text);-moz-appearance:textfield;appearance:textfield;height:36px;padding:0}
 .icod-qty-input::-webkit-inner-spin-button{-webkit-appearance:none}
 
 /* Variantes */
@@ -453,5 +454,3 @@ fieldset.icod-mode{min-width:0}
 .icod-main>*:nth-child(5){animation-delay:.16s}
 .icod-main>*:nth-child(6){animation-delay:.2s}
 @keyframes icod-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-/* Stepper quantité : pilule propre. */
-.icod-qty{box-shadow:0 1px 4px rgba(0,0,0,.06)}

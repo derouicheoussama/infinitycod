@@ -169,6 +169,7 @@ class Settings {
 			'form_padding'          => '',
 			'form_font_size'        => '',
 			'button_height'         => '',
+			'field_radius'          => '',   // Arrondi des champs du formulaire (px, vide = thème).
 
 			// Champs personnalisés du Checkout Builder : ordre, visibilité, requis, labels.
 			'checkout_fields'       => [

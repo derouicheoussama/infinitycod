@@ -120,6 +120,11 @@ class AboutPage {
 				</div>
 			</div>
 
+			<div class="icod-card">
+				<h2><?php esc_html_e( 'Nouveautés récentes', 'infinitycod' ); ?></h2>
+				<?php echo $this->recent_changelog( 3 ); // phpcs:ignore WordPress.Security.EscapeOutput -- construit depuis CHANGELOG.md, tout est échappé dans recent_changelog(). ?>
+			</div>
+
 			<div class="icod-dashboard-cols">
 				<div class="icod-card">
 					<h2><?php esc_html_e( 'Statut du système', 'infinitycod' ); ?></h2>
@@ -151,14 +156,22 @@ class AboutPage {
 					<div class="icod-card">
 						<h2><?php esc_html_e( 'Fonctionnalités', 'infinitycod' ); ?></h2>
 						<ul class="icod-features">
-							<li>✅ <?php esc_html_e( 'Formulaire COD responsive — 5 thèmes, mode sombre, RTL arabe', 'infinitycod' ); ?></li>
+							<li>🎨 <?php esc_html_e( 'Formulaire COD responsive — 5 styles (Classique, Moderne, Tech, E-commerce, Flat), mode sombre, RTL arabe', 'infinitycod' ); ?></li>
+							<li>🧩 <?php esc_html_e( 'Checkout Builder : glisser-déposer l’ordre des champs, visibilité, champs requis, libellés personnalisés et modèles prêts à l’emploi', 'infinitycod' ); ?></li>
+							<li>🎨 <?php esc_html_e( 'Personnalisation avancée : couleur d’accent, palette de nuances, arrondi des champs, hauteur du bouton, taille de police — aperçu live', 'infinitycod' ); ?></li>
+							<li>⏳ <?php esc_html_e( 'Compte à rebours d’urgence — 8 styles, position, couleurs et taille réglables', 'infinitycod' ); ?></li>
+							<li>🧮 <?php esc_html_e( 'Stepper quantité repensé (bornes min/max, boutons arrondis) + ajout au panier WooCommerce désactivable', 'infinitycod' ); ?></li>
+							<li>🤖 <?php esc_html_e( 'Captcha anti-bot intégré (question personnalisée) + reCAPTCHA v3 en option', 'infinitycod' ); ?></li>
+							<li>🏷️ <?php esc_html_e( 'Codes promo InfinityCod : fenêtre de dates, produits ciblés/exclus, plafond de remise, statistiques et historique d’utilisation', 'infinitycod' ); ?></li>
+							<li>📦 <?php esc_html_e( 'Offres par quantité et livraison gratuite à partir d’un montant', 'infinitycod' ); ?></li>
+							<li>📊 <?php esc_html_e( 'Dashboard commandes complet : statuts, filtres, actions groupées, export Excel coloré et CSV', 'infinitycod' ); ?></li>
+							<li>📈 <?php esc_html_e( 'Statistiques P&L ouvertes à tous : CA, marge, taux de confirmation/retour par wilaya, transporteur et produit', 'infinitycod' ); ?></li>
 							<li>🗺️ <?php esc_html_e( '58 wilayas + 1541 communes officielles (FR/AR)', 'infinitycod' ); ?></li>
-							<li>🛡️ <?php esc_html_e( 'Bouclier anti-fraude avec score de risque', 'infinitycod' ); ?></li>
-							<li>📊 <?php esc_html_e( 'Dashboard commandes + export Excel', 'infinitycod' ); ?></li>
-							<li>🚚 <?php esc_html_e( 'Transporteurs : Yalidine, ZR Express, Maystro, Noest, E-COM, DHD', 'infinitycod' ); ?></li>
-							<li>💬 <?php esc_html_e( 'WhatsApp automatique + relance des paniers abandonnés', 'infinitycod' ); ?></li>
-							<li>🏷️ <?php esc_html_e( 'Offres par quantité et livraison gratuite', 'infinitycod' ); ?></li>
-							<li>📈 <?php esc_html_e( 'Statistiques P&L par wilaya, transporteur et produit', 'infinitycod' ); ?></li>
+							<li>🚚 <?php esc_html_e( 'Transporteurs : Yalidine, ZR Express, Maystro, Noest, E-COM, DHD — création de colis + tracking synchronisé', 'infinitycod' ); ?></li>
+							<li>💬 <?php esc_html_e( 'WhatsApp automatique (confirmation, expédition) + relance des paniers abandonnés', 'infinitycod' ); ?></li>
+							<li>🛡️ <?php esc_html_e( 'Bouclier anti-fraude : score de risque, rate-limit IP, blacklist, honeypot', 'infinitycod' ); ?></li>
+							<li>✍️ <?php esc_html_e( 'Signature du bon de commande à la souris, barre « Commander » collante sur mobile, écran de remerciement animé', 'infinitycod' ); ?></li>
+							<li>🔒 <?php esc_html_e( 'Mises à jour sécurisées (SHA-256 + signature) et protection du code (DMCA, licence)', 'infinitycod' ); ?></li>
 						</ul>
 					</div>
 
@@ -183,6 +196,76 @@ class AboutPage {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Rendu HTML des dernières versions du CHANGELOG.md embarqué.
+	 *
+	 * @param int $limit Nombre de versions à afficher.
+	 * @return string HTML sûr.
+	 */
+	private function recent_changelog( $limit = 3 ) {
+		$empty = '<p class="description">' . esc_html__( 'Journal des modifications indisponible.', 'infinitycod' ) . '</p>';
+
+		$file = INFINITYCOD_PATH . 'CHANGELOG.md';
+		if ( ! file_exists( $file ) ) {
+			return $empty;
+		}
+		$md = file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- lecture du fichier du plugin.
+		if ( false === $md || '' === trim( (string) $md ) ) {
+			return $empty;
+		}
+
+		$html    = '';
+		$in_list = false;
+		$count   = 0;
+
+		$inline = static function ( $text ) {
+			$text = esc_html( $text );
+			return (string) preg_replace( '/\*\*([^*]+)\*\*/', '<strong>$1</strong>', $text );
+		};
+
+		foreach ( preg_split( '/\r\n|\r|\n/', $md ) as $line ) {
+			$line = rtrim( (string) $line );
+
+			if ( preg_match( '/^##\s+(\S.*)$/', $line, $m ) ) {
+				if ( $count >= $limit ) {
+					break;
+				}
+				if ( $in_list ) {
+					$html .= '</ul>';
+					$in_list = false;
+				}
+				$count++;
+				$html .= '<h4 style="margin:16px 0 6px">' . $inline( $m[1] ) . '</h4>';
+				continue;
+			}
+			if ( preg_match( '/^###\s+(\S.*)$/', $line, $m ) ) {
+				if ( $in_list ) {
+					$html .= '</ul>';
+					$in_list = false;
+				}
+				$html .= '<p style="margin:10px 0 4px"><strong>' . $inline( $m[1] ) . '</strong></p>';
+				continue;
+			}
+			if ( preg_match( '/^[-*]\s+(.+)$/', $line, $m ) ) {
+				if ( ! $in_list ) {
+					$html .= '<ul style="margin:4px 0 10px 18px;list-style:disc">';
+					$in_list = true;
+				}
+				$html .= '<li>' . $inline( $m[1] ) . '</li>';
+				continue;
+			}
+			if ( '' === $line && $in_list ) {
+				$html .= '</ul>';
+				$in_list = false;
+			}
+		}
+		if ( $in_list ) {
+			$html .= '</ul>';
+		}
+
+		return '' === $html ? $empty : $html;
 	}
 
 	/**
