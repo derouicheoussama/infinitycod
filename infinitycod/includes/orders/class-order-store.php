@@ -103,8 +103,13 @@ class OrderStore {
 
 		// Code promo : revalidé côté serveur (jamais confiance au client).
 		$coupon_code   = isset( $data['coupon'] ) ? sanitize_text_field( (string) $data['coupon'] ) : '';
-		$coupon        = $coupon_code ? Coupon::evaluate( $coupon_code, round( $subtotal - $discount_amount, 2 ), $quantity ) : array( 'valid' => false, 'amount' => 0.0, 'code' => '', 'label' => '' );
+		$coupon        = $coupon_code ? Coupon::evaluate( $coupon_code, round( $subtotal - $discount_amount, 2 ), $quantity, $product_id ) : array( 'valid' => false, 'amount' => 0.0, 'code' => '', 'label' => '' );
 		$coupon_amount = $coupon['valid'] ? (float) $coupon['amount'] : 0.0;
+
+		// Statistiques du code promo InfinityCod (utilisations + montants).
+		if ( ! empty( $coupon['promo_id'] ) && $coupon_amount > 0 ) {
+			Promo::record_usage( (int) $coupon['promo_id'], $coupon_amount, $total );
+		}
 
 		$total = max( 0, $subtotal - $discount_amount - $coupon_amount + $shipping_price );
 

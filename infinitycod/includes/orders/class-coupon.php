@@ -22,12 +22,13 @@ class Coupon {
 	/**
 	 * Évalue un code promo sur une base (sous-total après remises quantité).
 	 *
-	 * @param string $code  Code saisi par le client.
-	 * @param float  $base  Base de calcul (DA).
-	 * @param int    $qty   Quantité commandée (coupons par produit).
+	 * @param string $code       Code saisi par le client.
+	 * @param float  $base       Base de calcul (DA).
+	 * @param int    $qty        Quantité commandée (coupons par produit).
+	 * @param int    $product_id Produit commandé (pour les codes promo dédiés).
 	 * @return array{code:string, valid:bool, amount:float, label:string, error:string}
 	 */
-	public static function evaluate( $code, $base, $qty = 1 ) {
+	public static function evaluate( $code, $base, $qty = 1, $product_id = 0 ) {
 		$out = array(
 			'code'   => '',
 			'valid'  => false,
@@ -41,6 +42,16 @@ class Coupon {
 			return $out;
 		}
 		$out['code'] = $code;
+
+		/* 1. Codes promo InfinityCod (prioritaires) : dates, sélection de
+		   produits, minimum et limite gérés dans le module dédié. */
+		$promo = Promo::evaluate( $code, $base, $product_id );
+		if ( $promo['found'] ) {
+			$out['valid']  = $promo['valid'];
+			$out['amount'] = $promo['amount'];
+			$out['error']  = $promo['error'];
+			return $out;
+		}
 
 		if ( ! class_exists( 'WC_Coupon' ) ) {
 			$out['error'] = 'unavailable';

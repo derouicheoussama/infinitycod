@@ -134,7 +134,8 @@ class OrdersPage {
 						<option value="delete"><?php esc_html_e( '→ Supprimer (corbeille WC)', 'infinitycod' ); ?></option>
 					</select>
 					<button type="submit" class="button"><?php esc_html_e( 'Appliquer', 'infinitycod' ); ?></button>
-					<a class="button" href="<?php echo esc_url( $this->export_url() ); ?>">📥 <?php esc_html_e( 'Export CSV', 'infinitycod' ); ?></a>
+					<a class="button" href="<?php echo esc_url( $this->export_url() ); ?>">📄 CSV</a>
+					<a class="button button-primary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=icod_orders_export_xls' ), 'icod_orders_export' ) ); ?>">📊 <?php esc_html_e( 'Export Excel', 'infinitycod' ); ?></a>
 					<span class="icod-hint">
 						<?php
 						printf(

@@ -251,7 +251,7 @@ class Routes {
 		// Code promo : validé côté serveur sur la base après remises quantité.
 		$coupon_code = isset( $body['coupon'] ) ? sanitize_text_field( (string) $body['coupon'] ) : '';
 		$base        = round( $subtotal - (float) $discount['amount'], 2 );
-		$coupon      = $coupon_code ? Coupon::evaluate( $coupon_code, $base, $quantity ) : array( 'valid' => false, 'amount' => 0.0, 'label' => '' );
+		$coupon      = $coupon_code ? Coupon::evaluate( $coupon_code, $base, $quantity, $product_id ) : array( 'valid' => false, 'amount' => 0.0, 'label' => '' );
 		$coupon_out  = array(
 			'code'   => $coupon_code,
 			'valid'  => ! empty( $coupon['valid'] ) ? 1 : 0,

@@ -59,6 +59,10 @@ class AdminManager {
 		add_action( 'wp_ajax_icod_order_delete', array( $this, 'handle_order_delete' ) );
 		add_action( 'wp_ajax_icod_order_blacklist', array( $this, 'handle_order_blacklist' ) );
 		add_action( 'admin_post_icod_orders_export', array( $this, 'handle_orders_export' ) );
+		add_action( 'admin_post_icod_orders_export_xls', array( $this, 'handle_orders_export_xls' ) );
+		add_action( 'admin_post_icod_promo_save', array( $this, 'handle_promo_save' ) );
+		add_action( 'admin_post_icod_promo_delete', array( $this, 'handle_promo_delete' ) );
+		add_action( 'admin_post_icod_promo_toggle', array( $this, 'handle_promo_toggle' ) );
 		add_action( 'admin_post_icod_carrier_save', array( $this, 'handle_carrier_save' ) );
 		add_action( 'wp_ajax_icod_carrier_test', array( $this, 'handle_carrier_test' ) );
 		add_action( 'wp_ajax_icod_parcel_create', array( $this, 'handle_parcel_create' ) );
@@ -411,6 +415,15 @@ class AdminManager {
 
 		add_submenu_page(
 			'infinitycod',
+			__( 'Codes promo', 'infinitycod' ),
+			'🎟️ ' . __( 'Codes promo', 'infinitycod' ),
+			'manage_woocommerce',
+			'infinitycod-promos',
+			array( $this, 'render_promos' )
+		);
+
+		add_submenu_page(
+			'infinitycod',
 			__( 'Réglages InfinityCod', 'infinitycod' ),
 			'⚙️ ' . __( 'Réglages', 'infinitycod' ),
 			'manage_woocommerce',
@@ -607,6 +620,14 @@ class AdminManager {
 	 *
 	 * @return void
 	 */
+	public function render_promos() {
+		if ( class_exists( __NAMESPACE__ . '\\Pages\\PromosPage' ) ) {
+			( new Pages\PromosPage() )->render();
+			return;
+		}
+		printf( '<div class="wrap"><p>%s</p></div>', esc_html__( 'Module codes promo indisponible.', 'infinitycod' ) );
+	}
+
 	public function render_updates() {
 		if ( ! isset( $this->hooked_pages['updates'] ) ) {
 			$this->hooked_pages['updates'] = new Pages\UpdatesPage();
@@ -994,6 +1015,231 @@ class AdminManager {
 			wp_send_json_success();
 		}
 		wp_send_json_error( array( 'message' => 'db' ) );
+	}
+
+	/**
+	 * Enregistre un code promo InfinityCod (création / mise à jour).
+	 *
+	 * @return void
+	 */
+	public function handle_promo_save() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+		check_admin_referer( 'icod_promo_save' );
+
+		global $wpdb;
+
+		$id     = isset( $_POST['promo_id'] ) ? absint( $_POST['promo_id'] ) : 0;
+		$code   = isset( $_POST['promo_code'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['promo_code'] ) ) ) : '';
+		$type   = ( isset( $_POST['promo_type'] ) && 'fixed' === $_POST['promo_type'] ) ? 'fixed' : 'percent';
+		$value  = isset( $_POST['promo_value'] ) ? round( (float) $_POST['promo_value'], 2 ) : 0;
+		$starts = isset( $_POST['promo_starts'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_POST['promo_starts'] ) ? sanitize_text_field( $_POST['promo_starts'] ) . ' 00:00:00' : null;
+		$ends   = isset( $_POST['promo_ends'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_POST['promo_ends'] ) ? sanitize_text_field( $_POST['promo_ends'] ) . ' 23:59:59' : null;
+		$min    = isset( $_POST['promo_min_total'] ) ? (float) $_POST['promo_min_total'] : 0;
+		$limit  = isset( $_POST['promo_usage_limit'] ) ? absint( $_POST['promo_usage_limit'] ) : 0;
+		$active = empty( $_POST['promo_active'] ) ? 0 : 1;
+
+		$products = isset( $_POST['promo_products'] ) && is_array( $_POST['promo_products'] )
+			? implode( ',', array_map( 'absint', wp_unslash( $_POST['promo_products'] ) ) )
+			: '';
+
+		if ( '' === $code || $value <= 0 ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-promos&icod_msg=invalid' ) );
+			exit;
+		}
+
+		$table = \InfinityCod\Core\Schema::table( 'promos' );
+		$data  = array(
+			'code'           => $code,
+			'discount_type'  => $type,
+			'discount_value' => $value,
+			'starts_at'      => $starts,
+			'ends_at'        => $ends,
+			'product_ids'    => $products,
+			'min_total'      => $min,
+			'usage_limit'    => $limit,
+			'active'         => $active,
+		);
+		$format = array( '%s', '%s', '%f', '%s', '%s', '%s', '%f', '%d', '%d' );
+
+		if ( $id ) {
+			$wpdb->update( $table, $data, array( 'id' => $id ), $format, array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		} else {
+			$data['created_at'] = current_time( 'mysql' );
+			$wpdb->insert( $table, $data, array_merge( $format, array( '%s' ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-promos&icod_msg=saved' ) );
+		exit;
+	}
+
+	/**
+	 * Supprime un code promo.
+	 *
+	 * @return void
+	 */
+	public function handle_promo_delete() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+		check_admin_referer( 'icod_promo_delete' );
+
+		global $wpdb;
+		$id = isset( $_POST['promo_id'] ) ? absint( $_POST['promo_id'] ) : 0;
+
+		if ( $id ) {
+			$wpdb->delete( \InfinityCod\Core\Schema::table( 'promos' ), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-promos&icod_msg=deleted' ) );
+		exit;
+	}
+
+	/**
+	 * Bascule actif / inactif d'un code promo.
+	 *
+	 * @return void
+	 */
+	public function handle_promo_toggle() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+		check_admin_referer( 'icod_promo_toggle' );
+
+		global $wpdb;
+		$id = isset( $_POST['promo_id'] ) ? absint( $_POST['promo_id'] ) : 0;
+
+		if ( $id ) {
+			$table = \InfinityCod\Core\Schema::table( 'promos' );
+			$wpdb->query( $wpdb->prepare( "UPDATE {$table} SET active = 1 - active WHERE id = %d", $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-promos&icod_msg=toggled' ) );
+		exit;
+	}
+
+	/**
+	 * Export EXCEL coloré des commandes filtrées (.xls HTML stylé) :
+	 * en-têtes en couleur, statuts colorés, colonnes organisées.
+	 *
+	 * @return void
+	 */
+	public function handle_orders_export_xls() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+
+		check_admin_referer( 'icod_orders_export' );
+
+		global $wpdb;
+
+		$orders_table  = \InfinityCod\Core\Schema::table( 'orders' );
+		$wilayas_table = \InfinityCod\Core\Schema::table( 'wilayas' );
+
+		$where  = array( '1=1' );
+		$params = array();
+
+		$status = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
+		$wilaya = isset( $_GET['wilaya'] ) ? sanitize_text_field( wp_unslash( $_GET['wilaya'] ) ) : '';
+		$q      = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
+		$from   = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : '';
+		$to     = isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : '';
+
+		if ( $status && array_key_exists( $status, \InfinityCod\Orders\OrderStore::STATUSES ) ) {
+			$where[]  = 'o.status = %s';
+			$params[] = $status;
+		}
+		if ( $wilaya && preg_match( '/^\d{1,2}$/', $wilaya ) ) {
+			$where[]  = 'o.wilaya_code = %s';
+			$params[] = str_pad( $wilaya, 2, '0', STR_PAD_LEFT );
+		}
+		if ( $q ) {
+			$like     = '%' . $wpdb->esc_like( $q ) . '%';
+			$where[]  = '(o.customer_name LIKE %s OR o.phone LIKE %s)';
+			$params[] = $like;
+			$params[] = $like;
+		}
+		if ( $from && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) {
+			$where[]  = 'o.created_at >= %s';
+			$params[] = $from . ' 00:00:00';
+		}
+		if ( $to && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) ) {
+			$where[]  = 'o.created_at <= %s';
+			$params[] = $to . ' 23:59:59';
+		}
+
+		$where_sql = implode( ' AND ', $where );
+		$sql       = "SELECT o.*, w.name_fr AS wilaya_name FROM {$orders_table} o
+			LEFT JOIN {$wilayas_table} w ON w.code = o.wilaya_code
+			WHERE {$where_sql} ORDER BY o.created_at DESC LIMIT 5000";
+
+		$rows = $params
+			? $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A ) // phpcs:ignore WordPress.DB.PreparedSQL
+			: $wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL
+
+		$statuses = \InfinityCod\Orders\OrderStore::STATUSES;
+		$currency = \InfinityCod\Core\Settings::currency_label();
+
+		nocache_headers();
+		header( 'Content-Type: application/vnd.ms-excel; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=infinitycod-commandes-' . gmdate( 'Ymd-Hi' ) . '.xls' );
+		header( 'Pragma: no-cache' );
+
+		echo '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8" />';
+		echo '<style>
+			table{border-collapse:collapse;font-family:Segoe UI,Arial,sans-serif;font-size:12px}
+			th{background:#1877C2;color:#fff;font-weight:700;padding:8px 10px;border:1px solid #1266a8;text-align:left}
+			td{padding:6px 10px;border:1px solid #d5dfe9;vertical-align:top}
+			tr.title td{background:#0E7A4F;color:#fff;font-size:16px;font-weight:800;padding:12px;border:none}
+			tr.zebra td{background:#F6F9FC}
+			.st-confirmed,.st-shipped,.st-delivered{color:#0e7a4f;font-weight:700}
+			.st-cancelled,.st-returned,.st-failed{color:#d63638;font-weight:700}
+			.st-pending{color:#996800;font-weight:700}
+			.st-no_answer{color:#8a5a00}
+			.total td{font-weight:800;color:#0E7A4F;background:#EDF7F2}
+		</style></head><body>';
+
+		echo '<table>';
+		echo '<tr class="title"><td colspan="17">InfinityCod — Commandes COD · ' . esc_html( gmdate( 'd/m/Y H:i' ) ) . '</td></tr>';
+		echo '<tr>';
+		foreach ( array( 'ID', 'Date', 'Statut', 'Client', 'Téléphone', 'Wilaya', 'Commune', 'Mode', 'Bureau', 'Produit', 'Qté', 'Sous-total', 'Remise', 'Code promo', 'Livraison', 'Total', 'Transporteur', 'Suivi', 'Risque', 'IP' ) as $head ) {
+			echo '<th>' . esc_html( $head ) . '</th>';
+		}
+		echo '</tr>';
+
+		$zebra = false;
+		foreach ( (array) $rows as $r ) {
+			$zebra   = ! $zebra;
+			$product = $r['product_id'] ? get_the_title( (int) $r['product_id'] ) : '';
+			$status  = isset( $statuses[ $r['status'] ] ) ? $statuses[ $r['status'] ] : $r['status'];
+			$cls     = $zebra ? ' class="zebra"' : '';
+
+			echo '<tr' . $cls . '>';
+			echo '<td>' . (int) $r['id'] . '</td>';
+			echo '<td>' . esc_html( mysql2date( 'd/m/Y H:i', $r['created_at'] ) ) . '</td>';
+			echo '<td class="st-' . esc_attr( $r['status'] ) . '">' . esc_html( $status ) . '</td>';
+			echo '<td>' . esc_html( $r['customer_name'] ) . '</td>';
+			echo '<td>' . esc_html( $r['phone'] ) . '</td>';
+			echo '<td>' . esc_html( $r['wilaya_name'] ) . '</td>';
+			echo '<td>' . esc_html( $r['commune'] ) . '</td>';
+			echo '<td>' . esc_html( 'desk' === $r['delivery_mode'] ? 'Bureau' : 'Domicile' ) . '</td>';
+			echo '<td>' . esc_html( $r['stopdesk'] ) . '</td>';
+			echo '<td>' . esc_html( $product ) . '</td>';
+			echo '<td style="text-align:center">' . (int) $r['quantity'] . '</td>';
+			echo '<td style="text-align:right">' . esc_html( number_format_i18n( (float) $r['subtotal'], 2 ) ) . '</td>';
+			echo '<td style="text-align:right;color:#0e7a4f">' . ( (float) $r['discount'] > 0 ? '−' . esc_html( number_format_i18n( (float) $r['discount'], 2 ) ) : '—' ) . '</td>';
+			echo '<td>' . esc_html( $r['coupon'] ) . '</td>';
+			echo '<td style="text-align:right">' . esc_html( number_format_i18n( (float) $r['shipping'], 2 ) ) . '</td>';
+			echo '<td class="total" style="text-align:right">' . esc_html( number_format_i18n( (float) $r['total'], 2 ) ) . ' ' . esc_html( \InfinityCod\Core\Settings::currency_label() ) . '</td>';
+			echo '<td>' . esc_html( $r['carrier'] ) . '</td>';
+			echo '<td>' . esc_html( $r['tracking'] ) . '</td>';
+			echo '<td style="text-align:center">' . (int) $r['fraud_score'] . '</td>';
+			echo '<td>' . esc_html( $r['ip'] ) . '</td>';
+			echo '</tr>';
+		}
+		echo '</table></body>';
+		exit;
 	}
 
 	/**

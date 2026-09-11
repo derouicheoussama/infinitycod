@@ -1,5 +1,20 @@
 # Changelog
 
+## 5.19.0 — 2026-09-11
+
+Module complet de codes promo personnalisés + export Excel coloré des commandes.
+
+### Ajouté
+- **Codes promo InfinityCod** (menu 🎟️ Codes promo) : créez vos propres codes avec type de remise (pourcentage ou montant fixe), dates de début et de fin, sélection des produits concernés (vide = tous), minimum de commande et limite d'utilisations. Statut actif/inactif en un clic.
+- **Statistiques et historique** : par code — utilisations, remise totale accordée, CA généré, et historique complet des commandes ayant utilisé chaque code (date, client, total, statut).
+- Priorité : un code InfinityCod est validé avant tout coupon WooCommerce ; la validation reste 100 % côté serveur (dates, produits, minimum, limite).
+- **Export Excel des commandes** (.xls) : en-têtes bleus, lignes zébrées, statuts colorés, totaux en vert — organisé en colonnes claires.
+
+### Technique
+- Nouvelle table icod_promos (migration DB 1.6.0 automatique) : code unique, remise, période, produits, minimum, limite, compteurs d'usage et de CA.
+- Coupon::evaluate() accepte l'ID produit ; les codes InfinityCod sont prioritaires sur les coupons WooCommerce.
+
+
 ## 5.18.0 — 2026-09-11
 
 Protection, synchronisation transporteurs et personnalisation paiement : tout ce qui était demandé dans cette itération.

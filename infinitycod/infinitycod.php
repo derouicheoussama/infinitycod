@@ -23,7 +23,7 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'INFINITYCOD_VERSION', '5.18.0' );
-define( 'INFINITYCOD_DB_VERSION', '1.5.0' );
+define( 'INFINITYCOD_DB_VERSION', '1.6.0' );
 define( 'INFINITYCOD_AUTHOR', 'Derouiche Oussama' );
 define( 'INFINITYCOD_AUTHOR_URL', 'https://derouicheoussama.com' );
 define( 'INFINITYCOD_FILE', __FILE__ );

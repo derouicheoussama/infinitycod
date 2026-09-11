@@ -53,6 +53,25 @@ class Schema {
 		$collate = $wpdb->get_charset_collate();
 		$tables  = array();
 
+		$tables['promos'] = 'CREATE TABLE ' . self::table( 'promos' ) . " (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			code varchar(50) NOT NULL,
+			discount_type varchar(10) NOT NULL DEFAULT 'percent',
+			discount_value decimal(10,2) NOT NULL DEFAULT 0,
+			starts_at datetime NULL,
+			ends_at datetime NULL,
+			product_ids text NULL,
+			min_total decimal(10,2) NOT NULL DEFAULT 0,
+			usage_limit int unsigned NOT NULL DEFAULT 0,
+			used_count int unsigned NOT NULL DEFAULT 0,
+			revenue_total decimal(12,2) NOT NULL DEFAULT 0,
+			discount_total decimal(12,2) NOT NULL DEFAULT 0,
+			active tinyint(1) NOT NULL DEFAULT 1,
+			created_at datetime NOT NULL,
+			PRIMARY KEY  (id),
+			UNIQUE KEY code (code)
+		) $collate;";
+
 		$tables['wilayas'] = 'CREATE TABLE ' . self::table( 'wilayas' ) . " (
 			code varchar(8) NOT NULL,
 			country_code varchar(2) NOT NULL DEFAULT 'DZ',
