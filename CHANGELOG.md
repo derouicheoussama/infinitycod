@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.20.1 — 2026-09-11
+
+Page Mises à jour : affichage des détails réels (version, statut, empreinte) même quand le cache de détection est périmé.
+
+### Corrigé
+- **« Dernière version disponible : Inconnue »** alors que les sources répondent : la page lit les transients de détection qui peuvent contenir un marqueur « injoignable » périmé (rate-limit passager). Désormais, si aucune donnée n'est trouvée, les transients sont purgés et la détection est relancée une fois avant affichage.
+- L'empreinte SHA-256 réelle du manifest est affichée dans la ligne « Intégrité du package ».
+
+
 ## 5.20.0 — 2026-09-11
 
 Désactivation universelle d'« Ajouter au panier » + style visuel « clean animé » inspiré des meilleurs checkouts COD.

@@ -47,6 +47,23 @@ class UpdatesPage {
 		} catch ( \Throwable $e ) {
 			\InfinityCod\Logging\Logger::log( 'error', 'Updates page : ' . $e->getMessage() );
 		}
+
+		/* Auto-réparation : les transients peuvent contenir un marqueur
+		   « injoignable » périmé (rate-limit passager) alors que les sources
+		   répondent. On purge et retente une fois avant d'afficher. */
+		if ( $updater && empty( $remote ) ) {
+			delete_transient( 'icod_update_gh' );
+			delete_transient( 'icod_update_atom' );
+			delete_transient( 'icod_update_mirror' );
+			delete_transient( 'icod_update_server' );
+			\InfinityCod\License\Updater::clear_cache();
+			try {
+				$remote = $updater->latest();
+			} catch ( \Throwable $e ) {
+				\InfinityCod\Logging\Logger::log( 'error', 'Updates page retry : ' . $e->getMessage() );
+			}
+		}
+
 		$remote = is_array( $remote ) ? $remote : array();
 
 		$latest     = ! empty( $remote['version'] ) ? (string) $remote['version'] : '';
@@ -146,7 +163,7 @@ class UpdatesPage {
 						<td><?php esc_html_e( 'Intégrité du package', 'infinitycod' ); ?></td>
 						<td>
 							<?php if ( ! empty( $remote['sha256'] ) ) : ?>
-								<span class="icod-status icod-status-delivered">SHA-256 <?php esc_html_e( 'vérifié avant installation', 'infinitycod' ); ?></span>
+								<span class="icod-status icod-status-delivered">SHA-256 <?php esc_html_e( 'vérifié avant installation', 'infinitycod' ); ?></span> <span class="icod-hint" dir="ltr"><?php echo esc_html( substr( (string) ['sha256'], 0, 16 ) ); ?>…</span>
 							<?php else : ?>
 								<span class="icod-hint"><?php esc_html_e( 'Manifest sans empreinte (installation contrôlée par WordPress)', 'infinitycod' ); ?></span>
 							<?php endif; ?>
