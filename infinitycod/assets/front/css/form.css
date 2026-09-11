@@ -33,7 +33,7 @@
 	--icod-btn-bg:linear-gradient(135deg,#1877c2,#0c5c9a);
 	--icod-head-bg:linear-gradient(135deg,#0c5c9a,#1877c2);
 	--icod-head-ink:#ffffff;
-	font-family:system-ui,'Segoe UI',Roboto,sans-serif;color:var(--icod-text);background:var(--icod-page);border:1px solid var(--icod-border);border-radius:var(--icod-radius,18px);box-shadow:var(--icod-shadow);max-width:680px;margin:0 auto;overflow:hidden;position:relative;direction:ltr;font-size:var(--icod-fs,14px);line-height:1.5;-webkit-font-smoothing:antialiased}
+	font-family:system-ui,'Segoe UI',Roboto,sans-serif;color:var(--icod-text);background:var(--icod-page);border:1px solid var(--icod-border);border-radius:var(--icod-radius,18px);box-shadow:var(--icod-shadow);max-width:min(100%,var(--icod-max-w,1000px));margin:0 auto;overflow:hidden;position:relative;direction:ltr;container-type:inline-size;container-name:icodform;font-size:var(--icod-fs,14px);line-height:1.5;-webkit-font-smoothing:antialiased}
 /* Sombre : forcé, ou automatique selon la préférence du visiteur. */
 .icod-root[data-theme="dark"]{
 	--icod-surface:#1f2d3d;
@@ -171,7 +171,15 @@ fieldset.icod-mode{min-width:0}
 
 /* Aside */
 .icod-aside{margin-top:4px}
-@media (min-width:720px){.icod-aside{position:sticky;top:20px;align-self:start;border-inline-start:1.5px dashed var(--icod-border);padding-inline-start:22px}}
+/* Desktop large : champs à gauche, récap + bouton à droite (colonne collante).
+   Container query : s'adapte à la largeur RÉELLE du formulaire (pas de l'écran),
+   donc reste correct même dans une colonne de page étroite ou une sidebar. */
+@container icodform (min-width:760px){
+	.icod-layout{grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:26px;align-items:start}
+	.icod-main{grid-column:1;grid-row:1 / span 2}
+	.icod-summary-bottom{grid-column:2;grid-row:1}
+	.icod-aside{grid-column:2;grid-row:2;position:sticky;top:20px;align-self:start;border-inline-start:1.5px dashed var(--icod-border);padding-inline-start:22px}
+}
 
 /* Récapitulatif */
 .icod-summary{background:var(--icod-surface);border:1.5px solid var(--icod-border);border-radius:var(--icod-radius-sm,12px);padding:16px;font-size:.92rem;margin-bottom:14px;box-shadow:0 1px 4px rgba(11,34,57,.04)}

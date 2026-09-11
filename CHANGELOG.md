@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.26.0 — 2026-09-12
+
+Le formulaire s'ajuste enfin à la largeur de la page : vrai checkout 2 colonnes sur PC.
+
+### Modifié
+- **Largeur par défaut portée à 1000 px** (au lieu de 680) : sur PC le formulaire occupe désormais correctement la page au lieu de flotter dans une colonne étroite. Réglable de 400 à 1400 px dans Réglages → Formulaire.
+- **Vrai checkout 2 colonnes sur grand écran** : les champs à gauche, le récapitulatif (prix, code promo, total) et le bouton « Commander » à droite dans une **colonne collante** qui reste visible pendant le défilement.
+- **Adaptation intelligente via container queries** : la mise en page réagit à la largeur **réelle du conteneur** (et non de l'écran) — le formulaire reste en une colonne propre sur mobile, tablette, ou quand il est placé dans une colonne étroite de la page, et passe en 2 colonnes dès qu'il a la place. Vérifié par captures à 390, 768 et 1280 px.
+
+
 ## 5.25.5 — 2026-09-12
 
 Responsive durci : le formulaire tient sur PC, tablette et mobile, même dans les thèmes intrusifs.

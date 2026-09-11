@@ -598,7 +598,7 @@ class FormManager {
 
 		$offers_tiers = $show_offers ? OffersEngine::tiers_for_product( $product->get_id() ) : array();
 
-		$max_width = max( 400, min( 1400, (int) Settings::get( 'form_max_width', 680 ) ) );
+		$max_width = max( 400, min( 1400, (int) Settings::get( 'form_max_width', 1000 ) ) );
 
 		// Après commande : redirection + upsell.
 		$redirect_on    = (bool) Settings::get( 'redirect_enabled' ) && Settings::get( 'redirect_url' );

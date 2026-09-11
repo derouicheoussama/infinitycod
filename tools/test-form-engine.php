@@ -766,5 +766,14 @@ $check_reset = false !== strpos( $css5, '.icod-root,.icod-root *{box-sizing:bord
 check( 'responsive : reset anti-thème dans .icod-root', $check_reset );
 check( 'responsive : filets <=360 px (duo 1 colonne, quantité repliable)', false !== strpos( $css5, '.icod-duo,.icod-row{grid-template-columns:1fr!important}' ) && false !== strpos( $css5, '.icod-qty-field.icod-qty-field>label{flex:0 0 100%!important' ) );
 
+/* ---------- 42. Desktop 2 colonnes (container query) + largeur par défaut 1000 px ---------- */
+
+echo "\n42) Ajustement largeur : 2 colonnes sur PC via container query\n";
+$css7 = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
+$set5 = file_get_contents( $plugin_dir . 'includes/core/class-settings.php' );
+check( 'largeur : défaut form_max_width 1000 px (réglages + rendu)', false !== strpos( $set5, "'form_max_width'        => 1000" ) && false !== strpos( $fm8, "'form_max_width', 1000" ) );
+check( 'largeur : container query sur la racine (s adapte au conteneur réel)', false !== strpos( $css7, 'container-type:inline-size;container-name:icodform' ) );
+check( 'largeur : 2 colonnes desktop (champs | récap+btn collant)', false !== strpos( $css7, 'grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr)' ) && false !== strpos( $css7, '.icod-main{grid-column:1;grid-row:1 / span 2}' ) && false !== strpos( $css7, '.icod-summary-bottom{grid-column:2;grid-row:1}' ) && false !== strpos( $css7, '.icod-aside{grid-column:2;grid-row:2' ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );
