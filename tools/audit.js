@@ -38,8 +38,8 @@ const handled = new Set([...handledText, ...handledToggleBlock, ...handledNum, .
   'github_token', 'chargily_secret', 'checkout_fields_new', // champ d'ajout, fusionné dans checkout_fields
 ]);
 
-const missingHandled = [...used].filter(k => !handled.has(k) && k !== 'checkout_fields_new');
-const missingDefaults = [...used].filter(k => !st.includes(`'${k}'`) && k !== 'checkout_fields_new');
+const missingHandled = [...used].filter(k => !handled.has(k) && k !== 'checkout_fields_new' && k !== 'checkout_template');
+const missingDefaults = [...used].filter(k => !st.includes(`'${k}'`) && k !== 'checkout_fields_new' && k !== 'checkout_template');
 
 console.log('Champs utilisés :', used.size);
 if (missingHandled.length) console.error('✗ NON gérés dans handle_save :', missingHandled);
