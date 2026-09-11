@@ -3,7 +3,7 @@
  * Plugin Name:       InfinityCod — Paiement à la livraison (COD Algérie)
  * Plugin URI:        https://infinitycoder.app/infinitycod
  * Description:       Solution COD tout-en-un pour WooCommerce Algérie : formulaire de commande rapide, 58 wilayas & 1541 communes, tarifs domicile/stopdesk, anti-fraude, transporteurs intégrés (Yalidine, ZR Express, Maystro, Noest, Guepex…), WhatsApp automatique, offres par quantité et statistiques P&L.
- * Version:           5.20.1
+ * Version:           5.20.2
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * WC requires at least: 6.0
@@ -22,7 +22,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'INFINITYCOD_VERSION', '5.20.1' );
+define( 'INFINITYCOD_VERSION', '5.20.2' );
 define( 'INFINITYCOD_DB_VERSION', '1.7.0' );
 define( 'INFINITYCOD_AUTHOR', 'Derouiche Oussama' );
 define( 'INFINITYCOD_AUTHOR_URL', 'https://derouicheoussama.com' );
