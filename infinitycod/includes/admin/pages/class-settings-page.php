@@ -318,7 +318,7 @@ class SettingsPage {
 			<div class="icod-grid">
 				<label>
 					<span><?php echo $this->social_logo( 'facebook' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG interne. ?> <?php esc_html_e( 'Token d’accès Conversions API (secret)', 'infinitycod' ); ?></span>
-					<input type="password" name="icod[pixel_fb_capi_token]" dir="ltr" autocomplete="new-password" value="<?php echo esc_attr( Settings::get( 'pixel_fb_capi_token' ) ); ?>" class="regular-text" />
+					<input type="password" name="icod[pixel_fb_capi_token]" dir="ltr" autocomplete="new-password" value="" class="regular-text"  placeholder="Laisser vide pour conserver la clé actuelle"/>
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Code d’événements de test (optionnel, Events Manager)', 'infinitycod' ); ?></span>
@@ -391,7 +391,7 @@ class SettingsPage {
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Clé secrète API', 'infinitycod' ); ?></span>
-					<input type="password" name="icod[chargily_secret]" value="<?php echo esc_attr( Settings::get( 'chargily_secret' ) ); ?>" dir="ltr" autocomplete="new-password" placeholder="sk_live_… / sk_test_…" />
+					<input type="password" name="icod[chargily_secret]" value="" dir="ltr" autocomplete="new-password" placeholder="sk_live_… / sk_test_…" />
 				</label>
 			</div>
 			<p class="description" style="margin-top:10px">
@@ -1192,7 +1192,7 @@ class SettingsPage {
 				</label>
 				<label>
 					<span><?php esc_html_e( 'reCAPTCHA — Clé secrète', 'infinitycod' ); ?></span>
-					<input type="password" name="icod[recaptcha_v3_secret_key]" dir="ltr" autocomplete="new-password" value="<?php echo esc_attr( Settings::get( 'recaptcha_v3_secret_key', '' ) ); ?>" />
+					<input type="password" name="icod[recaptcha_v3_secret_key]" dir="ltr" autocomplete="new-password" value=""  placeholder="Laisser vide pour conserver la clé actuelle"/>
 				</label>
 			</div>
 			<p class="description"><?php esc_html_e( 'Avec reCAPTCHA v3 : le script Google n’est chargé que si les DEUX clés sont remplies ; sinon le captcha reste inactif (aucune commande bloquée par erreur de configuration).', 'infinitycod' ); ?></p>
@@ -1600,7 +1600,7 @@ class SettingsPage {
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Cloud API — Token permanent', 'infinitycod' ); ?></span>
-					<input type="password" name="icod[whatsapp_cloud_token]" value="<?php echo esc_attr( Settings::get( 'whatsapp_cloud_token' ) ); ?>" class="regular-text" autocomplete="new-password" />
+					<input type="password" name="icod[whatsapp_cloud_token]" value="" class="regular-text" autocomplete="new-password"  placeholder="Laisser vide pour conserver la clé actuelle"/>
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Cloud API — Phone Number ID', 'infinitycod' ); ?></span>
@@ -1612,11 +1612,11 @@ class SettingsPage {
 				</label>
 				<label>
 					<span><?php esc_html_e( 'UltraMsg — Clé API', 'infinitycod' ); ?></span>
-					<input type="password" name="icod[whatsapp_ultramsg_key]" value="<?php echo esc_attr( Settings::get( 'whatsapp_ultramsg_key' ) ); ?>" class="regular-text" autocomplete="new-password" />
+					<input type="password" name="icod[whatsapp_ultramsg_key]" value="" class="regular-text" autocomplete="new-password"  placeholder="Laisser vide pour conserver la clé actuelle"/>
 				</label>
 				<label>
 					<span><?php esc_html_e( 'TextMeBot — Clé API (textmebot.com)', 'infinitycod' ); ?></span>
-					<input type="password" name="icod[wa_textmebot_key]" value="<?php echo esc_attr( Settings::get( 'wa_textmebot_key' ) ); ?>" class="regular-text" autocomplete="new-password" />
+					<input type="password" name="icod[wa_textmebot_key]" value="" class="regular-text" autocomplete="new-password"  placeholder="Laisser vide pour conserver la clé actuelle"/>
 				</label>
 			</div>
 		</div>
@@ -1798,7 +1798,7 @@ class SettingsPage {
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Token GitHub (dépôt privé uniquement)', 'infinitycod' ); ?></span>
-					<input type="password" name="icod[github_token]" value="<?php echo esc_attr( Settings::get( 'github_token' ) ); ?>" dir="ltr" autocomplete="new-password" placeholder="ghp_…" />
+					<input type="password" name="icod[github_token]" value="" dir="ltr" autocomplete="new-password" placeholder="ghp_…" />
 				</label>
 			</div>
 			<p class="description" style="margin-top:10px">
@@ -1816,7 +1816,7 @@ class SettingsPage {
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Telegram — Token du bot (@BotFather)', 'infinitycod' ); ?></span>
-					<input type="password" name="icod[telegram_bot_token]" dir="ltr" autocomplete="new-password" value="<?php echo esc_attr( Settings::get( 'telegram_bot_token', '' ) ); ?>" class="regular-text" />
+					<input type="password" name="icod[telegram_bot_token]" dir="ltr" autocomplete="new-password" value="" class="regular-text"  placeholder="Laisser vide pour conserver la clé actuelle"/>
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Telegram — Chat ID (destinataire)', 'infinitycod' ); ?></span>
@@ -2482,7 +2482,12 @@ class SettingsPage {
 					$clean[ $key ] = $out;
 					break;
 				case 'secret':
-					$clean[ $key ] = sanitize_text_field( $value );
+					// Sécurité : le champ est rendu VIDE (le secret n'est jamais
+					// renvoyé dans le HTML). Vide soumis = clé actuelle conservée ;
+					// il faut ressaisir la clé complète pour la remplacer.
+					if ( '' !== trim( (string) $value ) ) {
+						$clean[ $key ] = sanitize_text_field( $value );
+					}
 					break;
 			}
 		}

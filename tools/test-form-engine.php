@@ -714,5 +714,15 @@ check( 'freemius : garde URL https avant ouverture du checkout', false !== strpo
 
 check( 'quantité : libellé et stepper sur une ligne pleine largeur (blindés !important)', false !== strpos( $css5, '.icod-qty-field.icod-qty-field{display:flex!important' ) && false !== strpos( $css5, '.icod-qty-field.icod-qty-field>label{display:block!important' ) && false !== strpos( $css5, '.icod-qty-field .icod-qty{flex:0 0 auto!important' ) );
 
+/* ---------- 37. Scanner de sécurité permanent + secrets hors HTML ---------- */
+
+echo "\n37) Sécurité : secrets jamais rendus, scanner permanent\n";
+$sp11 = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+$pk = file_get_contents( dirname( $plugin_dir ) . '/package.json' );
+check( 'secrets : aucun champ password rempli depuis Settings::get', 0 === preg_match_all( '/type=.password.[^>]*value=.<' . chr(63) . 'php/', $sp11 ) );
+check( 'secrets : vide soumis = clé conservée (sanitizeur + placeholder)', false !== strpos( $sp11, 'Laisser vide pour conserver' ) && false !== strpos( $sp11, "'' !== trim( (string) \$value )" ) );
+check( 'scanner : intégré au pipeline npm check', false !== strpos( $pk, 'security-scan.js' ) );
+check( 'scanner : détecte les champs secrets rendus', false !== strpos( file_get_contents( dirname( $plugin_dir ) . '/tools/security-scan.js' ), 'type="password"' ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

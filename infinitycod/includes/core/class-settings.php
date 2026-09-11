@@ -399,7 +399,7 @@ class Settings {
 		if ( isset( $wpdb ) && $wpdb instanceof \wpdb && ! empty( $wpdb->options ) ) {
 			$row = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s LIMIT 1", self::OPTION ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- bypass volontaire du cache d'objets.
 			if ( null !== $row && '' !== $row ) {
-				$decoded = ( 0 === strpos( (string) $row, 'a:' ) ) ? unserialize( $row ) : json_decode( (string) $row, true );
+				$decoded = ( 0 === strpos( (string) $row, 'a:' ) ) ? unserialize( $row, array( 'allowed_classes' => false ) ) : json_decode( (string) $row, true );
 				return is_array( $decoded ) ? $decoded : array();
 			}
 			return array();

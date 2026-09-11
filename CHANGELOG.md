@@ -1,5 +1,20 @@
 # Changelog
 
+## 5.25.0 — 2026-09-11
+
+Audit de sécurité complet du plugin (style revue de code automatisée) + scanner permanent.
+
+### Sécurité
+- **Secrets jamais renvoyés dans le HTML** : les 8 champs de clés secrètes (Chargily, reCAPTCHA v3, Conversions API Meta, Telegram, Cloud API WhatsApp, Ultramsg, TextMeBot, token GitHub) s'affichent désormais **vides** dans les réglages — plus aucune clé dans le code source de la page admin. Un champ laissé vide conserve la clé stockée ; il faut ressaisir la clé complète pour la remplacer.
+- **`unserialize()` durci** : `allowed_classes = false` dans la migration des réglages legacy (aucune instanciation d'objet possible).
+
+### Ajouté
+- **Scanner de sécurité permanent** (`npm run check`) : 10 familles de contrôles sur les 76 fichiers PHP — fonctions dangereuses (eval, unserialize, exec…), XSS par superglobales, secrets rendus dans le HTML, gardes ABSPATH, nonces CSRF sur tous les handlers admin-post et AJAX, permission_callback sur chaque route REST, interpolation de superglobales dans les requêtes SQL, redirections non sûres, AJAX public. Le build échoue à la moindre régression.
+
+### Verdict de l'audit
+Injection SQL : aucune (requêtes préparées ou tables internes uniquement) · XSS : aucune (échappement systématique) · CSRF : nonces partout · Autorisations : capacités vérifiées sur tous les handlers · Upload : zip contrôlé (capacité, nonce, HTTPS, mime) · Routes REST publiques : rate-limit, honeypot, captcha, HMAC — rien à signaler.
+
+
 ## 5.24.3 — 2026-09-11
 
 Stepper Quantité encore plus léger et discret.
