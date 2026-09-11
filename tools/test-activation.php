@@ -130,6 +130,8 @@ function wp_register_script( ...$a ) { return true; }
 function wp_enqueue_style( ...$a ) { return true; }
 function wp_enqueue_script( ...$a ) { return true; }
 function wp_localize_script( ...$a ) { return true; }
+function wp_script_add_data( ...$a ) { return true; }
+function wp_style_add_data( ...$a ) { return true; }
 function rest_url( $p = '' ) { return 'https://example.test/wp-json/' . $p; }
 function rest_ensure_response( $d ) { return $d; }
 function register_rest_route( ...$a ) { $GLOBALS['__wpdb_log'][] = 'ROUTE ' . $a[1]; return true; }

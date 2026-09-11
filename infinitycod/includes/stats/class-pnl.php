@@ -51,6 +51,11 @@ class Pnl {
 			$to
 		), ARRAY_A );
 
+		// Période sans commande : get_row() renvoie null (table vide).
+		if ( ! is_array( $row ) ) {
+			$row = array();
+		}
+
 		$total    = (int) $row['total'];
 		$delivered = (int) $row['delivered'];
 
