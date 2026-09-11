@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.25.5 — 2026-09-12
+
+Responsive durci : le formulaire tient sur PC, tablette et mobile, même dans les thèmes intrusifs.
+
+### Ajouté
+- **Reset anti-thème dans le formulaire** : `box-sizing` forcé, flottants de labels neutralisés, largeurs maximales bornées sur tous les inputs — les thèmes qui imposent leurs styles ne peuvent plus déformer les champs.
+- **Filets de sécurité très petits écrans (≤360 px)** : les paires de champs (Nom/Téléphone, Wilaya/Commune) passent en une colonne, et la ligne Quantité se replie proprement (libellé au-dessus du stepper) plutôt que de se comprimer.
+- Vérifié par captures réelles à 390 px (mobile), 768 px (tablette) et 1280 px (PC) : aucun débordement, aucun champ coupé.
+
+### Note
+- Si le formulaire paraissait déformé sur un site précis après mise à jour, videz le cache de pages une fois : depuis la 5.25.4, la purge est automatique à chaque mise à jour du plugin.
+
+
 ## 5.25.4 — 2026-09-11
 
 Pourquoi les nouveautés n'apparaissaient pas pour les visiteurs : correction du cache.

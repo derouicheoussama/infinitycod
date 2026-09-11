@@ -77,6 +77,13 @@
 @keyframes icod-wiggle{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(5deg)}}
 
 /* Header — dégradé issu de la palette d'accent (variables inline). */
+/* Blindage responsive : neutralise les interférences courantes des thèmes
+   (box-sizing, flottants sur les labels, largeurs imposées) sur tous les
+   écrans — PC, tablette et mobile. */
+.icod-root,.icod-root *{box-sizing:border-box}
+.icod-root label{float:none;max-width:none}
+.icod-root input,.icod-root select,.icod-root textarea{min-width:0;max-width:100%}
+
 .icod-head{display:flex;align-items:center;gap:12px;padding:20px 22px;background:var(--icod-head-bg);color:var(--icod-head-ink);animation:icod-fade-in .4s ease both;position:relative}
 .icod-head::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.09) 50%,transparent 58%);pointer-events:none}
 .icod-head-thumb{width:68px;height:68px;flex:none;object-fit:cover;border-radius:16px;border:2px solid rgba(255,255,255,.35);box-shadow:0 3px 10px rgba(0,0,0,.15)}
@@ -472,3 +479,10 @@ fieldset.icod-mode{min-width:0}
 .icod-submit.is-loading{pointer-events:none}
 .icod-submit.is-loading::before{content:'';display:inline-block;width:15px;height:15px;margin-inline-end:9px;border-radius:50%;border:2.5px solid currentColor;border-top-color:transparent;vertical-align:-2px;animation:icod-spin .7s linear infinite}
 @keyframes icod-spin{to{transform:rotate(360deg)}}
+
+/* Très petits écrans (<=360 px) : sécurité responsive. */
+@media (max-width:360px){
+	.icod-duo,.icod-row{grid-template-columns:1fr!important}
+	.icod-qty-field.icod-qty-field{flex-wrap:wrap!important;justify-content:flex-start!important}
+	.icod-qty-field.icod-qty-field>label{flex:0 0 100%!important;margin:0 0 6px!important}
+}

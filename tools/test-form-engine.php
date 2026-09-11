@@ -759,5 +759,12 @@ check( 'caches : helper central CachePurge::purge_all() présent', false !== str
 	check( 'caches : purge branchée sur mise à jour + installation du plugin', false !== strpos( $upd, 'CachePurge::purge_all()' ) && false !== strpos( $upd, "'plugin' !== \$type" ) );
 check( 'caches : sauvegarde des réglages délègue au même helper', false !== strpos( $sp8, 'CachePurge::purge_all()' ) );
 
+/* ---------- 41. Responsive durci : reset anti-thème + très petits écrans ---------- */
+
+echo "\n41) Responsive : blindage PC / tablette / mobile\n";
+$check_reset = false !== strpos( $css5, '.icod-root,.icod-root *{box-sizing:border-box}' ) && false !== strpos( $css5, '.icod-root label{float:none;max-width:none}' ) && false !== strpos( $css5, '.icod-root input,.icod-root select,.icod-root textarea{min-width:0;max-width:100%}' );
+check( 'responsive : reset anti-thème dans .icod-root', $check_reset );
+check( 'responsive : filets <=360 px (duo 1 colonne, quantité repliable)', false !== strpos( $css5, '.icod-duo,.icod-row{grid-template-columns:1fr!important}' ) && false !== strpos( $css5, '.icod-qty-field.icod-qty-field>label{flex:0 0 100%!important' ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );
