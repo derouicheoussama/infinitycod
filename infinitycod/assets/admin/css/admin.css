@@ -1079,3 +1079,8 @@ body.icod-modal-open{overflow:hidden}
 .icod-lic-bar{display:block;height:10px;border-radius:99px;background:#f0f0f1;overflow:hidden;max-width:280px}
 .icod-lic-bar span{display:block;height:100%;border-radius:99px}
 .icod-lic-bar + small{display:block;margin-top:3px;color:#646970}
+
+/* Checkout Builder : glisser-déposer. */
+.icod-bdrag{cursor:grab;color:#a7aaad;font-size:16px;padding:0 2px;user-select:none}
+.icod-bdrag:hover{color:#1877c2}
+.icod-builder-row.dragging{opacity:.45;outline:2px dashed #1877c2;border-radius:6px}

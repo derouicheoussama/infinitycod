@@ -556,7 +556,7 @@ check( 'CSS : les 5 nouveaux styles existent', false !== strpos( $css2, '.icod-t
 check( 'largeur jusqu à 1400 px (schéma + UI)', false !== strpos( $sp5, "=> 1400" ) && false !== strpos( $sp5, 'max="1400"' ) );
 check( 'police + hauteur bouton variables', false !== strpos( $sp5, "'form_font_size'" ) && false !== strpos( $sp5, "'button_height'" ) && false !== strpos( $css2, 'var(--icod-fs,14px)' ) && false !== strpos( $css2, 'var(--icod-btn-h,56px)' ) );
 check( 'licence : carte Premium unique avec PayPal direct', false !== strpos( $sp5, 'paypal_price' ) && false === strpos( $sp5, "'Personal', 'infinitycod'" ) );
-check( 'quantité élargie (60 px)', false !== strpos( $css2, '.icod-qty-input{width:60px' ) );
+check( 'quantité élargie (56 px) + blindée thèmes', false !== strpos( $css2, '.icod-qty-input{width:56px' ) && false !== strpos( $css2, 'border:0!important' ) );
 
 /* ---------- 26. Champs harmonisés + FLAT + captcha en bas + UX clavier ---------- */
 
@@ -588,6 +588,25 @@ check( 'timer : position/taille/couleurs en schéma', false !== strpos( $sp7, "'
 check( 'rendu : couleurs/taille inline sur le timer', false !== strpos( $fm5, 'timer_style_attr' ) );
 check( 'stats P&L actives sans licence', false === strpos( $am4, 'Fonctionnalité Premium' ) );
 check( 'licence : P&L marqué gratuit', false !== strpos( $sp7, "taux de confirmation, retours, marge nette', 'infinitycod' ), true" ) );
+
+/* ---------- 28. Templates Builder + drag & drop + compact ---------- */
+
+echo "\n28) Modèles de formulaire + drag & drop + mode compact\n";
+$sanitize3 = $refm( '\InfinityCod\Admin\Pages\SettingsPage', 'sanitize_fields' );
+$clean3 = $sanitize3->invoke( $page, array( 'checkout_template' => 'simple', 'checkout_fields' => array() ), 'form' );
+$tpl_keys = array_column( (array) ( $clean3['checkout_fields'] ?? array() ), 'key' );
+check( 'modèle Simple appliqué (4 champs, sans adresse)', $tpl_keys === array( 'name', 'phone', 'wilaya', 'commune' ) );
+$clean4 = $sanitize3->invoke( $page, array( 'checkout_template' => 'pro', 'checkout_fields' => array() ), 'form' );
+$tpl_keys2 = array_column( (array) ( $clean4['checkout_fields'] ?? array() ), 'key' );
+check( 'modèle Pro appliqué (adresse + note)', $tpl_keys2 === array( 'name', 'phone', 'wilaya', 'commune', 'address', 'note' ) );
+$clean5 = $sanitize3->invoke( $page, array( 'checkout_template' => '', 'checkout_fields' => array( array( 'key' => 'name', 'type' => 'text', 'label' => 'Nom complet', 'on' => 1, 'req' => 1, 'order' => 0 ) ) ), 'form' );
+check( 'sans modèle : lignes natives acceptées (label préservé)', ( $clean5['checkout_fields'][0]['label'] ?? '' ) === 'Nom complet' );
+$builder = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+check( 'Builder : poignée drag + modèle select', false !== strpos( $builder, 'icod-bdrag' ) && false !== strpos( $builder, 'icod[checkout_template]' ) );
+$admjs = file_get_contents( $plugin_dir . 'assets/admin/js/admin.js' );
+check( 'JS drag & drop + renumérotation', false !== strpos( $admjs, 'icod-builder-row' ) && false !== strpos( $admjs, 'renumber' ) );
+$orders_css = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
+check( 'mode de livraison compact + qty neutralisée', false !== strpos( $css3, 'padding:10px 12px' ) && false !== strpos( $css3, 'border:0!important;background:transparent!important' ) );
 
 /* ---------- Bilan ---------- */
 

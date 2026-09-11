@@ -1,5 +1,21 @@
 # Changelog
 
+## 5.15.0 — 2026-09-11
+
+Modèles de formulaire en un clic, glisser-déposer fluide dans le Builder, champs et options de livraison compactés.
+
+### CORRECTIF MAJEUR
+- **Le Builder n'enregistrait pas réellement les champs personnalisés** : le formulaire envoyait un tableau natif alors que le code attendait du JSON — à chaque « Enregistrer », la configuration des champs était écrasée. Corrigé : le tableau natif est désormais traité correctement (c'était le bug derrière « les réglages champs ne s'appliquent pas »).
+
+### Ajouté
+- **Modèles de formulaire en 1 clic** : Simple (Nom, Téléphone, Wilaya, Commune), Ultra-rapide (Nom, Téléphone, Wilaya), Pro (+ Adresse obligatoire + Note). L'aperçu en direct se met à jour instantanément au choix du modèle.
+- **Glisser-déposer fluide** dans le Checkout Builder : poignée ⠿ sur chaque ligne, réordonnancement à la souris avec renumérotation automatique (les flèches ▲▼ restent disponibles).
+
+### Modifié
+- **Mode de livraison compact** : boîtes moins hautes et moins larges, prix plus discret.
+- **Champ Quantité** : stepper équilibré (56 px), blindé contre les styles des thèmes.
+
+
 ## 5.14.0 — 2026-09-11
 
 Timer entièrement personnalisable, onglet Licence repensé, statuts du tracking, et statistiques P&L ouvertes à tous.

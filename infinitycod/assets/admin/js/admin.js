@@ -533,3 +533,43 @@ document.querySelectorAll('#icod-wilaya-search, #icod-commune-search').forEach(f
 		if (dirty) { e.preventDefault(); e.returnValue = ''; }
 	});
 })();
+
+/* ===== Checkout Builder : glisser-déposer fluide des champs ===== */
+(function () {
+	var rows = document.querySelectorAll('.icod-builder-row');
+	if (!rows.length) { return; }
+	var dragged = null;
+	function renumber() {
+		document.querySelectorAll('.icod-builder-row').forEach(function (row, idx) {
+			row.querySelectorAll('input, select').forEach(function (inp) {
+				inp.name = inp.name.replace(/icod\[checkout_fields\]\[\d+\]/, 'icod[checkout_fields][' + idx + ']');
+			});
+			var h = row.querySelector('input[type=hidden][name*=order]');
+			if (h) { h.value = idx; }
+		});
+	}
+	rows.forEach(function (row) {
+		var handle = row.querySelector('.icod-bdrag');
+		if (!handle) { return; }
+		handle.addEventListener('mousedown', function () { row.draggable = true; });
+		handle.addEventListener('mouseup', function () { row.draggable = false; });
+		row.addEventListener('dragstart', function (e) {
+			dragged = row;
+			row.classList.add('dragging');
+			e.dataTransfer.effectAllowed = 'move';
+			try { e.dataTransfer.setData('text/plain', ''); } catch (err) {}
+		});
+		row.addEventListener('dragend', function () {
+			row.classList.remove('dragging');
+			row.draggable = false;
+			renumber();
+		});
+		row.addEventListener('dragover', function (e) {
+			e.preventDefault();
+			if (!dragged || dragged === row) { return; }
+			var rect = row.getBoundingClientRect();
+			var after = (e.clientY - rect.top) > rect.height / 2;
+			row.parentNode.insertBefore(dragged, after ? row.nextSibling : row);
+		});
+	});
+})();

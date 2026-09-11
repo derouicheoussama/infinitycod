@@ -876,7 +876,8 @@ class SettingsPage {
 			}
 			$cfmove_nonce = wp_create_nonce( 'icod_cfmove' );
 			foreach ( $fields as $i => $fld ) : ?>
-			<div style="display:flex;gap:8px;align-items:center;border-bottom:1px solid #f0f0f1;padding:8px 0;flex-wrap:wrap">
+			<div class="icod-builder-row" style="display:flex;gap:8px;align-items:center;border-bottom:1px solid #f0f0f1;padding:8px 0;flex-wrap:wrap">
+				<span class="icod-bdrag" draggable="true" title="<?php esc_attr_e( 'Glisser pour réordonner', 'infinitycod' ); ?>">⠿</span>
 				<a href="?page=infinitycod-settings&tab=form&cfmove=up:<?php echo (int) $i; ?>&_wpnonce=<?php echo esc_attr( $cfmove_nonce ); ?>" class="button" style="padding:2px 8px">▲</a>
 				<a href="?page=infinitycod-settings&tab=form&cfmove=down:<?php echo (int) $i; ?>&_wpnonce=<?php echo esc_attr( $cfmove_nonce ); ?>" class="button" style="padding:2px 8px">▼</a>
 				<code dir="ltr" style="width:110px"><?php echo esc_html( $fld['key'] ); ?></code>
@@ -898,6 +899,16 @@ class SettingsPage {
 				<input type="text" name="icod[checkout_fields_new][label]" placeholder="Label" style="width:150px" />
 			</div>
 			<p class="description"><?php esc_html_e( 'Les nouveaux champs sont ajoutés en fin de liste après enregistrement.', 'infinitycod' ); ?></p>
+			<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
+				<strong style="font-size:12px"><?php esc_html_e( 'Appliquer un modèle :', 'infinitycod' ); ?></strong>
+				<select name="icod[checkout_template]">
+					<option value=""><?php esc_html_e( '— Personnalisé (conserver mes réglages) —', 'infinitycod' ); ?></option>
+					<option value="simple"><?php esc_html_e( 'Simple — Nom, Téléphone, Wilaya, Commune', 'infinitycod' ); ?></option>
+					<option value="ultra"><?php esc_html_e( 'Ultra-rapide — Nom, Téléphone, Wilaya', 'infinitycod' ); ?></option>
+					<option value="pro"><?php esc_html_e( 'Pro — + Adresse obligatoire + Note', 'infinitycod' ); ?></option>
+				</select>
+				<span class="description" style="margin:0"><?php esc_html_e( 'Remplace la liste ci-dessus à l’enregistrement. L’aperçu se met à jour instantanément.', 'infinitycod' ); ?></span>
+			</div>
 		</div>
 
 		<div class="icod-card">
@@ -2145,6 +2156,43 @@ class SettingsPage {
 	}
 
 	/**
+	 * Champs prêts à l'emploi des modèles de formulaire.
+	 *
+	 * @param string $tpl simple|ultra|pro.
+	 * @return array[]|null
+	 */
+	private function checkout_template_fields( $tpl ) {
+		$f = static function ( $key, $type, $req ) {
+			return array( 'key' => $key, 'type' => $type, 'label' => '', 'on' => 1, 'req' => $req ? 1 : 0 );
+		};
+		switch ( (string) $tpl ) {
+			case 'simple':
+				return array(
+					$f( 'name', 'text', true ),
+					$f( 'phone', 'tel', true ),
+					$f( 'wilaya', 'select', true ),
+					$f( 'commune', 'select', true ),
+				);
+			case 'ultra':
+				return array(
+					$f( 'name', 'text', true ),
+					$f( 'phone', 'tel', true ),
+					$f( 'wilaya', 'select', true ),
+				);
+			case 'pro':
+				return array(
+					$f( 'name', 'text', true ),
+					$f( 'phone', 'tel', true ),
+					$f( 'wilaya', 'select', true ),
+					$f( 'commune', 'select', true ),
+					$f( 'address', 'text', true ),
+					$f( 'note', 'textarea', false ),
+				);
+		}
+		return null;
+	}
+
+	/**
 	 * Purge best-effort des caches de pages après un changement de réglages.
 	 * Chaque appel n'agit que si le plugin de cache correspondant est actif :
 	 * LiteSpeed, WP Rocket, W3 Total Cache, WP Super Cache, SG Optimizer,
@@ -2292,10 +2340,17 @@ class SettingsPage {
 					$clean[ $key ] = preg_replace( '/[^0-9a-zA-Z_\-.\/]/', '', (string) $value );
 					break;
 				case 'json':
-					$fields = json_decode( wp_unslash( $value ), true );
+					// Modèles de formulaire : remplacent la liste soumise.
+					if ( 'checkout_fields' === $key && ! empty( $raw['checkout_template'] ) && in_array( $raw['checkout_template'], array( 'simple', 'ultra', 'pro' ), true ) ) {
+						$clean[ $key ] = $this->checkout_template_fields( $raw['checkout_template'] );
+						break;
+					}
+					// Le Builder poste un TABLEAU natif (icod[checkout_fields][i][...]).
+					// Accepte aussi une chaîne JSON par compatibilité.
+					$rows = is_array( $value ) ? $value : json_decode( (string) wp_unslash( $value ), true );
 					$out = array();
-					if ( is_array( $fields ) ) {
-						foreach ( $fields as $f ) {
+					if ( is_array( $rows ) ) {
+						foreach ( $rows as $f ) {
 							if ( ! is_array( $f ) || empty( $f['key'] ) ) { continue; }
 							$out[] = array(
 								'key'  => substr( preg_replace( '/[^a-z0-9_]/', '', strtolower( (string) $f['key'] ) ), 0, 30 ),
@@ -2303,9 +2358,12 @@ class SettingsPage {
 								'label' => sanitize_text_field( (string) ( $f['label'] ?? '' ) ),
 								'on' => empty( $f['on'] ) ? 0 : 1,
 								'req' => empty( $f['req'] ) ? 0 : 1,
+								'order' => isset( $f['order'] ) ? absint( $f['order'] ) : 99,
 							);
 						}
 						usort( $out, fn( $a, $b ) => ( $a['order'] ?? 99 ) <=> ( $b['order'] ?? 99 ) );
+						foreach ( $out as &$row_done ) { unset( $row_done['order'] ); }
+						unset( $row_done );
 					}
 					$clean[ $key ] = $out;
 					break;
