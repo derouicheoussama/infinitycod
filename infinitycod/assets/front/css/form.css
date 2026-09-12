@@ -98,7 +98,12 @@
 /* Champs */
 .icod-form{padding:var(--icod-pad,20px)}
 .icod-row,.icod-duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.icod-field{margin-bottom:14px}
+.icod-field{margin-bottom:16px}
+/* Titres de sections : organisation en blocs lisibles (Coordonnées / Livraison). */
+.icod-sec-title{display:flex;align-items:center;gap:6px;font-weight:800;font-size:.94rem;color:var(--icod-heading);margin:10px 0 12px}
+.icod-sec-title:first-child{margin-top:0}
+/* Réassurance en haut du formulaire (style landing). */
+.icod-reassurance-top{margin:0 0 16px}
 .icod-field>label{display:block;font-weight:700;font-size:.84rem;margin-bottom:7px;color:var(--icod-heading);letter-spacing:.01em}
 .icod-input-wrap{position:relative}
 .icod-input-icon{position:absolute;inset-inline-start:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--icod-accent);opacity:.6;pointer-events:none;z-index:1;transition:opacity .15s}

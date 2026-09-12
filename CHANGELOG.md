@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.27.1 — 2026-09-12
+
+Organisation du formulaire en blocs lisibles, inspirée des meilleurs checkouts.
+
+### Ajouté
+- **Titres de sections dans le formulaire** : « 👤 Vos coordonnées » avant le bloc nom/téléphone/email et « 📍 Livraison » avant wilaya/commune/adresse — le client se repère d'un coup d'œil, comme sur les landing pages qui convertissent le mieux. Les titres suivent l'ordre du Checkout Builder et ne s'affichent que si les champs du bloc sont actifs.
+- **Réassurance positionnable en haut** : nouvelle option « Afficher la réassurance EN HAUT du formulaire (avant les champs) » — le bloc paiement à la livraison / 58 wilayas / colis vérifié passe avant les champs, à la manière des landing pages à forte conversion. Désactivé par défaut (le bloc reste sous le bouton).
+
+
 ## 5.27.0 — 2026-09-12
 
 Le formulaire COD sort de la colonne étroite du produit : pleine largeur par défaut sur toutes les boutiques.

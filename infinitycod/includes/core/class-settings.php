@@ -110,6 +110,7 @@ class Settings {
 			'show_stopdesk'         => 1,
 			'show_offers'           => 1,
 			'show_reassurance'      => 1,
+			'reassurance_top'       => 0,    // Réassurance affichée AVANT les champs (style landing).
 
 			// Affichage des éléments du formulaire.
 			'show_head_thumb'       => 1,    // Photo produit dans l'en-tête.

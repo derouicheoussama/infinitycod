@@ -1133,6 +1133,10 @@ class SettingsPage {
 					<span><?php esc_html_e( 'Bandeau de réassurance (COD, 58 wilayas, vérification colis)', 'infinitycod' ); ?></span>
 				</label>
 				<label class="icod-toggle">
+					<input type="checkbox" name="icod[reassurance_top]" value="1" <?php checked( (int) Settings::get( 'reassurance_top' ), 1 ); ?> />
+					<span><?php echo esc_html( 'Afficher la réassurance EN HAUT du formulaire (avant les champs) — style landing page' ); ?></span>
+				</label>
+				<label class="icod-toggle">
 					<input type="checkbox" name="icod[disable_add_to_cart]" value="1" <?php checked( (int) Settings::get( 'disable_add_to_cart' ), 1 ); ?> />
 				<span><?php echo esc_html( 'Masquer « Ajouter au panier » + quantité du thème (actif dès l’installation) — le formulaire COD, avec son propre sélecteur de quantité, est le seul chemin d’achat' ); ?></span>
 				</label>
@@ -2006,6 +2010,7 @@ class SettingsPage {
 			'show_note'          => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_offers'        => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_reassurance'   => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'reassurance_top'    => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_email'         => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'sticky_bar'         => array( 'tab' => 'form', 'type' => 'toggle' ),
 

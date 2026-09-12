@@ -169,6 +169,7 @@ class FormManager {
 		$out  = '';
 		$n    = count( $plan );
 		$i    = 0;
+		$last_sec = '';
 
 		while ( $i < $n ) {
 			$field = $plan[ $i ];
@@ -177,6 +178,17 @@ class FormManager {
 				continue;
 			}
 
+			// Titres de sections : organisation visuelle en blocs lisibles.
+			$sec_groups = array( 'name' => 'contact', 'phone' => 'contact', 'email' => 'contact', 'wilaya' => 'livraison', 'commune' => 'livraison', 'address' => 'livraison' );
+			$sec = isset( $sec_groups[ $field['key'] ] ) ? $sec_groups[ $field['key'] ] : '';
+			if ( $sec && $sec !== $last_sec ) {
+					$sec_titles = array(
+						'contact'   => '👤 ' . __( 'Vos coordonnées', 'infinitycod' ),
+						'livraison' => '📍 ' . __( 'Livraison', 'infinitycod' ),
+					);
+				$out .= '<div class="icod-sec-title">' . esc_html( $sec_titles[ $sec ] ) . '</div>';
+				$last_sec = $sec;
+			}
 			// Paires adjacentes actives : nom+téléphone, wilaya+commune.
 			$next = ( isset( $plan[ $i + 1 ] ) && $plan[ $i + 1 ]['on'] ) ? $plan[ $i + 1 ] : null;
 
@@ -545,6 +557,7 @@ class FormManager {
 		$show_stopdesk    = (bool) Settings::get( 'show_stopdesk', 1 );
 		$show_offers      = (bool) Settings::get( 'show_offers', 1 );
 		$show_reassurance = (bool) Settings::get( 'show_reassurance', 1 );
+		$reass_top = (bool) Settings::get( 'reassurance_top', 0 );
 		$wa_order         = (bool) Settings::get( 'wa_order_enabled', 0 ) && Settings::get( 'whatsapp_number' );
 		$payment_online   = infinitycod()->module( 'payment' ) ? \InfinityCod\Payment\PaymentManager::enabled() : false;
 
@@ -808,7 +821,18 @@ class FormManager {
 					}
 					?>
 
-					<div class="icod-layout">
+				<?php $reass_html = ''; ?>
+			<?php if ( $show_reassurance ) : ?>
+			<?php ob_start(); ?>
+			<p class="icod-reassurance">
+				<span>💵 <?php esc_html_e( 'Paiement à la livraison', 'infinitycod' ); ?></span>
+				<span>🚛 <?php esc_html_e( 'Livraison 58 wilayas', 'infinitycod' ); ?></span>
+				<span>↩️ <?php esc_html_e( 'Vérifiez le colis à la réception', 'infinitycod' ); ?></span>
+			</p>
+			<?php $reass_html = ob_get_clean(); ?>
+			<?php endif; ?>
+			<?php echo ( $show_reassurance && $reass_top ) ? $reass_html : ''; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé. ?>
+				<div class="icod-layout">
 						<div class="icod-main">
 
 							<?php if ( $product->is_type( 'variable' ) ) : ?>
@@ -986,13 +1010,7 @@ class FormManager {
 								</button>
 							<?php endif; ?>
 
-							<?php if ( $show_reassurance ) : ?>
-								<p class="icod-reassurance">
-									<span>💵 <?php esc_html_e( 'Paiement à la livraison', 'infinitycod' ); ?></span>
-									<span>🚚 <?php esc_html_e( 'Livraison 58 wilayas', 'infinitycod' ); ?></span>
-									<span>↩️ <?php esc_html_e( 'Vérifiez le colis à la réception', 'infinitycod' ); ?></span>
-								</p>
-							<?php endif; ?>
+						<?php echo ( $show_reassurance && ! $reass_top ) ? $reass_html : ''; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé. ?>
 						</aside>
 					</div>
 				</form>
