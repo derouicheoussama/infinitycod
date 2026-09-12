@@ -796,5 +796,19 @@ check( 'UI : option pleine largeur proposée (recommandée)', false !== strpos( 
 
 check( 'migration : s applique aussi sans visite admin (hook init public)', false !== strpos( file_get_contents( $plugin_dir . 'infinitycod.php' ), "maybe_upgrade' ), 20 );" ) );
 
+/* ---------- 45. Widget mini-stats + assets minifiés ---------- */
+
+echo "\n45) Dashboard : widget mini-stats + assets minifiés\n";
+$wgt = file_get_contents( $plugin_dir . 'includes/admin/class-mini-stats-widget.php' );
+$plg = file_get_contents( $plugin_dir . 'includes/core/class-plugin.php' );
+$min_ok = true;
+foreach ( array( 'front/css/form.min.css', 'front/js/form.min.js', 'admin/css/admin.min.css', 'admin/js/admin.min.js' ) as $m ) {
+	if ( ! file_exists( $plugin_dir . 'assets/' . $m ) ) { $min_ok = false; }
+}
+check( 'widget : mini-stats enregistrées sur le tableau de bord WP', false !== strpos( $wgt, 'wp_add_dashboard_widget' ) && false !== strpos( file_get_contents( $plugin_dir . 'includes/admin/class-admin-manager.php' ), 'MiniStatsWidget' ) );
+check( 'widget : 4 KPI (jour, CA, attente, paniers) + liens', false !== strpos( $wgt, 'Commandes du jour' ) && false !== strpos( $wgt, 'Paniers ouverts' ) && false !== strpos( $wgt, 'infinitycod-orders' ) && false !== strpos( $wgt, 'infinitycod-abandoned' ) );
+check( 'assets : variantes .min générées pour form et admin', $min_ok );
+check( 'assets : asset_url préfère la variante minifiée si présente', false !== strpos( $plg, '.min.$1' ) && false !== strpos( $plg, 'file_exists( INFINITYCOD_PATH . $min )' ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

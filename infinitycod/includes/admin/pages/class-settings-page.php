@@ -1940,7 +1940,7 @@ class SettingsPage {
 			// L'aperçu vit dans un iframe srcdoc : les styles en file WordPress
 			// ne sont pas imprimés en admin-ajax → liens CSS injectés ici.
 			if ( '' !== $html ) {
-				$css = INFINITYCOD_URL . 'assets/front/css/form.css?ver=' . rawurlencode( INFINITYCOD_VERSION );
+				$css = infinitycod()->asset_url( 'assets/front/css/form.css' ) . '?ver=' . rawurlencode( INFINITYCOD_VERSION );
 				$head = '<link rel="stylesheet" href="' . esc_url( $css ) . '" media="all" />';
 				if ( \InfinityCod\Core\I18n::is_rtl() ) {
 					$head .= '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" media="all" />';

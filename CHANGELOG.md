@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.29.0 — 2026-09-12
+
+Widget mini-stats sur le tableau de bord WordPress et assets minifiés.
+
+### Ajouté
+- **Widget « InfinityCod — Aujourd'hui »** sur le tableau de bord WordPress : 4 indicateurs en un coup d'œil — commandes du jour, chiffre d'affaires du jour, commandes en attente (lien direct vers la confirmation) et paniers ouverts (lien vers la relance WhatsApp). Visibilité contrôlée par capacités.
+- **Assets minifiés** : variantes .min générées par le build pour form.css, form.js, admin.css et admin.js — servies automatiquement à la place des sources (~2× plus légères), avec repli automatique si absentes.
+- La release régénère les .min avant l'empaquetage (jamais de fichier périmé en production).
+
+
 ## 5.28.2 — 2026-09-12
 
 Les migrations s'appliquent même sans visite admin : les sites inactifs en back-office reçoivent quand même les corrections de rendu.

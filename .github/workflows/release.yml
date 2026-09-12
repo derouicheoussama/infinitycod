@@ -65,6 +65,8 @@ jobs:
         run: |
           ! grep -rEn "sk_live_[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{30,}|BEGIN (RSA )?PRIVATE KEY" infinitycod/
 
+      - name: Minification des assets
+        run: node tools/minify-assets.js
       - name: Build (zip + sha256 + manifest)
         run: node tools/build.js
 

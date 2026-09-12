@@ -149,6 +149,14 @@ final class Plugin {
 	 * @return string
 	 */
 	public function asset_url( $path ) {
-		return INFINITYCOD_URL . ltrim( $path, '/' );
+		$path = ltrim( $path, '/' );
+
+		// Variante minifiée générée par le build : même fichier, ~2x plus léger.
+		$min = preg_replace( '/\.(css|js)$/i', '.min.$1', $path );
+		if ( $min && $min !== $path && file_exists( INFINITYCOD_PATH . $min ) ) {
+			return INFINITYCOD_URL . $min;
+		}
+
+		return INFINITYCOD_URL . $path;
 	}
 }

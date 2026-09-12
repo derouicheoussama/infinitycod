@@ -1278,14 +1278,14 @@ class FormManager {
 	public function assets() {
 		wp_register_style(
 			'icod-form',
-			INFINITYCOD_URL . 'assets/front/css/form.css',
+			infinitycod()->asset_url( 'assets/front/css/form.css' ),
 			array(),
 			INFINITYCOD_VERSION
 		);
 
 		wp_register_script(
 			'icod-form',
-			INFINITYCOD_URL . 'assets/front/js/form.js',
+			infinitycod()->asset_url( 'assets/front/js/form.js' ),
 			array(),
 			INFINITYCOD_VERSION,
 			true

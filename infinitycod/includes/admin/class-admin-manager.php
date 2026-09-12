@@ -39,6 +39,7 @@ class AdminManager {
 		add_action( 'admin_menu', array( $this, 'menu' ) );
 		add_action( 'admin_notices', array( $this, 'update_available_notice' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
+		( new MiniStatsWidget() )->register();
 
 		// Le badge « commandes en attente » est mis en cache : invalidation
 		// à chaque événement du cycle de vie d'une commande COD.
@@ -510,14 +511,14 @@ class AdminManager {
 
 		wp_enqueue_style(
 			'icod-admin',
-			INFINITYCOD_URL . 'assets/admin/css/admin.css',
+			infinitycod()->asset_url( 'assets/admin/css/admin.css' ),
 			array(),
 			INFINITYCOD_VERSION
 		);
 
 		wp_enqueue_script(
 			'icod-admin',
-			INFINITYCOD_URL . 'assets/admin/js/admin.js',
+			infinitycod()->asset_url( 'assets/admin/js/admin.js' ),
 			array(),
 			INFINITYCOD_VERSION,
 			true
