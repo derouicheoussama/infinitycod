@@ -128,6 +128,7 @@ textarea.icod-input{min-height:0;padding:11px 13px;resize:vertical;line-height:1
 .icod-qty{display:inline-flex;align-items:stretch;width:max-content;max-width:100%;border:1.5px solid var(--icod-border);border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px));background:var(--icod-field);overflow:hidden;transition:border-color .15s}
 .icod-qty:focus-within{border-color:var(--icod-accent)}
 .icod-qty-btn{width:32px;height:34px;flex:none;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;line-height:1;color:var(--icod-accent);background:transparent;border:none;cursor:pointer;transition:background .15s}
+.icod-qty-btn{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .icod-qty-btn:hover{background:color-mix(in srgb,var(--icod-accent) 10%,transparent)}
 .icod-qty-btn:active{background:color-mix(in srgb,var(--icod-accent) 18%,transparent)}
 .icod-qty-input{width:38px!important;min-width:38px;max-width:38px;flex:0 0 auto;text-align:center!important;padding:0!important;height:34px;font-size:14px;font-weight:800;border:none!important;border-inline:1px solid var(--icod-border)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:var(--icod-text);-moz-appearance:textfield;appearance:textfield}
@@ -263,11 +264,15 @@ fieldset.icod-mode{min-width:0}
 .icod-upsell-cta{font-size:.78rem;font-weight:700;color:var(--icod-accent)}
 
 /* Sticky */
-.icod-sticky{position:fixed;inset-inline:0;bottom:0;z-index:9990;display:none;align-items:center;justify-content:space-between;gap:14px;padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));background:var(--icod-surface);border-top:2px solid var(--icod-accent);box-shadow:0 -8px 30px rgba(0,0,0,.18);width:100%}
-.icod-sticky.is-visible{display:flex}
+.icod-sticky{position:fixed;inset-inline:0;bottom:0;z-index:9990;display:none;align-items:center;justify-content:space-between;gap:14px;padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));background:var(--icod-surface);border-top:2px solid var(--icod-accent);box-shadow:0 -8px 30px rgba(0,0,0,.18);width:100%;transform:translateY(110%);transition:transform .3s ease}
+@supports (backdrop-filter:blur(8px)){
+	.icod-sticky{background:color-mix(in srgb,var(--icod-surface) 86%,transparent);backdrop-filter:saturate(1.3) blur(10px)}
+}
+.icod-sticky.is-visible{display:flex;transform:translateY(0)}
 .icod-sticky-total{font-size:.8rem;color:var(--icod-muted);line-height:1.25}
-.icod-sticky-total strong{display:block;font-size:1.12rem;color:var(--icod-accent)}
-.icod-sticky .icod-submit{width:auto;min-width:200px;min-height:50px;padding:11px 30px;font-size:.98rem;box-shadow:none!important;animation:none;border-radius:12px!important}
+.icod-sticky-total strong{display:block;font-size:1.22rem;color:var(--icod-accent);font-variant-numeric:tabular-nums}
+.icod-sticky .icod-submit{flex:1;width:auto;min-width:0;min-height:54px;padding:12px 24px;font-size:1.02rem;font-weight:800;background:var(--icod-btn-bg)!important;box-shadow:0 6px 16px color-mix(in srgb,var(--icod-accent) 38%,transparent)!important;animation:none;border-radius:14px!important;transition:transform .12s ease,box-shadow .2s ease;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.icod-sticky .icod-submit:active{transform:scale(.97)}
 .icod-sticky .icod-submit::after{display:none}
 @media (max-width:767px){.icod-root.has-sticky .icod-reassurance{margin-bottom:86px}}
 @media (max-width:360px){.icod-sticky{flex-direction:column;align-items:stretch;text-align:center}.icod-sticky .icod-submit{width:100%}}
@@ -361,8 +366,9 @@ fieldset.icod-mode{min-width:0}
 	.icod-submit{min-height:48px;padding:11px 14px;font-size:.95rem}
 	.icod-submit .icod-btn-ico{margin-inline-end:6px}
 	/* Quantité : neutralise la bordure imposée par les thèmes. */
-	.icod-qty{max-width:150px}
-	.icod-qty-input{border:0!important;background:transparent!important;box-shadow:none!important;min-height:auto}
+	.icod-qty{max-width:180px}
+	.icod-qty-btn{width:38px!important;height:38px!important;font-size:17px!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+	.icod-qty-input{width:42px!important;min-width:42px!important;max-width:42px!important;height:38px!important;font-size:15px!important;border:0!important;background:transparent!important;box-shadow:none!important;min-height:auto}
 	.icod-mode-grid{gap:8px}
 	.icod-mode-box{padding:9px 10px}
 	/* Barre collante : total une ligne + bouton une ligne. */

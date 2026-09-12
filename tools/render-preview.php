@@ -253,6 +253,7 @@ $out_dir = dirname( __DIR__ ) . '/dist/preview/';
 if ( ! is_dir( $out_dir ) ) { mkdir( $out_dir, 0777, true ); }
 
 $css = file_get_contents( $plugin_dir . 'assets/front/css/form.css' );
+$js = file_get_contents( $plugin_dir . 'assets/front/js/form.js' );
 
 $form = infinitycod_module();
 foreach ( $variants as $name => $saved ) {
@@ -264,7 +265,9 @@ foreach ( $variants as $name => $saved ) {
 	$page = '<!doctype html><html lang="fr"><head><meta charset="utf-8" />'
 		. '<meta name="viewport" content="width=device-width, initial-scale=1" />'
 		. '<title>Aperçu ' . $name . '</title><style>' . $css . '</style></head>'
-		. '<body style="margin:0;padding:24px;background:#e8ecf1">' . $html . '</body></html>';
+		. '<body style="margin:0;padding:24px;background:#e8ecf1">' . $html
+		. '<script>var icodFront={restUrl:"/",rtl:false,currency:"DA",da:"DA",currencyPosition:"right",defaultCountry:"DZ",i18n:{loading:"Chargement",chooseCommune:"Commune",chooseDesk:"Choisir un bureau",noDesks:"Aucun bureau disponible pour cette wilaya",free:"Gratuite",error:"Une erreur est survenue, r essayez.",errorName:"Veuillez saisir votre nom complet.",errorPhone:"Numéro invalide.",errorWilaya:"Veuillez choisir votre wilaya.",errorCommune:"Veuillez choisir votre commune.",errorDesk:"Veuillez choisir un bureau.",errorAddress:"Veuillez saisir votre adresse.",errorAttrs:"Choisissez les options du produit.",errorEmailFormat:"Email invalide.",errorCaptcha:"Répondez à la question anti-bot.",sending:"Envoi en cours",blocked:"Trop de tentatives.",successTitle:"Commande confirmée",successText:"Merci ! Votre commande n {num} est enregistrée.",minOrder:"Commande minimum : {min}."}};</script>'
+		. '<script>' . $js . '</script></body></html>';
 
 	$file = $out_dir . 'form-' . $name . '.html';
 	file_put_contents( $file, $page );

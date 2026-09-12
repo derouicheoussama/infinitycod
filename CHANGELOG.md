@@ -1,5 +1,17 @@
 # Changelog
 
+## 5.26.1 — 2026-09-12
+
+Stepper Quantité tactile et barre « Commander » premium.
+
+### Amélioré
+- **Stepper Quantité tactile sur mobile** : boutons − / + portés à 38 px (cibles tactiles confortables, plus de double-tap parasite grâce à `touch-action`), chiffre plus lisible. La ligne Quantité peut se replier proprement sous 360 px.
+- **Barre « Commander » premium** : bouton pleine largeur de 54 px avec dégradé accent, ombre portée et retour d'appui (scale) ; entrée animée par glissement depuis le bas ; arrière-plan semi-transparent avec flou (`backdrop-filter`) quand le navigateur le supporte ; total agrandi et aligné.
+
+### Corrigé
+- **Aperçu des réglages pleinement fonctionnel** : le générateur d'aperçu n'incluait jamais form.js — la barre collante, les toasts, le stepper et la validation n'y étaient pas testables. L'aperçu embarque maintenant le JS + les données `icodFront` : ce que vous voyez dans l'aperçu est exactement ce que voient vos clients.
+
+
 ## 5.26.0 — 2026-09-12
 
 Le formulaire s'ajuste enfin à la largeur de la page : vrai checkout 2 colonnes sur PC.

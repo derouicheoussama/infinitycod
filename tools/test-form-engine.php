@@ -648,7 +648,7 @@ check( 'arrondi des champs : schéma + défaut + UI', false !== strpos( $sp8, "'
 check( 'arrondi des champs : variable CSS appliquée aux inputs', false !== strpos( $fm7, '--icod-radius-fields' ) && false !== strpos( $css5, 'border-radius:var(--icod-radius-fields,var(--icod-radius-sm,12px))' ) );
 check( 'À propos : bloc Nouveautés depuis le CHANGELOG embarqué', false !== strpos( $about, 'recent_changelog' ) && false !== strpos( $about, 'CHANGELOG.md' ) );
 check( 'À propos : fonctionnalités actualisées (Builder, promos, 8 timers, DMCA)', false !== strpos( $about, 'Checkout Builder' ) && false !== strpos( $about, 'Codes promo InfinityCod' ) && false !== strpos( $about, '8 styles' ) && false !== strpos( $about, 'DMCA' ) );
-check( 'mobile : stepper reste compact (max-width conservé)', false !== strpos( $css5, '.icod-qty{max-width:150px}' ) );
+check( 'mobile : stepper reste compact (max-width conservé)', false !== strpos( $css5, '.icod-qty{max-width:180px}' ) );
 $js4 = file_get_contents( $plugin_dir . 'assets/front/js/form.js' );
 check( 'stepper blindé thèmes : pilule max-content + largeur input bornée', false !== strpos( $css5, '.icod-qty{display:inline-flex;align-items:stretch;width:max-content' ) && false !== strpos( $css5, '.icod-qty-input{width:38px!important;min-width:38px;max-width:38px' ) );
 check( 'stepper : chiffre exactement centré (padding/text-align verrouillés)', false !== strpos( $css5, 'text-align:center!important;padding:0!important' ) );
@@ -774,6 +774,15 @@ $set5 = file_get_contents( $plugin_dir . 'includes/core/class-settings.php' );
 check( 'largeur : défaut form_max_width 1000 px (réglages + rendu)', false !== strpos( $set5, "'form_max_width'        => 1000" ) && false !== strpos( $fm8, "'form_max_width', 1000" ) );
 check( 'largeur : container query sur la racine (s adapte au conteneur réel)', false !== strpos( $css7, 'container-type:inline-size;container-name:icodform' ) );
 check( 'largeur : 2 colonnes desktop (champs | récap+btn collant)', false !== strpos( $css7, 'grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr)' ) && false !== strpos( $css7, '.icod-main{grid-column:1;grid-row:1 / span 2}' ) && false !== strpos( $css7, '.icod-summary-bottom{grid-column:2;grid-row:1}' ) && false !== strpos( $css7, '.icod-aside{grid-column:2;grid-row:2' ) );
+
+/* ---------- 43. Stepper tactile + barre collante premium + aperçu avec JS ---------- */
+
+echo "\n43) Stepper tactile mobile + barre collante premium + aperçu fonctionnel\n";
+$rp = file_get_contents( dirname( $plugin_dir ) . '/tools/render-preview.php' );
+check( 'sticky : entrée animée + flou d arrière-plan', false !== strpos( $css5, 'transform:translateY(110%)' ) && false !== strpos( $css5, 'backdrop-filter:saturate(1.3) blur(10px)' ) );
+check( 'sticky : bouton Commander plein et haut (54px, flex:1)', false !== strpos( $css5, '.icod-sticky .icod-submit{flex:1;width:auto;min-width:0;min-height:54px' ) );
+check( 'stepper : cibles tactiles 38px sur mobile', false !== strpos( $css5, '.icod-qty-btn{width:38px!important;height:38px!important;font-size:17px!important' ) );
+check( 'aperçu : form.js + icodFront injectés (preview pleinement fonctionnel)', false !== strpos( $rp, "assets/front/js/form.js" ) && false !== strpos( $rp, 'var icodFront=' ) );
 
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );
