@@ -784,5 +784,15 @@ check( 'sticky : bouton Commander plein et haut (54px, flex:1)', false !== strpo
 check( 'stepper : cibles tactiles 38px sur mobile', false !== strpos( $css5, '.icod-qty-btn{width:38px!important;height:38px!important;font-size:17px!important' ) );
 check( 'aperçu : form.js + icodFront injectés (preview pleinement fonctionnel)', false !== strpos( $rp, "assets/front/js/form.js" ) && false !== strpos( $rp, 'var icodFront=' ) );
 
+/* ---------- 44. Position pleine largeur par défaut + migration ---------- */
+
+echo "\n44) Formulaire pleine largeur sous la fiche produit\n";
+$fm9 = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
+$act = file_get_contents( $plugin_dir . 'includes/core/class-activator.php' );
+check( 'position : hook pleine largeur après le résumé produit', false !== strpos( $fm9, "'full_width'     => array( 'woocommerce_after_single_product_summary', 15 )" ) );
+check( 'position : défaut full_width (nouvelles installations)', false !== strpos( $set5, "'form_position'        => 'full_width'" ) && false !== strpos( $fm9, "Settings::get( 'form_position', 'full_width' )" ) );
+check( 'migration : after_summary → full_width (une fois, versionnée)', false !== strpos( $act, '5.27.0_form_full_width' ) && false !== strpos( $act, "'after_summary' === Settings::get( 'form_position'" ) );
+check( 'UI : option pleine largeur proposée (recommandée)', false !== strpos( $sp11, 'Pleine largeur' ) && false !== strpos( $sp11, 'value="full_width"' ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

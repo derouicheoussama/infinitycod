@@ -1104,12 +1104,13 @@ class SettingsPage {
 				<label>
 					<span><?php esc_html_e( 'Position du formulaire sur la fiche produit', 'infinitycod' ); ?></span>
 					<select name="icod[form_position]">
+						<option value="full_width" <?php selected( Settings::get( 'form_position' ), 'full_width' ); ?>><?php echo esc_html( 'Pleine largeur — sous la fiche produit (recommandé)' ); ?></option>
 						<option value="before_summary" <?php selected( Settings::get( 'form_position' ), 'before_summary' ); ?>><?php esc_html_e( 'Avant le résumé produit', 'infinitycod' ); ?></option>
 						<option value="after_price" <?php selected( Settings::get( 'form_position' ), 'after_price' ); ?>><?php esc_html_e( 'Après le prix', 'infinitycod' ); ?></option>
 						<option value="after_excerpt" <?php selected( Settings::get( 'form_position' ), 'after_excerpt' ); ?>><?php esc_html_e( 'Après la description courte', 'infinitycod' ); ?></option>
 						<option value="before_cart" <?php selected( Settings::get( 'form_position' ), 'before_cart' ); ?>><?php esc_html_e( 'Avant le bouton Ajouter au panier', 'infinitycod' ); ?></option>
 						<option value="after_cart" <?php selected( Settings::get( 'form_position' ), 'after_cart' ); ?>><?php esc_html_e( 'Après le bouton Ajouter au panier', 'infinitycod' ); ?></option>
-						<option value="after_summary" <?php selected( Settings::get( 'form_position' ), 'after_summary' ); ?>><?php esc_html_e( 'Après le résumé produit (défaut)', 'infinitycod' ); ?></option>
+						<option value="after_summary" <?php selected( Settings::get( 'form_position' ), 'after_summary' ); ?>><?php esc_html_e( 'Après le résumé produit (colonne étroite du thème)', 'infinitycod' ); ?></option>
 						<option value="end_product" <?php selected( Settings::get( 'form_position' ), 'end_product' ); ?>><?php esc_html_e( 'Fin de la fiche produit', 'infinitycod' ); ?></option>
 					</select>
 				</label>

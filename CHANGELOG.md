@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.27.0 — 2026-09-12
+
+Le formulaire COD sort de la colonne étroite du produit : pleine largeur par défaut sur toutes les boutiques.
+
+### Modifié
+- **Nouvelle position « Pleine largeur — sous la fiche produit » (défaut)** : le formulaire s'insère sous la fiche (galerie + résumé), sur **toute la largeur du conteneur** — ce qui déclenche automatiquement le checkout 2 colonnes sur PC (champs à gauche, récap + bouton collant à droite), grâce aux container queries.
+- **Migration automatique** : les boutiques encore sur l'ancien placement « Après le résumé produit » (colonne étroite du thème, ~400 px) basculent en pleine largeur lors de la mise à jour — sauf si le marchand avait choisi lui-même une autre position (son choix reste respecté).
+- Les autres positions restent disponibles dans Réglages → Formulaire pour les thèmes où l'emplacement résumé est préféré.
+
+
 ## 5.26.1 — 2026-09-12
 
 Stepper Quantité tactile et barre « Commander » premium.

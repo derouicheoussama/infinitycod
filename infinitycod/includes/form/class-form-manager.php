@@ -434,10 +434,11 @@ class FormManager {
 			'after_cart'     => array( 'woocommerce_single_product_summary', 29 ),
 			'after_summary'  => array( 'woocommerce_single_product_summary', 35 ),
 			'end_product'    => array( 'woocommerce_after_single_product', 10 ),
+			'full_width'     => array( 'woocommerce_after_single_product_summary', 15 ),
 		);
-		$position  = Settings::get( 'form_position', 'after_summary' );
-		$hook      = isset( $positions[ $position ] ) ? $positions[ $position ][0] : 'woocommerce_single_product_summary';
-		$priority  = isset( $positions[ $position ] ) ? $positions[ $position ][1] : 35;
+		$position  = Settings::get( 'form_position', 'full_width' );
+		$hook      = isset( $positions[ $position ] ) ? $positions[ $position ][0] : 'woocommerce_after_single_product_summary';
+		$priority  = isset( $positions[ $position ] ) ? $positions[ $position ][1] : 15;
 
 		add_action( $hook, array( $this, 'render_auto' ), $priority );
 	}

@@ -68,7 +68,7 @@ class Settings {
 			'form_style'            => 'classic',      // classic | moderne | tech | ecommerce.
 			'accent_color'          => '#0e7a4f',
 			'sticky_bar'            => 1,
-			'form_position'         => 'after_summary', // position sur la fiche produit.
+			'form_position'        => 'full_width', // Pleine largeur sous la fiche produit. // position sur la fiche produit.
 
 			// Champ email (facultatif, sert aussi aux restrictions).
 			'show_email'            => 0,

@@ -337,6 +337,13 @@ class Activator {
 	 */
 	private static function migrations() {
 		return array(
+			'5.27.0_form_full_width' => function () {
+				// Les sites qui n'ont jamais choisi de position quittent la colonne
+				// résumé (étroite) pour la pleine largeur : vrai checkout 2 colonnes sur PC.
+				if ( 'after_summary' === Settings::get( 'form_position', 'after_summary' ) ) {
+					Settings::set( 'form_position', 'full_width' );
+				}
+			},
 			'1.7.1_license_server' => function () {
 				$license_server = Settings::get( 'license_server', '' );
 				if ( $license_server && false !== strpos( (string) $license_server, 'factexpert.online' ) ) {
