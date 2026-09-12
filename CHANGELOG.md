@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.27.2 — 2026-09-12
+
+Largeur du formulaire ramenée à 620 px par défaut.
+
+### Modifié
+- **Largeur standard 620 px** : le formulaire s'affiche par défaut dans une carte nette de 620 px, centrée sur la page — l'ajustement demandé. Ajustable de 400 à 1400 px dans Réglages → Formulaire → « Largeur maximale » ; au-delà de 760 px, la mise en page 2 colonnes du PC s'active automatiquement.
+
+
 ## 5.27.1 — 2026-09-12
 
 Organisation du formulaire en blocs lisibles, inspirée des meilleurs checkouts.

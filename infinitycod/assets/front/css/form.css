@@ -33,7 +33,7 @@
 	--icod-btn-bg:linear-gradient(135deg,#1877c2,#0c5c9a);
 	--icod-head-bg:linear-gradient(135deg,#0c5c9a,#1877c2);
 	--icod-head-ink:#ffffff;
-	font-family:system-ui,'Segoe UI',Roboto,sans-serif;color:var(--icod-text);background:var(--icod-page);border:1px solid var(--icod-border);border-radius:var(--icod-radius,18px);box-shadow:var(--icod-shadow);max-width:min(100%,var(--icod-max-w,1000px));margin:0 auto;overflow:hidden;position:relative;direction:ltr;container-type:inline-size;container-name:icodform;font-size:var(--icod-fs,14px);line-height:1.5;-webkit-font-smoothing:antialiased}
+	font-family:system-ui,'Segoe UI',Roboto,sans-serif;color:var(--icod-text);background:var(--icod-page);border:1px solid var(--icod-border);border-radius:var(--icod-radius,18px);box-shadow:var(--icod-shadow);max-width:min(100%,var(--icod-max-w,620px));margin:0 auto;overflow:hidden;position:relative;direction:ltr;container-type:inline-size;container-name:icodform;font-size:var(--icod-fs,14px);line-height:1.5;-webkit-font-smoothing:antialiased}
 /* Sombre : forcé, ou automatique selon la préférence du visiteur. */
 .icod-root[data-theme="dark"]{
 	--icod-surface:#1f2d3d;

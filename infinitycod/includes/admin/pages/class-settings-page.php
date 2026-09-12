@@ -1045,7 +1045,7 @@ class SettingsPage {
 				</label>
 				<label>
 					<span><?php esc_html_e( 'Largeur du formulaire (px)', 'infinitycod' ); ?> <em>(jusqu'à 1400)</em></span>
-					<input type="number" min="400" max="1400" step="20" name="icod[form_max_width]" value="<?php echo esc_attr( (int) Settings::get( 'form_max_width', 1000 ) ); ?>"" />
+					<input type="number" min="400" max="1400" step="20" name="icod[form_max_width]" value="<?php echo esc_attr( (int) Settings::get( 'form_max_width', 620 ) ); ?>" />
 				</label>
 			</div>
 			<p class="description" style="margin-top:14px"><strong><?php esc_html_e( 'Personnalisation avancée', 'infinitycod' ); ?></strong> — <?php esc_html_e( 'choisissez une couleur dans la palette ; ↺ revient au défaut du thème.', 'infinitycod' ); ?></p>

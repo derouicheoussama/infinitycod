@@ -48,7 +48,7 @@ class Settings {
 			'button_text'           => __( 'Confirmer la commande', 'infinitycod' ),
 			'button_icon'           => '',            // Icône (emoji) devant le texte du bouton.
 			'phone_placeholder'     => __( '0X XX XX XX XX', 'infinitycod' ),
-			'form_max_width'        => 1000, // px, 400-1400. Sur PC le formulaire s'elargit et passe en 2 colonnes.
+			'form_max_width'        => 620,  // px, 400-1400. Largeur standard du formulaire.
 			'success_title'         => __( '✅ Commande enregistrée !', 'infinitycod' ),
 			'success_text'          => __( 'Merci ! Votre commande n° {num} a bien été enregistrée. Nous vous appellerons très vite pour la confirmer.', 'infinitycod' ),
 
