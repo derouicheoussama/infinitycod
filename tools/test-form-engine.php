@@ -794,5 +794,7 @@ check( 'position : défaut full_width (nouvelles installations)', false !== strp
 check( 'migration : after_summary → full_width (une fois, versionnée)', false !== strpos( $act, '5.27.0_form_full_width' ) && false !== strpos( $act, "'after_summary' === Settings::get( 'form_position'" ) );
 check( 'UI : option pleine largeur proposée (recommandée)', false !== strpos( $sp11, 'Pleine largeur' ) && false !== strpos( $sp11, 'value="full_width"' ) );
 
+check( 'migration : s applique aussi sans visite admin (hook init public)', false !== strpos( file_get_contents( $plugin_dir . 'infinitycod.php' ), "maybe_upgrade' ), 20 );" ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

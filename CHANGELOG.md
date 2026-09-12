@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.28.2 — 2026-09-12
+
+Les migrations s'appliquent même sans visite admin : les sites inactifs en back-office reçoivent quand même les corrections de rendu.
+
+### Corrigé
+- **Migrations exécutées sur les requêtes publiques** : jusqu'ici, la migration qui bascule le formulaire en pleine largeur ne s'exécutait qu'à l'ouverture du tableau de bord — les sites où personne ne se connecte à l'admin gardaient indéfiniment l'ancien formulaire dans la colonne étroite du thème. Les migrations tournent maintenant aussi à l'init des requêtes publiques (idempotentes : une seule fois chacune), suivies de la purge des caches — le nouveau rendu part en production tout seul.
+
+
 ## 5.28.1 — 2026-09-12
 
 Fiable après mise à jour : la migration de position purge désormais les caches, et le minuteur redevient lisible.
