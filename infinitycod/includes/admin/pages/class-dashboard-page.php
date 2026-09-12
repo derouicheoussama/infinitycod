@@ -54,6 +54,11 @@ class DashboardPage {
 				$cutoff
 			), ARRAY_A );
 
+			// Base vide : get_row() renvoie null (aucune commande sur la période).
+			if ( ! is_array( $row ) ) {
+				$row = array( 'total' => 0, 'good' => 0, 'delivered' => 0, 'revenue' => 0 );
+			}
+
 			$kpi[ $key ] = array(
 				'total'     => (int) $row['total'],
 				'good'      => (int) $row['good'],

@@ -279,8 +279,8 @@ fieldset.icod-mode{min-width:0}
 .icod-sticky .icod-submit{flex:1;width:auto;min-width:0;min-height:54px;padding:12px 24px;font-size:1.02rem;font-weight:800;background:var(--icod-btn-bg)!important;box-shadow:0 6px 16px color-mix(in srgb,var(--icod-accent) 38%,transparent)!important;animation:none;border-radius:14px!important;transition:transform .12s ease,box-shadow .2s ease;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .icod-sticky .icod-submit:active{transform:scale(.97)}
 .icod-sticky .icod-submit::after{display:none}
-@media (max-width:767px){.icod-root.has-sticky .icod-reassurance{margin-bottom:86px}}
-@media (max-width:360px){.icod-sticky{flex-direction:column;align-items:stretch;text-align:center}.icod-sticky .icod-submit{width:100%}}
+@container icodform (max-width:767px){.icod-root.has-sticky .icod-reassurance{margin-bottom:86px}}
+@container icodform (max-width:360px){.icod-sticky{flex-direction:column;align-items:stretch;text-align:center}.icod-sticky .icod-submit{width:100%}}
 
 /* Champs obligatoires (Checkout Builder) : astérisque sur le libellé. */
 .icod-required>label::after{content:' *';color:#d63638;font-weight:800}
@@ -338,7 +338,7 @@ fieldset.icod-mode{min-width:0}
 [dir="rtl"] .icod-form-title,[dir="rtl"] .icod-submit,[dir="rtl"] .icod-input{font-family:Cairo,Tajawal,Tahoma,sans-serif}
 
 /* Mobile */
-@media (max-width:480px){
+@container icodform (max-width:480px){
 	.icod-input,.icod-chip span,.icod-coupon-input,.icod-coupon-apply,.icod-qty-input{font-size:16px!important}
 	.icod-field{margin-bottom:14px}
 	.icod-input-wrap .icod-input{min-height:48px}
@@ -352,7 +352,7 @@ fieldset.icod-mode{min-width:0}
 /* ===== Mobile : retours terrain (captures clients) =====
    En-tête compact une ligne, sticky pleine largeur non déformée,
    neutralisation du style des inputs par les thèmes. */
-@media (max-width:600px){
+@container icodform (max-width:600px){
 	/* En-tête : jamais d'empilement en colonnes. */
 	.icod-head{flex-wrap:nowrap!important;gap:10px!important;padding:14px;align-items:center!important}
 	.icod-head::after{display:none}
@@ -382,7 +382,7 @@ fieldset.icod-mode{min-width:0}
 	.icod-sticky-total strong{font-size:1rem}
 	.icod-sticky .icod-submit{flex:1;min-width:0;min-height:46px;padding:10px;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
-@media (max-width:360px){
+@container icodform (max-width:360px){
 	.icod-head-price{font-size:.74rem;padding:3px 7px}
 	.icod-form-title{font-size:.9rem}
 	.icod-sticky-total{max-width:34%}
@@ -479,7 +479,7 @@ fieldset.icod-mode{min-width:0}
 .icod-reassurance{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;padding:12px 8px}
 .icod-reassurance span{display:flex;flex-direction:column;gap:5px;align-items:center;font-size:10.5px;font-weight:700;color:var(--icod-muted);background:var(--icod-surface-2);border-radius:10px;padding:10px 4px;transition:transform .15s,box-shadow .15s}
 .icod-reassurance span:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
-@media (max-width:600px){.icod-reassurance{grid-template-columns:1fr 1fr}}
+@container icodform (max-width:600px){.icod-reassurance{grid-template-columns:1fr 1fr}}
 /* Offres quantité : pilules rouges*/ 
 .icod-offers{display:flex;flex-direction:column;gap:6px;margin:0 0 12px;padding:0;list-style:none}
 .icod-offers li{background:linear-gradient(90deg,rgba(214,54,56,.12),rgba(214,54,56,.05));border:1px dashed rgba(214,54,56,.5);color:#b02a37;border-radius:9px;padding:7px 12px;font-size:.8rem;font-weight:700;text-align:center;animation:icod-fade-in .4s ease both}
@@ -500,7 +500,7 @@ fieldset.icod-mode{min-width:0}
 @keyframes icod-spin{to{transform:rotate(360deg)}}
 
 /* Très petits écrans (<=360 px) : sécurité responsive. */
-@media (max-width:360px){
+@container icodform (max-width:360px){
 	.icod-duo,.icod-row{grid-template-columns:1fr!important}
 	.icod-qty-field.icod-qty-field{flex-wrap:wrap!important;justify-content:flex-start!important}
 	.icod-qty-field.icod-qty-field>label{flex:0 0 100%!important;margin:0 0 6px!important}

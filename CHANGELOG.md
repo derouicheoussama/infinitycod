@@ -1,5 +1,24 @@
 # Changelog
 
+## 5.28.0 — 2026-09-12
+
+Responsive réellement adaptatif (container queries partout), simulateur d'écran dans l'admin, erreurs cachées corrigées.
+
+### Ajouté
+- **Responsive par container queries** : les 7 points de rupture du formulaire réagissent désormais à la **largeur réelle du conteneur** du formulaire et non plus à celle de l'écran. Résultat : le formulaire est correctement affiché sur PC, tablette et mobile, même placé dans une sidebar, une colonne de page ou un popup — l'adaptation suit toujours son propre espace.
+- **Simulateur d'écran dans l'aperçu admin** : boutons « 📱 Mobile (390) · 📋 Tablette (768) · 💻 Pleine largeur » qui redimensionnent l'aperçu — vous voyez le rendu réel de chaque appareil sans quitter les réglages.
+- **Aperçu admin pleinement fonctionnel** : le JavaScript du formulaire (barre collante, stepper, toasts, validation) tourne désormais dans l'aperçu — il était totalement absent des versions précédentes.
+
+### Corrigé
+- **Page Dashboard : 12 warnings PHP sur base vide** (« Trying to access array offset on null ») — structure par défaut fournie quand aucune commande n'existe sur la période.
+- **Champ dupliqué dans les réglages** : le texte du compte à rebours s'affichait deux fois.
+- **Sandbox de l'aperçu** supprimée : elle bloquait silencieusement le JavaScript de l'aperçu (fonctionne maintenant avec le même rendu que le site public).
+
+### Vérification
+- Pages admin rendues sur un WordPress réel de test : **0 warning, 0 erreur** (carriers, abandoned, dashboard, about, updates, diagnostics).
+- Harnais moteur : 222 vérifications · scanner de sécurité : rien à signaler · activation : OK.
+
+
 ## 5.27.2 — 2026-09-12
 
 Largeur du formulaire ramenée à 620 px par défaut.

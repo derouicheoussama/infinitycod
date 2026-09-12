@@ -1258,9 +1258,6 @@ class SettingsPage {
 					<input type="text" name="icod[timer_urgency_text]" value="<?php echo esc_attr( Settings::get( 'timer_urgency_text' ) ); ?>" class="regular-text" />
 				</label>
 				<label>
-					<span><?php esc_html_e( 'Texte affiché (variable : {time})', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[timer_urgency_text]" value="<?php echo esc_attr( Settings::get( 'timer_urgency_text' ) ); ?>" class="regular-text" />
-				</label>
 			</div>
 		</div>
 
@@ -1340,7 +1337,13 @@ class SettingsPage {
 				<button type="button" class="button" id="icod-preview-refresh"><?php esc_html_e( 'Actualiser l’aperçu', 'infinitycod' ); ?></button>
 				<span id="icod-preview-status" class="description" aria-live="polite"></span>
 			</div>
-			<iframe id="icod-preview-frame" title="<?php esc_attr_e( 'Aperçu du formulaire', 'infinitycod' ); ?>" style="width:100%;height:640px;border:1px solid #dcdcde;border-radius:8px;background:#fff" sandbox="allow-same-origin"></iframe>
+			<div style="display:flex;gap:6px;margin:0 0 8px;flex-wrap:wrap">
+				<button type="button" class="button" data-icod-w="390">📱 <?php esc_html_e( 'Mobile (390)', 'infinitycod' ); ?></button>
+				<button type="button" class="button" data-icod-w="768">📋 <?php esc_html_e( 'Tablette (768)', 'infinitycod' ); ?></button>
+				<button type="button" class="button button-primary" data-icod-w="100%">💻 <?php esc_html_e( 'Pleine largeur', 'infinitycod' ); ?></button>
+				<span class="description" style="align-self:center"><?php esc_html_e( "Le formulaire s adapte à la largeur choisie — rendu réel.", 'infinitycod' ); ?></span>
+			</div>
+			<iframe id="icod-preview-frame" title="<?php esc_attr_e( 'Aperçu du formulaire', 'infinitycod' ); ?>" style="width:100%;height:640px;margin:0 auto;display:block;transition:width .25s ease;border:1px solid #dcdcde;border-radius:8px;background:#fff"></iframe>
 			<script>
 			(function () {
 				var form = document.getElementById('icod-preview-card');
@@ -1382,6 +1385,15 @@ class SettingsPage {
 				var btn = document.getElementById('icod-preview-refresh');
 				if (btn) { btn.addEventListener('click', refresh); }
 				if (product) { product.addEventListener('change', refresh); }
+
+				// Simulateur de largeur : le formulaire s'adapte au conteneur (container queries).
+				document.querySelectorAll('[data-icod-w]').forEach(function (b) {
+					b.addEventListener('click', function () {
+						frame.style.width = b.getAttribute('data-icod-w');
+						document.querySelectorAll('[data-icod-w]').forEach(function (x) { x.classList.remove('button-primary'); });
+						b.classList.add('button-primary');
+					});
+				});
 				refresh();
 			})();
 			</script>
