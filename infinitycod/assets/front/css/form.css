@@ -297,7 +297,7 @@ fieldset.icod-mode{min-width:0}
 .icod-timer-bar{background:color-mix(in srgb,var(--icod-danger) 8%,var(--icod-surface));border:1.5px dashed color-mix(in srgb,var(--icod-danger) 45%,transparent)}
 .icod-timer-bar::before{content:"";position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(45deg,transparent,transparent 12px,color-mix(in srgb,var(--icod-danger) 5%,transparent) 12px,color-mix(in srgb,var(--icod-danger) 5%,transparent) 24px);pointer-events:none;animation:icod-stripes 1.2s linear infinite}
 @keyframes icod-stripes{from{background-position:0 0}to{background-position:34px 0}}
-.icod-timer-bar .icod-timer-label{position:relative}
+.icod-timer-bar .icod-timer-label{position:relative;color:color-mix(in srgb,var(--icod-danger) 75%,var(--icod-text));font-weight:700}
 /* Pilule : fond sombre, lueur accent, point pulsant. */
 .icod-timer-pill{background:#1d2327;color:#fff;border:none;border-radius:99px;padding:11px 26px;box-shadow:0 4px 18px rgba(0,0,0,.35);width:fit-content;margin-inline:auto}
 .icod-timer-pill::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--icod-danger);animation:icod-blink 1s ease-in-out infinite}

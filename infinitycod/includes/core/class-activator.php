@@ -362,6 +362,7 @@ class Activator {
 		$done = get_option( 'infinitycod_migrations', array() );
 		$done = is_array( $done ) ? $done : array();
 
+		$ran = false;
 		foreach ( self::migrations() as $key => $callback ) {
 			if ( in_array( $key, $done, true ) ) {
 				continue;
@@ -369,11 +370,18 @@ class Activator {
 
 			call_user_func( $callback );
 			$done[] = $key;
+			$ran    = true;
 
 			\InfinityCod\Logging\Logger::log( 'migration', 'Migration appliquée : ' . $key );
 		}
 
 		update_option( 'infinitycod_migrations', $done, false );
+
+		// Une migration peut changer la position du formulaire (etc.) : purge
+		// des caches de pages pour que le public voie le nouveau rendu aussitôt.
+		if ( $ran ) {
+			\InfinityCod\Core\CachePurge::purge_all();
+		}
 	}
 
 	/**

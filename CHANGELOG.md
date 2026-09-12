@@ -1,5 +1,17 @@
 # Changelog
 
+## 5.28.1 — 2026-09-12
+
+Fiable après mise à jour : la migration de position purge désormais les caches, et le minuteur redevient lisible.
+
+### Corrigé
+- **Purge des caches après chaque migration** : la migration qui bascule le formulaire en pleine largeur modifie le rendu public — les caches de pages sont maintenant purgés aussitôt, pour que les visiteurs voient le nouveau formulaire immédiatement (et non après expiration du cache).
+- **Minuteur illisible sur certains thèmes** : le texte « Offre valable encore… » héritait d'une couleur trop pâle — il est maintenant en rouge foncé lisible, en gras.
+
+### Rappel
+- La migration « formulaire en pleine largeur » s'exécute à la première visite d'une page d'administration après la mise à jour : ouvrez simplement le tableau de bord WordPress une fois.
+
+
 ## 5.28.0 — 2026-09-12
 
 Responsive réellement adaptatif (container queries partout), simulateur d'écran dans l'admin, erreurs cachées corrigées.
