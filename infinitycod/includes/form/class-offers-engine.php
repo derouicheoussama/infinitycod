@@ -25,12 +25,34 @@ class OffersEngine {
 	 * @return array<int, float> quantité => remise %.
 	 */
 	public static function global_tiers() {
+		$tiers = array();
+
+		// Réglage global : « 2:10, 3:15, 5:20 » (quantité:remise %%).
+		$raw = trim( (string) \InfinityCod\Core\Settings::get( 'offers_tiers', '' ) );
+		if ( '' !== $raw ) {
+			foreach ( explode( ',', $raw ) as $chunk ) {
+				$parts = explode( ':', trim( $chunk ) );
+				if ( 2 === count( $parts ) ) {
+					$qty = absint( $parts[0] );
+					$pct = round( (float) str_replace( ',', '.', $parts[1] ), 2 );
+					if ( $qty >= 2 && $qty <= 99 && $pct > 0 && $pct <= 90 ) {
+						$tiers[ $qty ] = $pct;
+					}
+				}
+			}
+		}
+
+		if ( empty( $tiers ) ) {
+			$tiers = array( 2 => 10, 3 => 15, 5 => 20 );
+		}
+		ksort( $tiers );
+
 		/**
 		 * Paliers globaux d'offres par quantité.
 		 *
 		 * @param array $tiers quantité minimale => remise en %.
 		 */
-		return apply_filters( 'infinitycod_offers_global_tiers', array( 2 => 10, 3 => 15, 5 => 20 ) );
+		return apply_filters( 'infinitycod_offers_global_tiers', $tiers );
 	}
 
 	/**

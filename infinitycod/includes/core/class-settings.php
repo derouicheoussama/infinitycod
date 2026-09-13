@@ -109,6 +109,7 @@ class Settings {
 			'show_note'             => 0,
 			'show_stopdesk'         => 1,
 			'show_offers'           => 1,
+			'offers_tiers'          => '2:10, 3:15, 5:20', // Paliers quantité:remise% (offre par quantité).
 			'show_reassurance'      => 1,
 			'reassurance_top'       => 0,    // Réassurance affichée AVANT les champs (style landing).
 

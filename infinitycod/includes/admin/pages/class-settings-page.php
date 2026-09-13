@@ -1128,6 +1128,11 @@ class SettingsPage {
 					<input type="checkbox" name="icod[show_offers]" value="1" <?php checked( (int) Settings::get( 'show_offers' ), 1 ); ?> <?php disabled( ! \InfinityCod\License\LicenseManager::is_premium() ); ?> />
 					<span><?php esc_html_e( 'Afficher les paliers d‘offres par quantité', 'infinitycod' ); ?> <span class="icod-premium-mini">★ Premium</span></span>
 				</label>
+				<label>
+					<span><?php echo esc_html( 'Paliers d’offres — quantité:remise % (ex. 2:10, 3:15, 5:20)' ); ?> <?php disabled( ! \InfinityCod\License\LicenseManager::is_premium() ); ?></span>
+					<input type="text" name="icod[offers_tiers]" value="<?php echo esc_attr( Settings::get( 'offers_tiers', '2:10, 3:15, 5:20' ) ); ?>" placeholder="2:10, 3:15, 5:20" class="regular-text" <?php disabled( ! \InfinityCod\License\LicenseManager::is_premium() ); ?> />
+					<em><?php echo esc_html( 'Format : quantité minimale:remise en pourcentage, séparés par des virgules. Vide = 2:10, 3:15, 5:20. Sans licence Premium, les offres restent masquées.' ); ?></em>
+				</label>
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[show_reassurance]" value="1" <?php checked( (int) Settings::get( 'show_reassurance' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Bandeau de réassurance (COD, 58 wilayas, vérification colis)', 'infinitycod' ); ?></span>
@@ -2014,13 +2019,14 @@ class SettingsPage {
 				'show_signature'      => array( 'tab' => 'form', 'type' => 'toggle' ),
 				'logo_cib_id'         => array( 'tab' => 'payment', 'type' => 'id' ),
 				'logo_edahabia_id'    => array( 'tab' => 'payment', 'type' => 'id' ),
-			'form_position'      => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'before_summary', 'after_price', 'after_excerpt', 'before_cart', 'after_cart', 'after_summary', 'end_product' ) ),
+			'form_position'      => array( 'tab' => 'form', 'type' => 'enum', 'choices' => array( 'before_summary', 'after_price', 'after_excerpt', 'before_cart', 'after_cart', 'after_summary', 'full_width', 'end_product' ) ),
 			'form_max_width'     => array( 'tab' => 'form', 'type' => 'int', 'min' => 400, 'max' => 1400 ),
 			'qty_max'            => array( 'tab' => 'form', 'type' => 'int', 'min' => 1, 'max' => 999 ),
 			'show_qty_selector'  => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_stopdesk'      => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_note'          => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_offers'        => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'offers_tiers'       => array( 'tab' => 'form', 'type' => 'text' ),
 			'show_reassurance'   => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'reassurance_top'    => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_email'         => array( 'tab' => 'form', 'type' => 'toggle' ),

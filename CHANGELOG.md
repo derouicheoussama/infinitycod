@@ -1,5 +1,17 @@
 # Changelog
 
+## 5.29.2 — 2026-09-13
+
+Les paliers d'offres par quantité deviennent contrôlables depuis les réglages.
+
+### Ajouté
+- **Réglage « Paliers d'offres »** : le formulaire affichait des paliers codés en dur (« 2+ : −10%, 3+ : −15%, 5+ : −20% ») impossibles à modifier. Nouveau champ dans Réglages → Formulaire (à côté du toggle d'affichage) : saisissez vos paliers au format `quantité:remise%` — ex. `2:10, 3:15, 5:20`. Format libre, validation intégrée (quantité ≥ 2, remise 0-90 %, entrées invalides ignorées), tri automatique.
+- Palier par produit toujours prioritaire (meta `_icod_offers`) et filtre développeur conservé.
+
+### Corrigé
+- **« Pleine largeur » manquait aux choix de position** : l'option existait dans le menu déroulant mais pas dans le schéma de validation — sauvegarder la position pleine largeur était silencieusement ignoré. Ajoutée aux choix de l'enum.
+
+
 ## 5.29.1 — 2026-09-13
 
 Mise en conformité Plugin Check (WordPress.org) : toutes les erreurs du rapport officiel corrigées.
