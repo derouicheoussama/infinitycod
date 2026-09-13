@@ -284,8 +284,7 @@ class PromosPage {
 		?>
 		<div class="wrap icod-wrap icod-admin-polish">
 			<h1 class="icod-title">
-				/* translators: %s : code promo. */
-				📜 <?php printf( esc_html__( 'Historique — %s', 'infinitycod' ), '<code>' . esc_html( $row['code'] ) . '</code>' ); ?>
+				📜 <?php /* translators: %s : code promo. */ printf( esc_html__( 'Historique — %s', 'infinitycod' ), '<code>' . esc_html( $row['code'] ) . '</code>' ); ?>
 			</h1>
 			<p><a class="button" href="?page=infinitycod-promos">← <?php esc_html_e( 'Retour aux codes promo', 'infinitycod' ); ?></a></p>
 

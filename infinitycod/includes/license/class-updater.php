@@ -449,7 +449,7 @@ class Updater {
 	 *
 	 * @return array|null
 	 */
-		private static $allowed_hosts = array( 'raw.githubusercontent.com', 'cdn.jsdelivr.net', 'objects.githubusercontent.com' );
+		private static $allowed_hosts = array( 'raw.githubusercontent.com', 'cdn.jsdelivr.net', 'objects.githubusercontent.com' ); // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- hotes de mise a jour.
 
 	/**
 	 * Source primaire : le serveur Infinity License (infinitycoder.app ou
@@ -480,12 +480,12 @@ class Updater {
 	 * Valide qu'une URL pointe vers un domaine autorisé (anti-SSRF).
 	 */
 	private function is_safe_url( $url ) {
-		$host = parse_url( $url, PHP_URL_HOST );
+		$host = wp_parse_url( $url, PHP_URL_HOST );
 		if ( empty( $host ) ) { return false; }
 		$allowed = array( 'raw.githubusercontent.com', 'cdn.jsdelivr.net', 'objects.githubusercontent.com' );
 		$custom = \InfinityCod\Core\Settings::get( 'custom_update_url', '' );
 		if ( ! empty( $custom ) ) {
-			$custom_host = parse_url( $custom, PHP_URL_HOST );
+			$custom_host = wp_parse_url( $custom, PHP_URL_HOST );
 			if ( ! empty( $custom_host ) ) { $allowed[] = $custom_host; }
 		}
 		return in_array( strtolower( $host ), $allowed, true );
@@ -513,8 +513,8 @@ class Updater {
 			$mirrors['custom'] = rtrim( $custom, '/' ) . '/';
 		}
 
-		$mirrors['raw']      = 'https://raw.githubusercontent.com/' . $repo . '/main/latest/';
-		$mirrors['jsdelivr'] = 'https://cdn.jsdelivr.net/gh/' . $repo . '@main/latest/';
+		$mirrors['raw']      = 'https://raw.githubusercontent.com/' . $repo . '/main/latest/'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent
+		$mirrors['jsdelivr'] = 'https://cdn.jsdelivr.net/gh/' . $repo . '@main/latest/'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent
 
 		foreach ( $mirrors as $kind => $base ) {
 			$response = wp_remote_get(
@@ -762,8 +762,8 @@ class Updater {
 		$targets = array(
 			'API api.github.com'             => self::api_url( $repo, '/releases/latest' ),
 			'Atom github.com'                => 'https://github.com/' . $repo . '/releases.atom',
-			'Miroir raw.githubusercontent.com' => 'https://raw.githubusercontent.com/' . $repo . '/main/latest/update.json',
-			'Miroir jsDelivr (CDN)'          => 'https://cdn.jsdelivr.net/gh/' . $repo . '@main/latest/update.json',
+			'Miroir raw.githubusercontent.com' => 'https://raw.githubusercontent.com/' . $repo . '/main/latest/update.json', // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent
+			'Miroir jsDelivr (CDN)'          => 'https://cdn.jsdelivr.net/gh/' . $repo . '@main/latest/update.json', // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent
 		);
 
 		$out = array();

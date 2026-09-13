@@ -58,17 +58,17 @@ class SeoManager {
 		?>
 <!doctype html><html <?php language_attributes(); ?>><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 /* translators: 1 : nom de la wilaya, 2 : nom du site ou compte. */
-<title><?php printf( esc_html__( 'Livraison à %1$s — Prix, délais & commande COD | %2$s', 'infinitycod' ), esc_html( $name ), esc_html( get_bloginfo( 'name' ) ) ); ?></title>
+<title><?php /* translators: 1 : wilaya, 2 : nom du site. */ printf( esc_html__( 'Livraison à %1$s — Prix, délais & commande COD | %2$s', 'infinitycod' ), esc_html( $name ), esc_html( get_bloginfo( 'name' ) ) ); ?></title>
 /* translators: 1 : nom de la wilaya, 2 : nom du site ou compte. */
-<meta name="description" content="<?php printf( esc_attr__( 'Commandez en ligne avec livraison à domicile ou stopdesk à %1$s (%2$s). Paiement à la livraison, prix dès %3$s.', 'infinitycod' ), esc_html( $name ), esc_html( $name_ar ), esc_html( $fmt( min( array_filter( array( $home, $desk ), fn( $v ) => $v >= 0 ) ?: array( 0 ) ) ) ) ); ?>">
+<meta name="description" content="<?php /* translators: 1 : wilaya, 2 : arabe, 3 : prix. */ printf( esc_attr__( 'Commandez en ligne avec livraison à domicile ou stopdesk à %1$s (%2$s). Paiement à la livraison, prix dès %3$s.', 'infinitycod' ), esc_html( $name ), esc_html( $name_ar ), esc_html( $fmt( min( array_filter( array( $home, $desk ), fn( $v ) => $v >= 0 ) ?: array( 0 ) ) ) ) ); ?>">
 <?php wp_head(); ?>
 <style>.icod-land{max-width:760px;margin:0 auto;padding:40px 20px;font-family:inherit}.icod-land h1{font-size:clamp(24px,4vw,36px)}.icod-land table{width:100%;border-collapse:collapse;margin:18px 0}.icod-land td,.icod-land th{padding:10px 12px;border-bottom:1px solid #e2e8f0;text-align:left}.icod-land .btn{display:inline-block;background:#1877c2;color:#fff;padding:13px 26px;border-radius:10px;text-decoration:none;font-weight:700}</style>
 </head><body>
 <div class="icod-land">
 	/* translators: 1 : nom de la wilaya, 2 : nom du site ou compte. */
-	<h1><?php printf( esc_html__( 'Livraison à %s', 'infinitycod' ), esc_html( $name ) ); ?> <?php echo esc_html( $name_ar ? '— ' . $name_ar : '' ); ?></h1>
+	<h1><?php /* translators: %s : wilaya. */ printf( esc_html__( 'Livraison à %s', 'infinitycod' ), esc_html( $name ) ); ?> <?php echo esc_html( $name_ar ? '— ' . $name_ar : '' ); ?></h1>
 	/* translators: 1 : nom de la wilaya, 2 : nom du site ou compte. */
-	<p><?php printf( esc_html__( 'Commandez en ligne et payez à la livraison partout à %1$s et dans les %2$d wilayas d’Algérie.', 'infinitycod' ), esc_html( $name ), 58 ); ?></p>
+	<p><?php /* translators: 1 : wilaya. */ printf( esc_html__( 'Commandez en ligne et payez à la livraison partout à %1$s et dans les %2$d wilayas d’Algérie.', 'infinitycod' ), esc_html( $name ), 58 ); ?></p>
 	<table>
 		<tr><th><?php esc_html_e( 'Mode', 'infinitycod' ); ?></th><th><?php esc_html_e( 'Prix', 'infinitycod' ); ?></th></tr>
 		<tr><td><?php esc_html_e( '🏠 Livraison à domicile', 'infinitycod' ); ?></td><td><?php echo esc_html( $fmt( $home ) ); ?></td></tr>

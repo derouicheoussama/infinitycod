@@ -180,14 +180,13 @@ class StatsPage {
 			. '</tr></thead><tbody>';
 		foreach ( $rows as $row ) {
 			printf(
-				'<tr><td><strong>%1$s</strong></td><td>%2$d</td><td>%3$d</td><td>%4$d</td><td>%5$s%%</td><td>%6$s ' . \InfinityCod\Core\Settings::currency_label() . '</td></tr>',
+				'<tr><td><strong>%1$s</strong></td><td>%2$d</td><td>%3$d</td><td>%4$d</td><td>%5$s%%</td><td>%6$s</td></tr>',
 				esc_html( $row['name'] ),
 				(int) $row['orders'],
 				(int) $row['delivered'],
 				(int) $row['returned'],
 				esc_html( number_format_i18n( $row['delivery_rate'], 1 ) ),
-				esc_html( number_format_i18n( $row['revenue'], 0 ) ),
-				\Infinity\Core\Settings::currency_label()
+				esc_html( number_format_i18n( $row['revenue'], 0 ) ) . ' ' . esc_html( \InfinityCod\Core\Settings::currency_label() )
 			);
 		}
 		if ( ! $rows ) {
@@ -224,11 +223,10 @@ class StatsPage {
 		echo '<ul class="icod-top-list">';
 		foreach ( $rows as $row ) {
 			printf(
-				'<li><span>%1$s</span><strong>%2$d cmd · %3$s ' . \InfinityCod\Core\Settings::currency_label() . '</strong></li>',
+				'<li><span>%1$s</span><strong>%2$d cmd · %3$s</strong></li>',
 				esc_html( $row['name'] ),
 				(int) $row['orders'],
-				esc_html( number_format_i18n( $row['revenue'], 0 ) ),
-				\Infinity\Core\Settings::currency_label()
+				esc_html( number_format_i18n( $row['revenue'], 0 ) ) . ' ' . esc_html( \InfinityCod\Core\Settings::currency_label() )
 			);
 		}
 		if ( ! $rows ) {

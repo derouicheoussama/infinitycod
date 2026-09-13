@@ -116,7 +116,7 @@ class Logger {
 
 		foreach ( (array) glob( $dir . '/log-*.log' ) as $file ) {
 			if ( filemtime( $file ) < $cutoff ) {
-				@unlink( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+				wp_delete_file( $file );
 				$removed++;
 			}
 		}

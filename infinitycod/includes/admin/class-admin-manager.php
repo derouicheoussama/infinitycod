@@ -1348,7 +1348,7 @@ class AdminManager {
 
 		$out = fopen( 'php://output', 'w' );
 		// BOM UTF-8 pour Excel.
-		fwrite( $out, "\xEF\xBB\xBF" );
+		fwrite( $out, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- flux de telechargement CSV.
 		fputcsv( $out, array( 'ID', 'WC #', 'Date', 'Nom', 'Telephone', 'Wilaya', 'Commune', 'Mode', 'Bureau', 'Produit', 'Qte', 'Sous-total', 'Remise', 'Livraison', 'Total', 'Statut', 'Transporteur', 'Suivi', 'Score risque', 'IP' ), ';' );
 
 		foreach ( (array) $rows as $row ) {
@@ -1437,7 +1437,7 @@ class AdminManager {
 				$count++;
 			}
 		}
-		fclose( $handle );
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- import CSV via poignee valide.
 
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-geo&icod_msg=imported&count=' . $count ) );
 		exit;
@@ -1463,7 +1463,7 @@ class AdminManager {
 		header( 'Content-Disposition: attachment; filename=infinitycod-tarifs-' . gmdate( 'Ymd' ) . '.csv' );
 
 		$out = fopen( 'php://output', 'w' );
-		fwrite( $out, "\xEF\xBB\xBF" );
+		fwrite( $out, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- flux de telechargement CSV.
 		fputcsv( $out, array( 'code', 'wilaya', 'domicile', 'stopdesk', 'active', 'gratuite' ), ';' );
 
 		foreach ( (array) $rows as $row ) {
@@ -1649,7 +1649,7 @@ class AdminManager {
 		if ( ! current_user_can( 'update_plugins' ) ) { return; }
 
 		// Vérification directe du miroir le plus fiable (raw.githubusercontent.com).
-		$url = 'https://raw.githubusercontent.com/derouicheoussama/infinitycod-releases/main/latest/update.json'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- verification du miroir de secours.
+		$url = 'https://raw.githubusercontent.com/derouicheoussama/infinitycod-releases/main/latest/update.json'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- verification du miroir de secours. // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- verification du miroir de secours.
 		$response = wp_remote_get( $url, array( 'timeout' => 15, 'headers' => array( 'User-Agent' => 'InfinityCod' ) ) );
 
 		$version = '';

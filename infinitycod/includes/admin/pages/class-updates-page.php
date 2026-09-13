@@ -103,7 +103,7 @@ class UpdatesPage {
 			<div class="icod-updates-banner <?php echo $has_update ? 'has-upd' : ''; ?>">
 		<div><strong>🔄 <?php esc_html_e( 'Mises à jour automatiques actives.', 'infinitycod' ); ?></strong>
 		<?php if ( $has_update ) : ?>
-			<?php printf( esc_html__( 'La version %s est disponible — installez-la en un clic.', 'infinitycod' ), '<strong>' . esc_html( $latest ) . '</strong>' ); ?> <!-- phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -->
+			<?php printf( esc_html__( 'La version %s est disponible — installez-la en un clic.', 'infinitycod' ), '<strong>' . esc_html( $latest ) . '</strong>' ); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment ?>
 		<?php else : ?>
 			<?php esc_html_e( 'Votre site vérifie GitHub toutes les heures. Vous serez notifié dès qu\’une nouvelle version sort.', 'infinitycod' ); ?>
 		<?php endif; ?></div>
@@ -145,7 +145,7 @@ class UpdatesPage {
 						<td>
 							<?php if ( $has_update ) : ?>
 								<span class="icod-status icod-status-no_answer">
-									<?php printf( esc_html__( 'InfinityCod %s disponible', 'infinitycod' ), esc_html( $latest ) ); ?> <!-- phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -->
+									<?php printf( esc_html__( 'InfinityCod %s disponible', 'infinitycod' ), esc_html( $latest ) ); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment ?>
 								</span>
 								<a class="button button-primary button-small" href="<?php echo esc_url( $upgrade_url ); ?>"><?php esc_html_e( 'Mettre à jour maintenant', 'infinitycod' ); ?></a>
 							<?php elseif ( $latest ) : ?>

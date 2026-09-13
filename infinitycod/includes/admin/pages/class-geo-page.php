@@ -231,7 +231,7 @@ class GeoPage {
 				</select>
 				<button type="submit" class="button"><?php esc_html_e( 'Afficher', 'infinitycod' ); ?></button>
 				<?php if ( $current_code ) : ?>
-					<span class="icod-hint" id="icod-commune-count"><?php printf( esc_html__( '%d communes', 'infinitycod' ), (int) count( $communes ) ); ?></span>
+					<span class="icod-hint" id="icod-commune-count"><?php /* translators: %d : nombre de communes. */ printf( esc_html__( '%d communes', 'infinitycod' ), (int) count( $communes ) ); ?></span>
 				<?php endif; ?>
 			</form>
 

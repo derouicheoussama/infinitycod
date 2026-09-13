@@ -142,7 +142,7 @@ class DiagnosticsPage {
 
 		// Filesystem.
 		$upload = wp_get_upload_dir();
-		$writable = is_writable( dirname( $upload['basedir'] ) );
+		$writable = wp_is_writable( dirname( $upload['basedir'] ) );
 		$this->add( 'Filesystem (uploads)', $writable ? __( 'inscriptible', 'infinitycod' ) : __( 'non inscriptible', 'infinitycod' ), $writable ? self::PASS : self::WARN, $upload['basedir'] );
 
 		// Tables du plugin.
@@ -339,8 +339,8 @@ class DiagnosticsPage {
 		$labels = array(
 			'github'          => __( 'GitHub API', 'infinitycod' ),
 			'atom'            => __( 'GitHub (flux atom)', 'infinitycod' ),
-			'mirror-raw'      => __( 'Miroir raw.githubusercontent.com', 'infinitycod' ),
-			'mirror-jsdelivr' => __( 'Miroir jsDelivr (CDN)', 'infinitycod' ),
+			'mirror-raw'      => __( 'Miroir GitHub brut', 'infinitycod' ),
+			'mirror-jsdelivr' => __( 'Miroir CDN', 'infinitycod' ),
 		);
 		return isset( $labels[ $source ] ) ? $labels[ $source ] : $source;
 	}

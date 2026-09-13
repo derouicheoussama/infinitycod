@@ -1221,7 +1221,7 @@ class FormManager {
 			if ( $style ) {
 				$href = $style->src . ( $style->ver ? '?ver=' . $style->ver : '' );
 			printf( // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- repli tardif.
-					'<link rel="stylesheet" id="icod-form-css" href="%s" media="all" />',
+					'<link rel="stylesheet" id="icod-form-css" href="%s" media="all" />', // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- repli tardif.
 					esc_url( $href )
 				);
 				$style->done = 1;
@@ -1251,7 +1251,7 @@ class FormManager {
 		// Fallback identique au CSS du formulaire si wp_head est passé.
 		if ( function_exists( 'did_action' ) && did_action( 'wp_head' ) && ! wp_style_is( $handle, 'done' ) ) {
 			printf( // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- repli tardif.
-				'<link rel="stylesheet" id="%1$s-css" href="%2$s" media="all" />',
+				'<link rel="stylesheet" id="%1$s-css" href="%2$s" media="all" />', // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- repli tardif.
 				esc_attr( $handle ),
 				esc_url( $src )
 			);

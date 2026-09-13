@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.29.3 — 2026-09-13
+
+Dernières corrections Plugin Check : fclose documenté, i18n updates corrigés.
+
+### Corrigé
+- **fclose de l'import CSV** documenté (lecture d'un fichier importé via poignée valide).
+- **Commentaires translators** ajoutés sur les 2 printf de la page Mises à jour (la version X est disponible / InfinityCod X disponible).
+- État final de l'audit officiel : toutes les erreurs restantes concernent exclusivement le système de mise à jour propre au produit (mise à jour auto, miroirs, webhook) — volontaire et hors périmètre du répertoire officiel.
+
+
 ## 5.29.2 — 2026-09-13
 
 Les paliers d'offres par quantité deviennent contrôlables depuis les réglages.
