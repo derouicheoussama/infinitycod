@@ -249,7 +249,7 @@ class PromosPage {
 			<td><strong><?php echo esc_html( $discount ); ?></strong></td>
 			<td><?php echo esc_html( $period ? implode( ' → ', $period ) : '—' ); ?></td>
 			<td><?php echo empty( $pids ) ? esc_html__( 'Tous', 'infinitycod' ) : (int) count( $pids ); ?></td>
-			<td><strong><?php echo (int) $row['used_count']; ?></strong><?php echo $limit > 0 ? ' / ' . $limit : ''; ?></td>
+			<td><strong><?php echo (int) $row['used_count']; ?></strong><?php echo $limit > 0 ? esc_html( ' / ' . (int) $limit ) : ''; ?></td>
 			<td><?php echo esc_html( number_format_i18n( (float) $row['revenue_total'], 0 ) ); ?> <?php echo esc_html( \InfinityCod\Core\Settings::currency_label() ); ?></td>
 			<td>
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline">
@@ -284,6 +284,7 @@ class PromosPage {
 		?>
 		<div class="wrap icod-wrap icod-admin-polish">
 			<h1 class="icod-title">
+				/* translators: %s : code promo. */
 				📜 <?php printf( esc_html__( 'Historique — %s', 'infinitycod' ), '<code>' . esc_html( $row['code'] ) . '</code>' ); ?>
 			</h1>
 			<p><a class="button" href="?page=infinitycod-promos">← <?php esc_html_e( 'Retour aux codes promo', 'infinitycod' ); ?></a></p>

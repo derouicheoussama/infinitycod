@@ -445,7 +445,7 @@ class SettingsPage {
 		$license = \InfinityCod\License\LicenseManager::stored();
 		$premium = \InfinityCod\License\LicenseManager::is_premium();
 		$has_key = ! empty( $license['key_hash'] );
-		$msg     = isset( $_GET['icod_msg'] ) ? sanitize_text_field( rawurldecode( wp_unslash( $_GET['icod_msg'] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$msg     = isset( $_GET['icod_msg'] ) ? rawurldecode( sanitize_text_field( wp_unslash( $_GET['icod_msg'] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$ok      = isset( $_GET['icod_ok'] ) ? ( '1' === sanitize_text_field( wp_unslash( $_GET['icod_ok'] ) ) ) : $premium; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		// Détails dérivés : expiration, jours restants, dernière vérification.
@@ -492,7 +492,7 @@ class SettingsPage {
 		<?php if ( '1' === ( isset( $_GET['paypal_ok'] ) ? sanitize_text_field( wp_unslash( $_GET['paypal_ok'] ) ) : '' ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 			<div class="notice notice-success"><p>
 				<strong><?php esc_html_e( 'Paiement PayPal envoyé, merci !', 'infinitycod' ); ?></strong>
-				<?php esc_html_e( 'Votre clé de licence vous est envoyée par email (référence de votre installation jointe au paiement). ' ); ?>
+				<?php esc_html_e( 'Votre clé de licence vous est envoyée par email (référence de votre installation jointe au paiement).', 'infinitycod' ); ?>
 				<a href="#icod-key-input"><?php esc_html_e( 'Coller ma clé maintenant ↓', 'infinitycod' ); ?></a>
 			</p></div>
 		<?php endif; ?>
@@ -570,7 +570,7 @@ class SettingsPage {
 						<dt><?php esc_html_e( 'Temps restant', 'infinitycod' ); ?></dt>
 						<dd>
 							<div class="icod-lic-bar"><span style="width:<?php echo (int) $pct; ?>%;background:<?php echo esc_attr( $bar_color ); ?>"></span></div>
-							<small><?php printf( esc_html__( '%d %% de la période restante', 'infinitycod' ), (int) $pct ); ?></small>
+							<small><?php printf( esc_html__( '%d %% de la période restante', 'infinitycod' ), (int) $pct ); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- un seul placeholder. ?></small>
 						</dd>
 					<?php endif; ?>
 
@@ -1472,7 +1472,7 @@ class SettingsPage {
 				foreach ( $selected_ids as $slot => $pid ) :
 					?>
 					<label>
-						<span><?php printf( esc_html__( 'Produit suggéré %d', 'infinitycod' ), $slot + 1 ); ?></span>
+						<span><?php printf( esc_html__( 'Produit suggéré %d', 'infinitycod' ), (int) $slot + 1 ); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -- un seul placeholder. ?></span>
 						<select name="icod[upsell_ids][]">
 							<option value="0"><?php esc_html_e( '— Aucun —', 'infinitycod' ); ?></option>
 							<?php foreach ( $product_choices as $cid => $cname ) : ?>
@@ -1941,9 +1941,9 @@ class SettingsPage {
 			// ne sont pas imprimés en admin-ajax → liens CSS injectés ici.
 			if ( '' !== $html ) {
 				$css = infinitycod()->asset_url( 'assets/front/css/form.css' ) . '?ver=' . rawurlencode( INFINITYCOD_VERSION );
-				$head = '<link rel="stylesheet" href="' . esc_url( $css ) . '" media="all" />';
+				$head = '<link rel="stylesheet" href="' . esc_url( $css ) . '" media="all" />'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- aperçu autonome.
 				if ( \InfinityCod\Core\I18n::is_rtl() ) {
-					$head .= '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" media="all" />';
+					$head .= '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" media="all" />'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- police de l'aperçu.
 				}
 				$html = $head . $html;
 			}
@@ -2158,8 +2158,8 @@ class SettingsPage {
 				$fields = $clean['checkout_fields'];
 				$fields[] = array(
 					'key'   => substr( $nk, 0, 30 ),
-					'type'  => in_array( $_POST['icod']['checkout_fields_new']['type'] ?? 'text', array( 'text','tel','email','select','radio','checkbox','textarea','date','number' ), true ) ? $_POST['icod']['checkout_fields_new']['type'] : 'text',
-					'label' => sanitize_text_field( $_POST['icod']['checkout_fields_new']['label'] ?? '' ),
+					'type'  => in_array( sanitize_key( wp_unslash( $_POST['icod']['checkout_fields_new']['type'] ?? 'text' ) ), array( 'text','tel','email','select','radio','checkbox','textarea','date','number' ), true ) ? sanitize_key( wp_unslash( $_POST['icod']['checkout_fields_new']['type'] ?? 'text' ) ) : 'text',
+					'label' => sanitize_text_field( wp_unslash( $_POST['icod']['checkout_fields_new']['label'] ?? '' ) ),
 					'on'    => 1,
 					'req'   => 0,
 				);
@@ -2225,8 +2225,8 @@ class SettingsPage {
 				$fields = $clean['checkout_fields'];
 				$fields[] = array(
 					'key'   => substr( $nk, 0, 30 ),
-					'type'  => in_array( $_POST['icod']['checkout_fields_new']['type'] ?? 'text', array( 'text','tel','email','select','radio','checkbox','textarea','date','number' ), true ) ? $_POST['icod']['checkout_fields_new']['type'] : 'text',
-					'label' => sanitize_text_field( $_POST['icod']['checkout_fields_new']['label'] ?? '' ),
+					'type'  => in_array( sanitize_key( wp_unslash( $_POST['icod']['checkout_fields_new']['type'] ?? 'text' ) ), array( 'text','tel','email','select','radio','checkbox','textarea','date','number' ), true ) ? sanitize_key( wp_unslash( $_POST['icod']['checkout_fields_new']['type'] ?? 'text' ) ) : 'text',
+					'label' => sanitize_text_field( wp_unslash( $_POST['icod']['checkout_fields_new']['label'] ?? '' ) ),
 					'on'    => 1,
 					'req'   => 0,
 				);

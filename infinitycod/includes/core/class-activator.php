@@ -71,18 +71,22 @@ class Activator {
 			if ( $wilayas ) {
 				$rows = array();
 				foreach ( $wilayas as $w ) {
-					$code    = isset( $w['code'] ) ? esc_sql( $w['code'] ) : '';
-					$name_fr = isset( $w['name_fr'] ) ? esc_sql( $w['name_fr'] ) : '';
-					$name_ar = isset( $w['name_ar'] ) ? esc_sql( $w['name_ar'] ) : '';
+					$code    = isset( $w['code'] ) ? $w['code'] : '';
+					$name_fr = isset( $w['name_fr'] ) ? $w['name_fr'] : '';
+					$name_ar = isset( $w['name_ar'] ) ? $w['name_ar'] : '';
 					if ( '' === $code ) {
 						continue;
 					}
-					$rows[] = "('{$code}','{$name_fr}','{$name_ar}',1,-1,-1,0)";
+					$rows[] = array( $code, $name_fr, $name_ar, 1, -1, -1, 0 );
 				}
 				if ( $rows ) {
+					$placeholders = implode( ',', array_fill( 0, count( $rows ), '( %s, %s, %s, %d, %d, %d, %d )' ) );
+					$values       = call_user_func_array( 'array_merge', $rows );
 					$wpdb->query(
-						"INSERT INTO {$wilayas_table} (code, name_fr, name_ar, active, price_home, price_desk, free_shipping) VALUES "
-						. implode( ',', $rows )
+						$wpdb->prepare(
+							"INSERT INTO {$wilayas_table} (code, name_fr, name_ar, active, price_home, price_desk, free_shipping) VALUES $placeholders", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders generes.
+							$values
+						)
 					);
 				}
 			}
@@ -95,21 +99,25 @@ class Activator {
 				$batch = array();
 				$total = 0;
 				foreach ( $communes as $c ) {
-					$wilaya = isset( $c['wilaya_code'] ) ? esc_sql( $c['wilaya_code'] ) : '';
-					$fr     = isset( $c['name_fr'] ) ? esc_sql( $c['name_fr'] ) : '';
-					$ar     = isset( $c['name_ar'] ) ? esc_sql( $c['name_ar'] ) : '';
+					$wilaya = isset( $c['wilaya_code'] ) ? $c['wilaya_code'] : '';
+					$fr     = isset( $c['name_fr'] ) ? $c['name_fr'] : '';
+					$ar     = isset( $c['name_ar'] ) ? $c['name_ar'] : '';
 					if ( '' === $wilaya || '' === $fr ) {
 						continue;
 					}
-					$batch[] = "('{$wilaya}','{$fr}','{$ar}',1,0,-1,-1)";
+					$batch[] = array( $wilaya, $fr, $ar, 1, 0, -1, -1 );
 					if ( count( $batch ) >= 200 ) {
-						$wpdb->query( "INSERT INTO {$communes_table} (wilaya_code, name_fr, name_ar, active, has_desk, price_home, price_desk) VALUES " . implode( ',', $batch ) );
+						$placeholders = implode( ',', array_fill( 0, count( $batch ), '( %s, %s, %s, %d, %d, %d, %d )' ) );
+						$values       = call_user_func_array( 'array_merge', $batch );
+						$wpdb->query( $wpdb->prepare( "INSERT INTO {$communes_table} (wilaya_code, name_fr, name_ar, active, has_desk, price_home, price_desk) VALUES $placeholders", $values ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders generes.
 						$total += count( $batch );
 						$batch  = array();
 					}
 				}
 				if ( $batch ) {
-					$wpdb->query( "INSERT INTO {$communes_table} (wilaya_code, name_fr, name_ar, active, has_desk, price_home, price_desk) VALUES " . implode( ',', $batch ) );
+					$placeholders = implode( ',', array_fill( 0, count( $batch ), '( %s, %s, %s, %d, %d, %d, %d )' ) );
+					$values       = call_user_func_array( 'array_merge', $batch );
+					$wpdb->query( $wpdb->prepare( "INSERT INTO {$communes_table} (wilaya_code, name_fr, name_ar, active, has_desk, price_home, price_desk) VALUES $placeholders", $values ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders generes.
 					$total += count( $batch );
 				}
 			}
@@ -287,10 +295,12 @@ class Activator {
 			$i    = 1;
 			foreach ( $country['regions'] as $fr => $ar ) {
 				$region_code = sprintf( '%s-%02d', $code, $i++ );
-				$rows[]      = "('" . esc_sql( $region_code ) . "','" . esc_sql( $code ) . "','" . esc_sql( $fr ) . "','" . esc_sql( $ar ) . "',0,-1,-1,0)";
+				$rows[]      = array( $region_code, $code, $fr, $ar, 0, -1, -1, 0 );
 			}
 			if ( $rows ) {
-				$wpdb->query( "INSERT INTO {$table} (code, country_code, name_fr, name_ar, active, price_home, price_desk, free_shipping) VALUES " . implode( ',', $rows ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$placeholders = implode( ',', array_fill( 0, count( $rows ), '( %s, %s, %s, %s, %d, %d, %d, %d )' ) );
+				$values       = call_user_func_array( 'array_merge', $rows );
+				$wpdb->query( $wpdb->prepare( "INSERT INTO {$table} (code, country_code, name_fr, name_ar, active, price_home, price_desk, free_shipping) VALUES $placeholders", $values ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- placeholders generes.
 			}
 		}
 	}

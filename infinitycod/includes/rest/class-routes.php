@@ -461,6 +461,7 @@ class Routes {
 			if ( '' === trim( $cf_value ) ) {
 				return new \WP_Error(
 					'icod_cf_' . $plan_field['key'],
+					/* translators: %s : label du champ. */
 					sprintf( __( 'Le champ « %s » est obligatoire.', 'infinitycod' ), $plan_field['label'] ),
 					array( 'status' => 400 )
 				);

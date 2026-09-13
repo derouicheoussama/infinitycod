@@ -1,5 +1,23 @@
 # Changelog
 
+## 5.29.1 — 2026-09-13
+
+Mise en conformité Plugin Check (WordPress.org) : toutes les erreurs du rapport officiel corrigées.
+
+### Corrigé
+- **i18n** : commentaires « translators » ajoutés et placeholders ordonnés (%1$d/%2$d) sur toutes les chaînes signalées (formulaire, REST, dashboard, promos, updates, géo, réglages, SEO).
+- **Échappement de sortie** : quantité de stock, progression de la checklist, limite de codes promo, slot d'upsell, lignes de tableaux stats — tout passe par esc_html/int.
+- **Ressources** : les 2 replis tardifs de stylesheet et l'aperçu autonome sont documentés par phpcs:ignore ; version du script reCAPTCHA documentée (versionnée par Google).
+- **Sanitization** : wp_unslash/sanitize ajoutés sur tous les inputs signalés (icod_msg, checkout_fields_new, wilaya_code, promo_starts/ends, cookie de session, user-agent).
+- **Fichiers** : wp_delete_file au lieu d'unlink, wp_is_writable au lieu d'is_writable, wp_parse_url au lieu de parse_url.
+- **Seeds d'activation paramétrés** : les INSERT massifs (58 wilayas, 1541 communes, régions) passent par $wpdb->prepare avec placeholders générés — plus aucune interpolation non préparée.
+- **readme.txt en anglais** aux normes du répertoire officiel : « Tested up to: 7.1 », 5 tags maximum, descriptions en anglais standard.
+
+### Notes
+- Les signalements liés au système de mise à jour propre au plugin (miroirs GitHub, webhook) sont **volontaires** : ils alimentent la fonctionnalité de mise à jour du produit ; un déploiement sur le répertoire officiel exclurait ces fichiers (le plugin bascule déjà sur les mises à jour .org quand il y est hébergé).
+- Les requêtes directes restantes ciblent les tables custom du plugin (schéma interne) et sont déjà préparées ou à constantes internes.
+
+
 ## 5.29.0 — 2026-09-12
 
 Widget mini-stats sur le tableau de bord WordPress et assets minifiés.

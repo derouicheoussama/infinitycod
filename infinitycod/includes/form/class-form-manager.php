@@ -634,7 +634,14 @@ class FormManager {
 			$cap_token = wp_generate_password( 20, false, false );
 			set_transient( 'icod_cap_' . $cap_token, $c1 + $c2, 15 * MINUTE_IN_SECONDS );
 			$captcha_html = '<div class="icod-field icod-captcha-field icod-required">'
-				. '<label for="icod-captcha-' . esc_attr( $cap_token ) . '">' . sprintf( esc_html__( 'Anti-bot : %d + %d = ?', 'infinitycod' ), $c1, $c2 ) . '</label>'
+				. '<label for="icod-captcha-' . esc_attr( $cap_token ) . '">'
+				. sprintf(
+					/* translators: 1 : premier nombre, 2 : second nombre. */
+					esc_html__( 'Anti-bot : %1$d + %2$d = ?', 'infinitycod' ),
+					$c1,
+					$c2
+				)
+				. '</label>'
 				. '<input type="number" id="icod-captcha-' . esc_attr( $cap_token ) . '" name="icod_captcha" class="icod-input" required data-req="1" inputmode="numeric" />'
 				. '<input type="hidden" name="icod_cap_token" value="' . esc_attr( $cap_token ) . '" />'
 				. '</div>';
@@ -796,9 +803,10 @@ class FormManager {
 				<?php
 				if ( $stock_low ) {
 					/* translators: %d : quantité restante. */
-					printf( esc_html__( 'Seulement %d restants !', 'infinitycod' ), $stock_qty );
+					printf( esc_html__( 'Seulement %d restants !', 'infinitycod' ), (int) $stock_qty );
 				} else {
-					printf( esc_html__( '%d pièces disponibles', 'infinitycod' ), $stock_qty );
+					/* translators: %d : quantité disponible. */
+					printf( esc_html__( '%d pièces disponibles', 'infinitycod' ), (int) $stock_qty );
 				}
 				?>
 			</div>
@@ -939,7 +947,7 @@ class FormManager {
 											esc_html(
 												sprintf(
 													/* translators: 1 : quantité, 2 : pourcentage. */
-													__( '🛒 %d articles ou plus : −%s%%', 'infinitycod' ),
+													__( '🛒 %1$d articles ou plus : −%2$s%%', 'infinitycod' ),
 													(int) $min_qty,
 													(float) $pct
 												)
@@ -1197,7 +1205,7 @@ class FormManager {
 		// restent imprimables tant que wp_footer n'est pas passé.
 		if ( 'recaptcha_v3' === self::captcha_provider() && ! wp_script_is( 'icod-recaptcha', 'enqueued' ) ) {
 			wp_enqueue_script(
-				'icod-recaptcha',
+				'icod-recaptcha', // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- versionne cote service Google.
 				'https://www.google.com/recaptcha/api.js?render=' . rawurlencode( (string) Settings::get( 'recaptcha_v3_site_key', '' ) ),
 				array(),
 				null,
@@ -1212,7 +1220,7 @@ class FormManager {
 
 			if ( $style ) {
 				$href = $style->src . ( $style->ver ? '?ver=' . $style->ver : '' );
-				printf(
+			printf( // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- repli tardif.
 					'<link rel="stylesheet" id="icod-form-css" href="%s" media="all" />',
 					esc_url( $href )
 				);
@@ -1236,13 +1244,13 @@ class FormManager {
 		if ( wp_style_is( $handle, 'registered' ) ) {
 			wp_enqueue_style( $handle );
 		} else {
-			wp_register_style( $handle, $src, array(), null );
+			wp_register_style( $handle, $src, array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- versionne cote service Google.
 			wp_enqueue_style( $handle );
 		}
 
 		// Fallback identique au CSS du formulaire si wp_head est passé.
 		if ( function_exists( 'did_action' ) && did_action( 'wp_head' ) && ! wp_style_is( $handle, 'done' ) ) {
-			printf(
+			printf( // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- repli tardif.
 				'<link rel="stylesheet" id="%1$s-css" href="%2$s" media="all" />',
 				esc_attr( $handle ),
 				esc_url( $src )
@@ -1312,7 +1320,7 @@ class FormManager {
 			// ses deux clés configurées (sinon zéro script tiers).
 			if ( 'recaptcha_v3' === self::captcha_provider() ) {
 				wp_enqueue_script(
-					'icod-recaptcha',
+					'icod-recaptcha', // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- versionne cote service Google.
 					'https://www.google.com/recaptcha/api.js?render=' . rawurlencode( (string) Settings::get( 'recaptcha_v3_site_key', '' ) ),
 					array(),
 					null,

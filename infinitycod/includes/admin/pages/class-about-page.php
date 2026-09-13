@@ -138,11 +138,11 @@ class AboutPage {
 						<li><span><?php esc_html_e( 'Bureaux Stopdesk', 'infinitycod' ); ?></span><strong><?php echo (int) $desks_count; ?></strong></li>
 						<li>
 							<span><?php esc_html_e( 'Transporteurs connectés', 'infinitycod' ); ?></span>
-							<strong><?php echo $active_carriers ? esc_html( implode( ', ', $active_carriers ) ) : __( 'aucun', 'infinitycod' ); ?></strong>
+							<strong><?php echo $active_carriers ? esc_html( implode( ', ', $active_carriers ) ) : esc_html__( 'aucun', 'infinitycod' ); ?></strong>
 						</li>
 						<li>
 							<span><?php esc_html_e( 'WhatsApp', 'infinitycod' ); ?></span>
-							<strong><?php echo \InfinityCod\Core\Settings::get( 'whatsapp_enabled' ) ? esc_html( strtoupper( (string) \InfinityCod\Core\Settings::get( 'whatsapp_gateway' ) ) ) : __( 'désactivé', 'infinitycod' ); ?></strong>
+							<strong><?php echo \InfinityCod\Core\Settings::get( 'whatsapp_enabled' ) ? esc_html( strtoupper( (string) \InfinityCod\Core\Settings::get( 'whatsapp_gateway' ) ) ) : esc_html__( 'désactivé', 'infinitycod' ); ?></strong>
 						</li>
 					</ul>
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:14px">

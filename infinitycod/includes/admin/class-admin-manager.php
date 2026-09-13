@@ -905,7 +905,7 @@ class AdminManager {
 		$name    = isset( $_POST['customer_name'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_name'] ) ) : $order['customer_name'];
 		$phone   = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : $order['phone'];
 		$phone   = \InfinityCod\Form\Validator::normalize_phone( $phone );
-		$wilaya  = isset( $_POST['wilaya_code'] ) ? preg_replace( '/[^0-9]/', '', wp_unslash( $_POST['wilaya_code'] ) ) : $order['wilaya_code'];
+		$wilaya  = isset( $_POST['wilaya_code'] ) ? preg_replace( '/[^0-9]/', '', sanitize_text_field( wp_unslash( $_POST['wilaya_code'] ) ) ) : $order['wilaya_code'];
 		$wilaya  = str_pad( substr( (string) $wilaya, 0, 2 ), 2, '0', STR_PAD_LEFT );
 		$commune = isset( $_POST['commune'] ) ? sanitize_text_field( wp_unslash( $_POST['commune'] ) ) : $order['commune'];
 		$mode    = ( isset( $_POST['delivery_mode'] ) && 'desk' === $_POST['delivery_mode'] ) ? 'desk' : 'home';
@@ -1065,8 +1065,8 @@ class AdminManager {
 		$code   = isset( $_POST['promo_code'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['promo_code'] ) ) ) : '';
 		$type   = ( isset( $_POST['promo_type'] ) && 'fixed' === $_POST['promo_type'] ) ? 'fixed' : 'percent';
 		$value  = isset( $_POST['promo_value'] ) ? round( (float) $_POST['promo_value'], 2 ) : 0;
-		$starts = isset( $_POST['promo_starts'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_POST['promo_starts'] ) ? sanitize_text_field( $_POST['promo_starts'] ) . ' 00:00:00' : null;
-		$ends   = isset( $_POST['promo_ends'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_POST['promo_ends'] ) ? sanitize_text_field( $_POST['promo_ends'] ) . ' 23:59:59' : null;
+		$starts = isset( $_POST['promo_starts'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', wp_unslash( $_POST['promo_starts'] ) ) ? sanitize_text_field( wp_unslash( $_POST['promo_starts'] ) ) . ' 00:00:00' : null;
+		$ends   = isset( $_POST['promo_ends'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', wp_unslash( $_POST['promo_ends'] ) ) ? sanitize_text_field( wp_unslash( $_POST['promo_ends'] ) ) . ' 23:59:59' : null;
 		$min    = isset( $_POST['promo_min_total'] ) ? (float) $_POST['promo_min_total'] : 0;
 		$limit  = isset( $_POST['promo_usage_limit'] ) ? absint( $_POST['promo_usage_limit'] ) : 0;
 		$active = empty( $_POST['promo_active'] ) ? 0 : 1;
@@ -1253,7 +1253,7 @@ class AdminManager {
 			$status  = isset( $statuses[ $r['status'] ] ) ? $statuses[ $r['status'] ] : $r['status'];
 			$cls     = $zebra ? ' class="zebra"' : '';
 
-			echo '<tr' . $cls . '>';
+			echo $cls ? '<tr class="zebra">' : '<tr>';
 			echo '<td>' . (int) $r['id'] . '</td>';
 			echo '<td>' . esc_html( mysql2date( 'd/m/Y H:i', $r['created_at'] ) ) . '</td>';
 			echo '<td class="st-' . esc_attr( $r['status'] ) . '">' . esc_html( $status ) . '</td>';
@@ -1649,7 +1649,7 @@ class AdminManager {
 		if ( ! current_user_can( 'update_plugins' ) ) { return; }
 
 		// Vérification directe du miroir le plus fiable (raw.githubusercontent.com).
-		$url = 'https://raw.githubusercontent.com/derouicheoussama/infinitycod-releases/main/latest/update.json';
+		$url = 'https://raw.githubusercontent.com/derouicheoussama/infinitycod-releases/main/latest/update.json'; // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- verification du miroir de secours.
 		$response = wp_remote_get( $url, array( 'timeout' => 15, 'headers' => array( 'User-Agent' => 'InfinityCod' ) ) );
 
 		$version = '';

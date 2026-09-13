@@ -138,7 +138,8 @@ class DashboardPage {
 			<div class="icod-card icod-checklist-card">
 				<div class="icod-checklist-head">
 					<h2><?php esc_html_e( 'Configuration', 'infinitycod' ); ?></h2>
-					<span class="icod-checklist-progress"><?php printf( esc_html__( '%1$s / %2$s terminé', 'infinitycod' ), $done_count, count( $checklist ) ); ?></span>
+					<?php /* translators: 1 : faites, 2 : total. */ ?>
+					<span class="icod-checklist-progress"><?php printf( esc_html__( '%1$d / %2$d terminé', 'infinitycod' ), (int) $done_count, count( $checklist ) ); ?></span>
 				</div>
 				<ul class="icod-checklist">
 					<?php foreach ( $checklist as $item ) : ?>

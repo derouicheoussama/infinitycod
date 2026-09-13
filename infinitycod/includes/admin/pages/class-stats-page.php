@@ -186,7 +186,8 @@ class StatsPage {
 				(int) $row['delivered'],
 				(int) $row['returned'],
 				esc_html( number_format_i18n( $row['delivery_rate'], 1 ) ),
-				esc_html( number_format_i18n( $row['revenue'], 0 ) )
+				esc_html( number_format_i18n( $row['revenue'], 0 ) ),
+				\Infinity\Core\Settings::currency_label()
 			);
 		}
 		if ( ! $rows ) {
@@ -226,7 +227,8 @@ class StatsPage {
 				'<li><span>%1$s</span><strong>%2$d cmd · %3$s ' . \InfinityCod\Core\Settings::currency_label() . '</strong></li>',
 				esc_html( $row['name'] ),
 				(int) $row['orders'],
-				esc_html( number_format_i18n( $row['revenue'], 0 ) )
+				esc_html( number_format_i18n( $row['revenue'], 0 ) ),
+				\Infinity\Core\Settings::currency_label()
 			);
 		}
 		if ( ! $rows ) {

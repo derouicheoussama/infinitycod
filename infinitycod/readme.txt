@@ -1,118 +1,117 @@
-=== InfinityCod — Paiement à la livraison (COD Algérie) ===
+=== COD Algeria — Cash on Delivery for WooCommerce ===
 Contributors: derouicheoussama
-Tags: cod, algeria, woocommerce, delivery, payment, checkout, wilaya
+Tags: cod, algeria, woocommerce, delivery, checkout
 Requires at least: 6.0
-Tested up to: 6.7
+Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.29.0
+Stable tag: 5.29.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Solution COD tout-en-un pour WooCommerce Algérie : formulaire rapide, 58 wilayas, transporteurs, WhatsApp, paiement CIB/Edahabia.
+All-in-one Cash on Delivery checkout for WooCommerce in Algeria: one-page form, 58 wilayas, carriers, WhatsApp, online payments.
 
 == Description ==
 
-Protégé par le DMCA — toute copie ou distribution non autorisée fera l’objet d’une plainte.
+InfinityCod turns your WooCommerce store into a Cash on Delivery selling machine for Algeria.
 
-InfinityCod transforme votre boutique WooCommerce en machine de vente COD pour l'Algérie.
+= One-page COD form =
+A mobile-first one-page order form that replaces the classic WooCommerce checkout. The customer fills in name, phone, wilaya and municipality — that's it.
 
-= Formulaire COD rapide =
-Formulaire de commande une-page mobile-first qui remplace le tunnel WooCommerce classique. Le client remplit nom, téléphone, wilaya et commune — c'est tout.
+* 8 visual themes (Modern, Elegant, Sunset, Ocean, Minimal, Rose, Royal, Café)
+* Automatic dark mode
+* Full Arabic RTL support
+* Adjustable form position on the product page
+* Product thumbnail and live price
 
-* 8 thèmes visuels (Moderne, Élégant, Sunset, Océan, Minimal, Rose, Royal, Café)
-* Mode sombre automatique
-* Support RTL arabe complet
-* Position du formulaire réglable
-* Miniature produit et prix en temps réel
+= Algeria geography =
+* 58 official wilayas (French and Arabic names)
+* 1541 municipalities
+* Home and stopdesk rates per wilaya and per municipality
+* Free shipping by amount or quantity
 
-= Géographie Algérie =
-* 58 wilayas officielles (noms français et arabes)
-* 1541 communes
-* Tarifs domicile et stopdesk par wilaya et par commune
-* Livraison gratuite par montant ou par quantité
+= Anti-fraud Shield =
+* Risk score 0-100 per order
+* Phone, IP and email blacklists
+* Duplicate detection
+* IP and browser fingerprint limits
+* Order time restrictions
 
-= Anti-fraude Shield =
-* Score de risque 0-100 par commande
-* Blacklist téléphones, IP et emails
-* Détection de doublons
-* Limitation par IP et par empreinte navigateur
-* Restriction horaire des commandes
-
-= Transporteurs intégrés =
+= Built-in carriers =
 Yalidine, ZR Express, Maystro, Noest Express, E-COM Delivery, DHD Livraison.
-Création de colis en 1 clic et suivi automatique.
+One-click parcel creation and automatic tracking.
 
-= WhatsApp automatique =
-Notifications de commande, de livraison et relance des paniers abandonnés via WhatsApp Cloud API, UltraMsg ou liens wa.me.
+= WhatsApp automation =
+Order, shipping and abandoned cart recovery notifications via WhatsApp Cloud API, UltraMsg or wa.me links.
 
-= Paiement en ligne =
-CIB et Edahabia via Chargily Pay (optionnel, gratuit).
+= Online payment =
+CIB and Edahabia cards via Chargily Pay (optional, free).
 
-= Statistiques P&L =
-CA, taux de confirmation/retour/livraison, panier moyen, graphiques par wilaya, transporteur et produit.
+= P&L statistics =
+Revenue, confirmation/return/delivery rates, average cart, charts per wilaya, carrier and product.
 
-= Offres par quantité =
-Paliers de remise « 2 = -10%, 3 = -15% » globaux ou par produit.
+= Quantity offers =
+Discount tiers such as "2 = -10%, 3 = -15%", global or per product.
 
 == Installation ==
 
-1. Téléversez `infinitycod.zip` via Extensions → Ajouter → Téléverser
-2. Activez l'extension
-3. Les 58 wilayas et 1541 communes sont importées automatiquement
-4. Allez dans InfinityCod → Wilayas & Tarifs pour configurer vos prix
-5. Le formulaire apparaît seul sur vos fiches produit
+1. Upload `infinitycod.zip` via Plugins → Add New → Upload
+2. Activate the plugin
+3. The 58 wilayas and 1541 municipalities are imported automatically
+4. Go to InfinityCod → Wilayas & Rates to set your prices
+5. The form appears by itself on your product pages
 
 == Frequently Asked Questions ==
 
-= Le plugin fonctionne-t-il avec mon thème ? =
-Oui : styles isolés et testés avec Astra, Flatsome, WoodMart, Divi, OceanWP, GeneratePress et les thèmes par défaut.
+= Does it work with my theme? =
+Yes: styles are isolated and tested with Astra, Flatsome, WoodMart, Divi, OceanWP, GeneratePress and the default themes.
 
-= Comment recevoir les mises à jour ? =
-Les mises à jour sont automatiques depuis GitHub. Aucune configuration nécessaire.
+= How do I receive updates? =
+Updates are automatic. No configuration needed.
 
-= Puis-je désactiver le formulaire sur certaines pages ? =
-Oui, utilisez le shortcode `[infinitycod_form]` pour un contrôle total.
+= Can I disable the form on some pages? =
+Yes, use the `[infinitycod_form]` shortcode for full control.
 
-= Le paiement en ligne est-il sécurisé ? =
-Oui, le client paie sur la page sécurisée Chargily. La confirmation est vérifiée par API et par webhook signé.
+= Is the online payment secure? =
+Yes, the customer pays on the secure Chargily page. Confirmation is verified by API and by a signed webhook.
 
 == Screenshots ==
 
-1. Formulaire COD une-page — vue desktop
-2. Mode sombre automatique
-3. Style E-commerce / personnalisation avancée
+1. One-page COD form — desktop view
+2. Automatic dark mode
+3. E-commerce style / advanced customization
 
 == Changelog ==
 
-= 2.9.0 =
-* Délai de livraison estimé par wilaya
-* Montant minimum de commande par wilaya
-* Supplément poids
-* Auto-blacklist suggéré
-* Widget Elementor natif
-* Thème bleu InfinityCod
+= 5.29.0 =
+* Mini-stats dashboard widget
+* Minified CSS/JS assets
+* Full-width form position and 2-column desktop checkout
 
-= 2.8.0 =
-* 8 thèmes de formulaire
-* WhatsApp automatique
-* Paiement CIB/Edahabia
-* Mises à jour auto depuis GitHub
+= 5.28.0 =
+* Container queries: the form adapts to its real container width
+* Screen simulator in the live preview (Mobile / Tablet / PC)
+* Automatic cache purge after plugin updates
+
+= 5.27.0 =
+* Full-width form position (default)
+* Section titles inside the form
+* Migrations run without requiring an admin visit
 
 == Upgrade Notice ==
 
-= 2.9.0 =
-Délai de livraison par wilaya, montant minimum de commande, widget Elementor.
+= 5.29.0 =
+Mini-stats dashboard widget and lighter assets.
+
+== External services ==
+
+* Updates: hourly check on github.com (public releases repository). No customer data is sent.
+* Online payment (optional): Chargily Pay (chargily.com) — enabled only by the merchant.
+* Google Sheets (optional): orders sent to the Apps Script URL configured by the merchant.
+* WhatsApp / Discord / Telegram (optional): notifications configured by the merchant.
 
 == Arbitrary section ==
 
-* Developer : Derouiche Oussama — https://derouicheoussama.com
-* Product : InfinityCod — https://infinitycoder.app
-* Updates : GitHub Releases (derouicheoussama/infinitycod-releases)
-
-== Services externes ==
-
-* Mises à jour : vérification horaire sur github.com (dépôt public des releases). Aucune donnée client n’est envoyée.
-* Paiement en ligne (optionnel) : Chargily Pay (chargily.com) — activé uniquement par le marchand.
-* Google Sheets (optionnel) : envoi des commandes vers l’URL Apps Script configurée par le marchand.
-* WhatsApp / Discord / Telegram (optionnels) : notifications configurées par le marchand.
+* Developer: Derouiche Oussama — https://derouicheoussama.com
+* Product: InfinityCod — https://infinitycoder.app
+* Updates: GitHub Releases (derouicheoussama/infinitycod-releases)

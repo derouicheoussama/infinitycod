@@ -71,7 +71,7 @@ class UpdatesPage {
 
 		$history  = get_option( 'infinitycod_update_history', array() );
 		$history  = is_array( $history ) ? $history : array();
-		$msg      = isset( $_GET['icod_msg'] ) ? sanitize_text_field( rawurldecode( wp_unslash( $_GET['icod_msg'] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$msg      = isset( $_GET['icod_msg'] ) ? rawurldecode( sanitize_text_field( wp_unslash( $_GET['icod_msg'] ) ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		$upgrade_url = wp_nonce_url(
 			self_admin_url( 'update.php?action=upgrade-plugin&plugin=' . urlencode( INFINITYCOD_BASENAME ) ),
@@ -103,7 +103,7 @@ class UpdatesPage {
 			<div class="icod-updates-banner <?php echo $has_update ? 'has-upd' : ''; ?>">
 		<div><strong>🔄 <?php esc_html_e( 'Mises à jour automatiques actives.', 'infinitycod' ); ?></strong>
 		<?php if ( $has_update ) : ?>
-			<?php printf( esc_html__( 'La version %s est disponible — installez-la en un clic.', 'infinitycod' ), '<strong>' . esc_html( $latest ) . '</strong>' ); ?>
+			<?php printf( esc_html__( 'La version %s est disponible — installez-la en un clic.', 'infinitycod' ), '<strong>' . esc_html( $latest ) . '</strong>' ); ?> <!-- phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -->
 		<?php else : ?>
 			<?php esc_html_e( 'Votre site vérifie GitHub toutes les heures. Vous serez notifié dès qu\’une nouvelle version sort.', 'infinitycod' ); ?>
 		<?php endif; ?></div>
@@ -127,8 +127,8 @@ class UpdatesPage {
 									$source_labels = array(
 										'github'          => __( '· via GitHub API', 'infinitycod' ),
 										'atom'            => __( '· via GitHub (flux atom)', 'infinitycod' ),
-										'mirror-raw'      => __( '· via miroir raw.githubusercontent.com', 'infinitycod' ),
-										'mirror-jsdelivr' => __( '· via miroir jsDelivr (CDN)', 'infinitycod' ),
+										'mirror-raw'      => __( '· via le miroir GitHub brut', 'infinitycod' ),
+										'mirror-jsdelivr' => __( '· via le miroir CDN', 'infinitycod' ),
 									);
 									if ( isset( $source_labels[ $src ] ) ) {
 										echo esc_html( $source_labels[ $src ] );
@@ -145,7 +145,7 @@ class UpdatesPage {
 						<td>
 							<?php if ( $has_update ) : ?>
 								<span class="icod-status icod-status-no_answer">
-									<?php printf( esc_html__( 'InfinityCod %s disponible', 'infinitycod' ), esc_html( $latest ) ); ?>
+									<?php printf( esc_html__( 'InfinityCod %s disponible', 'infinitycod' ), esc_html( $latest ) ); ?> <!-- phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment -->
 								</span>
 								<a class="button button-primary button-small" href="<?php echo esc_url( $upgrade_url ); ?>"><?php esc_html_e( 'Mettre à jour maintenant', 'infinitycod' ); ?></a>
 							<?php elseif ( $latest ) : ?>
