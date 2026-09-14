@@ -505,3 +505,19 @@ fieldset.icod-mode{min-width:0}
 	.icod-qty-field.icod-qty-field{flex-wrap:wrap!important;justify-content:flex-start!important}
 	.icod-qty-field.icod-qty-field>label{flex:0 0 100%!important;margin:0 0 6px!important}
 }
+
+/* Badge de remise dans l'en-tête. */
+.icod-head-discount{display:inline-block;background:color-mix(in srgb,var(--icod-danger) 14%,var(--icod-surface));color:var(--icod-danger);font-weight:800;font-size:.72rem;padding:2px 8px;border-radius:8px;margin-bottom:4px;letter-spacing:.02em}
+.icod-head-discount.icod-hidden{display:none}
+/* Compteur de visiteurs. */
+.icod-visitors{display:flex;align-items:center;gap:6px;margin:8px 14px 2px;font-size:.82rem;font-weight:700;color:var(--icod-accent)}
+/* Preuve sociale : toast bas-gauche avec vraies commandes. */
+.icod-social-proof{position:fixed;inset-inline-start:14px;bottom:14px;z-index:99980;pointer-events:none}
+.icod-sp-toast{display:flex;align-items:center;gap:8px;background:var(--icod-surface);border:1px solid var(--icod-border);border-inline-start:3px solid var(--icod-accent);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:10px 14px;font-size:.85rem;color:var(--icod-text);opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s}
+.icod-sp-toast.show{opacity:1;transform:none}
+.icod-sp-dot{width:8px;height:8px;border-radius:50%;background:var(--icod-ok);flex:none;animation:icod-blink 1.2s ease-in-out infinite}
+/* Mode maintenance. */
+.icod-maintenance{max-width:620px;margin:40px auto;padding:20px}
+.icod-maintenance-card{background:var(--icod-surface);border:1.5px solid var(--icod-border);border-radius:16px;padding:36px 24px;text-align:center;box-shadow:var(--icod-shadow)}
+.icod-maintenance-card h2{margin:0 0 10px;font-size:1.1rem}
+.icod-maintenance-card p{margin:0;color:var(--icod-muted)}

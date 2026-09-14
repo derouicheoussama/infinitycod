@@ -73,6 +73,8 @@ class AbandonedPage {
 		<div class="wrap icod-wrap">
 			<h1 class="icod-title"><?php esc_html_e( 'Paniers abandonnés', 'infinitycod' ); ?></h1>
 
+			<p style="margin:8px 0 0"><a class="button button-primary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=icod_abandoned_export_xls' ), 'icod_abandoned_export' ) ); ?>">📊 <?php esc_html_e( 'Export Excel', 'infinitycod' ); ?></a></p>
+
 			<?php if ( ! $auto_on ) : ?>
 				<div class="notice notice-warning is-dismissible"><p>
 					<strong><?php esc_html_e( 'La relance automatique est désactivée.', 'infinitycod' ); ?></strong>

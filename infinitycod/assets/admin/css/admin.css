@@ -1101,3 +1101,6 @@ body.icod-modal-open{overflow:hidden}
 .icod-toast-success .icod-toast-ico{background:#00a32a;color:#fff}
 .icod-toast-error{border-inline-start-color:#d63638}
 .icod-toast-error .icod-toast-ico{background:#d63638;color:#fff}
+
+/* Performance d'affichage : les longues tables ne peignent que si visibles. */
+.icod-table-scroll{content-visibility:auto;contain-intrinsic-size:auto 600px}

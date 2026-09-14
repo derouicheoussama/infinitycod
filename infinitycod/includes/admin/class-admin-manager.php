@@ -40,6 +40,9 @@ class AdminManager {
 		add_action( 'admin_notices', array( $this, 'update_available_notice' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 		( new MiniStatsWidget() )->register();
+		( new AdminExtras() )->register();
+		add_action( 'wp_ajax_icod_orders_poll', array( $this, 'handle_orders_poll' ) );
+		add_action( 'infinitycod_weekly_report', array( $this, 'send_weekly_report' ) );
 
 		// Le badge « commandes en attente » est mis en cache : invalidation
 		// à chaque événement du cycle de vie d'une commande COD.

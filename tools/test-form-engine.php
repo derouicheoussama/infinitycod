@@ -810,5 +810,26 @@ check( 'widget : 4 KPI (jour, CA, attente, paniers) + liens', false !== strpos( 
 check( 'assets : variantes .min générées pour form et admin', $min_ok );
 check( 'assets : asset_url préfère la variante minifiée si présente', false !== strpos( $plg, '.min.$1' ) && false !== strpos( $plg, 'file_exists( INFINITYCOD_PATH . $min )' ) );
 
+/* ---------- 46. Conversion + dashboard + rapidite (batch 5.30.0) ---------- */
+
+echo "\n46) Preuve sociale, compteur, maintenance, son, rapport hebdo, sparkline, cache tarifs\n";
+$fm10 = file_get_contents( $plugin_dir . 'includes/form/class-form-manager.php' );
+$fjs = file_get_contents( $plugin_dir . 'assets/front/js/form.js' );
+$wgt = file_get_contents( $plugin_dir . 'includes/admin/class-mini-stats-widget.php' );
+$ext = file_get_contents( $plugin_dir . 'includes/admin/class-admin-extras.php' );
+$adm = file_get_contents( $plugin_dir . 'includes/admin/class-admin-manager.php' );
+$rmanager = file_get_contents( $plugin_dir . 'includes/shipping/class-rates-manager.php' );
+$acss = file_get_contents( $plugin_dir . 'assets/admin/css/admin.css' );
+check( 'preuve sociale : vraies commandes recentes rendues en JSON + cycle JS', false !== strpos( $fm10, 'social_proof_enabled' ) && false !== strpos( $fm10, 'data-social-proof' ) && false !== strpos( $fjs, 'icod-sp-toast' ) );
+check( 'compteur visiteurs : sessions 15 min + rendu conditionnel', false !== strpos( $fm10, 'icod_visitors_' ) && false !== strpos( $fm10, 'personnes regardent ce produit' ) );
+check( 'maintenance : garde public + message perso + notice admin', false !== strpos( $fm10, 'maintenance_mode' ) && false !== strpos( $fm10, 'Commandes momentan' ) && false !== strpos( $ext, 'maintenance_notice' ) );
+check( 'badge remise : rendu PHP + mise a jour JS sur variation', false !== strpos( $fm10, 'data-head-discount' ) && false !== strpos( $fjs, 'data-head-discount' ) );
+check( 'son : poll AJAX + bip WebAudio + toast admin', false !== strpos( $adm, 'icod_orders_poll' ) && file_exists( $plugin_dir . 'assets/admin/js/sound-poll.js' ) && false !== strpos( file_get_contents( $plugin_dir . 'assets/admin/js/sound-poll.js' ), 'AudioContext' ) );
+check( 'rapport hebdo : cron + email KPI 7 jours', false !== strpos( $ext, 'infinitycod_weekly_report' ) && false !== strpos( $ext, 'wp_mail' ) );
+check( 'widget : CA 7 jours + sparkline SVG', false !== strpos( $wgt, 'CA 7 jours' ) && false !== strpos( $wgt, 'polyline' ) );
+check( 'export : paniers abandonnes en Excel', false !== strpos( $ext, 'icod_abandoned_export_xls' ) && false !== strpos( file_get_contents( $plugin_dir . 'includes/admin/pages/class-abandoned-page.php' ), 'icod_abandoned_export_xls' ) );
+check( 'tarifs : cache statique des getters par wilaya', false !== strpos( $rmanager, 'static $cache_free' ) && false !== strpos( $rmanager, 'static $cache_days' ) && false !== strpos( $rmanager, 'static $cache_min' ) );
+check( 'admin : content-visibility sur les tables longues', false !== strpos( $acss, 'content-visibility:auto' ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

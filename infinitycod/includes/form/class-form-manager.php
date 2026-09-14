@@ -486,6 +486,13 @@ class FormManager {
 			return '';
 		}
 
+		// Mode maintenance : pause des commandes (les admins voient quand même l'état).
+		if ( Settings::get( 'maintenance_mode' ) && ! current_user_can( 'manage_woocommerce' ) ) {
+			$msg_m = trim( (string) Settings::get( 'maintenance_message', '' ) );
+			return '<div class="icod-root icod-maintenance"><div class="icod-maintenance-card"><h2>' . esc_html__( '🛈 Commandes momentanément en pause', 'infinitycod' ) . '</h2><p>'
+				. esc_html( '' !== $msg_m ? $msg_m : __( 'Les commandes reprennent très bientôt — merci de votre compréhension.', 'infinitycod' ) ) . '</p></div></div>';
+		}
+
 		$product = wc_get_product( $product_id );
 
 		if ( ! $product || ! $product->is_purchasable() ) {
@@ -548,11 +555,48 @@ class FormManager {
 		if ( $preset === $saved_preset && strtoupper( (string) Settings::get( 'accent_color', '#0e7a4f' ) ) === '#0E7A4F' && isset( $preset_colors[ $saved_preset ] ) ) {
 			$accent = $preset_colors[ $saved_preset ];
 		}
+		// Badge de remise : pourcentage entre prix barré et prix courant (produit simple).
+		$_reg_p = (float) $product->get_regular_price();
+		$_cur_p = (float) $product->get_price();
+		$head_discount = ( $_reg_p > 0.01 && $_cur_p > 0.01 && $_reg_p > $_cur_p + 0.01 ) ? (int) round( ( 1 - $_cur_p / $_reg_p ) * 100 ) : 0;
+
 		$title   = $custom_title ? $custom_title : Settings::get( 'form_title' );
 		$button  = $custom_button ? $custom_button : Settings::get( 'button_text' );
 
 		// Blocs activables/désactivables (les CHAMPS, eux, viennent du plan
 		// Checkout Builder — voir fields_plan()).
+		// Preuve sociale : vraies commandes récentes (prénom + wilaya + ancienneté).
+		$social_items = array();
+		if ( Settings::get( 'social_proof_enabled' ) ) {
+			$hours     = max( 1, (int) Settings::get( 'social_proof_hours', 48 ) );
+			$since     = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - $hours * HOUR_IN_SECONDS );
+			$o_t       = \InfinityCod\Core\Schema::table( 'orders' );
+			$w_t       = \InfinityCod\Core\Schema::table( 'wilayas' );
+			$proof     = $wpdb->get_results( $wpdb->prepare( "SELECT o.customer_name, w.name_fr AS wilaya, o.created_at FROM {$o_t} o LEFT JOIN {$w_t} w ON w.code = o.wilaya_code WHERE o.status IN ('confirmed','shipped','delivered') AND o.created_at >= %s ORDER BY o.created_at DESC LIMIT 8", $since ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+			foreach ( (array) $proof as $pr ) {
+				$parts   = preg_split( '/\s+/', trim( (string) $pr['customer_name'] ) );
+				$first   = ( is_array( $parts ) && $parts ) ? $parts[0] : '';
+				if ( '' === $first || mb_strlen( $first ) < 2 ) { continue; }
+				$h_ago   = max( 1, (int) round( ( current_time( 'timestamp' ) - strtotime( (string) $pr['created_at'] ) ) / HOUR_IN_SECONDS ) );
+				$social_items[] = array( 'n' => $first, 'w' => (string) $pr['wilaya'], 'h' => $h_ago );
+				if ( count( $social_items ) >= 5 ) { break; }
+			}
+		}
+
+		// Compteur de visiteurs : sessions uniques des 15 dernières minutes (transient par produit).
+		$visitors = 0;
+		if ( Settings::get( 'visitors_enabled' ) ) {
+			$v_key  = 'icod_visitors_' . (int) $product_id;
+			$v_data = get_transient( $v_key );
+			$v_data = is_array( $v_data ) ? $v_data : array();
+			$now_ts = time();
+			foreach ( $v_data as $sid => $t_seen ) { if ( (int) $t_seen < $now_ts - 15 * MINUTE_IN_SECONDS ) { unset( $v_data[ $sid ] ); } }
+			$sess   = substr( hash( 'md5', ( isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '' ) . '|' . ( isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '' ) ), 0, 24 );
+			$v_data[ $sess ] = $now_ts;
+			set_transient( $v_key, $v_data, 15 * MINUTE_IN_SECONDS );
+			$visitors = count( $v_data );
+		}
+
 		$show_qty         = (bool) Settings::get( 'show_qty_selector', 1 );
 		$show_stopdesk    = (bool) Settings::get( 'show_stopdesk', 1 );
 		$show_offers      = (bool) Settings::get( 'show_offers', 1 );
@@ -782,6 +826,7 @@ class FormManager {
 						<?php endif; ?>
 					</div>
 					<span class="icod-head-price" data-head-price>
+						<span class="icod-head-discount" data-head-discount<?php if ( $head_discount <= 0 ) : ?> hidden<?php endif; ?>>−<?php echo esc_html( $head_discount ); ?>%</span>
 						<?php
 						$head_regular = (float) $product->get_regular_price();
 						$head_price   = (float) $product->get_price();
@@ -809,6 +854,10 @@ class FormManager {
 					printf( esc_html__( '%d pièces disponibles', 'infinitycod' ), (int) $stock_qty );
 				}
 				?>
+			</div>
+			<?php if ( Settings::get( 'visitors_enabled' ) ) : ?>
+			<div class="icod-visitors">👀 <?php printf( esc_html__( '%d personnes regardent ce produit', 'infinitycod' ), (int) $visitors ); ?></div>
+			<?php endif; ?>
 			</div>
 			<?php endif; ?>
 
@@ -1024,6 +1073,9 @@ class FormManager {
 				</form>
 			</section>
 
+			<?php if ( Settings::get( 'social_proof_enabled' ) && $social_items ) : ?>
+			<div class="icod-social-proof" data-social-proof="<?php echo esc_attr( wp_json_encode( $social_items ) ); ?>" aria-hidden="true"></div>
+			<?php endif; ?>
 			<?php if ( Settings::get( 'show_signature', 1 ) ) : ?>
 			<div class="icod-signed">🔒 Protégé par <a href="https://infinitycoder.app" target="_blank" rel="noopener">Infinity Coder</a></div>
 			<?php endif; ?>

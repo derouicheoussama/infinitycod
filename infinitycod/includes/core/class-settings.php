@@ -110,6 +110,14 @@ class Settings {
 			'show_stopdesk'         => 1,
 			'show_offers'           => 1,
 			'offers_tiers'          => '2:10, 3:15, 5:20', // Paliers quantité:remise% (offre par quantité).
+			'social_proof_enabled'  => 0,    // Preuve sociale animée (vraies commandes récentes).
+			'social_proof_hours'    => 48,   // Fenêtre des commandes affichables (heures).
+			'visitors_enabled'      => 0,    // Compteur de visiteurs sur le produit.
+			'maintenance_mode'      => 0,    // Pause des commandes : le formulaire affiche un avis.
+			'maintenance_message'   => '',   // Message personnalisé du mode maintenance.
+			'order_sound'           => 1,    // Bip + notification à chaque nouvelle commande COD.
+			'weekly_report'         => 0,    // Rapport hebdomadaire par email.
+
 			'show_reassurance'      => 1,
 			'reassurance_top'       => 0,    // Réassurance affichée AVANT les champs (style landing).
 

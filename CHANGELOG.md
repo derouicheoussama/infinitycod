@@ -1,5 +1,23 @@
 # Changelog
 
+## 5.30.0 — 2026-09-13
+
+Grande mise à jour conversion + dashboard + rapidité : 8 nouveautés.
+
+### Ajouté
+- **Preuve sociale animée** : « Prénom de Wilaya vient de commander » — petites notifications en bas du formulaire, alimentées par vos **vraies commandes récentes** (fenêtre réglable, prénom seul pour la confidentialité). Réglages → Formulaire.
+- **Compteur de visiteurs** : « N personnes regardent ce produit » — sessions uniques des 15 dernières minutes, par produit.
+- **Mode maintenance** : pause des commandes en un clic — le formulaire affiche un avis personnalisé aux visiteurs (les admins voient l'état), avec notice de rappel dans l'admin.
+- **Bip + notification à chaque nouvelle commande COD** : partout dans l'admin — bip WebAudio + toast dès qu'une commande arrive (poll AJAX 45 s, réglage ON/OFF dans Avancé).
+- **Rapport hebdomadaire par email** : commandes, confirmées, CA et en attente des 7 derniers jours — cron hebdomadaire, réglage ON/OFF dans Avancé.
+- **Widget tableau de bord enrichi** : CA des 7 jours avec **sparkline SVG** du chiffre d'affaires quotidien.
+- **Export Excel des paniers abandonnés** : bouton sur la page Paniers abandonnés — client, téléphone, produit, progression, panier, statut coloré, date.
+- **Cache mémoire des tarifs** : les getters wilaya (livraison estimée, montant minimum, gratuit) sont mis en cache par requête — moins de requêtes SQL sur les pages produit.
+
+### Modifié
+- **Performance d'affichage admin** : `content-visibility` sur les longues tableaux — le navigateur ne peint que les lignes visibles.
+
+
 ## 5.29.3 — 2026-09-13
 
 Dernières corrections Plugin Check : fclose documenté, i18n updates corrigés.

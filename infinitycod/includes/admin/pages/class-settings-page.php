@@ -1133,6 +1133,29 @@ class SettingsPage {
 					<input type="text" name="icod[offers_tiers]" value="<?php echo esc_attr( Settings::get( 'offers_tiers', '2:10, 3:15, 5:20' ) ); ?>" placeholder="2:10, 3:15, 5:20" class="regular-text" <?php disabled( ! \InfinityCod\License\LicenseManager::is_premium() ); ?> />
 					<em><?php echo esc_html( 'Format : quantité minimale:remise en pourcentage, séparés par des virgules. Vide = 2:10, 3:15, 5:20. Sans licence Premium, les offres restent masquées.' ); ?></em>
 				</label>
+
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[social_proof_enabled]" value="1" <?php checked( (int) Settings::get( 'social_proof_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Preuve sociale animée — « Prénom de Wilaya vient de commander » (vraies commandes récentes)', 'infinitycod' ); ?></span>
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Fenêtre des commandes affichables (heures)', 'infinitycod' ); ?></span>
+					<input type="number" min="6" max="168" name="icod[social_proof_hours]" value="<?php echo esc_attr( (int) Settings::get( 'social_proof_hours', 48 ) ); ?>" />
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[visitors_enabled]" value="1" <?php checked( (int) Settings::get( 'visitors_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Compteur de visiteurs — « N personnes regardent ce produit » (sessions des 15 dernières minutes)', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[maintenance_mode]" value="1" <?php checked( (int) Settings::get( 'maintenance_mode' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Mode maintenance — mettre les commandes en pause (le formulaire affiche un avis à la place)', 'infinitycod' ); ?></span>
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Message du mode maintenance (optionnel)', 'infinitycod' ); ?></span>
+					<textarea name="icod[maintenance_message]" rows="2" class="large-text"><?php echo esc_textarea( Settings::get( 'maintenance_message', '' ) ); ?></textarea>
+				</label>
+			</div>
+			<div class="icod-grid">
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[show_reassurance]" value="1" <?php checked( (int) Settings::get( 'show_reassurance' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Bandeau de réassurance (COD, 58 wilayas, vérification colis)', 'infinitycod' ); ?></span>
@@ -1706,6 +1729,18 @@ class SettingsPage {
 	private function tab_advanced() {
 		?>
 		<div class="icod-card">
+			<h2><?php esc_html_e( 'Notifications & rapports', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Soyez alerté à chaque commande COD et recevez un résumé hebdomadaire de votre boutique.', 'infinitycod' ); ?></p>
+			<label class="icod-toggle">
+				<input type="checkbox" name="icod[order_sound]" value="1" <?php checked( (int) Settings::get( 'order_sound', 1 ), 1 ); ?> />
+				<span><?php esc_html_e( 'Bip + notification à chaque nouvelle commande COD (partout dans l’admin)', 'infinitycod' ); ?></span>
+			</label>
+			<label class="icod-toggle">
+				<input type="checkbox" name="icod[weekly_report]" value="1" <?php checked( (int) Settings::get( 'weekly_report' ), 1 ); ?> />
+				<span><?php esc_html_e( 'Rapport hebdomadaire par email (CA, commandes, paniers récupérés)', 'infinitycod' ); ?></span>
+			</label>
+		</div>
+		<div class="icod-card">
 			<h2><?php esc_html_e( 'Devise', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Appliquée partout : formulaire, récapitulatif, commandes WooCommerce, pixels et tableaux de bord. Marché arabe : DZD, MAD, TND, EGP, SAR, AED…', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
@@ -2027,6 +2062,13 @@ class SettingsPage {
 			'show_note'          => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_offers'        => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'offers_tiers'       => array( 'tab' => 'form', 'type' => 'text' ),
+			'social_proof_enabled' => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'social_proof_hours'   => array( 'tab' => 'form', 'type' => 'int', 'min' => 6, 'max' => 168 ),
+			'visitors_enabled'     => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'maintenance_mode'     => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'maintenance_message'  => array( 'tab' => 'form', 'type' => 'textarea' ),
+			'order_sound'          => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'weekly_report'        => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 			'show_reassurance'   => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'reassurance_top'    => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_email'         => array( 'tab' => 'form', 'type' => 'toggle' ),

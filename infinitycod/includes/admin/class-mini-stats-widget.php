@@ -91,6 +91,30 @@ class MiniStatsWidget {
 				</div>
 			<?php endforeach; ?>
 		</div>
+		<?php
+		$rev7  = (float) $wpdb->get_var( $wpdb->prepare( "SELECT COALESCE(SUM(CASE WHEN status IN ('confirmed','shipped','delivered') THEN total ELSE 0 END),0) FROM {$orders} WHERE created_at >= %s", gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - 7 * DAY_IN_SECONDS ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+		$daily = $wpdb->get_results( $wpdb->prepare( "SELECT SUBSTR(created_at,1,10) AS d, COALESCE(SUM(CASE WHEN status IN ('confirmed','shipped','delivered') THEN total ELSE 0 END),0) AS v FROM {$orders} WHERE created_at >= %s GROUP BY SUBSTR(created_at,1,10) ORDER BY d", gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - 7 * DAY_IN_SECONDS ) ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+		$pts   = array();
+		$maxv  = 0;
+		foreach ( (array) $daily as $d ) { $maxv = max( $maxv, (float) $d['v'] ); }
+		$cnt   = count( (array) $daily );
+		$ci    = 0;
+		foreach ( (array) $daily as $d ) {
+			$x = $cnt > 1 ? $ci * ( 120 / ( $cnt - 1 ) ) : 60;
+			$y = $maxv > 0 ? 26 - ( (float) $d['v'] / $maxv ) * 22 : 26;
+			$pts[] = round( $x, 1 ) . ',' . round( $y, 1 );
+			$ci++;
+		}
+		?>
+		<div style="margin:10px 0 0;padding:10px 12px;background:#f6f8fa;border-radius:10px">
+			<div style="display:flex;justify-content:space-between;align-items:baseline">
+				<span style="font-size:11px;font-weight:700;color:#1d5fa8;text-transform:uppercase"><?php echo esc_html( 'CA 7 jours', 'infinitycod' ); ?></span>
+				<strong><?php echo esc_html( number_format_i18n( $rev7, 0 ) ); ?> <?php echo esc_html( $currency ); ?></strong>
+			</div>
+			<?php if ( $pts ) : ?>
+			<svg width="100%" height="30" viewBox="0 0 120 30" preserveAspectRatio="none" style="margin-top:6px"><polyline points="<?php echo esc_attr( implode( ' ', $pts ) ); ?>" fill="none" stroke="#1d5fa8" stroke-width="2" /></svg>
+			<?php endif; ?>
+		</div>
 		<p style="margin:10px 0 0;text-align:center">
 			<a class="button button-small" href="<?php echo esc_url( $orders_url ); ?>"><?php esc_html_e( 'Voir toutes les commandes', 'infinitycod' ); ?></a>
 		</p>

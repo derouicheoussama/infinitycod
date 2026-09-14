@@ -107,7 +107,11 @@ class RatesManager {
 
 		global $wpdb;
 		$table = Schema::table( 'wilayas' );
-		$free  = $wpdb->get_var( $wpdb->prepare( "SELECT free_shipping FROM {$table} WHERE code = %s", $wilaya_code ) );
+		static $cache_free = array();
+		if ( ! isset( $cache_free[ $wilaya_code ] ) ) {
+			$cache_free[ $wilaya_code ] = $wpdb->get_var( $wpdb->prepare( "SELECT free_shipping FROM {$table} WHERE code = %s", $wilaya_code ) );
+		}
+		$free  = $cache_free[ $wilaya_code ];
 
 		return (bool) ( $free && (int) $free );
 	}
@@ -121,7 +125,11 @@ class RatesManager {
 	public function delivery_estimate( $wilaya_code ) {
 		global $wpdb;
 		$table = Schema::table( 'wilayas' );
-		return (string) $wpdb->get_var( $wpdb->prepare( "SELECT delivery_days FROM {$table} WHERE code = %s", $wilaya_code ) );
+		static $cache_days = array();
+		if ( ! isset( $cache_days[ $wilaya_code ] ) ) {
+			$cache_days[ $wilaya_code ] = (string) $wpdb->get_var( $wpdb->prepare( "SELECT delivery_days FROM {$table} WHERE code = %s", $wilaya_code ) );
+		}
+		return $cache_days[ $wilaya_code ];
 	}
 
 	/**
@@ -133,7 +141,11 @@ class RatesManager {
 	public function min_order( $wilaya_code ) {
 		global $wpdb;
 		$table = Schema::table( 'wilayas' );
-		return (float) $wpdb->get_var( $wpdb->prepare( "SELECT min_order FROM {$table} WHERE code = %s", $wilaya_code ) );
+		static $cache_min = array();
+		if ( ! isset( $cache_min[ $wilaya_code ] ) ) {
+			$cache_min[ $wilaya_code ] = (float) $wpdb->get_var( $wpdb->prepare( "SELECT min_order FROM {$table} WHERE code = %s", $wilaya_code ) );
+		}
+		return $cache_min[ $wilaya_code ];
 	}
 
 	/**
