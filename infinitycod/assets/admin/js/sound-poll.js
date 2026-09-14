@@ -1,3 +1,12 @@
+/**
+ * InfinityCod : poll des nouvelles commandes COD — bip + toast (admin).
+ *
+ * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
+ */
+
 /* InfinityCod : poll des nouvelles commandes COD - bip + toast (admin). */
 (function () {
 	if (typeof icodPoll === 'undefined') { return; }
