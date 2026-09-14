@@ -743,9 +743,9 @@ $crp = file_get_contents( $plugin_dir . 'includes/admin/pages/class-carriers-pag
 $adm_css = file_get_contents( $plugin_dir . 'assets/admin/css/admin.css' );
 $logos_ok = true;
 foreach ( array( 'yalidine', 'zrexpress', 'maystro', 'noest', 'ecom', 'dhd' ) as $cr_code ) {
-	if ( ! file_exists( $plugin_dir . 'assets/front/img/carriers/' . $cr_code . '.svg' ) ) { $logos_ok = false; }
+	if ( ! file_exists( $plugin_dir . 'assets/front/img/carriers/' . $cr_code . '.svg' ) && ! file_exists( $plugin_dir . 'assets/front/img/carriers/' . $cr_code . '.png' ) ) { $logos_ok = false; }
 }
-check( 'transporteurs : logo SVG présent pour les 6 sociétés (zrexpress bien nommé)', $logos_ok && ! file_exists( $plugin_dir . 'assets/front/img/carriers/zr-express.svg' ) );
+check( 'transporteurs : logo officiel présent pour les 6 sociétés (zrexpress bien nommé)', $logos_ok && ! file_exists( $plugin_dir . 'assets/front/img/carriers/zr-express.svg' ) );
 check( 'transporteurs : grille 2 colonnes (1 colonne en dessous de 1100 px)', false !== strpos( $adm_css, 'grid-template-columns:repeat(2,minmax(0,1fr))' ) && false !== strpos( $adm_css, '@media (max-width:1100px){.icod-carriers-grid{grid-template-columns:1fr}}' ) );
 check( 'transporteurs : statut fiable (variable $manager, plus de $carriers fantôme)', false !== strpos( $crp, '$manager ? $manager->is_configured' ) && false === strpos( $crp, '$carriers ? $carriers->is_configured' ) );
 	check( 'transporteurs : bouton import bureaux branché sur le bon transporteur', false === strpos( $crp, 'data-code="yalidine"' ) && false !== strpos( $crp, "data-code=\"<?php echo esc_attr( \$entry['code'] ); ?>\"" ) );
