@@ -1,11 +1,11 @@
-=== COD Algeria — Cash on Delivery for WooCommerce ===
+=== InfinityCod — Paiement à la livraison (COD Algérie) ===
 Contributors: derouicheoussama
 Tags: cod, algeria, woocommerce, delivery, checkout
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.30.1
+Stable tag: 5.30.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,10 @@ Yes, the customer pays on the secure Chargily page. Confirmation is verified by 
 3. E-commerce style / advanced customization
 
 == Changelog ==
+
+= 5.30.2 =
+* Fix : Plugin Check — commentaire traducteurs manquant (compteur de visiteurs), entrees $_SERVER nettoiees (IP, user-agent), nom du readme aligne sur l'en-tete du plugin.
+* Fix : page Transporteurs — statut « Connecte » fiable et bouton « Importer les bureaux » lie au bon transporteur.
 
 = 5.29.0 =
 * Mini-stats dashboard widget

@@ -480,6 +480,7 @@ class Updater {
 	 * Valide qu'une URL pointe vers un domaine autorisé (anti-SSRF).
 	 */
 	private function is_safe_url( $url ) {
+		// phpcs:disable PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- mise a jour du plugin commercial via GitHub Releases et miroirs officiels (vente directe, hors wp.org).
 		$host = wp_parse_url( $url, PHP_URL_HOST );
 		if ( empty( $host ) ) { return false; }
 		$allowed = array( 'raw.githubusercontent.com', 'cdn.jsdelivr.net', 'objects.githubusercontent.com' );
@@ -488,7 +489,9 @@ class Updater {
 			$custom_host = wp_parse_url( $custom, PHP_URL_HOST );
 			if ( ! empty( $custom_host ) ) { $allowed[] = $custom_host; }
 		}
-		return in_array( strtolower( $host ), $allowed, true );
+		$ok = in_array( strtolower( $host ), $allowed, true );
+		// phpcs:enable PluginCheck.CodeAnalysis.Offloading.OffloadedContent
+		return $ok;
 	}
 
 	private function remote_mirror() {
@@ -1034,11 +1037,11 @@ class Updater {
 		$repos = array_filter( array( self::releases_repo(), self::github_repo() ) );
 
 		// Asset GitHub officiel (releases/download) ?
-		$is_asset = false !== strpos( $url, '/releases/download/' ) && '' !== $this->match_repo( $url, $repos, 'github.com/' );
+		$is_asset = false !== strpos( $url, '/releases/download/' ) && '' !== $this->match_repo( $url, $repos, 'github.com/' ); // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- mise a jour du plugin commercial via GitHub Releases (vente directe, hors wp.org).
 
 		// Miroirs fichiers (branche latest/) : raw.githubusercontent.com / jsDelivr.
-		$is_mirror = '' !== $this->match_repo( $url, $repos, 'raw.githubusercontent.com/' )
-			|| '' !== $this->match_repo( $url, $repos, 'cdn.jsdelivr.net/gh/' );
+		$is_mirror = '' !== $this->match_repo( $url, $repos, 'raw.githubusercontent.com/' ) // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- miroir de mise a jour (vente directe, hors wp.org).
+			|| '' !== $this->match_repo( $url, $repos, 'cdn.jsdelivr.net/gh/' ); // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- miroir de mise a jour (vente directe, hors wp.org).
 
 		if ( ! $is_asset && ! $is_mirror ) {
 			return $pre;

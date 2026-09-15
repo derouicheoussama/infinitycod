@@ -116,7 +116,7 @@ class ProductMetaBox {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- vérifié ci-dessus.
 		$use_custom = ! empty( $_POST['icod_offers_use_custom'] );
 		$raw        = isset( $_POST['icod_offers_tiers'] ) ? sanitize_text_field( wp_unslash( $_POST['icod_offers_tiers'] ) ) : '';
-		// phpcs:enable
+		// phpcs:enable WordPress.Security.NonceVerification
 
 		if ( ! $use_custom ) {
 			delete_post_meta( $post_id, '_icod_offers' );

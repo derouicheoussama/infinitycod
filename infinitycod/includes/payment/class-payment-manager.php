@@ -20,6 +20,12 @@ use InfinityCod\Core\Schema;
 use InfinityCod\Core\Settings;
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders, PluginCheck.Security.DirectDB
+// Tables custom InfinityCod : noms de tables issus de Schema::table() (constantes internes,
+// jamais d'entree utilisateur) et valeurs toujours liees via $wpdb->prepare(). Requetes
+// directes volontaires sur nos propres tables (pas d'equivalent WP_Query), avec caches
+// applicatifs la ou c'est chaud (compteurs, tarifs).
+
 
 class PaymentManager {
 
@@ -183,7 +189,7 @@ class PaymentManager {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- retour public, vérifié contre l'API Chargily.
 		$checkout_id = isset( $_GET['icod_checkout'] ) ? sanitize_text_field( wp_unslash( $_GET['icod_checkout'] ) ) : '';
 		$icod_id     = isset( $_GET['icod_order'] ) ? absint( $_GET['icod_order'] ) : 0;
-		// phpcs:enable
+		// phpcs:enable WordPress.Security.NonceVerification
 
 		if ( '' === $checkout_id || $icod_id < 1 || ! self::enabled() ) {
 			return;

@@ -130,7 +130,7 @@ final class Plugin {
 	 * @return void
 	 */
 	public function load_textdomain() {
-		load_plugin_textdomain( 'infinitycod', false, dirname( INFINITYCOD_BASENAME ) . '/languages' );
+		load_plugin_textdomain( 'infinitycod', false, dirname( INFINITYCOD_BASENAME ) . '/languages' ); // phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- vente directe hors wp.org : les traductions /languages ne sont pas chargees automatiquement.
 	}
 
 	/**

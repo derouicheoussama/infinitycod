@@ -528,7 +528,7 @@ class Routes {
 			global $wpdb;
 			$orders_t  = \InfinityCod\Core\Schema::table( 'orders' );
 			$hour_ago  = gmdate( 'Y-m-d H:i:s', time() - 3600 );
-			$recent    = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$orders_t} WHERE created_at >= %s", $hour_ago ) );
+			$recent    = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$orders_t} WHERE created_at >= %s", $hour_ago ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL, PluginCheck.Security.DirectDB.UnescapedDBParameter -- table interne, parametre prepare.
 			if ( $recent >= $global_max ) {
 				return new \WP_Error( 'icod_hour_limit', __( 'Trop de commandes en ce moment. Veuillez réessayer dans quelques minutes.', 'infinitycod' ), array( 'status' => 429 ) );
 			}
@@ -666,9 +666,9 @@ class Routes {
 		}
 
 		// Anti-abus : 10 mises à jour max par session et par minute.
-		$session = isset( $_COOKIE['icod_sid'] ) ? preg_replace( '/[^a-zA-Z0-9]/', '', (string) wp_unslash( $_COOKIE['icod_sid'] ) ) : '';
+		$session = isset( $_COOKIE['icod_sid'] ) ? preg_replace( '/[^a-zA-Z0-9]/', '', (string) wp_unslash( $_COOKIE['icod_sid'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- preg_replace filtre deja la valeur (alphanumerique uniquement).
 		if ( '' === $session ) {
-			$session = substr( hash( 'sha256', wp_salt( 'auth' ) . Shield::client_ip() . ( isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '' ) ), 0, 32 );
+			$session = substr( hash( 'sha256', wp_salt( 'auth' ) . Shield::client_ip() . ( isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '' ) ), 0, 32 );
 		}
 		$throttle_key = 'icod_ab_' . $session;
 		$hits         = (int) get_transient( $throttle_key );
@@ -681,7 +681,7 @@ class Routes {
 		$table = \InfinityCod\Core\Schema::table( 'abandoned' );
 		$now   = current_time( 'mysql' );
 
-		$row = $wpdb->get_row( $wpdb->prepare( "SELECT id FROM {$table} WHERE session_key = %s AND status = 'open' LIMIT 1", $session ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT id FROM {$table} WHERE session_key = %s AND status = 'open' LIMIT 1", $session ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		$values = array(
 			'product_id'   => isset( $body['product_id'] ) ? absint( $body['product_id'] ) : 0,

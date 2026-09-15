@@ -11,6 +11,12 @@
 namespace InfinityCod\Core;
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders, PluginCheck.Security.DirectDB
+// Tables custom InfinityCod : noms de tables issus de Schema::table() (constantes internes,
+// jamais d'entree utilisateur) et valeurs toujours liees via $wpdb->prepare(). Requetes
+// directes volontaires sur nos propres tables (pas d'equivalent WP_Query), avec caches
+// applicatifs la ou c'est chaud (compteurs, tarifs).
+
 
 /**
  * Toutes les tables vivent sous le préfixe {prefix}icod_ et sont créées

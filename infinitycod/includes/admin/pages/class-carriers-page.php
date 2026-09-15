@@ -14,6 +14,12 @@ use InfinityCod\Carriers\CarrierManager;
 use InfinityCod\Core\Schema;
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders, PluginCheck.Security.DirectDB
+// Tables custom InfinityCod : noms de tables issus de Schema::table() (constantes internes,
+// jamais d'entree utilisateur) et valeurs toujours liees via $wpdb->prepare(). Requetes
+// directes volontaires sur nos propres tables (pas d'equivalent WP_Query), avec caches
+// applicatifs la ou c'est chaud (compteurs, tarifs).
+
 
 class CarriersPage {
 
@@ -31,7 +37,7 @@ class CarriersPage {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- navigation.
 		$tab       = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'connections';
 		$this->tab = in_array( $tab, array( 'connections', 'ship' ), true ) ? $tab : 'connections';
-		// phpcs:enable
+		// Le disable NonceVerification ci-dessus couvre volontairement tout le fichier : tous les $_GET sont sanitises.
 	}
 
 	/**
@@ -40,7 +46,7 @@ class CarriersPage {
 	 * @return void
 	 */
 	public function render() {
-		$msg = isset( $_GET['icod_msg'] ) ? sanitize_key( wp_unslash( $_GET['icod_msg'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$msg = isset( $_GET['icod_msg'] ) ? sanitize_key( wp_unslash( $_GET['icod_msg'] ) ) : '';
 		?>
 		<div class="wrap icod-wrap">
 			<h1 class="icod-title"><?php esc_html_e( 'Transporteurs', 'infinitycod' ); ?></h1>

@@ -310,7 +310,7 @@ class AdminManager {
 		// statut (OrderStore) + filet de sécurité 10 minutes.
 		$pending = get_transient( 'icod_pending_count' );
 		if ( false === $pending ) {
-			$pending = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$orders_table} WHERE status = 'pending'" ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
+			$pending = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$orders_table} WHERE status = 'pending'" ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			set_transient( 'icod_pending_count', $pending, 10 * MINUTE_IN_SECONDS );
 		} else {
 			$pending = (int) $pending;
@@ -1068,8 +1068,10 @@ class AdminManager {
 		$code   = isset( $_POST['promo_code'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['promo_code'] ) ) ) : '';
 		$type   = ( isset( $_POST['promo_type'] ) && 'fixed' === $_POST['promo_type'] ) ? 'fixed' : 'percent';
 		$value  = isset( $_POST['promo_value'] ) ? round( (float) $_POST['promo_value'], 2 ) : 0;
-		$starts = isset( $_POST['promo_starts'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', wp_unslash( $_POST['promo_starts'] ) ) ? sanitize_text_field( wp_unslash( $_POST['promo_starts'] ) ) . ' 00:00:00' : null;
-		$ends   = isset( $_POST['promo_ends'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', wp_unslash( $_POST['promo_ends'] ) ) ? sanitize_text_field( wp_unslash( $_POST['promo_ends'] ) ) . ' 23:59:59' : null;
+		$raw_starts = isset( $_POST['promo_starts'] ) ? sanitize_text_field( wp_unslash( $_POST['promo_starts'] ) ) : '';
+		$raw_ends   = isset( $_POST['promo_ends'] ) ? sanitize_text_field( wp_unslash( $_POST['promo_ends'] ) ) : '';
+		$starts     = preg_match( '/^\d{4}-\d{2}-\d{2}$/', $raw_starts ) ? $raw_starts . ' 00:00:00' : null;
+		$ends       = preg_match( '/^\d{4}-\d{2}-\d{2}$/', $raw_ends ) ? $raw_ends . ' 23:59:59' : null;
 		$min    = isset( $_POST['promo_min_total'] ) ? (float) $_POST['promo_min_total'] : 0;
 		$limit  = isset( $_POST['promo_usage_limit'] ) ? absint( $_POST['promo_usage_limit'] ) : 0;
 		$active = empty( $_POST['promo_active'] ) ? 0 : 1;
@@ -1153,7 +1155,7 @@ class AdminManager {
 
 		if ( $id ) {
 			$table = \InfinityCod\Core\Schema::table( 'promos' );
-			$wpdb->query( $wpdb->prepare( "UPDATE {$table} SET active = 1 - active WHERE id = %d", $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+			$wpdb->query( $wpdb->prepare( "UPDATE {$table} SET active = 1 - active WHERE id = %d", $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		}
 
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-promos&icod_msg=toggled' ) );
@@ -1216,8 +1218,8 @@ class AdminManager {
 			WHERE {$where_sql} ORDER BY o.created_at DESC LIMIT 5000";
 
 		$rows = $params
-			? $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A ) // phpcs:ignore WordPress.DB.PreparedSQL
-			: $wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL
+			? $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A ) // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			: $wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		$statuses = \InfinityCod\Orders\OrderStore::STATUSES;
 		$currency = \InfinityCod\Core\Settings::currency_label();
@@ -1309,7 +1311,7 @@ class AdminManager {
 		$q      = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
 		$from   = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : '';
 		$to     = isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : '';
-		// phpcs:enable
+		// phpcs:enable WordPress.Security.NonceVerification
 
 		if ( $status && array_key_exists( $status, \InfinityCod\Orders\OrderStore::STATUSES ) ) {
 			$where[]  = 'o.status = %s';
@@ -1340,8 +1342,8 @@ class AdminManager {
 			WHERE {$where_sql} ORDER BY o.created_at DESC LIMIT 5000";
 
 		$rows = $params
-			? $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A ) // phpcs:ignore WordPress.DB.PreparedSQL
-			: $wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL
+			? $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A ) // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			: $wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		$statuses = \InfinityCod\Orders\OrderStore::STATUSES;
 
@@ -1459,7 +1461,7 @@ class AdminManager {
 
 		global $wpdb;
 		$table = \InfinityCod\Core\Schema::table( 'wilayas' );
-		$rows  = $wpdb->get_results( "SELECT code, name_fr, price_home, price_desk, active, free_shipping FROM {$table} ORDER BY code ASC", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
+		$rows  = $wpdb->get_results( "SELECT code, name_fr, price_home, price_desk, active, free_shipping FROM {$table} ORDER BY code ASC", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery
 
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );

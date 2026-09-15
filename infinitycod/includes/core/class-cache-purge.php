@@ -23,7 +23,7 @@ class CachePurge {
 	 */
 	public static function purge_all() {
 		if ( defined( 'LSCWP_V' ) ) {
-			do_action( 'litespeed_purge_all' );
+			do_action( 'litespeed_purge_all' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- hook officiel LiteSpeed Cache (plugin tiers), a ne pas renommer.
 		}
 		if ( function_exists( 'rocket_clean_domain' ) ) {
 			rocket_clean_domain();

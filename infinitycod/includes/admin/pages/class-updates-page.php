@@ -523,7 +523,7 @@ class UpdatesPage {
 				'mimes'     => array( 'zip' => 'application/zip|application/x-zip-compressed|application/x-zip' ),
 			)
 		);
-		// phpcs:enable
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput
 
 		if ( ! is_array( $upload ) || empty( $upload['file'] ) ) {
 			wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=upload-fail' ) );

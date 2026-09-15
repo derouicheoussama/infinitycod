@@ -572,7 +572,7 @@ class FormManager {
 			$since     = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - $hours * HOUR_IN_SECONDS );
 			$o_t       = \InfinityCod\Core\Schema::table( 'orders' );
 			$w_t       = \InfinityCod\Core\Schema::table( 'wilayas' );
-			$proof     = $wpdb->get_results( $wpdb->prepare( "SELECT o.customer_name, w.name_fr AS wilaya, o.created_at FROM {$o_t} o LEFT JOIN {$w_t} w ON w.code = o.wilaya_code WHERE o.status IN ('confirmed','shipped','delivered') AND o.created_at >= %s ORDER BY o.created_at DESC LIMIT 8", $since ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+			$proof     = $wpdb->get_results( $wpdb->prepare( "SELECT o.customer_name, w.name_fr AS wilaya, o.created_at FROM {$o_t} o LEFT JOIN {$w_t} w ON w.code = o.wilaya_code WHERE o.status IN ('confirmed','shipped','delivered') AND o.created_at >= %s ORDER BY o.created_at DESC LIMIT 8", $since ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			foreach ( (array) $proof as $pr ) {
 				$parts   = preg_split( '/\s+/', trim( (string) $pr['customer_name'] ) );
 				$first   = ( is_array( $parts ) && $parts ) ? $parts[0] : '';
@@ -591,7 +591,9 @@ class FormManager {
 			$v_data = is_array( $v_data ) ? $v_data : array();
 			$now_ts = time();
 			foreach ( $v_data as $sid => $t_seen ) { if ( (int) $t_seen < $now_ts - 15 * MINUTE_IN_SECONDS ) { unset( $v_data[ $sid ] ); } }
-			$sess   = substr( hash( 'md5', ( isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '' ) . '|' . ( isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '' ) ), 0, 24 );
+			$srv_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+			$srv_ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+			$sess   = substr( hash( 'md5', $srv_ip . '|' . $srv_ua ), 0, 24 );
 			$v_data[ $sess ] = $now_ts;
 			set_transient( $v_key, $v_data, 15 * MINUTE_IN_SECONDS );
 			$visitors = count( $v_data );
@@ -856,7 +858,10 @@ class FormManager {
 				?>
 			</div>
 			<?php if ( Settings::get( 'visitors_enabled' ) ) : ?>
-			<div class="icod-visitors">👀 <?php printf( esc_html__( '%d personnes regardent ce produit', 'infinitycod' ), (int) $visitors ); ?></div>
+			<div class="icod-visitors">👀 <?php
+				/* translators: %d : nombre de personnes regardant le produit. */
+				printf( esc_html__( '%d personnes regardent ce produit', 'infinitycod' ), (int) $visitors );
+				?></div>
 			<?php endif; ?>
 			</div>
 			<?php endif; ?>
@@ -1257,10 +1262,10 @@ class FormManager {
 		// restent imprimables tant que wp_footer n'est pas passé.
 		if ( 'recaptcha_v3' === self::captcha_provider() && ! wp_script_is( 'icod-recaptcha', 'enqueued' ) ) {
 			wp_enqueue_script(
-				'icod-recaptcha', // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- versionne cote service Google.
+				'icod-recaptcha',
 				'https://www.google.com/recaptcha/api.js?render=' . rawurlencode( (string) Settings::get( 'recaptcha_v3_site_key', '' ) ),
 				array(),
-				null,
+				INFINITYCOD_VERSION,
 				true
 			);
 		}
@@ -1372,10 +1377,10 @@ class FormManager {
 			// ses deux clés configurées (sinon zéro script tiers).
 			if ( 'recaptcha_v3' === self::captcha_provider() ) {
 				wp_enqueue_script(
-					'icod-recaptcha', // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- versionne cote service Google.
+					'icod-recaptcha',
 					'https://www.google.com/recaptcha/api.js?render=' . rawurlencode( (string) Settings::get( 'recaptcha_v3_site_key', '' ) ),
 					array(),
-					null,
+					INFINITYCOD_VERSION,
 					true
 				);
 				// Connexion anticipée au domaine Google : gagne ~100-300 ms

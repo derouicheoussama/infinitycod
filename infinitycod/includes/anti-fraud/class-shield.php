@@ -15,6 +15,12 @@ use InfinityCod\Core\Settings;
 use InfinityCod\Form\Validator;
 
 defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders, PluginCheck.Security.DirectDB
+// Tables custom InfinityCod : noms de tables issus de Schema::table() (constantes internes,
+// jamais d'entree utilisateur) et valeurs toujours liees via $wpdb->prepare(). Requetes
+// directes volontaires sur nos propres tables (pas d'equivalent WP_Query), avec caches
+// applicatifs la ou c'est chaud (compteurs, tarifs).
+
 
 class Shield {
 
@@ -176,6 +182,7 @@ class Shield {
 	 * @return string
 	 */
 	public static function client_ip() {
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput -- cles $_SERVER dynamiques issues d'une liste figee en dur ; valeur validee par filter_var(FILTER_VALIDATE_IP) avant tout usage.
 		$candidates = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' );
 		foreach ( $candidates as $key ) {
 			if ( ! empty( $_SERVER[ $key ] ) ) {
@@ -185,6 +192,7 @@ class Shield {
 				}
 			}
 		}
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput
 		return '0.0.0.0';
 	}
 

@@ -28,7 +28,7 @@ class StatsPage {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- filtre de lecture.
 		$days        = isset( $_GET['days'] ) ? absint( $_GET['days'] ) : 30;
 		$this->days  = in_array( $days, array( 7, 30, 90 ), true ) ? $days : 30;
-		// phpcs:enable
+		// phpcs:enable WordPress.Security.NonceVerification
 	}
 
 	/**

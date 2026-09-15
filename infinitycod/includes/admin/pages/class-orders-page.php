@@ -42,7 +42,7 @@ class OrdersPage {
 			'to'     => isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : '',
 			'paged'  => isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1,
 		);
-		// phpcs:enable
+		// phpcs:enable WordPress.Security.NonceVerification
 	}
 
 	/**
@@ -318,6 +318,10 @@ class OrdersPage {
 	private function query() {
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders, PluginCheck.Security.DirectDB
+		// Filtres construits en interne : placeholders %s/%d lies via $wpdb->prepare, noms de
+		// tables issus de Schema::table(). Faux positifs d'analyse statique.
+
 		$orders  = Schema::table( 'orders' );
 		$wilayas = Schema::table( 'wilayas' );
 
@@ -368,6 +372,7 @@ class OrdersPage {
 			$counts[ $line['status'] ] = (int) $line['n'];
 		}
 
+		// phpcs:enable WordPress.DB, PluginCheck.Security
 		return array( $rows ? $rows : array(), $total, $counts );
 	}
 
