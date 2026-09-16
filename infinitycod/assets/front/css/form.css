@@ -528,3 +528,13 @@ fieldset.icod-mode{min-width:0}
 }
 /* Appui bouton : retour tactile léger. */
 .icod-submit:not(:disabled):active{transform:scale(.985)}
+
+/* ============================================================
+   Icônes SVG harmonisées : trait fin, teinte = accent, alignées
+   ============================================================ */
+.icod-ico{width:1.15em;height:1.15em;flex:none;vertical-align:-0.2em}
+.icod-sec-title .icod-ico{color:var(--icod-accent);width:1.2em;height:1.2em}
+.icod-mode-title .icod-ico{color:var(--icod-muted)}
+.icod-mode-option input:checked ~ .icod-mode-box .icod-mode-title .icod-ico,
+.icod-mode-option input:checked + .icod-mode-box .icod-mode-title .icod-ico{color:var(--icod-accent)}
+.icod-reassurance .icod-ico,.icod-reassurance-top .icod-ico{color:var(--icod-accent)}

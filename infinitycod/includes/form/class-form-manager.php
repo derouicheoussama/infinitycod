@@ -183,10 +183,10 @@ class FormManager {
 			$sec = isset( $sec_groups[ $field['key'] ] ) ? $sec_groups[ $field['key'] ] : '';
 			if ( $sec && $sec !== $last_sec ) {
 					$sec_titles = array(
-						'contact'   => '👤 ' . __( 'Vos coordonnées', 'infinitycod' ),
-						'livraison' => '📍 ' . __( 'Livraison', 'infinitycod' ),
+						'contact'   => array( 'user', __( 'Vos coordonnées', 'infinitycod' ) ),
+						'livraison' => array( 'pin', __( 'Livraison', 'infinitycod' ) ),
 					);
-				$out .= '<div class="icod-sec-title">' . esc_html( $sec_titles[ $sec ] ) . '</div>';
+				$out .= '<div class="icod-sec-title">' . self::icon( $sec_titles[ $sec ][0] ) . '<span>' . esc_html( $sec_titles[ $sec ][1] ) . '</span></div>';
 				$last_sec = $sec;
 			}
 			// Paires adjacentes actives : nom+téléphone, wilaya+commune.
@@ -1210,6 +1210,33 @@ class FormManager {
 			return self::payment_logo( 'paypal' );
 		}
 		return self::payment_logo( 'cib' ) . self::payment_logo( 'edahabia' );
+	}
+
+		/**
+	 * Icône SVG structurante (trait fin, couleur = texte courant).
+	 *
+	 * @param string $name user|pin|home|store|wallet|truck|rotate.
+	 * @return string SVG inline.
+	 */
+	public static function icon( $name ) {
+		$common = 'class="icod-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"';
+		switch ( $name ) {
+			case 'user':
+				return '<svg ' . $common . '><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>';
+			case 'pin':
+				return '<svg ' . $common . '><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
+			case 'home':
+				return '<svg ' . $common . '><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg>';
+			case 'store':
+				return '<svg ' . $common . '><path d="M4 7 5.5 3h13L20 7"/><path d="M4 7h16v3.5a2.5 2.5 0 0 1-5 0 2.5 2.5 0 0 1-5 0 2.5 2.5 0 0 1-5 0Z"/><path d="M5 12.5V21h14v-8.5"/><path d="M9 21v-5h6v5"/></svg>';
+			case 'wallet':
+				return '<svg ' . $common . '><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 13h3"/><path d="M2 9h20"/><circle cx="17.5" cy="14" r=".8"/></svg>';
+			case 'truck':
+				return '<svg ' . $common . '><path d="M1 5h14v11H1z"/><path d="M15 9h4l4 4v3h-8"/><circle cx="6" cy="18.5" r="2"/><circle cx="18" cy="18.5" r="2"/></svg>';
+			case 'rotate':
+				return '<svg ' . $common . '><path d="M2 10a10 10 0 0 1 17-6.5L22 7"/><path d="M22 2v5h-5"/><path d="M22 14a10 10 0 0 1-17 6.5L2 17"/><path d="M2 22v-5h5"/></svg>';
+		}
+		return '';
 	}
 
 		public static function payment_logo( $method ) {

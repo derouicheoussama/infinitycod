@@ -5,7 +5,7 @@ Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.37.0
+Stable tag: 5.38.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,10 @@ Yes, the customer pays on the secure Chargily page. Confirmation is verified by 
 3. E-commerce style / advanced customization
 
 == Changelog ==
+
+= 5.38.0 =
+* Design : icônes SVG harmonisées sur le formulaire (coordonnées, livraison, domicile, bureau, réassurance) — trait fin, couleur suit l’accent choisi, rendu identique sur tous les appareils (fini les emojis système).
+* Harmonisation : pastilles de statut arrondies, focus clavier visible, animations douces et respect du mode « mouvement réduit ».
 
 = 5.37.0 =
 * Aperçu du formulaire : la position de défilement est conservée entre deux rafraîchissements (plus de saut en haut pendant la personnalisation).

@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.38.0 — 2026-09-16
+
+- **Design harmonisé du formulaire** : icônes SVG intégrées (utilisateur, épingle, domicile, bureau, portefeuille, camion, retour) en trait fin — la couleur suit automatiquement l'accent choisi et le rendu est identique sur tous les appareils.
+- Fluidité : animations douces (modale, toasts), focus clavier visible, `prefers-reduced-motion` respecté.
+
 ## 5.37.0 — 2026-09-16
 
 - **Aperçu en direct** : la position de défilement du client dans l'aperçu du formulaire est conservée entre deux rafraîchissements.
