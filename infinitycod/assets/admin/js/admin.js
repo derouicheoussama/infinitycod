@@ -239,6 +239,21 @@
 			wilayaOpts += '<option value="' + escHtml(w.code) + '"' + sel + '>' + escHtml(w.code + ' — ' + w.name) + '</option>';
 		});
 
+		/* Chronologie de la commande (étapes franchies). */
+		var timeline = [
+			{ label: 'Créée', at: o.created_at, done: true },
+			{ label: 'Confirmée', at: o.confirmed_at, done: !!o.confirmed_at || ['shipped', 'delivered'].indexOf(o.status) !== -1 },
+			{ label: 'Expédiée', at: o.shipped_at, done: !!o.shipped_at || 'delivered' === o.status },
+			{ label: 'Livrée', at: o.delivered_at, done: 'delivered' === o.status }
+		];
+		var timelineHtml = '<ul class="icod-timeline">';
+		timeline.forEach(function (step) {
+			var done = step.done;
+			timelineHtml += '<li class="' + (done ? 'done' : 'todo') + '"><span class="dot"></span><span class="lbl">' + escHtml(step.label) + '</span>' +
+				((done && step.at) ? '<span class="icod-sub">' + escHtml(step.at) + '</span>' : '') + '</li>';
+		});
+		timelineHtml += '</ul>';
+
 		modalBody.innerHTML =
 			'<div class="icod-m-head">' +
 				'<h2 id="icod-modal-title">Commande #' + o.id + ' <span class="icod-sub">· ' + escHtml(o.created_at) + '</span></h2>' +
@@ -281,6 +296,11 @@
 
 				((o.note) ? '<section class="icod-m-card icod-m-full"><h4>📝 Note</h4><p class="icod-m-note">' + escHtml(o.note) + '</p></section>' : '') +
 
+				'<section class="icod-m-card icod-m-full">' +
+					'<h4>🧭 Chronologie</h4>' +
+					timelineHtml +
+				'</section>' +
+
 				'<section class="icod-m-card">' +
 					'<h4>🛡️ Risque & suivi</h4>' +
 					'<p><span class="icod-risk ' + riskClass + '">' + escHtml(riskLabel) + '</span>' +
@@ -296,6 +316,7 @@
 					'<h4>⚡ Actions</h4>' +
 					'<p class="icod-m-statuses">' + statusBtns + '</p>' +
 					'<p class="icod-m-actions">' +
+						((o.bordereau_url) ? '<a class="button button-small" href="' + escHtml(o.bordereau_url) + '" target="_blank" rel="noopener">🖨️ Bordereau</a> ' : '') +
 						((o.edit_url) ? '<a class="button button-small" href="' + escHtml(o.edit_url) + '" target="_blank" rel="noopener">WooCommerce ↗</a> ' : '') +
 						'<button type="button" class="button button-small" data-icod-bl-phone="' + escHtml(o.phone) + '">🚫 Blacklister</button> ' +
 						'<button type="button" class="button button-small icod-m-delete" data-id="' + o.id + '">🗑 Supprimer</button>' +
@@ -695,7 +716,7 @@ document.querySelectorAll('#icod-wilaya-search, #icod-commune-search').forEach(f
 		document.querySelectorAll('#icod-orders-form input[name="ids[]"]:checked').forEach(function (cb) {
 			ids.push(cb.value);
 		});
-		if (!ids.length) { toast((icodAdmin && icodAdmin.i18n && icodAdmin.i18n.error) || 'Sélection vide', 'error'); return; } return; }
+		if (!ids.length) { toast((icodAdmin && icodAdmin.i18n && icodAdmin.i18n.error) || 'Sélection vide', 'error'); return; }
 		window.open(btn.getAttribute('data-url') + '&ids=' + ids.join(','), '_blank', 'width=840,height=980');
 	});
 })();

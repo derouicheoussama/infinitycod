@@ -1156,3 +1156,25 @@ body.icod-modal-open{overflow:hidden}
 .icod-zone-del{color:#b32d2e}
 .icod-wilayas-table input[name$="[w5]"],.icod-wilayas-table input[name$="[w10]"],
 .icod-wilayas-table input[name$="[w_over]"],.icod-wilayas-table input[name$="[return_fee]"]{font-size:12px;padding:2px 4px}
+
+/* ============================================================
+   Commandes : client enrichi, temps relatif, chronologie
+   ============================================================ */
+.icod-client{display:flex;align-items:center;gap:9px;min-width:0}
+.icod-avatar{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:none;
+	border-radius:50%;color:#fff;font-weight:800;font-size:13px;letter-spacing:.02em;
+	background:linear-gradient(135deg,#1d5fa8,#0e7a4f);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.icod-avatar[data-name$="a"],.icod-avatar[data-name$="e"],.icod-avatar[data-name$="i"]{background:linear-gradient(135deg,#7b2d9e,#d6336c)}
+.icod-avatar[data-name$="y"],.icod-avatar[data-name$="s"],.icod-avatar[data-name$="t"]{background:linear-gradient(135deg,#b3541e,#e8590c)}
+.icod-avatar[data-name$="d"],.icod-avatar[data-name$="m"],.icod-avatar[data-name$="n"]{background:linear-gradient(135deg,#0b6e43,#0e7a4f)}
+.icod-client-meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+.icod-client-meta strong{font-size:13px}
+.icod-orders-table .icod-sub{white-space:nowrap}
+/* Chronologie dans la modale. */
+.icod-timeline{list-style:none;margin:0;padding:0}
+.icod-timeline li{display:flex;align-items:baseline;gap:8px;padding:3px 0;font-size:13px}
+.icod-timeline .dot{width:10px;height:10px;border-radius:50%;flex:none;align-self:center;background:#dcdcde;border:2px solid #dcdcde}
+.icod-timeline li.done .dot{background:#0e7a4f;border-color:#bfe6d0}
+.icod-timeline li.todo{color:#8c8f94}
+.icod-timeline .lbl{font-weight:600}
+.icod-timeline li.done .lbl{color:#0b6e43}

@@ -205,6 +205,33 @@ class OrdersPage {
 	 * @param array $row Ligne icod_orders enrichie.
 	 * @return void
 	 */
+	/**
+	 * Temps écoulé lisible (« il y a 2 h ») pour la colonne Date.
+	 *
+	 * @param string $mysql Datetime MySQL.
+	 * @return string
+	 */
+	private static function time_diff_i18n( $mysql ) {
+		$ts   = mysql2date( 'U', $mysql );
+		$diff = max( 0, current_time( 'timestamp' ) - (int) $ts );
+		if ( $diff < 60 ) {
+			return __( 'à l’instant', 'infinitycod' );
+		}
+		if ( $diff < HOUR_IN_SECONDS ) {
+			/* translators: %d : nombre de minutes. */
+			return sprintf( __( 'il y a %d min', 'infinitycod' ), (int) ( $diff / 60 ) );
+		}
+		if ( $diff < DAY_IN_SECONDS ) {
+			/* translators: %d : nombre d’heures. */
+			return sprintf( __( 'il y a %d h', 'infinitycod' ), (int) ( $diff / HOUR_IN_SECONDS ) );
+		}
+		if ( $diff < 7 * DAY_IN_SECONDS ) {
+			/* translators: %d : nombre de jours. */
+			return sprintf( __( 'il y a %d j', 'infinitycod' ), (int) ( $diff / DAY_IN_SECONDS ) );
+		}
+		return mysql2date( 'd/m/Y', $mysql );
+	}
+
 	private function render_row( array $row ) {
 		$status   = $row['status'];
 		$statuses = OrderStore::STATUSES;
@@ -215,8 +242,13 @@ class OrdersPage {
 		<tr class="icod-order-row <?php echo esc_attr( 'icod-st-' . $status ); ?>" data-id="<?php echo esc_attr( $row['id'] ); ?>">
 			<td class="icod-col-check"><input type="checkbox" name="ids[]" value="<?php echo esc_attr( $row['id'] ); ?>" /></td>
 			<td data-label="<?php esc_attr_e( 'Client', 'infinitycod' ); ?>">
-				<strong><?php echo esc_html( $row['customer_name'] ); ?></strong>
-				<span class="icod-sub"><?php echo esc_html( $row['phone'] ); ?></span>
+				<div class="icod-client">
+					<span class="icod-avatar" data-name="<?php echo esc_attr( $row['customer_name'] ); ?>"><?php echo esc_html( strtoupper( mb_substr( $row['customer_name'], 0, 1 ) ) ); ?></span>
+					<span class="icod-client-meta">
+						<strong>#<?php echo (int) $row['id']; ?> — <?php echo esc_html( $row['customer_name'] ); ?></strong>
+						<span class="icod-sub"><?php echo esc_html( $row['phone'] ); ?></span>
+					</span>
+				</div>
 			</td>
 			<td data-label="<?php esc_attr_e( 'Produit', 'infinitycod' ); ?>">
 				<?php echo esc_html( $product ); ?>
@@ -240,7 +272,7 @@ class OrdersPage {
 				<?php endif; ?>
 			</td>
 			<td data-label="<?php esc_attr_e( 'Date', 'infinitycod' ); ?>">
-				<?php echo esc_html( mysql2date( 'd/m/Y H:i', $row['created_at'] ) ); ?>
+				<span title="<?php echo esc_attr( mysql2date( 'd/m/Y H:i', $row['created_at'] ) ); ?>"><?php echo esc_html( self::time_diff_i18n( $row['created_at'] ) ); ?></span>
 			</td>
 			<td data-label="<?php esc_attr_e( 'Transporteur', 'infinitycod' ); ?>">
 				<?php if ( $row['carrier'] ) : ?>
@@ -253,6 +285,7 @@ class OrdersPage {
 				<?php endif; ?>
 			</td>
 			<td class="icod-col-actions icod-row-actions">
+				<a class="button button-small" href="https://wa.me/213<?php echo esc_attr( ltrim( preg_replace( '/[^0-9]/', '', (string) $row['phone'] ), '0' ) ); ?>" target="_blank" rel="noopener" title="<?php esc_attr_e( 'WhatsApp client', 'infinitycod' ); ?>">💬</a>
 				<button type="button" class="button button-small icod-open" data-order="<?php echo esc_attr( wp_json_encode( $this->order_payload( $row ) ) ); ?>" title="<?php esc_attr_e( 'Voir les détails et modifier', 'infinitycod' ); ?>">🔍</button>
 				<?php if ( in_array( $status, array( 'pending', 'no_answer' ), true ) ) : ?>
 					<button type="button" class="button button-small icod-quick" data-id="<?php echo esc_attr( $row['id'] ); ?>" data-status="confirmed" title="<?php esc_attr_e( 'Confirmer', 'infinitycod' ); ?>">✓</button>
@@ -308,6 +341,10 @@ class OrdersPage {
 			'wc_order_id'    => (int) ( $row['wc_order_id'] ?? 0 ),
 			'edit_url'       => ! empty( $row['wc_order_id'] ) ? (string) get_edit_post_link( (int) $row['wc_order_id'] ) : '',
 			'created_at'     => mysql2date( 'd/m/Y H:i', $row['created_at'] ),
+			'confirmed_at'   => ! empty( $row['confirmed_at'] ) ? mysql2date( 'd/m/Y H:i', $row['confirmed_at'] ) : '',
+			'shipped_at'     => ! empty( $row['shipped_at'] ) ? mysql2date( 'd/m/Y H:i', $row['shipped_at'] ) : '',
+			'delivered_at'   => ! empty( $row['delivered_at'] ) ? mysql2date( 'd/m/Y H:i', $row['delivered_at'] ) : '',
+			'bordereau_url'  => wp_nonce_url( admin_url( 'admin-post.php?action=icod_bordereaux&ids=' . (int) $row['id'] ), 'icod_bordereaux' ),
 		);
 	}
 

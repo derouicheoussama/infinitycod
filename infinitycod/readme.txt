@@ -5,7 +5,7 @@ Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.31.1
+Stable tag: 5.32.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,10 @@ Yes, the customer pays on the secure Chargily page. Confirmation is verified by 
 3. E-commerce style / advanced customization
 
 == Changelog ==
+
+= 5.32.0 =
+* UX Commandes : avatar client, numéro de commande, temps relatif sur la date, bouton WhatsApp direct sur chaque ligne.
+* UX modale détails : chronologie visuelle de la commande (créée → confirmée → expédiée → livrée) et impression du bordereau individuel.
 
 = 5.31.1 =
 * Nouveau : vrais logos E-COM Delivery et DHD Livraison (remplacent les visuels provisoires) — priorité PNG dans l'affichage et nettoyage automatique des anciens fichiers à la mise à jour.

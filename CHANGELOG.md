@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.32.0 — 2026-09-16
+
+- **UX Commandes** : avatar client avec initiales colorées, numéro de commande affiché (#id), temps relatif sur la date (« il y a 2 h »), bouton WhatsApp direct sur chaque ligne.
+- **Modale détails enrichie** : chronologie visuelle de la commande (créée → confirmée → expédiée → livrée avec horodatages) et impression du bordereau individuel en un clic.
+
 ## 5.31.1 — 2026-09-16
 
 - **Logos officiels E-COM Delivery et DHD Livraison** (fournis par le réseau) : remplacent les visuels provisoires, priorité PNG + suppression automatique des anciens placeholders à la mise à jour.
