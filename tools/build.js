@@ -5,7 +5,13 @@
  * séparateurs '/' conformes à la norme zip — un zip à plat ou écrit avec des
  * '\' (Compress-Archive PS5) casse l'extraction WordPress.
  *
- * Usage : node tools/build.js
+ * Usage : node tools/build.js            → zip commercial (updater licence complet)
+ *         node tools/build.js --wporg    → zip distribution WordPress.org (updater neutralisé)
+ *
+ * En mode --wporg, includes/license/class-updater.php est remplacé par le stub
+ * tools/wporg/class-updater.stub.php (même API, zéro hook de mise à jour) :
+ * Plugin Check passe alors à 0 erreur / 0 warning. Les artefacts miroir
+ * (update.json) ne sont produits qu'en mode commercial.
  */
 'use strict';
 
@@ -13,10 +19,13 @@ const fs = require('fs');
 const path = require('path');
 const { makeZip } = require('./lib/zip');
 
+const WPORG = process.argv.includes('--wporg');
 const root = path.join(__dirname, '..');
 const src = path.join(root, 'infinitycod');
 const dist = path.join(root, 'dist');
-const zipPath = path.join(dist, 'infinitycod.zip');
+const zipPath = path.join(dist, WPORG ? 'infinitycod-wporg.zip' : 'infinitycod.zip');
+const UPDATER_ENTRY = 'infinitycod/includes/license/class-updater.php';
+const UPDATER_STUB = path.join(__dirname, 'wporg', 'class-updater.stub.php');
 
 if (!fs.existsSync(src)) {
   console.error('Dossier plugin introuvable :', src);
@@ -46,7 +55,19 @@ if (fs.existsSync(changelogPath)) {
 }
 
 const totalKo = entries.reduce((sum, e) => sum + e.data.length, 0) / 1024;
-console.log(`Plugin : ${entries.length} fichiers, ${totalKo.toFixed(0)} Ko`);
+
+// Mode --wporg : neutralisation de l'updater (voir en-tête du fichier).
+if (WPORG) {
+  const idx = entries.findIndex((e) => e.name === UPDATER_ENTRY);
+  if (idx === -1) {
+    console.error('✗ ' + UPDATER_ENTRY + ' introuvable pour la substitution wporg.');
+    process.exit(1);
+  }
+  entries[idx].data = fs.readFileSync(UPDATER_STUB);
+  console.log('Mode WordPress.org : updater neutralisé par ' + path.relative(root, UPDATER_STUB));
+}
+
+console.log(`Plugin : ${entries.length} fichiers, ${totalKo.toFixed(0)} Ko${WPORG ? ' (wporg)' : ''}`);
 
 // Validation pré-build : fichiers interdits dans un zip commercial.
 const forbidden = [/\.git\//, /\.github\//, /node_modules\//, /(^|\/)tests?\//, /\.env/, /\.tools\//];
@@ -77,7 +98,7 @@ if (!entries.some((e) => e.name === 'infinitycod/infinitycod.php')) {
 const crypto = require('crypto');
 const zipBuf = fs.readFileSync(zipPath);
 const sha256 = crypto.createHash('sha256').update(zipBuf).digest('hex');
-fs.writeFileSync(zipPath + '.sha256', sha256 + '  infinitycod.zip\n');
+fs.writeFileSync(zipPath + '.sha256', sha256 + '  ' + path.basename(zipPath) + '\n');
 
 // Version depuis le header du plugin (source de vérité).
 const header = fs.readFileSync(path.join(src, 'infinitycod.php'), 'utf8');
@@ -109,12 +130,18 @@ const manifest = {
   channel: 'stable',
   changelog: latestChangelogSection(changelogText),
 };
-fs.writeFileSync(path.join(dist, 'update.json'), JSON.stringify(manifest, null, 2));
+if (!WPORG) {
+  fs.writeFileSync(path.join(dist, 'update.json'), JSON.stringify(manifest, null, 2));
+}
 
 const mb = (fs.statSync(zipPath).size / 1024 / 1024).toFixed(2);
-console.log(`✓ dist/infinitycod.zip créé (${mb} Mo, ${entries.length} entrées, racine infinitycod/, séparateurs '/')`);
-console.log(`✓ dist/infinitycod.zip.sha256 (${sha256.slice(0, 16)}…)`);
-console.log(`✓ dist/update.json (v${version}, canal stable)`);
-console.log('  Installation : wp-admin → Extensions → Ajouter → Téléverser → Activer.');
+console.log(`✓ dist/${path.basename(zipPath)} créé (${mb} Mo, ${entries.length} entrées, racine infinitycod/, séparateurs '/')`);
+console.log(`✓ dist/${path.basename(zipPath)}.sha256 (${sha256.slice(0, 16)}…)`);
+if (!WPORG) {
+  console.log(`✓ dist/update.json (v${version}, canal stable)`);
+  console.log('  Installation : wp-admin → Extensions → Ajouter → Téléverser → Activer.');
+} else {
+  console.log('  Zip à téléverser sur WordPress.org (SVN) : le dépôt officiel gère les mises à jour.');
+}
 
 process.exit(ok ? 0 : 1);
