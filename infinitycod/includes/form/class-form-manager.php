@@ -432,6 +432,16 @@ class FormManager {
 			return;
 		}
 
+		// Anti-doublon écosystème : les thèmes « Infinity » (infinity-market,
+		// infinity-landing, infinity-shop ≤ 1.1.0) embarquent leur propre moteur
+		// COD (hook inf_cod_on_product sur woocommerce_single_product_summary).
+		// Quand le plugin gère la fiche — insertion auto OU shortcode dans le
+		// contenu — le hook du thème est retiré : un seul formulaire est généré.
+		// Les thèmes ≥ 1.1.1 ne l'enregistrent plus eux-mêmes (no-op ici).
+		if ( function_exists( 'inf_cod_on_product' ) ) {
+			remove_action( 'woocommerce_single_product_summary', 'inf_cod_on_product', 35 );
+		}
+
 		$post = get_post();
 		if ( $post && ( has_shortcode( $post->post_content, 'infinitycod_form' ) || has_shortcode( $post->post_content, 'icod_form' ) ) ) {
 			return;

@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.30.3 — 2026-09-16
+
+- Anti-doublon de formulaire : sur les fiches produit, quand InfinityCod gère la commande, le moteur COD intégré aux thèmes Infinity (infinity-market/landing/shop, moteur `inf_cod`) est automatiquement retiré — un seul formulaire de commande est généré dans le DOM.
+- Compatible dans les deux sens : les thèmes ≥ 1.1.1 neutralisent eux-mêmes leur hook quand le plugin est actif.
+
 ## 5.30.0 — 2026-09-13
 
 Grande mise à jour conversion + dashboard + rapidité : 8 nouveautés.
