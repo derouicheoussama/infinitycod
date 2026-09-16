@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.37.0 — 2026-09-16
+
+- **Aperçu en direct** : la position de défilement du client dans l'aperçu du formulaire est conservée entre deux rafraîchissements.
+- **Conformité** : 14 erreurs Plugin Check corrigées sur le code récent (commentaires traducteurs, échappement des téléchargements JSON, `wp_rand`, ignore documenté sur la liste communautaire).
+
 ## 5.36.0 — 2026-09-16
 
 - **Paiement par carte Visa / Mastercard** via Stripe Checkout (page hébergée, 3-D Secure) avec devise et taux de conversion réglables.

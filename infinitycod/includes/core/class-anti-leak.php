@@ -91,7 +91,7 @@ class AntiLeak {
 			);
 			$body = sprintf(
 				/* translators: 1 : type d'export, 2 : trace, 3 : IP. */
-				__( 'Type : %1$s' . "\n" . 'Trace : %2$s' . "\n" . 'IP : %3$s' . "\n" . 'Date : %4$s', 'infinitycod' ),
+				__( 'Type : %1$s — Trace : %2$s — IP : %3$s — Date : %4$s', 'infinitycod' ),
 				sanitize_key( (string) $type ),
 				(string) $trace,
 				\InfinityCod\AntiFraud\Shield::client_ip(),

@@ -1774,7 +1774,7 @@ class AdminManager {
 		$settings = get_option( 'infinitycod_settings', array() );
 		$settings = is_array( $settings ) ? $settings : array();
 		unset( $settings['webhook_secret'] ); // Secret régénérable : jamais exporté.
-		echo (string) wp_json_encode(
+		$json_out = wp_json_encode(
 			array(
 				'plugin'    => 'infinitycod',
 				'version'   => INFINITYCOD_VERSION,
@@ -1784,6 +1784,7 @@ class AdminManager {
 			),
 			JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
 		);
+		echo $json_out; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- téléchargement JSON.
 		exit;
 	}
 

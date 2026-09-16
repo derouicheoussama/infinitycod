@@ -109,7 +109,9 @@ class CarriersPage {
 						<h2 class="icod-carrier-name"><?php echo esc_html( $entry['name'] ); ?></h2>
 						<span class="icod-carrier-status <?php echo $is_cfg ? 'on' : 'off'; ?>"><?php echo $is_cfg ? '✓ Connecté' : '○ Non configuré'; ?></span>
 					</div>
-					<span class="icod-carrier-net"><?php printf( esc_html__( 'Réseau : %s', 'infinitycod' ), esc_html( 'Ecotrack' === $entry['adapter'] ? 'Ecotrack' : 'API directe' ) ); ?></span>
+					<span class="icod-carrier-net"><?php
+					/* translators: %s : réseau d'expédition. */
+					printf( esc_html__( 'Réseau : %s', 'infinitycod' ), esc_html( 'Ecotrack' === $entry['adapter'] ? 'Ecotrack' : 'API directe' ) ); ?></span>
 					<label class="icod-toggle">
 						<input type="checkbox" name="icod_carrier[<?php echo esc_attr( $entry['code'] ); ?>][enabled]" value="1" <?php checked( $enabled ); ?> />
 						<span><?php esc_html_e( 'Activé', 'infinitycod' ); ?></span>

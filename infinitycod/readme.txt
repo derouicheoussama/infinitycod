@@ -5,7 +5,7 @@ Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.36.0
+Stable tag: 5.37.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,10 @@ Yes, the customer pays on the secure Chargily page. Confirmation is verified by 
 3. E-commerce style / advanced customization
 
 == Changelog ==
+
+= 5.37.0 =
+* Aperçu du formulaire : la position de défilement est conservée entre deux rafraîchissements (plus de saut en haut pendant la personnalisation).
+* Conformité : 14 erreurs Plugin Check corrigées sur le nouveau code (commentaires traducteurs, échappements des téléchargements JSON, wp_rand, filigrane de traçabilité documenté).
 
 = 5.36.0 =
 * Nouveau : paiement par carte bancaire Visa / Mastercard via Stripe Checkout (page hébergée Stripe, 3-D Secure) avec devise et taux de conversion réglables.

@@ -72,7 +72,7 @@ class AbTest {
 				return $cookie;
 			}
 		}
-		$variant = ( 0 === mt_rand( 0, 1 ) ) ? 'A' : 'B';
+		$variant = ( 0 === wp_rand( 0, 1 ) ) ? 'A' : 'B';
 		if ( ! headers_sent() ) {
 			setcookie( 'icod_ab', $variant, time() + 30 * DAY_IN_SECONDS, COOKIEPATH ? COOKIEPATH : '/', COOKIE_DOMAIN );
 		}

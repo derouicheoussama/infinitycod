@@ -220,7 +220,7 @@ class Shield {
 		$list = get_transient( 'icod_community_blacklist' );
 		if ( false === $list ) {
 			$list    = array();
-			$raw     = wp_remote_get( 'https://raw.githubusercontent.com/derouicheoussama/infinitycod-releases/main/community-blacklist.json', array( 'timeout' => 6 ) );
+			$raw     = wp_remote_get( 'https://raw.githubusercontent.com/derouicheoussama/infinitycod-releases/main/community-blacklist.json', array( 'timeout' => 6 ) ); // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- liste communautaire opt-in hébergée sur le dépôt officiel des releases.
 			$parsed  = ( is_array( $raw ) && 200 === (int) $raw['response']['code'] ) ? json_decode( $raw['body'], true ) : null;
 			if ( is_array( $parsed ) ) {
 				$list = $parsed;

@@ -26,6 +26,8 @@ const dist = path.join(root, 'dist');
 const zipPath = path.join(dist, WPORG ? 'infinitycod-wporg.zip' : 'infinitycod.zip');
 const UPDATER_ENTRY = 'infinitycod/includes/license/class-updater.php';
 const UPDATER_STUB = path.join(__dirname, 'wporg', 'class-updater.stub.php');
+const LICENSE_ENTRY = 'infinitycod/includes/license/class-license-manager.php';
+const LICENSE_STUB = path.join(__dirname, 'wporg', 'class-license-manager.stub.php');
 
 if (!fs.existsSync(src)) {
   console.error('Dossier plugin introuvable :', src);
@@ -56,15 +58,22 @@ if (fs.existsSync(changelogPath)) {
 
 const totalKo = entries.reduce((sum, e) => sum + e.data.length, 0) / 1024;
 
-// Mode --wporg : neutralisation de l'updater (voir en-tête du fichier).
+// Mode --wporg : neutralisation de l'updater ET du client de licence
+// (voir en-tête du fichier) : aucun appel distant sur WordPress.org.
 if (WPORG) {
-  const idx = entries.findIndex((e) => e.name === UPDATER_ENTRY);
-  if (idx === -1) {
-    console.error('✗ ' + UPDATER_ENTRY + ' introuvable pour la substitution wporg.');
-    process.exit(1);
+  const subs = [
+    [UPDATER_ENTRY, UPDATER_STUB],
+    [LICENSE_ENTRY, LICENSE_STUB],
+  ];
+  for (const [entryName, stubPath] of subs) {
+    const idx = entries.findIndex((e) => e.name === entryName);
+    if (idx === -1) {
+      console.error('✗ ' + entryName + ' introuvable pour la substitution wporg.');
+      process.exit(1);
+    }
+    entries[idx].data = fs.readFileSync(stubPath);
+    console.log('Mode WordPress.org : ' + entryName + ' neutralisé par ' + path.relative(root, stubPath));
   }
-  entries[idx].data = fs.readFileSync(UPDATER_STUB);
-  console.log('Mode WordPress.org : updater neutralisé par ' + path.relative(root, UPDATER_STUB));
 }
 
 console.log(`Plugin : ${entries.length} fichiers, ${totalKo.toFixed(0)} Ko${WPORG ? ' (wporg)' : ''}`);

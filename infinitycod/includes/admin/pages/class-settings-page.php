@@ -1436,7 +1436,15 @@ class SettingsPage {
 						.then(function (r) { return r.json(); })
 						.then(function (json) {
 							if (json && json.success && json.data && json.data.html) {
+								/* Anti-saut : conserve la position de défilement du
+								   client dans l'aperçu entre deux rafraîchissements. */
+								var sy = 0;
+								try { sy = frame.contentWindow.scrollY || 0; } catch (e) { sy = 0; }
 								frame.srcdoc = json.data.html;
+								frame.addEventListener('load', function onl() {
+									frame.removeEventListener('load', onl);
+									try { frame.contentWindow.scrollTo(0, sy); } catch (e) {}
+								});
 								if (status) { status.textContent = ''; }
 							} else if (status) {
 								status.textContent = <?php echo wp_json_encode( __( 'Aperçu indisponible (aucun produit publié ?)', 'infinitycod' ) ); ?>;

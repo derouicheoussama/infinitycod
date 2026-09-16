@@ -117,7 +117,9 @@ echo '<script type="application/ld+json">' . wp_json_encode( $ld_service ) . '</
 <style>.icod-land{max-width:760px;margin:0 auto;padding:40px 20px;font-family:inherit}.icod-land h1{font-size:clamp(24px,4vw,36px)}.icod-land table{width:100%;border-collapse:collapse;margin:18px 0}.icod-land td,.icod-land th{padding:10px 12px;border-bottom:1px solid #e2e8f0;text-align:left}.icod-land .btn{display:inline-block;background:#1877c2;color:#fff;padding:13px 26px;border-radius:10px;text-decoration:none;font-weight:700}.icod-land dl{margin:12px 0}.icod-land dt{font-weight:700;margin-top:10px}.icod-land dd{margin:0 0 6px;color:#475569}</style>
 </head><body>
 <div class="icod-land">
+	<?php /* translators: %s : wilaya. */ ?>
 	<h1><?php printf( esc_html__( 'Livraison à %s', 'infinitycod' ), esc_html( $name ) ); ?> <?php echo esc_html( $name_ar ? '— ' . $name_ar : '' ); ?></h1>
+	<?php /* translators: 1 : wilaya, 2 : nombre de wilayas. */ ?>
 	<p><?php printf( esc_html__( 'Commandez en ligne et payez à la livraison partout à %1$s et dans les %2$d wilayas d’Algérie.', 'infinitycod' ), esc_html( $name ), 58 ); ?></p>
 	<table>
 		<tr><th><?php esc_html_e( 'Mode', 'infinitycod' ); ?></th><th><?php esc_html_e( 'Prix', 'infinitycod' ); ?></th></tr>
@@ -125,6 +127,7 @@ echo '<script type="application/ld+json">' . wp_json_encode( $ld_service ) . '</
 		<?php if ( $desk >= 0 ) : ?><tr><td><?php esc_html_e( '🏢 Retrait au bureau (stopdesk)', 'infinitycod' ); ?></td><td><?php echo esc_html( $fmt( $desk ) ); ?></td></tr><?php endif; ?>
 	</table>
 	<?php if ( $days ) : ?>
+	<?php /* translators: 1 : wilaya, 2 : délai. */ ?>
 	<p>⏱ <?php printf( esc_html__( 'Délai estimé à %1$s : %2$s', 'infinitycod' ), esc_html( $name ), esc_html( $days ) ); ?></p>
 	<?php endif; ?>
 	<p style="margin-top:24px"><a class="btn" href="<?php echo esc_url( home_url( '/shop/' ) ); ?>"><?php esc_html_e( 'Voir les produits livrables →', 'infinitycod' ); ?></a></p>
@@ -203,7 +206,7 @@ echo '<script type="application/ld+json">' . wp_json_encode( $ld_service ) . '</
 		}
 		$lines[] = '';
 
-		echo implode( "\n", $lines );
+		echo esc_html( implode( "\n", $lines ) );
 		exit;
 	}
 
