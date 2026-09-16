@@ -89,16 +89,16 @@ class CarriersPage {
 			<?php
 				$_carrier_dir = INFINITYCOD_PATH . 'assets/front/img/carriers/';
 				$_logo = '';
-				foreach ( array( 'svg', 'png', 'webp' ) as $_ext ) {
+				foreach ( array( 'png', 'webp', 'svg' ) as $_ext ) {
 					$_f = $_carrier_dir . $entry['code'] . '.' . $_ext;
 					if ( file_exists( $_f ) ) {
-						$_logo = '<img class="icod-carrier-logo" src="' . esc_url( INFINITYCOD_URL . 'assets/front/img/carriers/' . $entry['code'] . '.' . $_ext ) . '" alt="" />';
+						$_logo = '<span class="icod-carrier-logo-box"><img class="icod-carrier-logo" src="' . esc_url( INFINITYCOD_URL . 'assets/front/img/carriers/' . $entry['code'] . '.' . $_ext ) . '" alt="' . esc_attr( $entry['name'] ) . '" /></span>';
 						break;
 					}
 				}
 				if ( ! $_logo ) {
 					$_initials = strtoupper( substr( preg_replace( '/[^A-Za-z]/', '', $entry['name'] ), 0, 2 ) );
-					$_logo = '<span class="icod-carrier-badge" style="background:linear-gradient(135deg,#1877c2,#0e7a4f)">' . esc_html( $_initials ) . '</span>';
+					$_logo = '<span class="icod-carrier-logo-box"><span class="icod-carrier-badge" style="background:linear-gradient(135deg,#1877c2,#0e7a4f)">' . esc_html( $_initials ) . '</span></span>';
 				}
 				$is_cfg = $manager ? $manager->is_configured( $entry['code'] ) : false;
 			?>
@@ -109,7 +109,8 @@ class CarriersPage {
 						<h2 class="icod-carrier-name"><?php echo esc_html( $entry['name'] ); ?></h2>
 						<span class="icod-carrier-status <?php echo $is_cfg ? 'on' : 'off'; ?>"><?php echo $is_cfg ? '✓ Connecté' : '○ Non configuré'; ?></span>
 					</div>
-					<label class="icod-toggle" style="margin-left:auto">
+					<span class="icod-carrier-net"><?php printf( esc_html__( 'Réseau : %s', 'infinitycod' ), esc_html( 'Ecotrack' === $entry['adapter'] ? 'Ecotrack' : 'API directe' ) ); ?></span>
+					<label class="icod-toggle">
 						<input type="checkbox" name="icod_carrier[<?php echo esc_attr( $entry['code'] ); ?>][enabled]" value="1" <?php checked( $enabled ); ?> />
 						<span><?php esc_html_e( 'Activé', 'infinitycod' ); ?></span>
 					</label>

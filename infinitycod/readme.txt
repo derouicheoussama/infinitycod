@@ -5,7 +5,7 @@ Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.31.0
+Stable tag: 5.31.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,10 @@ Yes, the customer pays on the secure Chargily page. Confirmation is verified by 
 3. E-commerce style / advanced customization
 
 == Changelog ==
+
+= 5.31.1 =
+* Nouveau : vrais logos E-COM Delivery et DHD Livraison (remplacent les visuels provisoires) — priorité PNG dans l'affichage et nettoyage automatique des anciens fichiers à la mise à jour.
+* Design : page Transporteurs repensée — boîte de logo normalisée, pastille de statut « Connecté / Non configuré », mention du réseau (API directe / Ecotrack).
 
 = 5.31.0 =
 * Nouveau : tarifs par paliers de poids par wilaya (1-5 kg, 5-10 kg, /kg au-delà) — calcul serveur et affichage formulaire.

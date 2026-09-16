@@ -360,6 +360,16 @@ class Activator {
 					Settings::set( 'form_position', 'full_width' );
 				}
 			},
+			'5.31.1_carrier_logos' => function () {
+				// Placeholders SVG remplacés par les vrais logos PNG (E-COM / DHD) :
+				// WordPress ne supprime pas les fichiers obsolètes lors des mises à jour.
+				foreach ( array( 'ecom.svg', 'dhd.svg' ) as $old_logo ) {
+					$file = INFINITYCOD_PATH . 'assets/front/img/carriers/' . $old_logo;
+					if ( file_exists( $file ) ) {
+						wp_delete_file( $file );
+					}
+				}
+			},
 			'5.31.0_logistics' => function () {
 				global $wpdb;
 				// Paliers de poids + frais de retour par wilaya, variante A/B par commande.

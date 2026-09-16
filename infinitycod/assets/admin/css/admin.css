@@ -1147,3 +1147,12 @@ body.icod-modal-open{overflow:hidden}
 /* Colonnes compactes du tableau tarifs (paliers + retour + copier). */
 .icod-wilayas-table input[name$="[w5]"],.icod-wilayas-table input[name$="[w10]"],
 .icod-wilayas-table input[name$="[w_over]"],.icod-wilayas-table input[name$="[return_fee]"]{font-size:12px;padding:2px 4px}
+
+/* Zones régionales (Géo & Tarifs). */
+.icod-zones-card .icod-zone-row{display:flex;gap:8px;align-items:center;margin:6px 0;flex-wrap:wrap}
+.icod-zones-card .icod-zone-row input[type=text]{flex:1 1 200px;min-width:120px}
+.icod-zones-card .icod-zone-row input[type=text][dir=ltr]{flex:1.4 1 220px}
+.icod-zones-card .icod-zone-row input[type=number]{width:110px}
+.icod-zone-del{color:#b32d2e}
+.icod-wilayas-table input[name$="[w5]"],.icod-wilayas-table input[name$="[w10]"],
+.icod-wilayas-table input[name$="[w_over]"],.icod-wilayas-table input[name$="[return_fee]"]{font-size:12px;padding:2px 4px}

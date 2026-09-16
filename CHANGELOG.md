@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.31.1 — 2026-09-16
+
+- **Logos officiels E-COM Delivery et DHD Livraison** (fournis par le réseau) : remplacent les visuels provisoires, priorité PNG + suppression automatique des anciens placeholders à la mise à jour.
+- **Page Transporteurs repensée** : boîte de logo normalisée (fond blanc, bordure, coins arrondis), pastille de statut « Connecté / Non configuré », mention du réseau d'expédition (API directe / Ecotrack) — interface plus claire et pratique.
+
 ## 5.31.0 — 2026-09-16
 
 Grande mise à jour logistique & croissance (14 fonctionnalités) :
