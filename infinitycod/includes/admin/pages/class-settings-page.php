@@ -1847,6 +1847,35 @@ class SettingsPage {
 		</div>
 
 		<div class="icod-card">
+			<h2>🌍 <?php esc_html_e( 'SEO & GEO (référencement + moteurs IA)', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Données structurées produit (prix, livraison, avis), fiche LocalBusiness avec zones desservies, FAQ en JSON-LD et fichier /llms.txt pour ChatGPT, Perplexity et les AI Overviews. Les pages « livraison-{wilaya} » sont automatiquement optimisées.', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[seo_local_enabled]" value="1" <?php checked( (int) Settings::get( 'seo_local_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Fiche LocalBusiness JSON-LD avec les zones desservies (toutes les wilayas actives)', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[seo_llms_enabled]" value="1" <?php checked( (int) Settings::get( 'seo_llms_enabled', 1 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Fichier /llms.txt (GEO : rendre la boutique citable par ChatGPT, Perplexity, AI Overviews)', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Ville du marchand', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[seo_business_city]" value="<?php echo esc_attr( Settings::get( 'seo_business_city', '' ) ); ?>" placeholder="Alger" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Téléphone public (LocalBusiness + llms.txt)', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[seo_business_phone]" dir="ltr" value="<?php echo esc_attr( Settings::get( 'seo_business_phone', '' ) ); ?>" placeholder="0555 00 00 00" />
+				</label>
+				<label class="icod-m-full">
+					<span><?php esc_html_e( 'FAQ produit — une ligne par question au format « question | réponse » (JSON-LD FAQPage + affichage sur les landings wilaya)', 'infinitycod' ); ?></span>
+					<textarea name="icod[seo_faq]" rows="4" placeholder="Livrez-vous à Alger ? | Oui, en 24-48h, paiement à la livraison."></textarea>
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
 			<h2><?php esc_html_e( 'Devise', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Appliquée partout : formulaire, récapitulatif, commandes WooCommerce, pixels et tableaux de bord. Marché arabe : DZD, MAD, TND, EGP, SAR, AED…', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
@@ -2274,6 +2303,11 @@ class SettingsPage {
 			'mask_phones'          => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 			'export_alert_min'     => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 0, 'max' => 10000 ),
 			'integrity_check'      => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'seo_local_enabled'    => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'seo_business_city'    => array( 'tab' => 'advanced', 'type' => 'text' ),
+			'seo_business_phone'   => array( 'tab' => 'advanced', 'type' => 'text' ),
+			'seo_faq'              => array( 'tab' => 'advanced', 'type' => 'textarea' ),
+			'seo_llms_enabled'     => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 
 			// ——— Vente PayPal (configurée depuis l'onglet Licence) ———
 			'paypal_enabled'        => array( 'tab' => 'license', 'type' => 'toggle' ),

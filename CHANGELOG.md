@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.35.0 — 2026-09-16
+
+Nouveau pack **SEO & GEO** (référencement classique + moteurs génératifs) :
+
+- JSON-LD produit enrichi : **étoiles d'avis**, **frais et délais de livraison** (shippingDetails), OpenGraph complet.
+- **LocalBusiness** avec zones desservies (wilayas actives), ville et téléphone du marchand.
+- **FAQPage JSON-LD** depuis la FAQ marchand (« question | réponse »), affichée aussi sur les landings wilaya (canonical + robots propres).
+- **/llms.txt** : boutique, zones, tarifs et politique COD structurés pour ChatGPT, Perplexity et les AI Overviews.
+
 ## 5.34.0 — 2026-09-16
 
 - **Performance** : index composite `(status, created_at)` sur les commandes (migration auto) + cache 3 minutes des KPI (invalidé à chaque mouvement de commande).

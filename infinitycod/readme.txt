@@ -5,7 +5,7 @@ Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.34.0
+Stable tag: 5.35.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,12 @@ Yes, the customer pays on the secure Chargily page. Confirmation is verified by 
 3. E-commerce style / advanced customization
 
 == Changelog ==
+
+= 5.35.0 =
+* SEO : JSON-LD produit enrichi — avis (étoiles), frais et délais de livraison (shippingDetails), og:locale et og:site_name.
+* SEO local : fiche LocalBusiness JSON-LD avec les zones desservies (wilayas actives), ville et téléphone du marchand.
+* SEO : FAQ produit en JSON-LD FAQPage (format « question | réponse ») et affichée sur les landings wilaya, avec canonical et robots propres.
+* GEO : fichier /llms.txt automatique — boutique, zones, tarifs et politique COD en texte structuré pour ChatGPT, Perplexity et les AI Overviews.
 
 = 5.34.0 =
 * Performance : index composite (statut + date) sur les commandes — listes instantanées même avec des dizaines de milliers de lignes.

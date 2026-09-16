@@ -96,6 +96,13 @@ class Settings {
 			'export_alert_min'     => 200, // Alerte admin dès N lignes exportées (0 = jamais).
 			'integrity_check'      => 1,   // Vérification d'intégrité des fichiers cœur.
 
+			// SEO & GEO (référencement + moteurs génératifs).
+			'seo_local_enabled'    => 0,  // LocalBusiness + zones desservies en JSON-LD.
+			'seo_business_city'    => '',  // Ville du marchand (adresse LocalBusiness).
+			'seo_business_phone'   => '',  // Téléphone public (LocalBusiness + llms.txt).
+			'seo_faq'              => '',  // FAQ produit : lignes « question | réponse ».
+			'seo_llms_enabled'     => 1,   // /llms.txt pour les moteurs génératifs.
+
 			// Champ email (facultatif, sert aussi aux restrictions).
 			'show_email'            => 0,
 			'label_email'           => __( 'Email (facultatif)', 'infinitycod' ),
