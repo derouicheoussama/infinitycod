@@ -348,7 +348,20 @@ class SettingsPage {
 		$pay_on = (int) Settings::get( 'payment_enabled' ) ? 'Actif' : 'Inactif';
 		?>
 		<div class="icod-card">
-			<h2><?php esc_html_e( 'Paiement en ligne — Chargily Pay (CIB / Edahabia)', 'infinitycod' ); ?></h2>
+			<h2>💳 <?php esc_html_e( 'Paiement en ligne — passerelle active', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Choisissez comment vos clients paient en ligne : CIB / Edahabia (Chargily Pay, Algérie), carte bancaire Visa / Mastercard (Stripe) ou PayPal. Le formulaire affiche automatiquement la bonne option.', 'infinitycod' ); ?></p>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Passerelle active', 'infinitycod' ); ?></span>
+					<select name="icod[payment_mode]">
+						<option value="chargily" <?php selected( Settings::get( 'payment_mode', 'chargily' ), 'chargily' ); ?>><?php esc_html_e( 'CIB / Edahabia — Chargily Pay (Algérie)', 'infinitycod' ); ?></option>
+						<option value="stripe" <?php selected( Settings::get( 'payment_mode' ), 'stripe' ); ?>><?php esc_html_e( 'Carte bancaire Visa / Mastercard — Stripe', 'infinitycod' ); ?></option>
+						<option value="paypal" <?php selected( Settings::get( 'payment_mode' ), 'paypal' ); ?>><?php esc_html_e( 'PayPal', 'infinitycod' ); ?></option>
+					</select>
+				</label>
+			</div>
+			<div class="icod-card" style="margin-top:14px">
+				<h2><?php esc_html_e( 'Passerelle CIB / Edahabia', 'infinitycod' ); ?></h2>
 			<p class="description">
 				<?php esc_html_e( 'Permet au client de payer immédiatement par carte CIB ou Edahabia via Chargily Pay. Sans cela, le formulaire reste en paiement à la livraison classique. Créez votre compte sur chargily.com, puis copiez votre clé secrète ici.', 'infinitycod' ); ?>
 			</p>
@@ -400,7 +413,7 @@ class SettingsPage {
 			</p>
 
 			<h3 style="margin-top:16px"><?php esc_html_e( '🖼️ Logos officiels des cartes', 'infinitycod' ); ?></h3>
-			<p class="description"><?php esc_html_e( 'Téléversez les logos officiels CIB et Edahabia depuis votre médiathèque (Médiathèque → image → ID dans l’URL d’édition). Format conseillé : 260×164.', 'infinitycod' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Téléversez les logos officiels CIB et Edahabia depuis votre médiathèque (Médiathèque → image → ID dans l’URL d’édition). Format conseillé : 260×164. Ces logos s’affichent quand la passerelle Chargily est active.', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
 				<label>
 					<span><?php esc_html_e( 'Logo CIB (ID du média)', 'infinitycod' ); ?></span>
@@ -2274,6 +2287,42 @@ class SettingsPage {
 			'payment_enabled'    => array( 'tab' => 'payment', 'type' => 'toggle' ),
 			'chargily_mode'      => array( 'tab' => 'payment', 'type' => 'enum', 'choices' => array( 'test', 'live' ) ),
 			'chargily_secret'    => array( 'tab' => 'payment', 'type' => 'secret' ),
+			'payment_mode'       => array( 'tab' => 'payment', 'type' => 'enum', 'choices' => array( 'chargily', 'stripe', 'paypal' ) ),
+			'stripe_secret'      => array( 'tab' => 'payment', 'type' => 'secret' ),
+			'stripe_currency'    => array( 'tab' => 'payment', 'type' => 'text' ),
+			'stripe_rate'        => array( 'tab' => 'payment', 'type' => 'price' ),
+			'paypal_client_id'   => array( 'tab' => 'payment', 'type' => 'text' ),
+			'paypal_secret'      => array( 'tab' => 'payment', 'type' => 'secret' ),
+			'paypal_mode'        => array( 'tab' => 'payment', 'type' => 'enum', 'choices' => array( 'live', 'sandbox' ) ),
+			'paypal_currency'    => array( 'tab' => 'payment', 'type' => 'text' ),
+			'paypal_rate'        => array( 'tab' => 'payment', 'type' => 'price' ),
+			'payment_mode'       => array( 'tab' => 'payment', 'type' => 'enum', 'choices' => array( 'chargily', 'stripe', 'paypal' ) ),
+			'stripe_secret'      => array( 'tab' => 'payment', 'type' => 'secret' ),
+			'stripe_currency'    => array( 'tab' => 'payment', 'type' => 'text' ),
+			'stripe_rate'        => array( 'tab' => 'payment', 'type' => 'price' ),
+			'paypal_client_id'   => array( 'tab' => 'payment', 'type' => 'text' ),
+			'paypal_secret'      => array( 'tab' => 'payment', 'type' => 'secret' ),
+			'paypal_mode'        => array( 'tab' => 'payment', 'type' => 'enum', 'choices' => array( 'live', 'sandbox' ) ),
+			'paypal_currency'    => array( 'tab' => 'payment', 'type' => 'text' ),
+			'paypal_rate'        => array( 'tab' => 'payment', 'type' => 'price' ),
+			'payment_mode'       => array( 'tab' => 'payment', 'type' => 'enum', 'choices' => array( 'chargily', 'stripe', 'paypal' ) ),
+			'stripe_secret'      => array( 'tab' => 'payment', 'type' => 'secret' ),
+			'stripe_currency'    => array( 'tab' => 'payment', 'type' => 'text' ),
+			'stripe_rate'        => array( 'tab' => 'payment', 'type' => 'price' ),
+			'paypal_client_id'   => array( 'tab' => 'payment', 'type' => 'text' ),
+			'paypal_secret'      => array( 'tab' => 'payment', 'type' => 'secret' ),
+			'paypal_mode'        => array( 'tab' => 'payment', 'type' => 'enum', 'choices' => array( 'live', 'sandbox' ) ),
+			'paypal_currency'    => array( 'tab' => 'payment', 'type' => 'text' ),
+			'paypal_rate'        => array( 'tab' => 'payment', 'type' => 'price' ),
+			'payment_mode'       => array( 'tab' => 'payment', 'type' => 'enum', 'choices' => array( 'chargily', 'stripe', 'paypal' ) ),
+			'stripe_secret'      => array( 'tab' => 'payment', 'type' => 'secret' ),
+			'stripe_currency'    => array( 'tab' => 'payment', 'type' => 'text' ),
+			'stripe_rate'        => array( 'tab' => 'payment', 'type' => 'price' ),
+			'paypal_client_id'   => array( 'tab' => 'payment', 'type' => 'text' ),
+			'paypal_secret'      => array( 'tab' => 'payment', 'type' => 'secret' ),
+			'paypal_mode'        => array( 'tab' => 'payment', 'type' => 'enum', 'choices' => array( 'live', 'sandbox' ) ),
+			'paypal_currency'    => array( 'tab' => 'payment', 'type' => 'text' ),
+			'paypal_rate'        => array( 'tab' => 'payment', 'type' => 'price' ),
 			'cod_label'          => array( 'tab' => 'payment', 'type' => 'text' ),
 			'payment_label'      => array( 'tab' => 'payment', 'type' => 'text' ),
 			'payment_return_text' => array( 'tab' => 'payment', 'type' => 'textarea' ),

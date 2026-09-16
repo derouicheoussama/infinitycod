@@ -1014,8 +1014,8 @@ class FormManager {
 												<input type="radio" name="icod_payment" value="online" class="icod-pay-radio" />
 												<span class="icod-mode-box">
 													<span class="icod-mode-title"><?php echo esc_html( Settings::get( 'payment_label' ) ); ?></span>
-													<span class="icod-mode-sub"><?php esc_html_e( 'Paiement sécurisé CIB / Edahabia', 'infinitycod' ); ?></span>
-													<span class="icod-paylogos"><?php echo self::payment_logo( 'cib' ) . self::payment_logo( 'edahabia' ); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG internes. ?></span>
+													<span class="icod-mode-sub"><?php echo esc_html( \InfinityCod\Payment\PaymentManager::gateway_sub_label() ); ?></span>
+													<span class="icod-paylogos"><?php echo self::payment_logos_active(); // phpcs:ignore WordPress.Security.EscapeOutput -- SVG internes. ?></span>
 												</span>
 											</label>
 										</div>
@@ -1196,7 +1196,23 @@ class FormManager {
 	 * @param string $method cib|edahabia|baridimob|ccp|cash.
 	 * @return string HTML.
 	 */
-	public static function payment_logo( $method ) {
+	/**
+	 * Logos de la passerelle de paiement active (formulaire).
+	 *
+	 * @return string HTML.
+	 */
+	public static function payment_logos_active() {
+		$gateway = \InfinityCod\Payment\PaymentManager::gateway();
+		if ( 'stripe' === $gateway ) {
+			return self::payment_logo( 'visa' ) . self::payment_logo( 'mastercard' );
+		}
+		if ( 'paypal' === $gateway ) {
+			return self::payment_logo( 'paypal' );
+		}
+		return self::payment_logo( 'cib' ) . self::payment_logo( 'edahabia' );
+	}
+
+		public static function payment_logo( $method ) {
 		// 1. Logo officiel téléversé (ID média) : CIB et Edahabia.
 		$map = array(
 			'cib'      => 'logo_cib_id',
@@ -1241,6 +1257,26 @@ class FormManager {
 					. '</linearGradient></defs>'
 					. '<path d="M32 8 l2.2 4.4 4.8 .7 -3.5 3.4 .8 4.8 -4.3 -2.3 -4.3 2.3 .8 -4.8 -3.5 -3.4 4.8 -.7 Z" fill="#fff"/>'
 					. '<text x="32" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="9" fill="#ffffff">Edahabia</text>'
+					. '</svg>';
+
+			case 'visa':
+				return '<svg ' . $common . '>'
+					. '<rect x="1" y="1" width="62" height="38" rx="6" fill="#ffffff" stroke="#d8dde3"/>'
+					. '<text x="22" y="27" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-style="italic" font-size="14" fill="#1a1f71">VISA</text>'
+					. '</svg>';
+
+			case 'mastercard':
+				return '<svg ' . $common . '>'
+					. '<rect x="1" y="1" width="62" height="38" rx="6" fill="#ffffff" stroke="#d8dde3"/>'
+					. '<circle cx="26" cy="20" r="11" fill="#eb001b"/>'
+					. '<circle cx="38" cy="20" r="11" fill="#f79e1b" opacity=".92"/>'
+					. '</svg>';
+
+			case 'paypal':
+				return '<svg ' . $common . '>'
+					. '<rect x="1" y="1" width="62" height="38" rx="6" fill="#ffffff" stroke="#d8dde3"/>'
+					. '<text x="32" y="21" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-style="italic" font-size="11" fill="#003087">Pay</text>'
+					. '<text x="47" y="21" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-style="italic" font-size="11" fill="#009cde">Pal</text>'
 					. '</svg>';
 
 			case 'baridimob':

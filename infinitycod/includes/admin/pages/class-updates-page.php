@@ -88,7 +88,7 @@ class UpdatesPage {
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Installation terminée : InfinityCod a été remplacé par la version choisie. Vos données sont intactes.', 'infinitycod' ); ?></p></div>
 			<?php endif; ?>
 			<?php if ( 'install-fail' === $msg ) : ?>
-				<div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Installation impossible : la release n’a pas pu être récupérée depuis GitHub. Utilisez l’installation manuelle par zip ci-dessous.', 'infinitycod' ); ?></p></div>
+				<div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Installation impossible : la release n’a pas pu être récupérée depuis le serveur de mises à jour. Utilisez l’installation manuelle par zip ci-dessous.', 'infinitycod' ); ?></p></div>
 			<?php endif; ?>
 			<?php if ( 'upload-fail' === $msg ) : ?>
 				<div class="notice notice-error is-dismissible"><p><?php esc_html_e( 'Téléversement impossible : vérifiez que le fichier est un zip InfinityCod valide et réessayez.', 'infinitycod' ); ?></p></div>
@@ -105,7 +105,7 @@ class UpdatesPage {
 		<?php if ( $has_update ) : ?>
 			<?php printf( esc_html__( 'La version %s est disponible — installez-la en un clic.', 'infinitycod' ), '<strong>' . esc_html( $latest ) . '</strong>' ); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment ?>
 		<?php else : ?>
-			<?php esc_html_e( 'Votre site vérifie GitHub toutes les heures. Vous serez notifié dès qu\’une nouvelle version sort.', 'infinitycod' ); ?>
+			<?php esc_html_e( 'Votre site vérifie les mises à jour toutes les heures. Vous serez notifié dès qu\’une nouvelle version sort.', 'infinitycod' ); ?>
 		<?php endif; ?></div>
 	</div>
 	<div class="icod-card">
@@ -125,9 +125,9 @@ class UpdatesPage {
 									<?php
 									$src           = isset( $remote['source'] ) ? (string) $remote['source'] : '';
 									$source_labels = array(
-										'github'          => __( '· via GitHub API', 'infinitycod' ),
-										'atom'            => __( '· via GitHub (flux atom)', 'infinitycod' ),
-										'mirror-raw'      => __( '· via le miroir GitHub brut', 'infinitycod' ),
+										'github'          => __( '· via l’API des mises à jour', 'infinitycod' ),
+										'atom'            => __( '· via le flux atom', 'infinitycod' ),
+										'mirror-raw'      => __( '· via le miroir CDN', 'infinitycod' ),
 										'mirror-jsdelivr' => __( '· via le miroir CDN', 'infinitycod' ),
 									);
 									if ( isset( $source_labels[ $src ] ) ) {
@@ -136,7 +136,7 @@ class UpdatesPage {
 									?>
 								</span>
 							<?php else : ?>
-								<em><?php esc_html_e( 'Inconnue (GitHub injoignable ou aucune release publiée)', 'infinitycod' ); ?></em>
+								<em><?php esc_html_e( 'Inconnue (serveur injoignable ou aucune release publiée)', 'infinitycod' ); ?></em>
 							<?php endif; ?>
 						</td>
 					</tr>
@@ -197,10 +197,10 @@ class UpdatesPage {
 					<?php if ( $has_update ) : ?>
 						<a class="button button-primary" href="<?php echo esc_url( $upgrade_url ); ?>">⬆ <?php esc_html_e( 'Mettre à jour vers', 'infinitycod' ); ?> <?php echo esc_html( $latest ); ?></a>
 					<?php elseif ( $latest ) : ?>
-						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block" onsubmit="return confirm('<?php echo esc_js( __( 'Installer la dernière release GitHub même si le plugin semble à jour ?', 'infinitycod' ) ); ?>');">
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block" onsubmit="return confirm('<?php echo esc_js( __( 'Réinstaller la dernière version même si le plugin semble à jour ?', 'infinitycod' ) ); ?>');">
 							<input type="hidden" name="action" value="icod_force_install" />
 							<?php wp_nonce_field( 'icod_force_install' ); ?>
-							<button type="submit" class="button button-secondary" title="<?php esc_attr_e( 'Télécharge la dernière release depuis GitHub et remplace les fichiers du plugin (réglages et données conservés).', 'infinitycod' ); ?>">⬇ <?php esc_html_e( 'Forcer l’installation de', 'infinitycod' ); ?> <?php echo esc_html( $latest ); ?></button>
+							<button type="submit" class="button button-secondary" title="<?php esc_attr_e( 'Télécharge la dernière version depuis le serveur de mises à jour et remplace les fichiers du plugin (réglages et données conservés).', 'infinitycod' ); ?>">⬇ <?php esc_html_e( 'Forcer l’installation de', 'infinitycod' ); ?> <?php echo esc_html( $latest ); ?></button>
 						</form>
 					<?php endif; ?>
 				</div>
@@ -208,7 +208,7 @@ class UpdatesPage {
 				<details class="icod-updates-manual" <?php echo ! $latest ? 'open' : ''; ?>>
 					<summary><?php esc_html_e( 'Installation manuelle (zip) — solution de secours', 'infinitycod' ); ?></summary>
 					<p class="description">
-						<?php esc_html_e( 'Si votre hébergeur bloque GitHub ou que la détection échoue : téléchargez infinitycod.zip depuis la page des releases, puis téléversez-le ici. Le plugin est remplacé sans perte : réglages, commandes et tarifs sont conservés.', 'infinitycod' ); ?>
+						<?php esc_html_e( 'Si votre hébergeur bloque le serveur de mises à jour ou que la détection échoue : téléchargez infinitycod.zip depuis la page des releases, puis téléversez-le ici. Le plugin est remplacé sans perte : réglages, commandes et tarifs sont conservés.', 'infinitycod' ); ?>
 					</p>
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
 						<input type="hidden" name="action" value="icod_upload_zip" />
@@ -457,7 +457,7 @@ class UpdatesPage {
 	}
 
 	/**
-	 * Installation forcée : télécharge la dernière release GitHub et remplace
+	 * Installation forcée : télécharge la dernière version et remplace
 	 * le plugin, même quand la détection ne propose pas de mise à jour
 	 * (cas « déjà à jour », cache négatif, hébergeur capricieux).
 	 *

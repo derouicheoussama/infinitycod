@@ -171,8 +171,8 @@ class DiagnosticsPage {
 
 		$reason_labels = array(
 			'private_or_empty' => __( 'dépôt privé sans token, ou aucune release publiée', 'infinitycod' ),
-			'network'          => __( 'serveur injoignable (réseau restreint ou limite de débit GitHub)', 'infinitycod' ),
-			'rate_limited'     => __( 'quota API GitHub atteint (403) — les miroirs CDN prennent le relais', 'infinitycod' ),
+			'network'          => __( 'serveur injoignable (réseau restreint ou limite de débit)', 'infinitycod' ),
+			'rate_limited'     => __( 'quota de l’API atteint (403) — les miroirs CDN prennent le relais', 'infinitycod' ),
 			'no_package'       => __( 'release publiée sans package zip', 'infinitycod' ),
 			'bad_signature'    => __( 'signature du manifest invalide — mise à jour refusée par sécurité', 'infinitycod' ),
 		);
@@ -183,9 +183,9 @@ class DiagnosticsPage {
 			if ( ! empty( $gh['repo'] ) ) {
 				$detail .= ' · ' . $gh['repo'];
 			}
-			$this->add( 'Updater — GitHub (primaire)', __( 'injoignable', 'infinitycod' ), self::WARN, $detail );
+			$this->add( 'Updater — serveur de mises à jour', __( 'injoignable', 'infinitycod' ), self::WARN, $detail );
 		} elseif ( ! empty( $gh['version'] ) ) {
-			$this->add( 'Updater — GitHub (primaire)', 'v' . $gh['version'], self::PASS, __( 'dépôt public des releases', 'infinitycod' ) );
+			$this->add( 'Updater — serveur de mises à jour', 'v' . $gh['version'], self::PASS, __( 'dépôt public des releases', 'infinitycod' ) );
 		}
 
 		// Résultat du dernier test manuel.
@@ -343,9 +343,9 @@ class DiagnosticsPage {
 	 */
 	private function source_label( $source ) {
 		$labels = array(
-			'github'          => __( 'GitHub API', 'infinitycod' ),
-			'atom'            => __( 'GitHub (flux atom)', 'infinitycod' ),
-			'mirror-raw'      => __( 'Miroir GitHub brut', 'infinitycod' ),
+			'github'          => __( 'API des mises à jour', 'infinitycod' ),
+			'atom'            => __( 'Flux atom des mises à jour', 'infinitycod' ),
+			'mirror-raw'      => __( 'Miroir CDN', 'infinitycod' ),
 			'mirror-jsdelivr' => __( 'Miroir CDN', 'infinitycod' ),
 		);
 		return isset( $labels[ $source ] ) ? $labels[ $source ] : $source;

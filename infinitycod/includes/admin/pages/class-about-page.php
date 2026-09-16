@@ -54,7 +54,7 @@ class AboutPage {
 		$gh     = is_array( $gh ) ? $gh : array();
 
 		$latest = ! empty( $gh['version'] ) ? (string) $gh['version'] : '';
-		$source = 'GitHub';
+		$source = __( 'Serveur officiel', 'infinitycod' );
 		$newer  = '' !== $latest && version_compare( INFINITYCOD_VERSION, $latest, '<' );
 
 		$carriers = infinitycod()->module( 'carriers' );

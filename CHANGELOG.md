@@ -1,5 +1,12 @@
 # Changelog
 
+## 5.36.0 — 2026-09-16
+
+- **Paiement par carte Visa / Mastercard** via Stripe Checkout (page hébergée, 3-D Secure) avec devise et taux de conversion réglables.
+- **PayPal** (Orders v2, capture automatique au retour) avec mode live/sandbox, devise et taux réglables.
+- **Sélecteur de passerelle** dans Réglages → Paiement : CIB/Edahabia (Chargily), carte bancaire (Stripe) ou PayPal — le formulaire adapte logos et libellés automatiquement.
+- **Discrétion** : plus aucune mention d'infrastructure tierce dans l'interface marchand (mises à jour, diagnostics).
+
 ## 5.35.0 — 2026-09-16
 
 Nouveau pack **SEO & GEO** (référencement classique + moteurs génératifs) :

@@ -1,12 +1,11 @@
 <?php
 /**
- * Paiement en ligne — Chargily Pay v2 (CIB / Edahabia).
+ * Paiement en ligne — multi-passereelles : Chargily (CIB / Edahabia),
+ * Stripe (Visa / Mastercard) et PayPal.
  *
- * API : https://pay.chargily.net/api/v2/ (live) | https://pay.chargily.net/test/api/v2/ (test)
- * Auth : Authorization: Bearer <clé secrète>
- * Checkout : POST checkouts {amount (DZD entier), currency:'dzd', success_url, …}
- * Statut   : GET  checkouts/{id}
- * Webhook  : en-tête « Signature » = hash_hmac('sha256', corps brut, clé secrète)
+ * Chargily : https://pay.chargily.net/api/v2/ (live) | /test/api/v2/ (test)
+ * Stripe   : https://api.stripe.com/v1/checkout/sessions (Checkout Hosted)
+ * PayPal   : https://api-m.paypal.com | https://api-m.sandbox.paypal.com (v2)
  *
  * @package InfinityCod
  * @author Derouiche Oussama
@@ -30,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
 class PaymentManager {
 
 	/**
-	 * Hooks : page de retour après paiement.
+	 * Hook : page de retour après paiement.
 	 *
 	 * @return void
 	 */
@@ -39,15 +38,72 @@ class PaymentManager {
 	}
 
 	/**
-	 * Paiement en ligne actif et configuré ?
+	 * Passerelle active : chargily | stripe | paypal.
+	 *
+	 * @return string
+	 */
+	public static function gateway() {
+		$mode = (string) Settings::get( 'payment_mode', 'chargily' );
+		return in_array( $mode, array( 'chargily', 'stripe', 'paypal' ), true ) ? $mode : 'chargily';
+	}
+
+	/**
+	 * Paiement en ligne actif et configuré pour la passerelle choisie ?
 	 *
 	 * @return bool
 	 */
 	public static function enabled() {
-		return (bool) Settings::get( 'payment_enabled' )
-			&& '' !== trim( (string) Settings::get( 'chargily_secret' ) )
-			&& 'chargily' === Settings::get( 'payment_mode', 'chargily' );
+		if ( ! (bool) Settings::get( 'payment_enabled' ) ) {
+			return false;
+		}
+
+		switch ( self::gateway() ) {
+			case 'stripe':
+				return '' !== trim( (string) Settings::get( 'stripe_secret' ) );
+			case 'paypal':
+				return '' !== trim( (string) Settings::get( 'paypal_client_id' ) )
+					&& '' !== trim( (string) Settings::get( 'paypal_secret' ) );
+			default:
+				return '' !== trim( (string) Settings::get( 'chargily_secret' ) )
+					&& 'chargily' === Settings::get( 'payment_mode', 'chargily' );
+		}
 	}
+
+	/**
+	 * Libellé public de l'option « payer en ligne » (formulaire).
+	 *
+	 * @return string
+	 */
+	public static function gateway_label() {
+		switch ( self::gateway() ) {
+			case 'stripe':
+				return __( 'Payer par carte', 'infinitycod' );
+			case 'paypal':
+				return __( 'Payer avec PayPal', 'infinitycod' );
+			default:
+				return __( 'Payer en ligne', 'infinitycod' );
+		}
+	}
+
+	/**
+	 * Sous-libellé public selon la passerelle.
+	 *
+	 * @return string
+	 */
+	public static function gateway_sub_label() {
+		switch ( self::gateway() ) {
+			case 'stripe':
+				return __( 'Paiement sécurisé Visa / Mastercard', 'infinitycod' );
+			case 'paypal':
+				return __( 'Paiement sécurisé via votre compte PayPal', 'infinitycod' );
+			default:
+				return __( 'Paiement sécurisé CIB / Edahabia', 'infinitycod' );
+		}
+	}
+
+	/* =====================================================
+	 * Chargily (CIB / Edahabia)
+	 * ===================================================== */
 
 	/**
 	 * Url de base de l'API selon le mode.
@@ -61,7 +117,7 @@ class PaymentManager {
 	}
 
 	/**
-	 * En-têtes d'authentification.
+	 * En-têtes d'authentification Chargily.
 	 *
 	 * @return array
 	 */
@@ -73,7 +129,7 @@ class PaymentManager {
 	}
 
 	/**
-	 * Crée un checkout Chargily pour une commande COD créée.
+	 * Crée un checkout chez la passerelle active.
 	 *
 	 * @param array $result Résultat OrderStore::create_from_form (ok, order_id, icod_id, total).
 	 * @param array $input  Données du formulaire (produit, client…).
@@ -84,6 +140,24 @@ class PaymentManager {
 			return array( 'ok' => false, 'redirect' => '', 'message' => __( 'Paiement en ligne indisponible.', 'infinitycod' ) );
 		}
 
+		switch ( self::gateway() ) {
+			case 'stripe':
+				return $this->create_stripe( $result, $input );
+			case 'paypal':
+				return $this->create_paypal( $result, $input );
+			default:
+				return $this->create_chargily( $result, $input );
+		}
+	}
+
+	/**
+	 * Checkout Chargily (CIB / Edahabia).
+	 *
+	 * @param array $result Résultat de création.
+	 * @param array $input  Données du formulaire.
+	 * @return array{ok: bool, redirect: string, message: string}
+	 */
+	private function create_chargily( array $result, array $input ) {
 		$return_url = add_query_arg(
 			array(
 				'icod_checkout' => 'CKOUT',
@@ -145,14 +219,14 @@ class PaymentManager {
 		}
 
 		return array(
-			'ok'      => true,
+			'ok'       => true,
 			'redirect' => (string) $body['checkout_url'],
-			'message' => '',
+			'message'  => '',
 		);
 	}
 
 	/**
-	 * Vérifie le statut d'un checkout auprès de l'API.
+	 * Vérifie le statut d'un checkout Chargily auprès de l'API.
 	 *
 	 * @param string $checkout_id ID du checkout.
 	 * @return string statut ('paid', 'pending', 'failed', '') ou '' si erreur.
@@ -178,27 +252,389 @@ class PaymentManager {
 		return isset( $body['status'] ) ? (string) $body['status'] : '';
 	}
 
+	/* =====================================================
+	 * Stripe Checkout (Visa / Mastercard)
+	 * ===================================================== */
+
 	/**
-	 * Page de retour du client après paiement (success_url / failure_url).
+	 * Convertit le total boutique vers la devise Stripe (taux marchand),
+	 * en unités mineures.
+	 *
+	 * @param float $total Total en devise de la boutique.
+	 * @return array{currency:string,amount:int}
+	 */
+	private function stripe_amount( $total ) {
+		$currency = strtolower( trim( (string) Settings::get( 'stripe_currency', 'usd' ) ) );
+		if ( '' === $currency ) {
+			$currency = 'usd';
+		}
+		$rate   = (float) Settings::get( 'stripe_rate', 1 );
+		$amount = round( max( 0.5, (float) $total * ( $rate > 0 ? $rate : 1 ) ) * 100 );
+		return array(
+			'currency' => $currency,
+			'amount'   => (int) $amount,
+		);
+	}
+
+	/**
+	 * Checkout Stripe Hosted (cartes Visa / Mastercard, wallets inclus).
+	 *
+	 * @param array $result Résultat de création.
+	 * @param array $input  Données du formulaire.
+	 * @return array{ok: bool, redirect: string, message: string}
+	 */
+	private function create_stripe( array $result, array $input ) {
+		$secret = trim( (string) Settings::get( 'stripe_secret' ) );
+		if ( '' === $secret ) {
+			return array( 'ok' => false, 'redirect' => '', 'message' => __( 'Clé Stripe manquante.', 'infinitycod' ) );
+		}
+
+		$product_name = ! empty( $input['product_id'] ) ? get_the_title( (int) $input['product_id'] ) : __( 'Commande', 'infinitycod' );
+		$money        = $this->stripe_amount( (float) $result['total'] );
+
+		$return_ok = add_query_arg(
+			array(
+				'icod_gateway' => 'stripe',
+				'icod_order'   => (int) $result['icod_id'],
+			),
+			home_url( '/' )
+		) . '&session_id={CHECKOUT_SESSION_ID}';
+		$return_ko = add_query_arg(
+			array(
+				'icod_gateway' => 'stripe',
+				'icod_order'   => (int) $result['icod_id'],
+				'cancel'       => '1',
+			),
+			home_url( '/' )
+		);
+
+		$body = array(
+			'mode'                                          => 'payment',
+			'success_url'                                   => $return_ok,
+			'cancel_url'                                    => $return_ko,
+			'client_reference_id'                           => (string) $result['icod_id'],
+			'metadata[icod_id]'                             => (string) $result['icod_id'],
+			'line_items[0][quantity]'                       => 1,
+			'line_items[0][price_data][currency]'           => $money['currency'],
+			'line_items[0][price_data][unit_amount]'        => $money['amount'],
+			'line_items[0][price_data][product_data][name]' => wp_strip_all_tags( $product_name ),
+		);
+
+		$response = wp_remote_post(
+			'https://api.stripe.com/v1/checkout/sessions',
+			array(
+				'timeout' => 25,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $secret,
+					'Content-Type'  => 'application/x-www-form-urlencoded',
+				),
+				'body'    => $body,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array( 'ok' => false, 'redirect' => '', 'message' => $response->get_error_message() );
+		}
+
+		$json   = json_decode( wp_remote_retrieve_body( $response ), true );
+		$status = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( $status < 200 || $status >= 300 || empty( $json['url'] ) || empty( $json['id'] ) ) {
+			$detail = isset( $json['error']['message'] ) ? (string) $json['error']['message'] : '';
+			return array( 'ok' => false, 'redirect' => '', 'message' => sprintf( 'Stripe HTTP %d %s', $status, $detail ) );
+		}
+
+		global $wpdb;
+		$wpdb->update(
+			Schema::table( 'orders' ),
+			array( 'checkout_id' => (string) $json['id'] ),
+			array( 'id' => (int) $result['icod_id'] )
+		);
+
+		return array(
+			'ok'       => true,
+			'redirect' => (string) $json['url'],
+			'message'  => '',
+		);
+	}
+
+	/**
+	 * Statut d'une session Stripe Checkout.
+	 *
+	 * @param string $session_id ID de session.
+	 * @return string 'paid' | 'pending' | 'failed' | ''
+	 */
+	private function stripe_session_status( $session_id ) {
+		$secret = trim( (string) Settings::get( 'stripe_secret' ) );
+		if ( '' === $secret || '' === (string) $session_id ) {
+			return '';
+		}
+
+		$response = wp_remote_get(
+			'https://api.stripe.com/v1/checkout/sessions/' . rawurlencode( (string) $session_id ),
+			array(
+				'timeout' => 20,
+				'headers' => array( 'Authorization' => 'Bearer ' . $secret ),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return '';
+		}
+
+		$json = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( empty( $json['payment_status'] ) ) {
+			return '';
+		}
+
+		$map = array( 'paid' => 'paid', 'unpaid' => 'pending', 'no_payment_required' => 'paid' );
+		return isset( $map[ $json['payment_status'] ] ) ? $map[ $json['payment_status'] ] : 'pending';
+	}
+
+	/* =====================================================
+	 * PayPal (Orders v2)
+	 * ===================================================== */
+
+	/**
+	 * Base API PayPal selon le mode.
+	 *
+	 * @return string
+	 */
+	private function paypal_base() {
+		return 'sandbox' === Settings::get( 'paypal_mode', 'live' )
+			? 'https://api-m.sandbox.paypal.com/'
+			: 'https://api-m.paypal.com/';
+	}
+
+	/**
+	 * Jeton OAuth2 PayPal.
+	 *
+	 * @return string '' si échec.
+	 */
+	private function paypal_token() {
+		$client = trim( (string) Settings::get( 'paypal_client_id' ) );
+		$secret = trim( (string) Settings::get( 'paypal_secret' ) );
+		if ( '' === $client || '' === $secret ) {
+			return '';
+		}
+
+		$response = wp_remote_post(
+			$this->paypal_base() . 'v1/oauth2/token',
+			array(
+				'timeout' => 20,
+				'headers' => array(
+					'Authorization' => 'Basic ' . base64_encode( $client . ':' . $secret ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- auth OAuth2 PayPal.
+					'Content-Type'  => 'application/x-www-form-urlencoded',
+				),
+				'body'    => 'grant_type=client_credentials',
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return '';
+		}
+
+		$json = json_decode( wp_remote_retrieve_body( $response ), true );
+		return isset( $json['access_token'] ) ? (string) $json['access_token'] : '';
+	}
+
+	/**
+	 * Convertit le total boutique vers la devise PayPal (taux marchand).
+	 *
+	 * @param float $total Total en devise de la boutique.
+	 * @return array{currency:string,value:string}
+	 */
+	private function paypal_amount( $total ) {
+		$currency = strtoupper( trim( (string) Settings::get( 'paypal_currency', 'USD' ) ) );
+		if ( '' === $currency ) {
+			$currency = 'USD';
+		}
+		$rate  = (float) Settings::get( 'paypal_rate', 1 );
+		$value = round( max( 0.5, (float) $total * ( $rate > 0 ? $rate : 1 ) ), 2 );
+		return array(
+			'currency' => $currency,
+			'value'    => number_format( $value, 2, '.', '' ),
+		);
+	}
+
+	/**
+	 * Commande PayPal (Orders v2) + url d'approbation.
+	 *
+	 * @param array $result Résultat de création.
+	 * @param array $input  Données du formulaire.
+	 * @return array{ok: bool, redirect: string, message: string}
+	 */
+	private function create_paypal( array $result, array $input ) {
+		$token = $this->paypal_token();
+		if ( '' === $token ) {
+			return array( 'ok' => false, 'redirect' => '', 'message' => __( 'Connexion PayPal impossible (identifiants ?).', 'infinitycod' ) );
+		}
+
+		$product_name = ! empty( $input['product_id'] ) ? get_the_title( (int) $input['product_id'] ) : __( 'Commande', 'infinitycod' );
+		$money        = $this->paypal_amount( (float) $result['total'] );
+
+		$return_url = add_query_arg(
+			array(
+				'icod_gateway' => 'paypal',
+				'icod_order'   => (int) $result['icod_id'],
+			),
+			home_url( '/' )
+		);
+		$cancel_url = add_query_arg(
+			array(
+				'icod_gateway' => 'paypal',
+				'icod_order'   => (int) $result['icod_id'],
+				'cancel'       => '1',
+			),
+			home_url( '/' )
+		);
+
+		$payload = array(
+			'intent'              => 'CAPTURE',
+			'purchase_units'      => array(
+				array(
+					'custom_id'   => (string) $result['icod_id'],
+					'description' => wp_strip_all_tags( $product_name ),
+					'amount'      => array(
+						'currency_code' => $money['currency'],
+						'value'         => $money['value'],
+					),
+				),
+			),
+			'application_context' => array(
+				'brand_name'  => get_bloginfo( 'name' ),
+				'user_action' => 'PAY_NOW',
+				'return_url'  => $return_url,
+				'cancel_url'  => $cancel_url,
+			),
+		);
+
+		$response = wp_remote_post(
+			$this->paypal_base() . 'v2/checkout/orders',
+			array(
+				'timeout' => 25,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+				'body'    => wp_json_encode( $payload ),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array( 'ok' => false, 'redirect' => '', 'message' => $response->get_error_message() );
+		}
+
+		$json   = json_decode( wp_remote_retrieve_body( $response ), true );
+		$status = (int) wp_remote_retrieve_response_code( $response );
+
+		$approve = '';
+		if ( is_array( $json ) && ! empty( $json['links'] ) ) {
+			foreach ( $json['links'] as $link ) {
+				if ( isset( $link['rel'] ) && 'approve' === $link['rel'] && ! empty( $link['href'] ) ) {
+					$approve = (string) $link['href'];
+					break;
+				}
+			}
+		}
+
+		if ( $status < 200 || $status >= 300 || '' === $approve || empty( $json['id'] ) ) {
+			$detail = isset( $json['message'] ) ? (string) $json['message'] : '';
+			return array( 'ok' => false, 'redirect' => '', 'message' => sprintf( 'PayPal HTTP %d %s', $status, $detail ) );
+		}
+
+		global $wpdb;
+		$wpdb->update(
+			Schema::table( 'orders' ),
+			array( 'checkout_id' => (string) $json['id'] ),
+			array( 'id' => (int) $result['icod_id'] )
+		);
+
+		return array(
+			'ok'       => true,
+			'redirect' => $approve,
+			'message'  => '',
+		);
+	}
+
+	/**
+	 * Capture une commande PayPal approuvée.
+	 *
+	 * @param string $order_id ID commande PayPal.
+	 * @return string 'paid' (COMPLETED) | 'pending' | 'failed' | ''
+	 */
+	private function paypal_capture( $order_id ) {
+		$token = $this->paypal_token();
+		if ( '' === $token || '' === (string) $order_id ) {
+			return '';
+		}
+
+		$response = wp_remote_post(
+			$this->paypal_base() . 'v2/checkout/orders/' . rawurlencode( (string) $order_id ) . '/capture',
+			array(
+				'timeout' => 25,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return '';
+		}
+
+		$json = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( empty( $json['status'] ) ) {
+			return '';
+		}
+		if ( 'COMPLETED' === $json['status'] ) {
+			return 'paid';
+		}
+		return 'pending';
+	}
+
+	/* =====================================================
+	 * Retour client + confirmation
+	 * ===================================================== */
+
+	/**
+	 * Page de retour du client après paiement (toutes passerelles).
 	 *
 	 * Vérifie le statut réel auprès de l'API avant de marquer la commande.
 	 *
 	 * @return void
 	 */
 	public function handle_return() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- retour public, vérifié contre l'API Chargily.
-		$checkout_id = isset( $_GET['icod_checkout'] ) ? sanitize_text_field( wp_unslash( $_GET['icod_checkout'] ) ) : '';
-		$icod_id     = isset( $_GET['icod_order'] ) ? absint( $_GET['icod_order'] ) : 0;
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- retour public, vérifié contre l'API de la passerelle.
+		$icod_id = isset( $_GET['icod_order'] ) ? absint( $_GET['icod_order'] ) : 0;
+		$gateway = isset( $_GET['icod_gateway'] ) ? sanitize_key( wp_unslash( $_GET['icod_gateway'] ) ) : '';
 		// phpcs:enable WordPress.Security.NonceVerification
 
-		if ( '' === $checkout_id || $icod_id < 1 || ! self::enabled() ) {
+		if ( $icod_id < 1 ) {
 			return;
 		}
 
-		$status = $this->get_status( $checkout_id );
+		$paid = false;
+		$ref  = '';
 
-		if ( 'paid' === $status ) {
-			self::mark_paid( $icod_id, $checkout_id );
+		if ( 'stripe' === $gateway ) {
+			$session = isset( $_GET['session_id'] ) ? sanitize_text_field( wp_unslash( $_GET['session_id'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- vérifié contre l'API Stripe.
+			$paid    = 'paid' === $this->stripe_session_status( $session );
+			$ref     = $session;
+		} elseif ( 'paypal' === $gateway ) {
+			$token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- vérifié contre l'API PayPal.
+			$paid  = 'paid' === $this->paypal_capture( $token );
+			$ref   = $token;
+		} elseif ( isset( $_GET['icod_checkout'] ) ) {
+			$checkout_id = sanitize_text_field( wp_unslash( $_GET['icod_checkout'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- vérifié contre l'API Chargily.
+			$paid        = self::enabled() && 'paid' === $this->get_status( $checkout_id );
+			$ref         = $checkout_id;
+			$gateway     = 'chargily';
+		}
+
+		if ( $paid ) {
+			self::mark_paid( $icod_id, $ref, $gateway );
 			$message = (string) Settings::get( 'payment_return_text' );
 			$success = true;
 		} else {
@@ -242,15 +678,17 @@ class PaymentManager {
 	/**
 	 * Marque une commande COD comme payée (flag + statuts + WooCommerce).
 	 *
-	 * @param int    $icod_id    Ligne commande.
+	 * @param int    $icod_id     Ligne commande.
 	 * @param string $checkout_id ID checkout (optionnel, re-lié si fourni).
+	 * @param string $gateway     Passerelle (chargily | stripe | paypal).
 	 * @return bool
 	 */
-	public static function mark_paid( $icod_id, $checkout_id = '' ) {
+	public static function mark_paid( $icod_id, $checkout_id = '', $gateway = 'chargily' ) {
 		global $wpdb;
 
-		$table = Schema::table( 'orders' );
-		$order = Schema::get_order( (int) $icod_id );
+		$gateway = in_array( (string) $gateway, array( 'chargily', 'stripe', 'paypal' ), true ) ? (string) $gateway : 'chargily';
+		$table   = Schema::table( 'orders' );
+		$order   = Schema::get_order( (int) $icod_id );
 
 		if ( ! $order ) {
 			return false;
@@ -259,7 +697,7 @@ class PaymentManager {
 		$updated = $wpdb->update(
 			$table,
 			array(
-				'payment'     => 'chargily',
+				'payment'     => $gateway,
 				'paid'        => 1,
 				'paid_at'     => current_time( 'mysql' ),
 				'checkout_id' => $checkout_id ? (string) $checkout_id : $order['checkout_id'],
@@ -282,8 +720,8 @@ class PaymentManager {
 			$wc_order = wc_get_order( (int) $order['wc_order_id'] );
 			if ( $wc_order && ! $wc_order->is_paid() ) {
 				$wc_order->update_meta_data( '_icod_checkout_id', $checkout_id ? (string) $checkout_id : $order['checkout_id'] );
-				$wc_order->payment_complete( 'chargily_' . ( $checkout_id ? $checkout_id : $order['checkout_id'] ) );
-				$wc_order->add_order_note( __( 'Paiement CIB/Edahabia reçu via Chargily (InfinityCod).', 'infinitycod' ) );
+				$wc_order->payment_complete( $gateway . '_' . ( $checkout_id ? $checkout_id : $order['checkout_id'] ) );
+				$wc_order->add_order_note( sprintf( /* translators: %s : passerelle. */ __( 'Paiement en ligne reçu via %s (InfinityCod).', 'infinitycod' ), ucfirst( $gateway ) ) );
 				$wc_order->save();
 			}
 		}
@@ -292,7 +730,7 @@ class PaymentManager {
 		 * Après confirmation d'un paiement en ligne.
 		 *
 		 * @param int    $icod_id Ligne commande.
-		 * @param string $checkout_id ID checkout Chargily.
+		 * @param string $checkout_id ID checkout passerelle.
 		 */
 		do_action( 'infinitycod_payment_paid', (int) $icod_id, (string) $checkout_id );
 
@@ -334,7 +772,7 @@ class PaymentManager {
 		$icod_id     = $this->find_order_by_checkout( $checkout_id );
 
 		if ( $icod_id ) {
-			return self::mark_paid( $icod_id, $checkout_id );
+			return self::mark_paid( $icod_id, $checkout_id, 'chargily' );
 		}
 
 		return false;

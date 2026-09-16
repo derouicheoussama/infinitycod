@@ -90,6 +90,12 @@ class Settings {
 			// Blacklist communautaire (opt-in, numéros hashés).
 			'community_blacklist'  => 0,
 
+			// Passerelle de paiement en ligne.
+			'stripe_currency'      => 'usd',  // Devise de facturation Stripe.
+			'stripe_rate'          => 1,      // Taux DZD -> devise Stripe.
+			'paypal_currency'      => 'USD', // Devise de facturation PayPal.
+			'paypal_rate'          => 1,      // Taux DZD -> devise PayPal.
+
 			// Anti-leak : confidentialité des clients et des exports.
 			'antileak_pixels'      => 0,  // Achat navigateur désactivé, CAPI seule.
 			'mask_phones'          => 0,  // Téléphones masqués dans la liste Commandes.
