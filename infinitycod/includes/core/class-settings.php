@@ -90,6 +90,12 @@ class Settings {
 			// Blacklist communautaire (opt-in, numéros hashés).
 			'community_blacklist'  => 0,
 
+			// Anti-leak : confidentialité des clients et des exports.
+			'antileak_pixels'      => 0,  // Achat navigateur désactivé, CAPI seule.
+			'mask_phones'          => 0,  // Téléphones masqués dans la liste Commandes.
+			'export_alert_min'     => 200, // Alerte admin dès N lignes exportées (0 = jamais).
+			'integrity_check'      => 1,   // Vérification d'intégrité des fichiers cœur.
+
 			// Champ email (facultatif, sert aussi aux restrictions).
 			'show_email'            => 0,
 			'label_email'           => __( 'Email (facultatif)', 'infinitycod' ),

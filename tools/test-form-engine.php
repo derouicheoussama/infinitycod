@@ -873,5 +873,21 @@ $set_page = file_get_contents( $plugin_dir . 'includes/admin/pages/class-setting
 check( 'réglages : A/B + webhook + blacklist dans le schéma', false !== strpos( $set_page, "'abtest_enabled'" ) && false !== strpos( $set_page, "'webhook_url'" ) && false !== strpos( $set_page, "'community_blacklist'" ) );
 check( 'réglages : export/import JSON de la config', false !== strpos( $am_src, 'handle_settings_export' ) && false !== strpos( $am_src, 'handle_settings_import' ) );
 
+
+/* ---------- 5.33.0 : Anti-leak (pixels, données, piratage) ---------- */
+
+echo "\n52) 5.33.0 — Anti-leak : garde pixel, journal exports, intégrité\n";
+check( 'garde pixel : achat navigateur coupé si antileak', false !== strpos( file_get_contents( $plugin_dir . 'assets/front/js/pixels.js' ), 'if (CFG.antileak) { return; }' ) );
+check( 'garde pixel : flag transmis au navigateur', false !== strpos( file_get_contents( $plugin_dir . 'includes/tracking/class-pixel-manager.php' ), "'antileak'  => (bool) Settings::get( 'antileak_pixels' )" ) );
+check( 'anti-leak : classe + journal + trace', file_exists( $plugin_dir . 'includes/core/class-antileak.php' ) && false !== strpos( file_get_contents( $plugin_dir . 'includes/core/class-antileak.php' ), 'log_export' ) && false !== strpos( file_get_contents( $plugin_dir . 'includes/core/class-antileak.php' ), 'trace_code' ) );
+check( 'anti-leak : alerte e-mail export massif', false !== strpos( file_get_contents( $plugin_dir . 'includes/core/class-antileak.php' ), 'export_alert_min' ) );
+check( 'anti-leak : masquage téléphone dans la liste', false !== strpos( file_get_contents( $plugin_dir . 'includes/admin/pages/class-orders-page.php' ), 'AntiLeak::mask_phone' ) );
+check( 'anti-leak : filigrane Trace dans les exports', false !== strpos( $am_src, "log_export( 'orders_csv'" ) && false !== strpos( $am_src, '$trace,' ) );
+check( 'anti-leak : journal sur paniers + bordereaux', false !== strpos( file_get_contents( $plugin_dir . 'includes/admin/class-admin-extras.php' ), "log_export( 'abandoned_xls'" ) && false !== strpos( $am_src, "log_export( 'bordereaux'" ) );
+check( 'anti-leak : intégrité fichiers + avis admin', false !== strpos( file_get_contents( $plugin_dir . 'includes/core/class-antileak.php' ), 'maybe_integrity_check' ) && false !== strpos( file_get_contents( $plugin_dir . 'includes/core/class-antileak.php' ), 'integrity_notice' ) );
+$set_page = file_get_contents( $plugin_dir . 'includes/admin/pages/class-settings-page.php' );
+check( 'réglages : carte anti-leak complète (pixels/masque/alerte/intégrité)', false !== strpos( $set_page, "'antileak_pixels'" ) && false !== strpos( $set_page, "'mask_phones'" ) && false !== strpos( $set_page, "'export_alert_min'" ) && false !== strpos( $set_page, "'integrity_check'" ) );
+check( 'réglages : journal des exports affiché', false !== strpos( $set_page, 'AntiLeak::get_log' ) );
+
 echo "\n=== BILAN : {$pass} OK, {$fail} échec(s) ===\n";
 exit( $fail > 0 ? 1 : 0 );

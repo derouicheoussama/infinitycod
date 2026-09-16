@@ -134,6 +134,9 @@ class AdminExtras {
 
 		check_admin_referer( 'icod_abandoned_export' );
 
+		$trace = \InfinityCod\Core\AntiLeak::trace_code();
+		\InfinityCod\Core\AntiLeak::log_export( 'abandoned_xls', 0, $trace );
+
 		global $wpdb;
 		$table = Schema::table( 'abandoned' );
 		$rows  = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY updated_at DESC LIMIT 2000", ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL

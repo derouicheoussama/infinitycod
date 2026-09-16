@@ -5,7 +5,7 @@ Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.32.0
+Stable tag: 5.33.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,13 @@ Yes, the customer pays on the secure Chargily page. Confirmation is verified by 
 3. E-commerce style / advanced customization
 
 == Changelog ==
+
+= 5.33.0 =
+* Nouveau : module Anti-leak — confidentialité des clients et des exports.
+* Garde pixel : l’achat n’est plus envoyé au navigateur (Advanced Matching Meta/TikTok coupé), seule la Conversions API serveur signe la conversion — les campagnes optimisent sans exposer les acheteurs.
+* Masquage des téléphones dans la liste Commandes (option).
+* Journal des exports avec filigrane de traçabilité (colonne Trace) et alerte e-mail dès un export massif (seuil réglable).
+* Vérification d’intégrité des fichiers du plugin avec avis admin en cas de copie modifiée/piratée.
 
 = 5.32.0 =
 * UX Commandes : avatar client, numéro de commande, temps relatif sur la date, bouton WhatsApp direct sur chaque ligne.

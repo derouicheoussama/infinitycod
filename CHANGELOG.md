@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.33.0 — 2026-09-16
+
+Nouveau module **Anti-leak** (Réglages → Avancé) :
+
+- **Garde pixel** : l’événement d’achat navigateur (avec Advanced Matching téléphone) est désactivé — seule la Conversions API serveur (données hachées) signe les conversions. Les campagnes continuent d’optimiser, les acheteurs ne nourrissent plus les audiences tierces.
+- **Masquage des téléphones** dans la liste Commandes (option).
+- **Journal des exports** avec filigrane « Trace » dans chaque fichier exporté et alerte e-mail dès un export massif (seuil réglable).
+- **Vérification d’intégrité** des fichiers cœur avec avis admin en cas de copie modifiée ou piratée.
+
 ## 5.32.0 — 2026-09-16
 
 - **UX Commandes** : avatar client avec initiales colorées, numéro de commande affiché (#id), temps relatif sur la date (« il y a 2 h »), bouton WhatsApp direct sur chaque ligne.

@@ -1325,6 +1325,10 @@ class AdminManager {
 
 		$statuses = \InfinityCod\Orders\OrderStore::STATUSES;
 
+		// Anti-leak : filigrane + journal + alerte si extraction massive.
+		$trace = \InfinityCod\Core\AntiLeak::trace_code();
+		\InfinityCod\Core\AntiLeak::log_export( 'orders_csv', count( (array) $rows ), $trace );
+
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename=infinitycod-commandes-' . gmdate( 'Ymd-Hi' ) . '.csv' );
@@ -1332,7 +1336,7 @@ class AdminManager {
 		$out = fopen( 'php://output', 'w' );
 		// BOM UTF-8 pour Excel.
 		fwrite( $out, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- flux de telechargement CSV.
-		fputcsv( $out, array( 'ID', 'WC #', 'Date', 'Nom', 'Telephone', 'Wilaya', 'Commune', 'Mode', 'Bureau', 'Produit', 'Qte', 'Sous-total', 'Remise', 'Livraison', 'Total', 'Statut', 'Transporteur', 'Suivi', 'Score risque', 'IP' ), ';' );
+		fputcsv( $out, array( 'ID', 'WC #', 'Date', 'Nom', 'Telephone', 'Wilaya', 'Commune', 'Mode', 'Bureau', 'Produit', 'Qte', 'Sous-total', 'Remise', 'Livraison', 'Total', 'Statut', 'Transporteur', 'Suivi', 'Score risque', 'IP', 'Trace' ), ';' );
 
 		foreach ( (array) $rows as $row ) {
 			$cells = array(
@@ -1356,6 +1360,7 @@ class AdminManager {
 				$row['tracking'],
 				$row['fraud_score'],
 				$row['ip'],
+				$trace,
 			);
 
 			// Anti CSV-injection : neutraliser les formules (Excel).
@@ -1452,6 +1457,7 @@ class AdminManager {
 		$out = fopen( 'php://output', 'w' );
 		fwrite( $out, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- flux de telechargement CSV.
 		fputcsv( $out, array( 'code', 'wilaya', 'domicile', 'stopdesk', 'active', 'gratuite', 'delai', 'min', 'poids_1_5', 'poids_5_10', 'poids_supp_kg', 'frais_retour' ), ';' );
+		// Anti-leak : filigrane de traçabilité (journalisé côté admin).
 
 		foreach ( (array) $rows as $row ) {
 			$cells = array(
@@ -1696,6 +1702,8 @@ class AdminManager {
 			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
 		}
 		check_admin_referer( 'icod_bordereaux' );
+
+		\InfinityCod\Core\AntiLeak::log_export( 'bordereaux', count( array_filter( array_map( 'absint', explode( ',', (string) ( $_GET['ids'] ?? '' ) ) ) ) ), \InfinityCod\Core\AntiLeak::trace_code() );
 
 		$ids = isset( $_GET['ids'] ) ? array_filter( array_map( 'absint', explode( ',', wp_unslash( $_GET['ids'] ) ) ) ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ids absints un par un.
 		$ids = array_values( array_unique( array_slice( $ids, 0, 200 ) ) );

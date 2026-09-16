@@ -171,6 +171,11 @@
 
 	/* ---------- Purchase : appelé par form.js après confirmation ---------- */
 	window.icodFirePurchase = function (orderId, total, productName, phone) {
+		/* Anti-leak : l'achat navigateur transmet l'identité du client au pixel
+		   (Advanced Matching) et nourrit les audiences. Quand le garde est actif,
+		   seul l'événement serveur (Conversions API, données hachées) part : les
+		   campagnes continuent d'optimiser, mais aucun acheteur n'est exposé. */
+		if (CFG.antileak) { return; }
 		var eventId = 'icod-' + orderId;
 
 		if (fb && fb.id) {

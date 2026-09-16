@@ -49,6 +49,7 @@ final class Plugin {
 		'orders'    => '\\InfinityCod\\Orders\\OrderStore',
 		'abtest'    => '\\InfinityCod\\Orders\\AbTest',
 		'webhooks'  => '\\InfinityCod\\Core\\Webhooks',
+		'antileak'  => '\\InfinityCod\\Core\\AntiLeak',
 		'order_notifications' => '\\InfinityCod\\Orders\\AdminNotifications',
 		'form'      => '\\InfinityCod\\Form\\FormManager',
 		'payment'   => '\\InfinityCod\\Payment\\PaymentManager',

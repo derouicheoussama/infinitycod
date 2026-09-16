@@ -246,7 +246,7 @@ class OrdersPage {
 					<span class="icod-avatar" data-name="<?php echo esc_attr( $row['customer_name'] ); ?>"><?php echo esc_html( strtoupper( mb_substr( $row['customer_name'], 0, 1 ) ) ); ?></span>
 					<span class="icod-client-meta">
 						<strong>#<?php echo (int) $row['id']; ?> — <?php echo esc_html( $row['customer_name'] ); ?></strong>
-						<span class="icod-sub"><?php echo esc_html( $row['phone'] ); ?></span>
+						<span class="icod-sub"><?php echo esc_html( \InfinityCod\Core\AntiLeak::mask_phone( (string) $row['phone'] ) ); ?></span>
 					</span>
 				</div>
 			</td>

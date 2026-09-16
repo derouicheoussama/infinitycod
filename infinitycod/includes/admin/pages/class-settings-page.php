@@ -1810,6 +1810,43 @@ class SettingsPage {
 		</div>
 
 		<div class="icod-card">
+			<h2>🕵️ <?php esc_html_e( 'Anti-leak : confidentialité clients & exports', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Empêche la fuite de vos clients et de votre base. Garde pixel : l’achat part uniquement via la Conversions API (données hachées serveur) — les campagnes continuent d’optimiser sans exposer les acheteurs aux audiences navigateur. Masquage des téléphones dans la liste Commandes. Journal et alertes des exports ci-dessous.', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[antileak_pixels]" value="1" <?php checked( (int) Settings::get( 'antileak_pixels' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Garde pixel : plus d’achat navigateur envoyé à Meta/TikTok (CAPI serveur uniquement)', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[mask_phones]" value="1" <?php checked( (int) Settings::get( 'mask_phones' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Masquer les téléphones dans la liste Commandes (le numéro complet reste dans la fiche détaillée)', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[integrity_check]" value="1" <?php checked( (int) Settings::get( 'integrity_check', 1 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Vérifier l’intégrité des fichiers du plugin (détection de copie piratée/modifiée)', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Alerte e-mail dès un export de (lignes)', 'infinitycod' ); ?></span>
+					<input type="number" min="0" max="10000" step="50" name="icod[export_alert_min]" value="<?php echo esc_attr( Settings::get( 'export_alert_min', 200 ) ); ?>" />
+				</label>
+			</div>
+			<?php $icod_log = \InfinityCod\Core\AntiLeak::get_log(); ?>
+			<?php if ( $icod_log ) : ?>
+			<h4 style="margin:14px 0 6px"><?php esc_html_e( 'Journal des exports (50 derniers)', 'infinitycod' ); ?></h4>
+			<table class="widefat striped" style="max-width:760px">
+				<thead><tr><th><?php esc_html_e( 'Trace', 'infinitycod' ); ?></th><th><?php esc_html_e( 'Utilisateur', 'infinitycod' ); ?></th><th><?php esc_html_e( 'Type', 'infinitycod' ); ?></th><th><?php esc_html_e( 'Lignes', 'infinitycod' ); ?></th><th><?php esc_html_e( 'Date', 'infinitycod' ); ?></th></tr></thead>
+				<tbody>
+				<?php foreach ( array_slice( $icod_log, 0, 50 ) as $entry ) : ?>
+					<tr><td><code><?php echo esc_html( $entry['trace'] ); ?></code></td><td><?php echo esc_html( $entry['user'] ); ?></td><td><?php echo esc_html( $entry['type'] ); ?></td><td><?php echo (int) $entry['count']; ?></td><td><?php echo esc_html( $entry['date'] ); ?></td></tr>
+				<?php endforeach; ?>
+				</tbody>
+			</table>
+			<?php endif; ?>
+		</div>
+
+		<div class="icod-card">
 			<h2><?php esc_html_e( 'Devise', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Appliquée partout : formulaire, récapitulatif, commandes WooCommerce, pixels et tableaux de bord. Marché arabe : DZD, MAD, TND, EGP, SAR, AED…', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
@@ -2233,6 +2270,10 @@ class SettingsPage {
 			'webhook_secret'       => array( 'tab' => 'advanced', 'type' => 'secret' ),
 			'webhook_on_status'    => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 			'community_blacklist'  => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'antileak_pixels'      => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'mask_phones'          => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'export_alert_min'     => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 0, 'max' => 10000 ),
+			'integrity_check'      => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 
 			// ——— Vente PayPal (configurée depuis l'onglet Licence) ———
 			'paypal_enabled'        => array( 'tab' => 'license', 'type' => 'toggle' ),

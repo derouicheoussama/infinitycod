@@ -106,6 +106,7 @@ class PixelManager {
 				'id' => (string) Settings::get( 'ga4_measurement_id' ),
 			) : null,
 			'consent'   => (int) Settings::get( 'pixel_consent_required' ),
+			'antileak'  => (bool) Settings::get( 'antileak_pixels' ),
 			'currency'  => Settings::currency(),
 			'product'   => $product_data,
 			'eventId'   => 'icod-' . uniqid(),
