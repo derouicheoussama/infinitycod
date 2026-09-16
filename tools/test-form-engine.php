@@ -398,8 +398,11 @@ check( 'PHP : data-theme + palette inline + surcharge Elementor appliquée', fal
 
 echo "\n13) Badge commandes en attente + réglages Avancé réellement lus\n";
 $am_src = file_get_contents( $plugin_dir . 'includes/admin/class-admin-manager.php' );
-check( 'badge présent sur le menu InfinityCod ET Commandes COD', false !== strpos( $am_src, "'infinitycod-orders' === \$sitem[2]" ) && false !== strpos( $am_src, "icod-menu-badge" ) );
+check( 'badge présent sur le menu InfinityCod ET Commandes COD', false !== strpos( $am_src, "'infinitycod-orders'    => " . '$badge_pending' ) && false !== strpos( $am_src, 'icod-menu-badge' ) );
 check( 'badge = comptage des commandes pending', false !== strpos( $am_src, "status = 'pending'" ) );
+check( 'badge paniers abandonnés ouverts sur le sous-menu', false !== strpos( $am_src, "'infinitycod-abandoned' => " . '$badge_abandoned' ) && false !== strpos( $am_src, "status = 'open'" ) );
+check( 'menu structuré en 4 groupes (séparateurs vente/analyse/système)', false !== strpos( $am_src, "'sep-vente'" ) && false !== strpos( $am_src, "'sep-analyse'" ) && false !== strpos( $am_src, "'sep-systeme'" ) );
+check( 'séparateurs non cliquables stylés en traits (CSS admin)', false !== strpos( file_get_contents( $plugin_dir . 'assets/admin/css/admin.css' ), 'page=infinitycod-sep' ) );
 
 $logger_src = file_get_contents( $plugin_dir . 'includes/logging/class-logger.php' );
 check( 'log_enabled respecté par le Logger (plus d\'option morte)', false !== strpos( $logger_src, "Settings::get( 'log_enabled', 1 )" ) );

@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.30.4 — 2026-09-16
+
+- Menu latéral admin restructuré en 4 groupes avec séparateurs visuels : Pilotage (Tableau de bord, Commandes, Paniers abandonnés), Vente & Livraison (Wilayas & Tarifs, Transporteurs, Codes promo), Analyse (Statistiques P&L), Système (Réglages, Mises à jour, Diagnostics, À propos).
+- Badges de compteurs en direct sur le menu : commandes en attente et paniers abandonnés ouverts (caches transient 10 minutes, style pastille WordPress).
+- Item actif marqué par une barre d'accent et une graisse renforcée ; séparateurs non cliquables compatibles avec tous les schémas couleur de l'admin.
+
 ## 5.30.3 — 2026-09-16
 
 - Anti-doublon de formulaire : sur les fiches produit, quand InfinityCod gère la commande, le moteur COD intégré aux thèmes Infinity (infinity-market/landing/shop, moteur `inf_cod`) est automatiquement retiré — un seul formulaire de commande est généré dans le DOM.

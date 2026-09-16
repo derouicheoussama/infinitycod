@@ -300,48 +300,66 @@ class AdminManager {
 		if ( ! \InfinityCod\Core\Settings::get( 'menu_badge' ) ) {
 			return;
 		}
-
-		global $wpdb;
-
-		$orders_table = \InfinityCod\Core\Schema::table( 'orders' );
-
-		// Compteur mis en cache : un COUNT(*) sur CHAQUE page admin coûte cher
-		// sur les boutiques à fort volume. Invalidé à chaque changement de
-		// statut (OrderStore) + filet de sécurité 10 minutes.
-		$pending = get_transient( 'icod_pending_count' );
-		if ( false === $pending ) {
-			$pending = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$orders_table} WHERE status = 'pending'" ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter
-			set_transient( 'icod_pending_count', $pending, 10 * MINUTE_IN_SECONDS );
-		} else {
-			$pending = (int) $pending;
-		}
-
-		if ( $pending < 1 ) {
+		if ( ! isset( $GLOBALS['submenu']['infinitycod'] ) || ! is_array( $GLOBALS['submenu']['infinitycod'] ) ) {
 			return;
 		}
 
-		$badge = sprintf(
+		global $wpdb;
+
+		// Commandes en attente : compteur mis en cache 10 min, invalidé à
+		// chaque changement de statut (OrderStore) + filet de sécurité.
+		$orders_table = \InfinityCod\Core\Schema::table( 'orders' );
+		$pending      = get_transient( 'icod_pending_count' );
+		if ( false === $pending ) {
+			$pending = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$orders_table} WHERE status = 'pending'" ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			set_transient( 'icod_pending_count', $pending, 10 * MINUTE_IN_SECONDS );
+		}
+		$pending = (int) $pending;
+
+		// Paniers abandonnés ouverts : même logique de cache court.
+		$abandoned = get_transient( 'icod_abandoned_open' );
+		if ( false === $abandoned ) {
+			$abandoned_table = \InfinityCod\Core\Schema::table( 'abandoned' );
+			$abandoned       = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$abandoned_table} WHERE status = 'open'" ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			set_transient( 'icod_abandoned_open', $abandoned, 10 * MINUTE_IN_SECONDS );
+		}
+		$abandoned = (int) $abandoned;
+
+		if ( $pending < 1 && $abandoned < 1 ) {
+			return;
+		}
+
+		$badge_pending = $pending > 0 ? sprintf(
 			' <span class="awaiting-mod count-%1$d icod-menu-badge" aria-label="%2$s"><span class="pending-count">%1$d</span></span>',
 			$pending,
 			/* translators: %d : nombre de commandes en attente. */
 			esc_attr( sprintf( __( '%d commandes en attente', 'infinitycod' ), $pending ) )
-		);
+		) : '';
 
-		// Menu principal InfinityCod.
+		$badge_abandoned = $abandoned > 0 ? sprintf(
+			' <span class="awaiting-mod count-%1$d icod-menu-badge" aria-label="%2$s"><span class="pending-count">%1$d</span></span>',
+			$abandoned,
+			/* translators: %d : nombre de paniers abandonnés ouverts. */
+			esc_attr( sprintf( __( '%d paniers abandonnés', 'infinitycod' ), $abandoned ) )
+		) : '';
+
+		// Pastille sur le menu principal InfinityCod (commandes en attente).
 		foreach ( (array) $GLOBALS['menu'] as $index => $item ) {
 			if ( isset( $item[2] ) && 'infinitycod' === $item[2] ) {
-				$GLOBALS['menu'][ $index ][0] .= $badge;
+				$GLOBALS['menu'][ $index ][0] .= $badge_pending;
 				break;
 			}
 		}
 
-		// Sous-menu « Commandes COD ».
-		if ( isset( $GLOBALS['submenu']['infinitycod'] ) && is_array( $GLOBALS['submenu']['infinitycod'] ) ) {
-			foreach ( $GLOBALS['submenu']['infinitycod'] as $sindex => $sitem ) {
-				if ( isset( $sitem[2] ) && 'infinitycod-orders' === $sitem[2] ) {
-					$GLOBALS['submenu']['infinitycod'][ $sindex ][0] .= $badge;
-					break;
-				}
+		// Pastilles ciblées : Commandes (attente) et Paniers abandonnés (ouverts).
+		$badges = array(
+			'infinitycod-orders'    => $badge_pending,
+			'infinitycod-abandoned' => $badge_abandoned,
+		);
+		foreach ( $GLOBALS['submenu']['infinitycod'] as $sindex => $sitem ) {
+			$slug = isset( $sitem[2] ) ? $sitem[2] : '';
+			if ( isset( $badges[ $slug ] ) && '' !== $badges[ $slug ] ) {
+				$GLOBALS['submenu']['infinitycod'][ $sindex ][0] .= $badges[ $slug ];
 			}
 		}
 	}
@@ -390,104 +408,52 @@ class AdminManager {
 			56
 		);
 
-		add_submenu_page(
-			'infinitycod',
-			__( 'Tableau de bord', 'infinitycod' ),
-			'📊 ' . __( 'Tableau de bord', 'infinitycod' ),
-			'manage_woocommerce',
-			'infinitycod',
-			array( $this, 'render_dashboard' )
+		// Sous-menu structuré en 4 groupes, séparés par des entrées visuelles
+		// (separators) transformées en traits par le CSS admin : Pilotage,
+		// Vente & Livraison, Analyse, Système. Ordre = fréquence d'usage.
+		$items = array(
+			// Pilotage : ce que le marchand consulte tous les jours.
+			array( 'infinitycod',             '📊 ' . __( 'Tableau de bord', 'infinitycod' ), array( $this, 'render_dashboard' ) ),
+			array( 'infinitycod-orders',      '📦 ' . __( 'Commandes', 'infinitycod' ), array( $this, 'render_orders' ) ),
+			array( 'infinitycod-abandoned',   '🛒 ' . __( 'Paniers abandonnés', 'infinitycod' ), array( $this, 'render_abandoned' ) ),
+			// Vente & livraison : configuration métier.
+			'sep-vente',
+			array( 'infinitycod-geo',         '🗺️ ' . __( 'Wilayas & Tarifs', 'infinitycod' ), array( $this, 'render_geo' ) ),
+			array( 'infinitycod-carriers',    '🚚 ' . __( 'Transporteurs', 'infinitycod' ), array( $this, 'render_carriers' ) ),
+			array( 'infinitycod-promos',      '🎟️ ' . __( 'Codes promo', 'infinitycod' ), array( $this, 'render_promos' ) ),
+			// Analyse.
+			'sep-analyse',
+			array( 'infinitycod-stats',       '📈 ' . __( 'Statistiques P&L', 'infinitycod' ), array( $this, 'render_stats' ) ),
+			// Système.
+			'sep-systeme',
+			array( 'infinitycod-settings',    '⚙️ ' . __( 'Réglages', 'infinitycod' ), array( $this, 'render_settings' ) ),
+			array( 'infinitycod-updates',     '🔄 ' . __( 'Mises à jour', 'infinitycod' ), array( $this, 'render_updates' ) ),
+			array( 'infinitycod-diagnostics', '🩺 ' . __( 'Diagnostics', 'infinitycod' ), array( $this, 'render_diagnostics' ) ),
+			array( 'infinitycod-about',       'ℹ️ ' . __( 'À propos', 'infinitycod' ), array( $this, 'render_about' ) ),
 		);
 
-		add_submenu_page(
-			'infinitycod',
-			__( 'Commandes', 'infinitycod' ),
-			'📦 ' . __( 'Commandes', 'infinitycod' ),
-			'manage_woocommerce',
-			'infinitycod-orders',
-			array( $this, 'render_orders' )
-		);
-
-		add_submenu_page(
-			'infinitycod',
-			__( 'Paniers abandonnés', 'infinitycod' ),
-			'🛒 ' . __( 'Paniers abandonnés', 'infinitycod' ),
-			'manage_woocommerce',
-			'infinitycod-abandoned',
-			array( $this, 'render_abandoned' )
-		);
-
-		add_submenu_page(
-			'infinitycod',
-			__( 'Wilayas & Tarifs', 'infinitycod' ),
-			'🗺️ ' . __( 'Wilayas & Tarifs', 'infinitycod' ),
-			'manage_woocommerce',
-			'infinitycod-geo',
-			array( $this, 'render_geo' )
-		);
-
-		add_submenu_page(
-			'infinitycod',
-			__( 'Transporteurs', 'infinitycod' ),
-			'🚚 ' . __( 'Transporteurs', 'infinitycod' ),
-			'manage_woocommerce',
-			'infinitycod-carriers',
-			array( $this, 'render_carriers' )
-		);
-
-		add_submenu_page(
-			'infinitycod',
-			__( 'Statistiques P&L', 'infinitycod' ),
-			'📈 ' . __( 'Statistiques P&L', 'infinitycod' ),
-			'manage_woocommerce',
-			'infinitycod-stats',
-			array( $this, 'render_stats' )
-		);
-
-		add_submenu_page(
-			'infinitycod',
-			__( 'Codes promo', 'infinitycod' ),
-			'🎟️ ' . __( 'Codes promo', 'infinitycod' ),
-			'manage_woocommerce',
-			'infinitycod-promos',
-			array( $this, 'render_promos' )
-		);
-
-		add_submenu_page(
-			'infinitycod',
-			__( 'Réglages InfinityCod', 'infinitycod' ),
-			'⚙️ ' . __( 'Réglages', 'infinitycod' ),
-			'manage_woocommerce',
-			'infinitycod-settings',
-			array( $this, 'render_settings' )
-		);
-
-		add_submenu_page(
-			'infinitycod',
-			__( 'Mises à jour', 'infinitycod' ),
-			'🔄 ' . __( 'Mises à jour', 'infinitycod' ),
-			'manage_woocommerce',
-			'infinitycod-updates',
-			array( $this, 'render_updates' )
-		);
-
-		add_submenu_page(
-			'infinitycod',
-			__( 'Diagnostics', 'infinitycod' ),
-			'🩺 ' . __( 'Diagnostics', 'infinitycod' ),
-			'manage_woocommerce',
-			'infinitycod-diagnostics',
-			array( $this, 'render_diagnostics' )
-		);
-
-		add_submenu_page(
-			'infinitycod',
-			__( 'À propos d‘InfinityCod', 'infinitycod' ),
-			'ℹ️ ' . __( 'À propos', 'infinitycod' ),
-			'manage_woocommerce',
-			'infinitycod-about',
-			array( $this, 'render_about' )
-		);
+		foreach ( $items as $item ) {
+			if ( is_string( $item ) ) {
+				// Séparateur de groupe : page vide non cliquable (stylisée en trait).
+				add_submenu_page(
+					'infinitycod',
+					' ',
+					' ',
+					'manage_woocommerce',
+					'infinitycod-' . $item,
+					'__return_null'
+				);
+				continue;
+			}
+			add_submenu_page(
+				'infinitycod',
+				wp_strip_all_tags( $item[1] ),
+				$item[1],
+				'manage_woocommerce',
+				$item[0],
+				$item[2]
+			);
+		}
 
 		// Écran de bienvenue : caché du menu (parent null), affiché après
 		// l'activation et accessible depuis « À propos ».

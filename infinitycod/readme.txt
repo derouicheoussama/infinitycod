@@ -5,7 +5,7 @@ Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.30.3
+Stable tag: 5.30.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,11 @@ Yes, the customer pays on the secure Chargily page. Confirmation is verified by 
 3. E-commerce style / advanced customization
 
 == Changelog ==
+
+= 5.30.4 =
+* Nouveau : menu latéral restructuré en 4 groupes (Pilotage, Vente & Livraison, Analyse, Système) avec séparateurs visuels non cliquables.
+* Nouveau : badges de compteurs en direct — commandes en attente sur « Commandes », paniers ouverts sur « Paniers abandonnés » (caches 10 minutes).
+* Design : item actif souligné par une barre d'accent, badges alignés, lisibilité accrue dans tous les schémas couleur de l'admin.
 
 = 5.30.3 =
 * Nouveau : anti-doublon de formulaire sur les fiches produit — quand le plugin gère la fiche, le moteur COD intégré aux thèmes Infinity (inf_cod) est automatiquement retiré : un seul formulaire de commande est généré.

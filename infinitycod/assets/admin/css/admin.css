@@ -1104,3 +1104,34 @@ body.icod-modal-open{overflow:hidden}
 
 /* Performance d'affichage : les longues tables ne peignent que si visibles. */
 .icod-table-scroll{content-visibility:auto;contain-intrinsic-size:auto 600px}
+
+/* ============================================================
+   Menu latéral InfinityCod : structure en groupes, lisibilité
+   ============================================================ */
+/* Séparateurs de groupe (entrées "sep" transformées en trait discret,
+   non cliquable, visible dans tous les schémas couleur de l'admin). */
+#adminmenu .wp-submenu a[href*="page=infinitycod-sep"]{
+	display:block !important;
+	height:1px !important;
+	min-height:0 !important;
+	margin:6px 12px !important;
+	padding:0 !important;
+	font-size:0 !important;
+	line-height:0 !important;
+	overflow:hidden !important;
+	background:currentColor !important;
+	opacity:.18;
+	pointer-events:none;
+	border-radius:1px;
+}
+/* Item actif : barre d'accent à gauche + graisse — repère clair du
+   lien courant, sans casser les couleurs du thème admin. */
+#adminmenu .wp-submenu li.current > a[href*="page=infinitycod"],
+#adminmenu .wp-submenu li.wp-has-current-submenu > a[href*="page=infinitycod"]{
+	font-weight:600;
+	box-shadow:inset 3px 0 0 var(--icod-accent,#0e7a4f);
+}
+/* Pastilles compteurs : respiration autour du chiffre. */
+#adminmenu .icod-menu-badge{margin-inline-start:2px}
+/* Sous-menu déplié : interligne légèrement aéré pour la lisibilité. */
+#adminmenu .wp-submenu a[href*="page=infinitycod"]{letter-spacing:.01em}
