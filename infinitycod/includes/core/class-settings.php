@@ -240,6 +240,11 @@ class Settings {
 			'payment_mode'          => 'chargily',   // passerelle active.
 			'chargily_mode'         => 'test',       // test | live.
 			'chargily_secret'       => '',           // Clé secrète API.
+			'payment_mode'          => 'chargily',   // chargily | stripe | paypal.
+			'stripe_secret'         => '',           // Clé secrète Stripe (sk_live_… / sk_test_…).
+			'paypal_client_id'      => '',           // Client ID PayPal.
+			'paypal_secret'         => '',           // Secret PayPal.
+			'paypal_mode'           => 'live',       // live | sandbox.
 			'payment_label'         => __( '💳 Payer maintenant en ligne (CIB / Edahabia)', 'infinitycod' ),
 			'cod_label'             => __( '💵 Paiement à la livraison', 'infinitycod' ),
 
