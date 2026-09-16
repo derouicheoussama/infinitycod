@@ -27,7 +27,7 @@ class WhatsappManager {
 	 * @return void
 	 */
 	public function register() {
-		add_action( 'infinitycod_order_created', array( $this, 'on_order_created' ), 10, 1 );
+		add_action( 'infinitycod_order_created', array( $this, 'on_order_created' ), 10, 3 );
 		add_action( 'infinitycod_parcel_created', array( $this, 'on_parcel_created' ), 10, 3 );
 		add_action( 'infinitycod_recover_abandoned', array( $this, 'recover_abandoned' ) );
 
@@ -59,7 +59,7 @@ class WhatsappManager {
 	 * @param \WC_Order $order Commande WooCommerce.
 	 * @return void
 	 */
-	public function on_order_created( $order ) {
+	public function on_order_created( $order, $data = array(), $icod_id = 0 ) {
 		if ( ! Settings::get( 'whatsapp_enabled' ) ) {
 			return;
 		}
@@ -79,6 +79,7 @@ class WhatsappManager {
 			'telephone' => $phone,
 			'commande'  => $order->get_id(),
 			'total'     => number_format_i18n( (float) $order->get_total(), 2 ) . ' DA',
+			'lien_confirmation' => self::confirm_link( (int) $icod_id, $phone ),
 		) );
 	}
 
@@ -152,7 +153,23 @@ class WhatsappManager {
 	 * @param array  $vars     Variables.
 	 * @return string
 	 */
-	public static function render_template( $template, array $vars ) {
+	/**
+	 * Lien signé « Je confirme ma commande » (1 clic depuis WhatsApp).
+	 *
+	 * @param int    $icod_id Ligne interne de commande.
+	 * @param string $phone   Téléphone saisi (entre dans la signature).
+	 * @return string
+	 */
+	public static function confirm_link( $icod_id, $phone ) {
+		$icod_id = (int) $icod_id;
+		if ( $icod_id < 1 ) {
+			return '';
+		}
+		$token = substr( hash_hmac( 'sha256', $icod_id . '|' . (string) $phone, wp_salt( 'auth' ) ), 0, 24 );
+		return home_url( '/?icod_confirm=' . $icod_id . '&t=' . $token );
+	}
+
+		public static function render_template( $template, array $vars ) {
 		$replacements = array();
 		foreach ( $vars as $key => $value ) {
 			$replacements[ '{' . $key . '}' ] = (string) $value;

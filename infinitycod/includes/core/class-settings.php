@@ -70,6 +70,26 @@ class Settings {
 			'sticky_bar'            => 1,
 			'form_position'        => 'full_width', // Pleine largeur sous la fiche produit. // position sur la fiche produit.
 
+			// Délais estimés affichés sur le formulaire (donnée wilaya).
+			'show_delivery_days'   => 1,
+
+			// A/B test du formulaire : variante B (titre/bouton/couleur alternatifs).
+			'abtest_enabled'       => 0,
+			'ab_b_title'           => '',
+			'ab_b_button'          => '',
+			'ab_b_accent'          => '',
+
+			// Zones régionales (tarifs par groupe de wilayas, écran Géo).
+			'zones_config'         => array(),
+
+			// Webhooks sortants (Google Sheets via Apps Script, Zapier, Make…).
+			'webhook_url'          => '',
+			'webhook_secret'       => '',
+			'webhook_on_status'    => 0,
+
+			// Blacklist communautaire (opt-in, numéros hashés).
+			'community_blacklist'  => 0,
+
 			// Champ email (facultatif, sert aussi aux restrictions).
 			'show_email'            => 0,
 			'label_email'           => __( 'Email (facultatif)', 'infinitycod' ),

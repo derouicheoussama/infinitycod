@@ -224,5 +224,18 @@ class AdminExtras {
 		$body .= '</div>';
 
 		wp_mail( $to, $subject, $body, array( 'Content-Type: text/html; charset=utf-8' ) );
+
+		// Telegram (optionnel) : même synthèse en texte court.
+		$bot  = trim( (string) Settings::get( 'telegram_bot_token', '' ) );
+		$chat = trim( (string) Settings::get( 'telegram_chat_id', '' ) );
+		if ( '' !== $bot && '' !== $chat ) {
+			$text = '📊 ' . get_bloginfo( 'name' ) . ' — 7 jours : ' . (int) $row['n'] . ' commande(s), '
+				. (int) $row['confirmed'] . ' confirmée(s), ' . number_format_i18n( (float) $row['revenue'], 0 ) . ' ' . Settings::currency_label() . '.';
+			wp_remote_post( 'https://api.telegram.org/bot' . rawurlencode( $bot ) . '/sendMessage', array(
+				'timeout' => 8,
+				'headers' => array( 'Content-Type' => 'application/json' ),
+				'body'    => wp_json_encode( array( 'chat_id' => $chat, 'text' => $text ) ),
+			) );
+		}
 	}
 }

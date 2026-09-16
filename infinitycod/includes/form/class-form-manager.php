@@ -527,7 +527,7 @@ class FormManager {
 
 		$geo     = infinitycod()->module( 'geo' );
 		$countries = Settings::active_countries();
-		$all_wilayas = $geo ? $geo->wilayas( true ) : array();
+		$all_wilayas = $geo ? $geo->wilayas( false ) : array();
 		$wilayas   = array_values( array_filter( $all_wilayas, function ( $w ) use ( $countries ) {
 			$wc = isset( $w['country_code'] ) ? $w['country_code'] : 'DZ';
 			return in_array( $wc, $countries, true );
@@ -622,11 +622,13 @@ class FormManager {
 
 		$wilaya_options = '';
 		foreach ( $wilayas as $w ) {
+			$suspended = isset( $w['active'] ) && ! (int) $w['active'];
 			$wilaya_options .= sprintf(
-				'<option value="%1$s" data-country="%3$s">%2$s</option>',
+				'<option value="%1$s" data-country="%3$s"%4$s>%2$s</option>',
 				esc_attr( $w['code'] ),
-				esc_html( $geo->wilaya_label( $w ) ),
-				esc_attr( isset( $w['country_code'] ) ? $w['country_code'] : 'DZ' )
+				esc_html( $geo->wilaya_label( $w ) . ( $suspended ? ' — ' . __( 'indisponible', 'infinitycod' ) : '' ) ),
+				esc_attr( isset( $w['country_code'] ) ? $w['country_code'] : 'DZ' ),
+				$suspended ? ' disabled' : ''
 			);
 		}
 
@@ -734,6 +736,24 @@ class FormManager {
 				$timer_style_attr .= 'color:' . preg_replace( $hex_only, '', $timer_fg ) . ';';
 			}
 			$timer_html = '<div class="icod-timer icod-timer-' . esc_attr( $timer_style ) . '" data-timer="' . (int) $minutes . '" style="' . esc_attr( $timer_style_attr ) . '"><span class="icod-timer-label" data-timer-text="' . esc_attr( Settings::get( 'timer_urgency_text' ) ) . '">' . esc_html( $timer_text ) . '</span></div>';
+		}
+
+		// A/B test : surcharges de la variante B (titre, bouton, couleur).
+		$ab_variant = \InfinityCod\Orders\AbTest::assign();
+		\InfinityCod\Orders\AbTest::track_view( $ab_variant );
+		if ( 'B' === $ab_variant ) {
+			$b_title = trim( (string) Settings::get( 'ab_b_title', '' ) );
+			$b_btn   = trim( (string) Settings::get( 'ab_b_button', '' ) );
+			if ( '' === $custom_title && '' !== $b_title ) {
+				$custom_title = $b_title;
+			}
+			if ( '' === $custom_button && '' !== $b_btn ) {
+				$custom_button = $b_btn;
+			}
+			$b_accent = trim( (string) Settings::get( 'ab_b_accent', '' ) );
+			if ( preg_match( '/^#[0-9A-Fa-f]{6}$/', $b_accent ) ) {
+				$accent = $b_accent;
+			}
 		}
 
 		// Palette dérivée de l'accent : la couleur du dashboard pilote tout
@@ -883,6 +903,7 @@ class FormManager {
 				<form class="icod-form" novalidate>
 					<input type="text" name="icod_hp" class="icod-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
 					<input type="hidden" name="icod_ts" value="<?php echo esc_attr( $ts ); ?>" />
+					<input type="hidden" name="icod_ab" value="<?php echo esc_attr( $ab_variant ); ?>" />
 					<input type="hidden" name="icod_sig" value="<?php echo esc_attr( $sig ); ?>" />
 					<input type="hidden" name="icod_fp" class="icod-fp" value="" />
 					<?php
@@ -1405,6 +1426,9 @@ class FormManager {
 			'currency' => Settings::currency(),
 			'da'       => Settings::currency_label(),
 			'currencyPosition' => Settings::get( 'currency_position', 'right' ),
+			'productWeight' => \InfinityCod\Shipping\RatesManager::order_weight( $product_id, 1 ),
+			'abVariant'     => isset( $ab_variant ) ? $ab_variant : '',
+			'showDays'      => (bool) Settings::get( 'show_delivery_days', 1 ),
 			'defaultCountry' => Settings::default_country(),
 			'i18n'     => array(
 				'loading'        => __( 'Chargement…', 'infinitycod' ),
@@ -1436,6 +1460,10 @@ class FormManager {
 				'errorCaptcha'   => __( 'Veuillez répondre à la question anti-bot.', 'infinitycod' ),
 				'errorAddress'   => __( 'Veuillez indiquer votre adresse.', 'infinitycod' ),
 				'minOrder'       => __( 'Commande minimum : {min} pour cette wilaya.', 'infinitycod' ),
+				'daysLine'       => __( 'Livraison estimée : {days}', 'infinitycod' ),
+				'weightLine'     => __( 'Supplément poids', 'infinitycod' ),
+				'weightIncluded' => __( 'inclus dans la livraison', 'infinitycod' ),
+				'wilayaClosed'   => __( 'Livraison temporairement indisponible vers cette wilaya.', 'infinitycod' ),
 				'da'             => Settings::currency_label(),
 			),
 		) );

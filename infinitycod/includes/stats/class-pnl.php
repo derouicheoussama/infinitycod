@@ -41,6 +41,8 @@ class Pnl {
 
 		$table = Schema::table( 'orders' );
 
+		$wtab  = Schema::table( 'wilayas' );
+
 		$row = $wpdb->get_row( $wpdb->prepare(
 			"SELECT
 				COUNT(*) AS total,
@@ -50,9 +52,11 @@ class Pnl {
 				SUM(CASE WHEN status IN ('confirmed','shipped','delivered') THEN total ELSE 0 END) AS revenue_confirmed,
 				SUM(CASE WHEN status = 'delivered' THEN total ELSE 0 END) AS revenue_delivered,
 				SUM(CASE WHEN status = 'delivered' THEN shipping ELSE 0 END) AS shipping_collected,
+				COALESCE(SUM(CASE WHEN o.status = 'returned' THEN w.return_fee ELSE 0 END),0) AS return_fees,
 				SUM(discount) AS discounts,
 				SUM(quantity) AS items
-			 FROM {$table} WHERE created_at BETWEEN %s AND %s", // phpcs:ignore WordPress.DB.PreparedSQL
+			 FROM {$table} o LEFT JOIN {$wtab} w ON w.code = o.wilaya_code
+			 WHERE o.created_at BETWEEN %s AND %s", // phpcs:ignore WordPress.DB.PreparedSQL
 			$from,
 			$to
 		), ARRAY_A );
@@ -70,6 +74,7 @@ class Pnl {
 			'confirmed'           => (int) $row['confirmed'],
 			'delivered'           => $delivered,
 			'returned'            => (int) $row['returned'],
+			'return_fees'         => (float) ( $row['return_fees'] ?? 0 ),
 			'revenue_confirmed'   => (float) $row['revenue_confirmed'],
 			'revenue_delivered'   => (float) $row['revenue_delivered'],
 			'shipping_collected'  => (float) $row['shipping_collected'],

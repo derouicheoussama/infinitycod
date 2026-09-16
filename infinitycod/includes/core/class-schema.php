@@ -89,6 +89,10 @@ class Schema {
 			free_shipping tinyint(1) NOT NULL DEFAULT 0,
 			delivery_days varchar(50) NOT NULL DEFAULT '',
 			min_order decimal(10,2) NOT NULL DEFAULT 0,
+			w5 decimal(10,2) NOT NULL DEFAULT -1,
+			w10 decimal(10,2) NOT NULL DEFAULT -1,
+			w_over decimal(10,2) NOT NULL DEFAULT 0,
+			return_fee decimal(10,2) NOT NULL DEFAULT 0,
 			PRIMARY KEY (code),
 			KEY country_code (country_code)
 		) $collate;";
@@ -148,6 +152,7 @@ class Schema {
 			carrier varchar(40) NOT NULL DEFAULT '',
 			tracking varchar(80) NOT NULL DEFAULT '',
 			carrier_status varchar(40) NOT NULL DEFAULT '',
+			ab_variant varchar(1) NOT NULL DEFAULT '',
 			fraud_score tinyint(3) unsigned NOT NULL DEFAULT 0,
 			fraud_flags text,
 			ip varchar(45) NOT NULL DEFAULT '',

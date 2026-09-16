@@ -170,6 +170,11 @@ class GeoPage {
 								<th><?php esc_html_e( 'Min (DA)', 'infinitycod' ); ?></th>
 								<th class="icod-col-check"><?php esc_html_e( 'Active', 'infinitycod' ); ?></th>
 								<th class="icod-col-check"><?php esc_html_e( 'Gratuite', 'infinitycod' ); ?></th>
+								<th><?php esc_html_e( '1–5 kg', 'infinitycod' ); ?></th>
+								<th><?php esc_html_e( '5–10 kg', 'infinitycod' ); ?></th>
+								<th><?php esc_html_e( '>10 kg (/kg)', 'infinitycod' ); ?></th>
+								<th><?php esc_html_e( 'Retour (DA)', 'infinitycod' ); ?></th>
+								<th class="icod-col-check"><?php esc_html_e( 'Copier', 'infinitycod' ); ?></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -188,6 +193,11 @@ class GeoPage {
 									<td><input type="number" step="0.01" min="0" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][min]" value="<?php echo esc_attr( $w['min_order'] > 0 ? $w['min_order'] : '' ); ?>" /></td>
 									<td class="icod-col-check"><input type="checkbox" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][active]" <?php checked( ! empty( $w['active'] ) ); ?> /></td>
 									<td class="icod-col-check"><input type="checkbox" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][free]" <?php checked( ! empty( $w['free_shipping'] ) ); ?> /></td>
+									<td><input type="number" step="0.01" min="0" style="width:74px" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][w5]" value="<?php echo esc_attr( (float) $w['w5'] >= 0 ? $w['w5'] : '' ); ?>" placeholder="—" /></td>
+									<td><input type="number" step="0.01" min="0" style="width:74px" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][w10]" value="<?php echo esc_attr( (float) $w['w10'] >= 0 ? $w['w10'] : '' ); ?>" placeholder="—" /></td>
+									<td><input type="number" step="0.01" min="0" style="width:64px" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][w_over]" value="<?php echo esc_attr( (float) $w['w_over'] > 0 ? $w['w_over'] : '' ); ?>" placeholder="0" /></td>
+									<td><input type="number" step="0.01" min="0" style="width:74px" name="icod_wilaya[<?php echo esc_attr( $w['code'] ); ?>][return_fee]" value="<?php echo esc_attr( (float) $w['return_fee'] > 0 ? $w['return_fee'] : '' ); ?>" placeholder="0" /></td>
+									<td class="icod-col-check"><button type="button" class="button icod-dup" data-code="<?php echo esc_attr( $w['code'] ); ?>" title="<?php esc_attr_e( 'Copier domicile/stopdesk de cette wilaya vers toutes les lignes vides', 'infinitycod' ); ?>">📋</button></td>
 								</tr>
 							<?php endforeach; ?>
 						</tbody>
@@ -195,10 +205,92 @@ class GeoPage {
 				</div>
 			</div>
 
+			<div class="icod-card icod-zones-card">
+				<h2><?php esc_html_e( 'Zones régionales (tarifs de repli)', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Une wilaya sans tarif personnalisé hérite du tarif de sa zone. Codes séparés par des virgules. Vide = aucune zone.', 'infinitycod' ); ?></p>
+				<div id="icod-zones-rows">
+					<?php foreach ( \InfinityCod\Shipping\Zones::all() as $i => $zone ) : ?>
+						<div class="icod-zone-row">
+							<input type="text" name="icod_zones[<?php echo esc_attr( $i ); ?>][name]" value="<?php echo esc_attr( $zone['name'] ); ?>" placeholder="Centre" />
+							<input type="text" name="icod_zones[<?php echo esc_attr( $i ); ?>][codes]" value="<?php echo esc_attr( implode( ',', $zone['codes'] ) ); ?>" placeholder="16,35,44" dir="ltr" />
+							<input type="number" step="0.01" min="0" name="icod_zones[<?php echo esc_attr( $i ); ?>][home]" value="<?php echo esc_attr( $zone['home'] > 0 ? $zone['home'] : '' ); ?>" placeholder="Domicile" />
+							<input type="number" step="0.01" min="0" name="icod_zones[<?php echo esc_attr( $i ); ?>][desk]" value="<?php echo esc_attr( $zone['desk'] > 0 ? $zone['desk'] : '' ); ?>" placeholder="Stopdesk" />
+							<button type="button" class="button icod-zone-del">✕</button>
+						</div>
+					<?php endforeach; ?>
+				</div>
+				<p>
+					<button type="button" class="button" id="icod-zone-add"><?php esc_html_e( '+ Ajouter une zone', 'infinitycod' ); ?></button>
+					<button type="button" class="button" id="icod-zone-preset"><?php esc_html_e( 'Grille nationale (Centre/Est/Ouest/Sud)', 'infinitycod' ); ?></button>
+				</p>
+			</div>
+
 			<p class="icod-submit">
 				<button type="submit" class="button button-primary button-hero"><?php esc_html_e( 'Enregistrer les tarifs', 'infinitycod' ); ?></button>
 			</p>
 		</form>
+
+		<script>
+		(function () {
+			var rows = document.getElementById('icod-zones-rows');
+			function addZone(z) {
+				var i = rows.querySelectorAll('.icod-zone-row').length;
+				var div = document.createElement('div');
+				div.className = 'icod-zone-row';
+				div.innerHTML = '<input type="text" name="icod_zones[' + i + '][name]" placeholder="Centre" />'
+					+ '<input type="text" name="icod_zones[' + i + '][codes]" placeholder="16,35,44" dir="ltr" />'
+					+ '<input type="number" step="0.01" min="0" name="icod_zones[' + i + '][home]" placeholder="Domicile" />'
+					+ '<input type="number" step="0.01" min="0" name="icod_zones[' + i + '][desk]" placeholder="Stopdesk" />'
+					+ '<button type="button" class="button icod-zone-del">✕</button>';
+				if (z) {
+					div.querySelector('[name*="[name]"]').value = z.name || '';
+					div.querySelector('[name*="[codes]"]').value = z.codes || '';
+				}
+				rows.appendChild(div);
+			}
+			if (rows) {
+				rows.addEventListener('click', function (e) {
+					if (e.target.classList.contains('icod-zone-del')) { e.target.closest('.icod-zone-row').remove(); }
+				});
+				var add = document.getElementById('icod-zone-add');
+				if (add) { add.addEventListener('click', function () { addZone(null); }); }
+				var preset = document.getElementById('icod-zone-preset');
+				if (preset) {
+					preset.addEventListener('click', function () {
+						var list = [
+							{ name: 'Centre', codes: '16,35,44,09,06,42,26' },
+							{ name: 'Est', codes: '25,05,24,23,36,43,18,41,21,04' },
+							{ name: 'Ouest', codes: '31,22,13,27,29,48,14,02,03,46,38' },
+							{ name: 'Sud (Hauts Plateaux & Grand Sud)', codes: '47,32,39,30,51,52,55,56,57,58,33,34,45,07,40,17,54,53,28,37,08,49,12,15,19,20,11,10,01,50' }
+						];
+						rows.innerHTML = '';
+						list.forEach(addZone);
+					});
+				}
+			}
+			/* Duplication : copie domicile/stopdesk vers les lignes vides. */
+			document.querySelectorAll('.icod-dup').forEach(function (btn) {
+				btn.addEventListener('click', function () {
+					var code = btn.getAttribute('data-code');
+					var src = document.querySelector('tr [name$="][' + code + '][home]"]');
+					if (!src) { return; }
+					var srcHome = src.value, srcDesk = src.closest('tr').querySelector('[name$="[desk]"]').value;
+					if (srcHome === '') { return; }
+					var n = 0;
+					document.querySelectorAll('.icod-wilayas-table tbody tr').forEach(function (tr) {
+						var home = tr.querySelector('[name$="[home]"]');
+						if (!home || home.value !== '' || tr.contains(btn)) { return; }
+						home.value = srcHome;
+						var desk = tr.querySelector('[name$="[desk]"]');
+						if (desk && desk.value === '') { desk.value = srcDesk; }
+						n++;
+					});
+					btn.textContent = '+' + n;
+					setTimeout(function () { btn.textContent = '📋'; }, 1500);
+				});
+			});
+		})();
+		</script>
 
 		<form method="post" enctype="multipart/form-data" class="icod-card" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
 			<strong style="font-size:13px">📥 <?php esc_html_e( 'Import CSV des tarifs', 'infinitycod' ); ?></strong>

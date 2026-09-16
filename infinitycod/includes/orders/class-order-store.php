@@ -90,18 +90,31 @@ class OrderStore {
 			return array( 'ok' => false, 'error' => 'invalid_wilaya', 'order_id' => 0, 'icod_id' => 0, 'total' => 0 );
 		}
 
-		$shipping_price = $rates ? $rates->price( $wilaya_code, $commune, $mode ) : -1;
-		if ( $shipping_price < 0 ) {
-			return array( 'ok' => false, 'error' => 'no_shipping_rate', 'order_id' => 0, 'icod_id' => 0, 'total' => 0 );
+		// Wilaya/zone temporairement suspendue par le marchand.
+		if ( isset( $wilaya['active'] ) && ! (int) $wilaya['active'] ) {
+			return array( 'ok' => false, 'error' => 'wilaya_closed', 'order_id' => 0, 'icod_id' => 0, 'total' => 0 );
 		}
 
 		$subtotal = round( $unit_price * $quantity, 2 );
 
-		// Livraison gratuite (quantité OU montant) + supplément poids.
+		// Livraison : paliers de poids par wilaya (sinon tarif de base +
+		// supplément poids global), puis gratuité quantité/montant.
+		$weight       = \InfinityCod\Shipping\RatesManager::order_weight( $product->get_id(), $quantity );
+		$tiered       = $rates ? $rates->price_weighted( $wilaya_code, $commune, $mode, $weight ) : null;
+		if ( null !== $tiered ) {
+			$shipping_price = $tiered;
+		} else {
+			$shipping_price = $rates ? $rates->price( $wilaya_code, $commune, $mode ) : -1;
+			if ( $shipping_price < 0 ) {
+				return array( 'ok' => false, 'error' => 'no_shipping_rate', 'order_id' => 0, 'icod_id' => 0, 'total' => 0 );
+			}
+		}
+
+		// Livraison gratuite (quantité OU montant) + supplément poids global
+		// uniquement hors paliers (un palier inclut déjà le poids).
 		if ( $rates && $rates->is_free( $wilaya_code, $quantity, $subtotal ) ) {
 			$shipping_price = 0;
-		} else {
-			$weight         = \InfinityCod\Shipping\RatesManager::order_weight( $product->get_id(), $quantity );
+		} elseif ( null === $tiered ) {
 			$shipping_price = $shipping_price + \InfinityCod\Shipping\RatesManager::weight_fee( $weight );
 		}
 
@@ -243,6 +256,7 @@ class OrderStore {
 				'total'         => (float) $order->get_total(),
 				'status'        => 'pending',
 				'fraud_score'   => isset( $data['fraud_score'] ) ? (int) $data['fraud_score'] : 0,
+				'ab_variant'    => ( isset( $data['ab'] ) && 'B' === $data['ab'] ) ? 'B' : 'A',
 				'fraud_flags'   => isset( $data['fraud_flags'] ) ? implode( ',', (array) $data['fraud_flags'] ) : '',
 				'ip'            => isset( $data['ip'] ) ? $data['ip'] : '',
 				'fingerprint'   => isset( $data['fingerprint'] ) ? substr( (string) $data['fingerprint'], 0, 64 ) : '',
@@ -330,6 +344,31 @@ class OrderStore {
 	 * @param string $status  Nouveau statut (clé de STATUSES).
 	 * @return bool
 	 */
+	/**
+	 * Vérifie le lien signé « je confirme » et passe la commande en confirmée.
+	 *
+	 * @param int    $icod_id Ligne interne.
+	 * @param string $token   Jeton HMAC du lien.
+	 * @return bool
+	 */
+	public function confirm_from_link( $icod_id, $token ) {
+		global $wpdb;
+		$icod_id = (int) $icod_id;
+		$row    = $wpdb->get_row( $wpdb->prepare( 'SELECT id, phone, status FROM ' . Schema::table( 'orders' ) . ' WHERE id = %d', $icod_id ), ARRAY_A );
+		if ( ! is_array( $row ) || '' === (string) $token ) {
+			return false;
+		}
+		$expect = substr( hash_hmac( 'sha256', $icod_id . '|' . (string) $row['phone'], wp_salt( 'auth' ) ), 0, 24 );
+		if ( ! hash_equals( $expect, (string) $token ) ) {
+			return false;
+		}
+		if ( 'pending' !== $row['status'] ) {
+			return true; // Déjà traitée : lien consommé, page positive.
+		}
+		$this->set_status( $icod_id, 'confirmed' );
+		return true;
+	}
+
 	public function set_status( $icod_id, $status ) {
 		if ( ! array_key_exists( $status, self::STATUSES ) ) {
 			return false;

@@ -5,7 +5,7 @@ Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.30.4
+Stable tag: 5.31.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,18 @@ Yes, the customer pays on the secure Chargily page. Confirmation is verified by 
 3. E-commerce style / advanced customization
 
 == Changelog ==
+
+= 5.31.0 =
+* Nouveau : tarifs par paliers de poids par wilaya (1-5 kg, 5-10 kg, /kg au-delà) — calcul serveur et affichage formulaire.
+* Nouveau : zones régionales (Centre/Est/Ouest/Sud en 1 clic) avec tarifs de repli pour les wilayas sans tarif personnalisé.
+* Nouveau : duplication des tarifs d'une wilaya vers les lignes vides + import/export CSV étendus (paliers, délais, retours).
+* Nouveau : wilaya suspendue — désactivable en un clic, affichée « indisponible » et bloquée côté serveur.
+* Nouveau : A/B test natif du formulaire (variante B : titre/bouton/couleur) avec taux de conversion par variante.
+* Nouveau : confirmation client en 1 clic depuis WhatsApp (lien signé, commande passée en confirmée).
+* Nouveau : webhooks sortants signés HMAC (Google Sheets, Zapier, Make) + synthèse Telegram du rapport hebdo.
+* Nouveau : blacklist communautaire opt-in + historique de retours par numéro dans l'anti-fraude.
+* Nouveau : impression en lot des bordereaux de livraison depuis Commandes.
+* Nouveau : export/import JSON de la configuration (backup, duplication boutique) + provision des frais de retour dans le P&L.
 
 = 5.30.4 =
 * Nouveau : menu latéral restructuré en 4 groupes (Pilotage, Vente & Livraison, Analyse, Système) avec séparateurs visuels non cliquables.

@@ -73,6 +73,11 @@ class StatsPage {
 					<p class="icod-kpi-label">DA</p>
 				</div>
 				<div class="icod-card icod-kpi-card">
+					<h2><?php esc_html_e( 'Provision retours', 'infinitycod' ); ?></h2>
+					<p class="icod-kpi-value"><?php echo esc_html( number_format_i18n( $kpis['return_fees'] ?? 0, 0 ) ); ?></p>
+					<p class="icod-kpi-label">DA</p>
+				</div>
+				<div class="icod-card icod-kpi-card">
 					<h2><?php esc_html_e( 'CA confirmé', 'infinitycod' ); ?></h2>
 					<p class="icod-kpi-value"><?php echo esc_html( number_format_i18n( $kpis['revenue_confirmed'], 0 ) ); ?></p>
 					<p class="icod-kpi-label">DA</p>

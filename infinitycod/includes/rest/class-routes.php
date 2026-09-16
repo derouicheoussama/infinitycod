@@ -224,21 +224,27 @@ class Routes {
 
 		$rates = infinitycod()->module( 'rates' );
 
-		$price_home = $rates ? $rates->price( $wilaya_code, $commune, RatesManager::MODE_HOME ) : -1;
-		$price_desk = $rates ? $rates->price( $wilaya_code, $commune, RatesManager::MODE_DESK ) : -1;
-
-		// Délai de livraison + commande minimum de la wilaya (Wilayas & Tarifs).
-		$estimate  = $rates ? $rates->delivery_estimate( $wilaya_code ) : '';
-		$min_order = $rates ? $rates->min_order( $wilaya_code ) : 0.0;
-
 		$unit_price = (float) $product->get_price();
 		$subtotal   = round( $unit_price * $quantity, 2 );
 		$free       = $rates ? $rates->is_free( $wilaya_code, $quantity, $subtotal ) : false;
 		$discount   = OffersEngine::discount( $product->get_id(), $unit_price, $quantity );
 
-		// Supplément poids (si pas de livraison gratuite).
-		$weight     = \InfinityCod\Shipping\RatesManager::order_weight( $product->get_id(), $quantity );
-		$weight_fee = \InfinityCod\Shipping\RatesManager::weight_fee( $weight );
+		// Poids total : paliers par wilaya (prioritaires) sinon supplément global.
+		$weight = \InfinityCod\Shipping\RatesManager::order_weight( $product->get_id(), $quantity );
+		$tiered_home = $rates ? $rates->price_weighted( $wilaya_code, $commune, RatesManager::MODE_HOME, $weight ) : null;
+		$tiered_desk = $rates ? $rates->price_weighted( $wilaya_code, $commune, RatesManager::MODE_DESK, $weight ) : null;
+		$tiered      = ( RatesManager::MODE_DESK === $mode ) ? $tiered_desk : $tiered_home;
+
+		$price_home = null !== $tiered_home ? $tiered_home : ( $rates ? $rates->price( $wilaya_code, $commune, RatesManager::MODE_HOME ) : -1 );
+		$price_desk = null !== $tiered_desk ? $tiered_desk : ( $rates ? $rates->price( $wilaya_code, $commune, RatesManager::MODE_DESK ) : -1 );
+
+		// Délai de livraison + commande minimum de la wilaya (Wilayas & Tarifs).
+		$estimate  = $rates ? $rates->delivery_estimate( $wilaya_code ) : '';
+		$min_order = $rates ? $rates->min_order( $wilaya_code ) : 0.0;
+
+		// Supplément poids global : uniquement hors paliers (un palier inclut
+		// déjà le poids) et si pas de livraison gratuite.
+		$weight_fee = ( null === $tiered ) ? \InfinityCod\Shipping\RatesManager::weight_fee( $weight ) : 0.0;
 
 		$shipping = ( RatesManager::MODE_DESK === $mode ? $price_desk : $price_home );
 		$shipping = $free ? 0 : $shipping + $weight_fee;
@@ -588,6 +594,7 @@ class Routes {
 			'fraud_flags'  => isset( $assessment['flags'] ) ? $assessment['flags'] : array(),
 			'ip'           => Shield::client_ip(),
 			'fingerprint'  => isset( $body['fingerprint'] ) ? sanitize_text_field( $body['fingerprint'] ) : '',
+			'ab'           => ( isset( $body['ab'] ) && 'B' === $body['ab'] ) ? 'B' : 'A',
 		) );
 
 		if ( empty( $result['ok'] ) ) {
@@ -596,6 +603,7 @@ class Routes {
 				'insufficient_stock'  => __( 'Stock insuffisant pour cette quantité.', 'infinitycod' ),
 				'invalid_wilaya'      => __( 'Wilaya non desservie.', 'infinitycod' ),
 				'no_shipping_rate'    => __( 'Aucun tarif de livraison pour cette destination.', 'infinitycod' ),
+				'wilaya_closed'       => __( 'Livraison temporairement indisponible vers cette wilaya.', 'infinitycod' ),
 			);
 			$code = $result['error'];
 			return new \WP_Error( 'icod_' . $code, isset( $messages[ $code ] ) ? $messages[ $code ] : __( 'Une erreur est survenue, réessayez.', 'infinitycod' ), array( 'status' => 400 ) );

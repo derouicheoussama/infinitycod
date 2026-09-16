@@ -892,6 +892,7 @@
 				note: (el(form, '.icod-note') || { value: '' }).value.trim(),
 				honeypot: (el(form, '.icod-hp') || { value: '' }).value,
 				ts: (el(form, '[name="icod_ts"]') || { value: '' }).value,
+				ab: (el(form, '[name="icod_ab"]') || { value: '' }).value,
 				sig: (el(form, '[name="icod_sig"]') || { value: '' }).value,
 				fingerprint: fpInput ? fpInput.value : '',
 				icod_captcha: captchaToken || (captchaInput ? captchaInput.value : ''),
@@ -941,6 +942,10 @@
 					return;
 				}
 				if (!json.ok) {
+					if (json.code === 'icod_wilaya_closed') {
+						showMsg(I18N.wilayaClosed || 'Livraison temporairement indisponible vers cette wilaya.', 'error');
+						return;
+					}
 					if (json.code === 'blocked') {
 						showMsg(I18N.blocked, 'error');
 					} else {

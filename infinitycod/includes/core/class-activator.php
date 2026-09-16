@@ -360,6 +360,28 @@ class Activator {
 					Settings::set( 'form_position', 'full_width' );
 				}
 			},
+			'5.31.0_logistics' => function () {
+				global $wpdb;
+				// Paliers de poids + frais de retour par wilaya, variante A/B par commande.
+				$wtable   = \InfinityCod\Core\Schema::table( 'wilayas' );
+				$existing = (array) $wpdb->get_col( "DESCRIBE {$wtable}", 0 );
+				$columns  = array(
+					'w5'         => "ALTER TABLE {$wtable} ADD COLUMN w5 decimal(10,2) NOT NULL DEFAULT -1",
+					'w10'        => "ALTER TABLE {$wtable} ADD COLUMN w10 decimal(10,2) NOT NULL DEFAULT -1",
+					'w_over'     => "ALTER TABLE {$wtable} ADD COLUMN w_over decimal(10,2) NOT NULL DEFAULT 0",
+					'return_fee' => "ALTER TABLE {$wtable} ADD COLUMN return_fee decimal(10,2) NOT NULL DEFAULT 0",
+				);
+				foreach ( $columns as $name => $sql ) {
+					if ( ! in_array( $name, $existing, true ) ) {
+						$wpdb->query( $sql );
+					}
+				}
+				$otable   = \InfinityCod\Core\Schema::table( 'orders' );
+				$ocolumns = (array) $wpdb->get_col( "DESCRIBE {$otable}", 0 );
+				if ( ! in_array( 'ab_variant', $ocolumns, true ) ) {
+					$wpdb->query( "ALTER TABLE {$otable} ADD COLUMN ab_variant varchar(1) NOT NULL DEFAULT ''" );
+				}
+			},
 			'1.7.1_license_server' => function () {
 				$license_server = Settings::get( 'license_server', '' );
 				if ( $license_server && false !== strpos( (string) $license_server, 'factexpert.online' ) ) {

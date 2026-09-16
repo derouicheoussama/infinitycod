@@ -1176,6 +1176,35 @@ class SettingsPage {
 					<input type="checkbox" name="icod[sticky_bar]" value="1" <?php checked( (int) Settings::get( 'sticky_bar' ), 1 ); ?> />
 					<span><?php esc_html_e( 'Barre « Commander maintenant » collante sur mobile — pleine largeur, récapitulatif + total + bouton toujours visibles', 'infinitycod' ); ?></span>
 				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[show_delivery_days]" value="1" <?php checked( (int) Settings::get( 'show_delivery_days', 1 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Afficher le délai de livraison estimé (donnée saisie par wilaya dans Géo & Tarifs)', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+
+			<div class="icod-card" style="margin-top:16px">
+				<h2>🧪 <?php esc_html_e( 'A/B test du formulaire', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Les visiteurs reçoivent aléatoirement la variante A (vos réglages actuels) ou la variante B ci-dessous — le même visiteur garde toujours la même variante. Le taux de conversion par variante s’affiche dans Statistiques P&L.', 'infinitycod' ); ?></p>
+				<div class="icod-toggles">
+					<label class="icod-toggle">
+						<input type="checkbox" name="icod[abtest_enabled]" value="1" <?php checked( (int) Settings::get( 'abtest_enabled' ), 1 ); ?> />
+						<span><?php esc_html_e( 'Activer le test A/B (50 / 50)', 'infinitycod' ); ?></span>
+					</label>
+				</div>
+				<div class="icod-grid">
+					<label>
+						<span><?php esc_html_e( 'Variante B — titre', 'infinitycod' ); ?></span>
+						<input type="text" name="icod[ab_b_title]" value="<?php echo esc_attr( Settings::get( 'ab_b_title', '' ) ); ?>" placeholder="<?php esc_attr_e( 'Vide = même titre que la variante A', 'infinitycod' ); ?>" />
+					</label>
+					<label>
+						<span><?php esc_html_e( 'Variante B — texte du bouton', 'infinitycod' ); ?></span>
+						<input type="text" name="icod[ab_b_button]" value="<?php echo esc_attr( Settings::get( 'ab_b_button', '' ) ); ?>" placeholder="<?php esc_attr_e( 'Vide = même bouton que la variante A', 'infinitycod' ); ?>" />
+					</label>
+					<label>
+						<span><?php esc_html_e( 'Variante B — couleur d’accent', 'infinitycod' ); ?></span>
+						<input type="color" name="icod[ab_b_accent]" value="<?php echo esc_attr( Settings::get( 'ab_b_accent', '' ) ); ?>" />
+					</label>
+				</div>
 			</div>
 			<p class="description" style="margin-top:12px"><strong><?php esc_html_e( 'Éléments affichés', 'infinitycod' ); ?></strong></p>
 			<div class="icod-toggles">
@@ -1741,6 +1770,46 @@ class SettingsPage {
 			</label>
 		</div>
 		<div class="icod-card">
+			<h2>🔗 <?php esc_html_e( 'Intégrations & automatisation', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Webhook appelé à chaque commande (Google Sheets via Apps Script, Zapier, Make, CRM). Signature HMAC-SHA256 dans l’en-tête X-InfinityCod-Signature. Les webhooks Discord/Telegram de nouvelle commande se règlent dans l’onglet Formulaire.', 'infinitycod' ); ?></p>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'URL du webhook', 'infinitycod' ); ?></span>
+					<input type="url" name="icod[webhook_url]" dir="ltr" class="regular-text" value="<?php echo esc_attr( Settings::get( 'webhook_url', '' ) ); ?>" placeholder="https://script.google.com/…" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Secret de signature', 'infinitycod' ); ?></span>
+					<input type="password" name="icod[webhook_secret]" dir="ltr" autocomplete="new-password" value="" class="regular-text" placeholder="<?php esc_attr_e( 'Laisser vide pour conserver le secret actuel', 'infinitycod' ); ?>" />
+				</label>
+			</div>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[webhook_on_status]" value="1" <?php checked( (int) Settings::get( 'webhook_on_status' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Notifier aussi les changements de statut (confirmée, expédiée, livrée…)', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[community_blacklist]" value="1" <?php checked( (int) Settings::get( 'community_blacklist' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Blacklist communautaire : penaliser les numéros signalés par d’autres boutiques InfinityCod (numéros hachés, opt-in)', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid" style="margin-top:10px">
+				<label>
+					<span><?php esc_html_e( 'Exporter la configuration (JSON)', 'infinitycod' ); ?></span>
+					<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=icod_settings_export' ), 'icod_settings_io' ) ); ?>">⬇️ <?php esc_html_e( 'Télécharger', 'infinitycod' ); ?></a>
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Importer une configuration', 'infinitycod' ); ?></span>
+					<form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:flex;gap:8px;align-items:center">
+						<input type="hidden" name="action" value="icod_settings_import" />
+						<?php wp_nonce_field( 'icod_settings_io' ); ?>
+						<input type="file" name="icod_settings_json" accept=".json" required />
+						<button type="submit" class="button">⬆️ <?php esc_html_e( 'Importer', 'infinitycod' ); ?></button>
+					</form>
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
 			<h2><?php esc_html_e( 'Devise', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Appliquée partout : formulaire, récapitulatif, commandes WooCommerce, pixels et tableaux de bord. Marché arabe : DZD, MAD, TND, EGP, SAR, AED…', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
@@ -2073,6 +2142,11 @@ class SettingsPage {
 			'reassurance_top'    => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_email'         => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'sticky_bar'         => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'show_delivery_days' => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'abtest_enabled'     => array( 'tab' => 'form', 'type' => 'toggle' ),
+			'ab_b_title'         => array( 'tab' => 'form', 'type' => 'text' ),
+			'ab_b_button'        => array( 'tab' => 'form', 'type' => 'text' ),
+			'ab_b_accent'        => array( 'tab' => 'form', 'type' => 'color' ),
 
 			// ——— Onglet Commande ———
 			'success_title'      => array( 'tab' => 'order', 'type' => 'text' ),
@@ -2155,6 +2229,10 @@ class SettingsPage {
 			'currency_position'    => array( 'tab' => 'advanced', 'type' => 'enum', 'choices' => array( 'right', 'left' ) ),
 			'default_country'      => array( 'tab' => 'advanced', 'type' => 'country' ),
 			'countries'            => array( 'tab' => 'advanced', 'type' => 'countries' ),
+			'webhook_url'          => array( 'tab' => 'advanced', 'type' => 'url' ),
+			'webhook_secret'       => array( 'tab' => 'advanced', 'type' => 'secret' ),
+			'webhook_on_status'    => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'community_blacklist'  => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 
 			// ——— Vente PayPal (configurée depuis l'onglet Licence) ———
 			'paypal_enabled'        => array( 'tab' => 'license', 'type' => 'toggle' ),

@@ -62,6 +62,9 @@ class AdminManager {
 		add_action( 'admin_post_icod_save_wilayas', array( $this, 'handle_wilayas_save' ) );
 		add_action( 'admin_post_icod_rates_export', array( $this, 'handle_rates_export' ) );
 		add_action( 'admin_post_icod_rates_import', array( $this, 'handle_rates_import' ) );
+		add_action( 'admin_post_icod_bordereaux', array( $this, 'handle_bordereaux' ) );
+		add_action( 'admin_post_icod_settings_export', array( $this, 'handle_settings_export' ) );
+		add_action( 'admin_post_icod_settings_import', array( $this, 'handle_settings_import' ) );
 		add_action( 'wp_ajax_icod_save_commune', array( $this, 'handle_commune_save' ) );
 		add_action( 'admin_post_icod_orders_bulk', array( $this, 'handle_orders_bulk' ) );
 		add_action( 'wp_ajax_icod_order_status', array( $this, 'handle_order_status' ) );
@@ -744,7 +747,16 @@ class AdminManager {
 				'free'   => empty( $row['free'] ) ? 0 : 1,
 				'min'    => isset( $row['min'] ) && '' !== $row['min'] ? (float) $row['min'] : 0,
 				'days'   => isset( $row['days'] ) ? sanitize_text_field( (string) $row['days'] ) : '',
+				'w5'     => isset( $row['w5'] ) && '' !== $row['w5'] ? (float) $row['w5'] : -1,
+				'w10'    => isset( $row['w10'] ) && '' !== $row['w10'] ? (float) $row['w10'] : -1,
+				'w_over' => isset( $row['w_over'] ) && '' !== $row['w_over'] ? (float) $row['w_over'] : 0,
+				'return_fee' => isset( $row['return_fee'] ) && '' !== $row['return_fee'] ? (float) $row['return_fee'] : 0,
 			);
+		}
+
+		// Zones régionales (tarifs de repli par groupe de wilayas).
+		if ( isset( $_POST['icod_zones'] ) && is_array( $_POST['icod_zones'] ) ) {
+			\InfinityCod\Shipping\Zones::save( wp_unslash( $_POST['icod_zones'] ) );
 		}
 
 		// Livraison gratuite intelligente + poids + sync transporteurs.
@@ -1403,6 +1415,10 @@ class AdminManager {
 				'desk'   => isset( $row[3] ) && '' !== $row[3] ? (float) str_replace( ',', '.', $row[3] ) : -1,
 				'active' => isset( $row[4] ) ? (int) (bool) $row[4] : 1,
 				'free'   => isset( $row[5] ) ? (int) (bool) $row[5] : 0,
+				'w5'     => isset( $row[6] ) && '' !== $row[6] ? (float) str_replace( ',', '.', $row[6] ) : -1,
+				'w10'    => isset( $row[7] ) && '' !== $row[7] ? (float) str_replace( ',', '.', $row[7] ) : -1,
+				'w_over' => isset( $row[8] ) && '' !== $row[8] ? (float) str_replace( ',', '.', $row[8] ) : 0,
+				'return_fee' => isset( $row[9] ) && '' !== $row[9] ? (float) str_replace( ',', '.', $row[9] ) : 0,
 			);
 			if ( $rates && $rates->save_wilaya_prices( array( str_pad( $code, 2, '0', STR_PAD_LEFT ) => $data ) ) ) {
 				$count++;
@@ -1427,7 +1443,7 @@ class AdminManager {
 
 		global $wpdb;
 		$table = \InfinityCod\Core\Schema::table( 'wilayas' );
-		$rows  = $wpdb->get_results( "SELECT code, name_fr, price_home, price_desk, active, free_shipping FROM {$table} ORDER BY code ASC", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery
+		$rows  = $wpdb->get_results( "SELECT code, name_fr, price_home, price_desk, active, free_shipping, delivery_days, min_order, w5, w10, w_over, return_fee FROM {$table} ORDER BY code ASC", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.DirectDatabaseQuery
 
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
@@ -1435,7 +1451,7 @@ class AdminManager {
 
 		$out = fopen( 'php://output', 'w' );
 		fwrite( $out, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- flux de telechargement CSV.
-		fputcsv( $out, array( 'code', 'wilaya', 'domicile', 'stopdesk', 'active', 'gratuite' ), ';' );
+		fputcsv( $out, array( 'code', 'wilaya', 'domicile', 'stopdesk', 'active', 'gratuite', 'delai', 'min', 'poids_1_5', 'poids_5_10', 'poids_supp_kg', 'frais_retour' ), ';' );
 
 		foreach ( (array) $rows as $row ) {
 			$cells = array(
@@ -1445,6 +1461,12 @@ class AdminManager {
 				(float) $row['price_desk'] < 0 ? '' : $row['price_desk'],
 				$row['active'] ? '1' : '0',
 				$row['free_shipping'] ? '1' : '0',
+				(string) $row['delivery_days'],
+				(float) $row['min_order'] > 0 ? $row['min_order'] : '',
+				(float) $row['w5'] < 0 ? '' : $row['w5'],
+				(float) $row['w10'] < 0 ? '' : $row['w10'],
+				(float) $row['w_over'] > 0 ? $row['w_over'] : '',
+				(float) $row['return_fee'] > 0 ? $row['return_fee'] : '',
 			);
 			// Anti CSV-injection.
 			$cells = array_map( function ( $v ) {
@@ -1661,5 +1683,147 @@ class AdminManager {
 			'package' => $pkg,
 		);
 		set_site_transient( 'update_plugins', $current );
+	}
+
+
+	/**
+	 * Vue imprimable des bordereaux des commandes cochées (admin-post).
+	 *
+	 * @return void
+	 */
+	public function handle_bordereaux() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+		check_admin_referer( 'icod_bordereaux' );
+
+		$ids = isset( $_GET['ids'] ) ? array_filter( array_map( 'absint', explode( ',', wp_unslash( $_GET['ids'] ) ) ) ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ids absints un par un.
+		$ids = array_values( array_unique( array_slice( $ids, 0, 200 ) ) );
+
+		nocache_headers();
+		header( 'Content-Type: text/html; charset=utf-8' );
+
+		echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' . esc_html__( 'Bordereaux InfinityCod', 'infinitycod' ) . '</title>';
+		echo '<style>body{font-family:Arial,sans-serif;color:#111;margin:16px}.bordereau{border:2px solid #111;border-radius:12px;padding:14px 18px;margin:0 0 18px;page-break-after:always;max-width:720px}.bordereau h2{margin:0 0 4px;font-size:18px;display:flex;justify-content:space-between}.bordereau .muted{color:#555;font-size:12px}.bordereau table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}.bordereau td{padding:3px 0;vertical-align:top}.bordereau td:first-child{color:#555;width:130px}.sign{display:flex;gap:24px;margin-top:26px}.sign div{flex:1;border-top:1px dashed #777;padding-top:6px;text-align:center;font-size:12px;color:#555}.cod{font-size:22px;font-weight:800}@media print{.noprint{display:none}}</style>';
+		echo '</head><body>';
+		echo '<p class="noprint"><button onclick="window.print()" style="padding:8px 16px">🖨️ ' . esc_html__( 'Imprimer / PDF', 'infinitycod' ) . '</button></p>';
+
+		if ( ! $ids ) {
+			echo '<p>' . esc_html__( 'Aucune commande sélectionnée.', 'infinitycod' ) . '</p></body></html>';
+			exit;
+		}
+
+		global $wpdb;
+		$table = \InfinityCod\Core\Schema::table( 'orders' );
+		$in    = implode( ',', $ids );
+		$rows  = $wpdb->get_results( "SELECT * FROM {$table} WHERE id IN ({$in}) ORDER BY id ASC", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB
+		$geo   = infinitycod()->module( 'geo' );
+
+		foreach ( (array) $rows as $r ) {
+			$wilaya_name = '';
+			if ( $geo ) {
+				$wrow = $geo->wilaya( (string) $r['wilaya_code'] );
+				$wilaya_name = is_array( $wrow ) && isset( $wrow['name_fr'] ) ? (string) $wrow['name_fr'] : '';
+			}
+			$mode = 'desk' === $r['delivery_mode']
+				? /* translators: %s : nom de la wilaya. */ sprintf( __( 'Stopdesk — %s', 'infinitycod' ), $wilaya_name . ( $r['stopdesk'] ? ' (' . $r['stopdesk'] . ')' : '' ) )
+				: /* translators: %s : nom de la wilaya. */ sprintf( __( 'Domicile — %s', 'infinitycod' ), $wilaya_name . ( $r['commune'] ? ' (' . $r['commune'] . ')' : '' ) );
+
+			echo '<div class="bordereau">';
+			echo '<h2>' . esc_html( get_bloginfo( 'name' ) ) . '<span>#' . esc_html( $r['wc_order_id'] ? $r['wc_order_id'] : $r['id'] ) . '</span></h2>';
+			echo '<div class="muted">' . esc_html( mysql2date( 'd/m/Y H:i', $r['created_at'] ) ) . '</div>';
+			echo '<table>';
+			echo '<tr><td>' . esc_html__( 'Client', 'infinitycod' ) . '</td><td><strong>' . esc_html( $r['customer_name'] ) . '</strong></td></tr>';
+			echo '<tr><td>' . esc_html__( 'Téléphone', 'infinitycod' ) . '</td><td>' . esc_html( $r['phone'] ) . '</td></tr>';
+			echo '<tr><td>' . esc_html__( 'Livraison', 'infinitycod' ) . '</td><td>' . esc_html( $mode ) . '</td></tr>';
+			echo '<tr><td>' . esc_html__( 'Produit', 'infinitycod' ) . '</td><td>' . esc_html( $r['product_id'] ? get_the_title( (int) $r['product_id'] ) : '' ) . ' × ' . (int) $r['quantity'] . '</td></tr>';
+			echo '<tr><td>' . esc_html__( 'Statut', 'infinitycod' ) . '</td><td>' . esc_html( $r['status'] ) . '</td></tr>';
+			echo '</table>';
+			echo '<div class="cod">' . esc_html__( 'À encaisser', 'infinitycod' ) . ' : ' . esc_html( number_format_i18n( (float) $r['total'], 0 ) . ' ' . \InfinityCod\Core\Settings::currency_label() ) . '</div>';
+			echo '<div class="sign"><div>' . esc_html__( 'Signature du client', 'infinitycod' ) . '</div><div>' . esc_html__( 'Cachet boutique', 'infinitycod' ) . '</div></div>';
+			echo '</div>';
+		}
+
+		echo '</body></html>';
+		exit;
+	}
+
+	/**
+	 * Export JSON de la configuration (backup / duplication boutique).
+	 *
+	 * @return void
+	 */
+	public function handle_settings_export() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+		check_admin_referer( 'icod_settings_io' );
+
+		nocache_headers();
+		header( 'Content-Type: application/json; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=infinitycod-config-' . gmdate( 'Ymd' ) . '.json' );
+
+		$settings = get_option( 'infinitycod_settings', array() );
+		$settings = is_array( $settings ) ? $settings : array();
+		unset( $settings['webhook_secret'] ); // Secret régénérable : jamais exporté.
+		echo (string) wp_json_encode(
+			array(
+				'plugin'    => 'infinitycod',
+				'version'   => INFINITYCOD_VERSION,
+				'exported'  => gmdate( 'c' ),
+				'site'      => home_url(),
+				'settings'  => $settings,
+			),
+			JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+		);
+		exit;
+	}
+
+	/**
+	 * Import JSON de la configuration (fusion sur les clés connues).
+	 *
+	 * @return void
+	 */
+	public function handle_settings_import() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+		}
+		check_admin_referer( 'icod_settings_io' );
+
+		$redirect = admin_url( 'admin.php?page=infinitycod-settings&tab=advanced&icod_msg=' );
+
+		if ( empty( $_FILES['icod_settings_json']['tmp_name'] ) ) {
+			wp_safe_redirect( $redirect . 'import-empty' );
+			exit;
+		}
+
+		$raw  = (string) file_get_contents( $_FILES['icod_settings_json']['tmp_name'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_get_contents, WordPress.Security.ValidatedSanitizedInput -- lecture du fichier téléversé, validé par json_decode + clés connues.
+		$pars = json_decode( $raw, true );
+		if ( ! is_array( $pars ) || empty( $pars['plugin'] ) || 'infinitycod' !== $pars['plugin'] || empty( $pars['settings'] ) || ! is_array( $pars['settings'] ) ) {
+			wp_safe_redirect( $redirect . 'import-bad' );
+			exit;
+		}
+
+		// Fusion : uniquement les clés connues des défauts, jamais les secrets.
+		$known     = \InfinityCod\Core\Settings::defaults();
+		$incoming  = $pars['settings'];
+		$merged    = array();
+		foreach ( $incoming as $key => $value ) {
+			if ( ! array_key_exists( $key, $known ) || 'webhook_secret' === $key ) {
+				continue;
+			}
+			if ( is_array( $known[ $key ] ) && ! is_array( $value ) ) {
+				continue;
+			}
+			$merged[ $key ] = is_string( $value ) ? sanitize_textarea_field( $value ) : $value;
+		}
+
+		if ( $merged ) {
+			\InfinityCod\Core\Settings::set( $merged );
+		}
+		\InfinityCod\Core\CachePurge::purge_all();
+
+		wp_safe_redirect( $redirect . 'imported&count=' . count( $merged ) );
+		exit;
 	}
 }

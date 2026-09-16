@@ -162,6 +162,23 @@ class Shield {
 			$score  += 40;
 		}
 
+		// 11. Historique de retours du numéro (statuts transporteurs réels) :
+		// chaque colis retourné dans les 90 jours augmente le risque.
+		if ( $phone ) {
+			$returns = $this->count_phone_returns( $phone );
+			if ( $returns > 0 ) {
+				$flags[] = 'phone_returns';
+				$score  += min( 24, 12 * $returns );
+			}
+		}
+
+		// 12. Blacklist communautaire (opt-in) : numéros hashés partagés
+		// entre boutiques InfinityCod (liste publique signée, cache 12 h).
+		if ( $phone && Settings::get( 'community_blacklist' ) && self::community_blacklisted( $phone ) ) {
+			$flags[] = 'community_blacklist';
+			$score  += 35;
+		}
+
 		$score = min( 100, $score );
 		$blocked = $score >= (int) Settings::get( 'min_fraud_score_block', 60 );
 
@@ -177,6 +194,47 @@ class Shield {
 	}
 
 	/**
+	 * Nombre de colis retournés pour ce téléphone (90 jours, statuts transporteur).
+	 *
+	 * @param string $phone Téléphone normalisé.
+	 * @return int
+	 */
+	public function count_phone_returns( $phone ) {
+		global $wpdb;
+		$orders = Schema::table( 'orders' );
+		$since  = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - 90 * DAY_IN_SECONDS );
+		return (int) $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM {$orders} WHERE phone = %s AND (status = 'returned' OR carrier_status = 'returned') AND created_at >= %s", // phpcs:ignore WordPress.DB.PreparedSQL
+			$phone,
+			$since
+		) );
+	}
+
+	/**
+	 * Le numéro figure-t-il dans la liste communautaire (sha256 du numéro) ?
+	 *
+	 * @param string $phone Téléphone normalisé.
+	 * @return bool
+	 */
+	public static function community_blacklisted( $phone ) {
+		$list = get_transient( 'icod_community_blacklist' );
+		if ( false === $list ) {
+			$list    = array();
+			$raw     = wp_remote_get( 'https://raw.githubusercontent.com/derouicheoussama/infinitycod-releases/latest/community-blacklist.json', array( 'timeout' => 6 ) );
+			$parsed  = ( is_array( $raw ) && 200 === (int) $raw['response']['code'] ) ? json_decode( $raw['body'], true ) : null;
+			if ( is_array( $parsed ) ) {
+				$list = $parsed;
+			}
+			set_transient( 'icod_community_blacklist', $list, 12 * HOUR_IN_SECONDS );
+		}
+		if ( ! is_array( $list ) || ! $list ) {
+			return false;
+		}
+		$hash = hash( 'sha256', 'icodbl:' . (string) $phone );
+		return in_array( $hash, $list, true );
+	}
+
+		/**
 	 * IP cliente (derrière CDN éventuels, en-têtes les plus courants).
 	 *
 	 * @return string

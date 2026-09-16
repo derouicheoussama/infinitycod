@@ -1,5 +1,20 @@
 # Changelog
 
+## 5.31.0 — 2026-09-16
+
+Grande mise à jour logistique & croissance (14 fonctionnalités) :
+
+- **Tarifs par paliers de poids par wilaya** (1-5 / 5-10 kg + /kg au-delà) avec calcul serveur.
+- **Zones régionales** : tarifs de repli par groupe de wilayas, grille nationale pré-remplie en 1 clic.
+- **Duplication tarifs** vers lignes vides + CSV export/import étendus.
+- **Wilaya suspendue** : indisponible côté client, bloquée côté serveur.
+- **A/B test natif** du formulaire avec taux de conversion par variante dans le P&L.
+- **Confirmation WhatsApp 1 clic** : lien signé qui passe la commande en confirmée.
+- **Webhooks HMAC** (Google Sheets, Zapier, Make) + **Telegram** sur le rapport hebdo.
+- **Blacklist communautaire** opt-in + historique de retours dans l'anti-fraude.
+- **Bordereaux en lot** imprimables depuis Commandes.
+- **Export/import JSON** de la configuration + **provision frais de retour** dans le P&L.
+
 ## 5.30.4 — 2026-09-16
 
 - Menu latéral admin restructuré en 4 groupes avec séparateurs visuels : Pilotage (Tableau de bord, Commandes, Paniers abandonnés), Vente & Livraison (Wilayas & Tarifs, Transporteurs, Codes promo), Analyse (Statistiques P&L), Système (Réglages, Mises à jour, Diagnostics, À propos).

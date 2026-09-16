@@ -12,6 +12,7 @@ namespace InfinityCod\Shipping;
 
 use InfinityCod\Core\Schema;
 use InfinityCod\Core\Settings;
+use InfinityCod\Shipping\Zones;
 
 defined( 'ABSPATH' ) || exit;
 // phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders, PluginCheck.Security.DirectDB
@@ -82,9 +83,107 @@ class RatesManager {
 			return (float) $wilaya['price'];
 		}
 
-		// 3. Défaut global.
+		// 3. Repli zone régionale (wilaya en mode « hérite »).
+		$zone_price = Zones::price( $wilaya_code, $mode );
+		if ( null !== $zone_price ) {
+			return $zone_price;
+		}
+
+		// 4. Défaut global.
 		$fallback = ( self::MODE_DESK === $mode ) ? 'default_price_desk' : 'default_price_home';
 		return (float) Settings::get( $fallback, 0 );
+	}
+
+	/**
+	 * Tarif avec paliers de poids par wilaya (0-1 / 1-5 / 5-10 kg, puis /kg).
+	 *
+	 * Retourne null quand aucun palier n'est configuré : l'appelant applique
+	 * alors le tarif de base + le supplément poids global (comportement
+	 * historique). Un palier configuré REMPLACE le tarif de base.
+	 *
+	 * @param string $wilaya_code Code wilaya.
+	 * @param string $commune     Nom de commune (override éventuel).
+	 * @param string $mode        'home' ou 'desk'.
+	 * @param float  $weight      Poids total (kg).
+	 * @return float|null
+	 */
+	public function price_weighted( $wilaya_code, $commune, $mode, $weight ) {
+		$weight = max( 0.0, (float) $weight );
+		if ( $weight <= 0 ) {
+			return null;
+		}
+
+		$tiers = $this->weight_tiers( $wilaya_code );
+		if ( null === $tiers ) {
+			return null;
+		}
+
+		// Base : cascade commune > wilaya > zone > défaut (sans poids).
+		$base = $this->price( $wilaya_code, $commune, $mode );
+		if ( $base < 0 ) {
+			return null;
+		}
+
+		if ( $weight <= 1 ) {
+			return $tiers['w1'] >= 0 ? $tiers['w1'] : $base;
+		}
+		if ( $weight <= 5 ) {
+			return $tiers['w5'] >= 0 ? $tiers['w5'] : ( $tiers['w1'] >= 0 ? $tiers['w1'] : $base );
+		}
+		if ( $weight <= 10 ) {
+			return $tiers['w10'] >= 0 ? $tiers['w10'] : ( $tiers['w5'] >= 0 ? $tiers['w5'] : $base );
+		}
+		// Au-delà de 10 kg : tarif du palier 5-10 (ou base) + prix par kg.
+		$over_base = $tiers['w10'] >= 0 ? $tiers['w10'] : ( $tiers['w5'] >= 0 ? $tiers['w5'] : $base );
+		return round( $over_base + ( ( $weight - 10 ) * $tiers['w_over'] ), 2 );
+	}
+
+	/**
+	 * Paliers de poids d'une wilaya (null si aucun palier défini).
+	 *
+	 * @param string $wilaya_code Code wilaya.
+	 * @return array{w1:float,w5:float,w10:float,w_over:float}|null
+	 */
+	public function weight_tiers( $wilaya_code ) {
+		global $wpdb;
+		$table = Schema::table( 'wilayas' );
+		static $cache_tiers = array();
+		if ( ! isset( $cache_tiers[ $wilaya_code ] ) ) {
+			$cache_tiers[ $wilaya_code ] = $wpdb->get_row(
+				$wpdb->prepare( "SELECT w5, w10, w_over FROM {$table} WHERE code = %s", $wilaya_code ), // phpcs:ignore WordPress.DB.PreparedSQL
+				ARRAY_A
+			);
+		}
+		$row = $cache_tiers[ $wilaya_code ];
+		if ( ! is_array( $row ) ) {
+			return null;
+		}
+		$tiers = array(
+			'w1'     => -1.0, // Palier 0-1 kg : hérite toujours du tarif de base.
+			'w5'     => (float) $row['w5'],
+			'w10'    => (float) $row['w10'],
+			'w_over' => (float) $row['w_over'],
+		);
+		if ( $tiers['w5'] < 0 && $tiers['w10'] < 0 && $tiers['w_over'] <= 0 ) {
+			return null;
+		}
+		return $tiers;
+	}
+
+	/**
+	 * Frais de retour configurés pour une wilaya (provision P&L).
+	 *
+	 * @param string $wilaya_code Code wilaya.
+	 * @return float
+	 */
+	public function return_fee( $wilaya_code ) {
+		global $wpdb;
+		$table = Schema::table( 'wilayas' );
+		static $cache_ret = array();
+		if ( ! isset( $cache_ret[ $wilaya_code ] ) ) {
+			$cache_ret[ $wilaya_code ] = $wpdb->get_var( $wpdb->prepare( "SELECT return_fee FROM {$table} WHERE code = %s", $wilaya_code ) );
+		}
+		return max( 0, (float) $cache_ret[ $wilaya_code ] );
 	}
 
 	/**
@@ -221,9 +320,13 @@ class RatesManager {
 					'free_shipping' => empty( $data['free'] ) ? 0 : 1,
 					'min_order'     => isset( $data['min'] ) ? (float) $data['min'] : 0,
 					'delivery_days' => isset( $data['days'] ) ? sanitize_text_field( (string) $data['days'] ) : '',
+					'w5'            => isset( $data['w5'] ) ? (float) $data['w5'] : -1,
+					'w10'           => isset( $data['w10'] ) ? (float) $data['w10'] : -1,
+					'w_over'        => isset( $data['w_over'] ) ? (float) $data['w_over'] : 0,
+					'return_fee'    => isset( $data['return_fee'] ) ? (float) $data['return_fee'] : 0,
 				),
 				array( 'code' => $code ),
-				array( '%f', '%f', '%d', '%d', '%f', '%s' ),
+				array( '%f', '%f', '%d', '%d', '%f', '%s', '%f', '%f', '%f', '%f' ),
 				array( '%s' )
 			);
 			if ( false !== $updated ) {

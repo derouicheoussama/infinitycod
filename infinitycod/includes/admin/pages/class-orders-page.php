@@ -133,6 +133,7 @@ class OrdersPage {
 						<option value="blacklist"><?php esc_html_e( '→ Blacklister les téléphones', 'infinitycod' ); ?></option>
 						<option value="delete"><?php esc_html_e( '→ Supprimer (corbeille WC)', 'infinitycod' ); ?></option>
 					</select>
+					<a href="#" id="icod-bordereaux" class="button" data-url="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=icod_bordereaux' ), 'icod_bordereaux' ) ); ?>">🖨️ <?php esc_html_e( 'Bordereaux (sélection)', 'infinitycod' ); ?></a>
 					<button type="submit" class="button"><?php esc_html_e( 'Appliquer', 'infinitycod' ); ?></button>
 					<a class="button" href="<?php echo esc_url( $this->export_url() ); ?>">📄 CSV</a>
 					<a class="button button-primary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=icod_orders_export_xls' ), 'icod_orders_export' ) ); ?>">📊 <?php esc_html_e( 'Export Excel', 'infinitycod' ); ?></a>
