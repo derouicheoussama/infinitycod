@@ -5,7 +5,7 @@ Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.33.0
+Stable tag: 5.34.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,11 @@ Yes, the customer pays on the secure Chargily page. Confirmation is verified by 
 3. E-commerce style / advanced customization
 
 == Changelog ==
+
+= 5.34.0 =
+* Performance : index composite (statut + date) sur les commandes — listes instantanées même avec des dizaines de milliers de lignes.
+* Performance : cache 3 minutes des KPI du tableau de bord et des statistiques, invalidé à chaque mouvement de commande.
+* Design : animations douces (modale, toasts), survols et focus clavier visibles, barres de défilement fines, respect du mode « mouvement réduit » côté admin et formulaire.
 
 = 5.33.0 =
 * Nouveau : module Anti-leak — confidentialité des clients et des exports.

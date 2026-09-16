@@ -1178,3 +1178,32 @@ body.icod-modal-open{overflow:hidden}
 .icod-timeline li.todo{color:#8c8f94}
 .icod-timeline .lbl{font-weight:600}
 .icod-timeline li.done .lbl{color:#0b6e43}
+
+/* ============================================================
+   Fluidité & esthétique : animations douces, focus nets
+   ============================================================ */
+/* Modale : entrée en fondu + léger zoom (au lieu d'un affichage sec). */
+.icod-modal .icod-modal-dialog{animation:icod-pop .18s ease-out}
+@keyframes icod-pop{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+.icod-modal .icod-modal-overlay{animation:icod-fade .18s ease-out}
+@keyframes icod-fade{from{opacity:0}to{opacity:1}}
+/* Lignes de commande : survol plus lisible. */
+.icod-orders-table tbody tr{transition:background .12s ease}
+.icod-orders-table tbody tr:hover{background:#f4f8f6}
+/* Focus clavier visible partout (accessibilité + confort). */
+.icod-wrap a:focus-visible,.icod-wrap button:focus-visible,.icod-wrap input:focus-visible,
+.icod-wrap select:focus-visible,.icod-wrap textarea:focus-visible{outline:2px solid #0e7a4f;outline-offset:1px}
+/* Barres de défilement fines dans les tables larges. */
+.icod-table-scroll::-webkit-scrollbar{height:8px}
+.icod-table-scroll::-webkit-scrollbar-thumb{background:#c9d4de;border-radius:8px}
+.icod-table-scroll{scrollbar-width:thin;scrollbar-color:#c9d4de transparent}
+/* Pastilles statut : arrondi complet (déjà colorées par statut). */
+.icod-status{border-radius:999px;padding:2px 10px;display:inline-block;font-size:12px;font-weight:600;line-height:1.6}
+/* Toasts : entrée glissée. */
+@keyframes icod-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.icod-toast{animation:icod-toast-in .18s ease-out}
+/* Respect des préférences de mouvement réduit. */
+@media (prefers-reduced-motion:reduce){
+	.icod-modal .icod-modal-dialog,.icod-modal .icod-modal-overlay,.icod-toast{animation:none}
+	.icod-carrier-card,.icod-orders-table tbody tr{transition:none}
+}

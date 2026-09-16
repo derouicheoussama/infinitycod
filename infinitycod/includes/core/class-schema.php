@@ -165,6 +165,7 @@ class Schema {
 			PRIMARY KEY (id),
 			KEY wc_order_id (wc_order_id),
 			KEY status (status),
+			KEY status_created (status, created_at),
 			KEY phone (phone),
 			KEY wilaya_code (wilaya_code),
 			KEY created_at (created_at)

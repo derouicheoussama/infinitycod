@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.34.0 — 2026-09-16
+
+- **Performance** : index composite `(status, created_at)` sur les commandes (migration auto) + cache 3 minutes des KPI (invalidé à chaque mouvement de commande).
+- **Design & fluidité** : animations d'ouverture de la modale et des toasts, survols de lignes, focus clavier visible, barres de défilement fines, respect de `prefers-reduced-motion` côté admin et formulaire.
+
 ## 5.33.0 — 2026-09-16
 
 Nouveau module **Anti-leak** (Réglages → Avancé) :

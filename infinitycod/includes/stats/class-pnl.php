@@ -39,6 +39,14 @@ class Pnl {
 	public function kpis( $from, $to ) {
 		global $wpdb;
 
+		// Cache court : dashboard et stats relisent souvent les mêmes plages.
+		// Invalidation à chaque création/changement de statut (icod_kpis_ver).
+		$cache_key = 'icod_kpis_' . (int) get_option( 'icod_kpis_ver', 1 ) . '_' . md5( $from . '|' . $to );
+		$cached = get_transient( $cache_key );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
 		$table = Schema::table( 'orders' );
 
 		$wtab  = Schema::table( 'wilayas' );
@@ -69,7 +77,7 @@ class Pnl {
 		$total    = (int) $row['total'];
 		$delivered = (int) $row['delivered'];
 
-		return array(
+		$kpis = array(
 			'total'               => $total,
 			'confirmed'           => (int) $row['confirmed'],
 			'delivered'           => $delivered,
@@ -85,6 +93,8 @@ class Pnl {
 			'return_rate'         => $total ? round( (int) $row['returned'] / $total * 100, 1 ) : 0,
 			'avg_order_value'     => $total ? round( ( (float) $row['revenue_confirmed'] ) / max( 1, (int) $row['confirmed'] ), 2 ) : 0,
 		);
+		set_transient( $cache_key, $kpis, 3 * MINUTE_IN_SECONDS );
+		return $kpis;
 	}
 
 	/**

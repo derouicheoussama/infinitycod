@@ -521,3 +521,10 @@ fieldset.icod-mode{min-width:0}
 .icod-maintenance-card{background:var(--icod-surface);border:1.5px solid var(--icod-border);border-radius:16px;padding:36px 24px;text-align:center;box-shadow:var(--icod-shadow)}
 .icod-maintenance-card h2{margin:0 0 10px;font-size:1.1rem}
 .icod-maintenance-card p{margin:0;color:var(--icod-muted)}
+
+/* Mouvement réduit : pas d'animations pour ceux qui les désactivent. */
+@media (prefers-reduced-motion:reduce){
+	.icod-root *,.icod-root *::before,.icod-root *::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+/* Appui bouton : retour tactile léger. */
+.icod-submit:not(:disabled):active{transform:scale(.985)}

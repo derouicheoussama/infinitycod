@@ -360,6 +360,16 @@ class Activator {
 					Settings::set( 'form_position', 'full_width' );
 				}
 			},
+			'5.34.0_order_indexes' => function () {
+				global $wpdb;
+				// Les listes filtrent par statut et trient par date : l'index
+				// composite évite le filesort sur les grosses tables.
+				$otable = \InfinityCod\Core\Schema::table( 'orders' );
+				$idx    = array_column( (array) $wpdb->get_results( "SHOW INDEX FROM {$otable}", ARRAY_A ), 'Key_name' );
+				if ( ! in_array( 'status_created', $idx, true ) ) {
+					$wpdb->query( "ALTER TABLE {$otable} ADD KEY status_created (status, created_at)" );
+				}
+			},
 			'5.31.1_carrier_logos' => function () {
 				// Placeholders SVG remplacés par les vrais logos PNG (E-COM / DHD) :
 				// WordPress ne supprime pas les fichiers obsolètes lors des mises à jour.
