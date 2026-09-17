@@ -270,6 +270,10 @@ class UpdatesPage {
 							<input type="checkbox" name="icod[auto_update]" value="1" <?php checked( (int) Settings::get( 'auto_update' ), 1 ); ?> />
 							<span><?php esc_html_e( 'Installation automatique des nouvelles versions', 'infinitycod' ); ?></span>
 						</label>
+								<label class="icod-toggle">
+									<input type="checkbox" name="icod[update_email_notify]" value="1" <?php checked( (int) Settings::get( 'update_email_notify', 1 ), 1 ); ?> />
+									<span><?php esc_html_e( 'M’avertir par e-mail dès qu’une nouvelle version sort', 'infinitycod' ); ?></span>
+								</label>
 					</div>
 					<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Enregistrer', 'infinitycod' ); ?></button></p>
 				</form>

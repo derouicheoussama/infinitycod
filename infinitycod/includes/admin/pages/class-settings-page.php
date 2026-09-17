@@ -2427,6 +2427,7 @@ class SettingsPage {
 			'loyalty_point_da'     => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 100, 'max' => 100000 ),
 			'loyalty_point_value'  => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 1, 'max' => 1000 ),
 			'loyalty_min_points'   => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 0, 'max' => 10000 ),
+			'update_email_notify'  => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 
 			// ——— Vente PayPal (configurée depuis l'onglet Licence) ———
 			'paypal_enabled'        => array( 'tab' => 'license', 'type' => 'toggle' ),

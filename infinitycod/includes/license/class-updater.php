@@ -836,6 +836,11 @@ class Updater {
 			return $transient;
 		}
 
+		// Nouvelle version disponible : prévient le marchand par e-mail
+		// (une seule fois par version, en complément de la notice wp-admin
+		// et de l'installation automatique si activée).
+		$this->notify_new_version( (string) $remote['version'] );
+
 		$transient->response[ INFINITYCOD_BASENAME ] = (object) array(
 			'slug'        => 'infinitycod',
 			'plugin'      => INFINITYCOD_BASENAME,
@@ -858,6 +863,40 @@ class Updater {
 	 * @param object             $args   Arguments (slug…).
 	 * @return false|object
 	 */
+	/**
+	 * E-mail « nouvelle version disponible » au marchand (1 fois par version).
+	 *
+	 * @param string $version Nouvelle version détectée.
+	 * @return void
+	 */
+	public function notify_new_version( $version ) {
+		if ( ! Settings::get( 'update_email_notify', 1 ) ) {
+			return;
+		}
+		$notified = get_option( 'icod_email_notified_for', '' );
+		if ( (string) $notified === (string) $version ) {
+			return;
+		}
+		update_option( 'icod_email_notified_for', (string) $version, false );
+
+		$subject = sprintf(
+			/* translators: 1 : nom du site, 2 : version. */
+			__( '[%1$s] InfinityCod %2$s est disponible', 'infinitycod' ),
+			get_bloginfo( 'name' ),
+			(string) $version
+		);
+		$changelog_url = 'https://github.com/' . self::releases_repo() . '/releases/tag/v' . (string) $version;
+		$message = '<p>' . sprintf(
+			/* translators: %s : version. */
+			esc_html__( 'La version %s d’InfinityCod est disponible. Les nouveautés sont détaillées dans le journal des modifications.', 'infinitycod' ),
+			'<strong>' . esc_html( (string) $version ) . '</strong>'
+		) . '</p>'
+		. '<p><a href="' . esc_url( admin_url( 'admin.php?page=infinitycod-updates' ) ) . '">' . esc_html__( 'Mettre à jour depuis votre tableau de bord', 'infinitycod' ) . '</a>'
+		. ' · <a href="' . esc_url( $changelog_url ) . '">' . esc_html__( 'Voir les nouveautés', 'infinitycod' ) . '</a></p>';
+
+		wp_mail( get_option( 'admin_email' ), $subject, $message, array( 'Content-Type: text/html; charset=utf-8' ) );
+	}
+
 	public function plugin_info( $result, $action, $args ) {
 		if ( 'plugin_information' !== $action || empty( $args->slug ) || 'infinitycod' !== $args->slug ) {
 			return $result;

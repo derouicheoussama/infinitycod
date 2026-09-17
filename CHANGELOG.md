@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.40.0 — 2026-09-17
+
+- **Notification e-mail des mises à jour** : le marchand reçoit un e-mail dès qu'une nouvelle version sort (une seule fois par version), en complément de la vérification horaire et de la mise à jour automatique. Désactivable dans Mises à jour.
+
 ## 5.39.2 — 2026-09-17
 
 - **Correctif aperçu en direct** : la requête AJAX de l'aperçu est ancrée sur l'origine courante du navigateur (et non l'URL du site stockée en base) — l'aperçu se met à jour instantanément même en cas de différence www/https/domaine. Les styles de l'aperçu utilisent un chemin relatif.
