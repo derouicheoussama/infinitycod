@@ -1,0 +1,44 @@
+<?php
+/**
+ * Portail de suivi client — logique de recherche (partagée portail + API).
+ *
+ * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
+ */
+
+namespace InfinityCod\Track;
+
+defined( 'ABSPATH' ) || exit;
+
+class Finder {
+
+	/**
+	 * Retrouve une commande par numéro + téléphone (9 derniers chiffres).
+	 *
+	 * @param int    $order_id Numéro de commande interne.
+	 * @param string $phone    Téléphone saisi.
+	 * @return array|null Ligne commande ou null.
+	 */
+	public static function find( $order_id, $phone ) {
+		global $wpdb;
+		$order_id = absint( $order_id );
+		$digits   = preg_replace( '/[^0-9]/', '', (string) $phone );
+		if ( $order_id < 1 || strlen( $digits ) < 4 ) {
+			return null;
+		}
+
+		$table = Schema::table( 'orders' );
+		$row   = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d LIMIT 1", $order_id ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL
+		if ( ! is_array( $row ) ) {
+			return null;
+		}
+
+		$stored = preg_replace( '/[^0-9]/', '', (string) $row['phone'] );
+		if ( substr( $stored, -9 ) !== substr( $digits, -9 ) ) {
+			return null;
+		}
+		return $row;
+	}
+}

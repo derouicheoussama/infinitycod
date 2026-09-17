@@ -360,6 +360,14 @@ class Activator {
 					Settings::set( 'form_position', 'full_width' );
 				}
 			},
+			'5.39.0_loyalty' => function () {
+				global $wpdb;
+				$otable = \InfinityCod\Core\Schema::table( 'orders' );
+				$ocolumns = (array) $wpdb->get_col( "DESCRIBE {$otable}", 0 );
+				if ( ! in_array( 'loyalty_used', $ocolumns, true ) ) {
+					$wpdb->query( "ALTER TABLE {$otable} ADD COLUMN loyalty_used decimal(10,2) NOT NULL DEFAULT 0" );
+				}
+			},
 			'5.34.0_order_indexes' => function () {
 				global $wpdb;
 				// Les listes filtrent par statut et trient par date : l'index

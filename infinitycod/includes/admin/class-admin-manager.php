@@ -1711,7 +1711,14 @@ class AdminManager {
 		nocache_headers();
 		header( 'Content-Type: text/html; charset=utf-8' );
 
+		$labels = isset( $_GET['format'] ) ? 'labels' === $_GET['format'] : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce vÃ©rifiÃ© ci-dessus.
 		echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' . esc_html__( 'Bordereaux InfinityCod', 'infinitycod' ) . '</title>';
+		if ( $labels ) {
+			echo '<style>body{font-family:Arial,sans-serif;margin:0}.etq{width:10cm;height:15cm;padding:10px 12px;box-sizing:border-box;border-bottom:1px dashed #999;page-break-after:always}.etq h2{margin:0 0 2px;font-size:16px}.etq .ref{float:right;font-weight:800}.etq table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}.etq td{padding:2px 0;vertical-align:top}.etq td:first-child{color:#555;width:110px}.etq .cod{font-size:18px;font-weight:800;margin-top:6px}.etq .code{font-size:26px;font-weight:800;letter-spacing:2px}</style>';
+		} else {
+			echo '<style>';
+		}
+		echo '</head><body>';
 		echo '<style>body{font-family:Arial,sans-serif;color:#111;margin:16px}.bordereau{border:2px solid #111;border-radius:12px;padding:14px 18px;margin:0 0 18px;page-break-after:always;max-width:720px}.bordereau h2{margin:0 0 4px;font-size:18px;display:flex;justify-content:space-between}.bordereau .muted{color:#555;font-size:12px}.bordereau table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}.bordereau td{padding:3px 0;vertical-align:top}.bordereau td:first-child{color:#555;width:130px}.sign{display:flex;gap:24px;margin-top:26px}.sign div{flex:1;border-top:1px dashed #777;padding-top:6px;text-align:center;font-size:12px;color:#555}.cod{font-size:22px;font-weight:800}@media print{.noprint{display:none}}</style>';
 		echo '</head><body>';
 		echo '<p class="noprint"><button onclick="window.print()" style="padding:8px 16px">🖨️ ' . esc_html__( 'Imprimer / PDF', 'infinitycod' ) . '</button></p>';
@@ -1737,7 +1744,7 @@ class AdminManager {
 				? /* translators: %s : nom de la wilaya. */ sprintf( __( 'Stopdesk — %s', 'infinitycod' ), $wilaya_name . ( $r['stopdesk'] ? ' (' . $r['stopdesk'] . ')' : '' ) )
 				: /* translators: %s : nom de la wilaya. */ sprintf( __( 'Domicile — %s', 'infinitycod' ), $wilaya_name . ( $r['commune'] ? ' (' . $r['commune'] . ')' : '' ) );
 
-			echo '<div class="bordereau">';
+			echo '<div class="' . ( $labels ? 'etq' : 'bordereau' ) . '">';
 			echo '<h2>' . esc_html( get_bloginfo( 'name' ) ) . '<span>#' . esc_html( $r['wc_order_id'] ? $r['wc_order_id'] : $r['id'] ) . '</span></h2>';
 			echo '<div class="muted">' . esc_html( mysql2date( 'd/m/Y H:i', $r['created_at'] ) ) . '</div>';
 			echo '<table>';

@@ -134,6 +134,7 @@ class OrdersPage {
 						<option value="delete"><?php esc_html_e( '→ Supprimer (corbeille WC)', 'infinitycod' ); ?></option>
 					</select>
 					<a href="#" id="icod-bordereaux" class="button" data-url="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=icod_bordereaux' ), 'icod_bordereaux' ) ); ?>">🖨️ <?php esc_html_e( 'Bordereaux (sélection)', 'infinitycod' ); ?></a>
+					<a href="#" id="icod-etiquettes" class="button" data-url="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=icod_bordereaux&format=labels' ), 'icod_bordereaux' ) ); ?>">🏷️ <?php esc_html_e( 'Étiquettes (sélection)', 'infinitycod' ); ?></a>
 					<button type="submit" class="button"><?php esc_html_e( 'Appliquer', 'infinitycod' ); ?></button>
 					<a class="button" href="<?php echo esc_url( $this->export_url() ); ?>">📄 CSV</a>
 					<a class="button button-primary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=icod_orders_export_xls' ), 'icod_orders_export' ) ); ?>">📊 <?php esc_html_e( 'Export Excel', 'infinitycod' ); ?></a>
@@ -345,6 +346,7 @@ class OrdersPage {
 			'shipped_at'     => ! empty( $row['shipped_at'] ) ? mysql2date( 'd/m/Y H:i', $row['shipped_at'] ) : '',
 			'delivered_at'   => ! empty( $row['delivered_at'] ) ? mysql2date( 'd/m/Y H:i', $row['delivered_at'] ) : '',
 			'bordereau_url'  => wp_nonce_url( admin_url( 'admin-post.php?action=icod_bordereaux&ids=' . (int) $row['id'] ), 'icod_bordereaux' ),
+			'invoice_url'    => wp_nonce_url( admin_url( 'admin-post.php?action=icod_invoice&id=' . (int) $row['id'] ), 'icod_invoice' ),
 		);
 	}
 

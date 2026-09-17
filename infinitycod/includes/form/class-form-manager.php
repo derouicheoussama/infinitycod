@@ -873,12 +873,17 @@ class FormManager {
 					</span>
 				</header>
 			<?php if ( $show_stock && ! $product->is_type( 'variable' ) && $product->managing_stock() && $product->get_stock_quantity() !== null ) :
-				$stock_qty = (int) $product->get_stock_quantity();
-				$stock_low = $stock_qty > 0 && $stock_qty <= 5;
+				$stock_qty    = (int) $product->get_stock_quantity();
+				$stock_thresh = (int) Settings::get( 'stock_alert_threshold', 0 );
+				$stock_urgent = $stock_thresh > 0 && $stock_qty > 0 && $stock_qty <= $stock_thresh;
+				$stock_low    = $stock_qty > 0 && ( $stock_qty <= 5 || $stock_urgent );
 				?>
 			<div class="icod-stock-badge<?php echo $stock_low ? ' icod-stock-low' : ''; ?>" data-stock-badge><span class="dot"></span>
 				<?php
-				if ( $stock_low ) {
+				if ( $stock_urgent ) {
+					/* translators: %d : quantité restante avant rupture. */
+					printf( esc_html__( '🔥 Bientôt épuisé — plus que %d !', 'infinitycod' ), (int) $stock_qty );
+				} elseif ( $stock_low ) {
 					/* translators: %d : quantité restante. */
 					printf( esc_html__( 'Seulement %d restants !', 'infinitycod' ), (int) $stock_qty );
 				} else {
@@ -1070,6 +1075,7 @@ class FormManager {
 								<div class="icod-summary-line icod-hidden" data-summary-discount-row><span data-summary-discount-label><?php esc_html_e( 'Remise', 'infinitycod' ); ?></span><span data-summary-discount>—</span></div>
 								<div class="icod-summary-line icod-hidden" data-summary-coupon-row><span data-summary-coupon-label><?php esc_html_e( 'Code promo', 'infinitycod' ); ?></span><span data-summary-coupon>—</span></div>
 								<div class="icod-summary-line"><span><?php esc_html_e( 'Livraison', 'infinitycod' ); ?></span><span data-summary-shipping>—</span></div>
+									<div class="icod-summary-line icod-hidden" data-summary-loyalty-row><span>💛 <?php esc_html_e( 'Remise fidélité', 'infinitycod' ); ?></span><span data-summary-loyalty>—</span></div>
 								<div class="icod-estimate icod-hidden" data-delivery-estimate></div>
 								<div class="icod-minwarn icod-hidden" data-min-order-warn role="status"></div>
 								<div class="icod-summary-total"><span><?php esc_html_e( 'Total à payer', 'infinitycod' ); ?></span><span data-summary-total><?php echo esc_html( Settings::format_price( $head_price ) ); ?></span></div>

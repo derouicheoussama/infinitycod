@@ -109,6 +109,26 @@ class Settings {
 			'seo_faq'              => '',  // FAQ produit : lignes « question | réponse ».
 			'seo_llms_enabled'     => 1,   // /llms.txt pour les moteurs génératifs.
 
+			// Portail de suivi client public.
+			'track_portal_enabled' => 1,   // Page /suivi-commande/.
+
+			// Facture PDF.
+			'invoice_enabled'      => 1,   // Téléchargement + pièce jointe.
+			'invoice_email'        => 1,   // Jointe à l'e-mail de confirmation.
+
+			// Alertes de stock.
+			'stock_alert_threshold' => 0,  // Alerte quand le stock passe sous ce seuil (0 = jamais).
+
+			// Rapport quotidien WhatsApp (au marchand lui-même).
+			'wa_daily_report'      => 0,
+			'wa_owner_phone'       => '',
+
+			// Fidélité : points gagnés sur les commandes livrées, remise auto au formulaire.
+			'loyalty_enabled'      => 0,
+			'loyalty_point_da'     => 1000, // 1 point par tranche de 1000 DA livrés.
+			'loyalty_point_value'  => 10,   // 1 point = 10 DA de remise.
+			'loyalty_min_points'   => 20,   // Minimum de points pour déclencher la remise.
+
 			// Champ email (facultatif, sert aussi aux restrictions).
 			'show_email'            => 0,
 			'label_email'           => __( 'Email (facultatif)', 'infinitycod' ),

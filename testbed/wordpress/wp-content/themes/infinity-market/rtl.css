@@ -1,0 +1,37 @@
+/*
+∞ Infinity Coder — RTL (arabe).
+Chargé automatiquement par WordPress sur les sites en langue RTL.
+Copyright © 2026 Derouiche Oussama — https://www.derouicheoussama.com
+*/
+
+body.inf-body {
+	font-size: 15.5px;
+}
+
+/* Les motifs utilisent des propriétés logiques (inline-start/end) : la
+   direction est déjà inversée. On ajuste les détails visuels restants. */
+
+.inf-menu .menu-item-has-children > a::after {
+	margin-inline-start: 6px;
+}
+
+.inf-logo__name,
+.inf-hero__title,
+.inf-article__title {
+	letter-spacing: 0;
+}
+
+.inf-faq summary::after {
+	margin-inline-start: 10px;
+}
+
+.inf-deal__cell strong {
+	font-variant-numeric: tabular-nums;
+}
+
+input,
+select,
+textarea,
+button {
+	text-align: start;
+}

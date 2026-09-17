@@ -1,0 +1,385 @@
+<?php
+/**
+ * Bouclier anti-fraude : honeypot, tempo, fingerprint, rate-limit, blacklist.
+ *
+ * @package InfinityCod
+ * @author Derouiche Oussama
+ * @copyright © Derouiche Oussama
+ * @link https://derouicheoussama.com
+ */
+
+namespace InfinityCod\AntiFraud;
+
+use InfinityCod\Core\Schema;
+use InfinityCod\Core\Settings;
+use InfinityCod\Form\Validator;
+
+defined( 'ABSPATH' ) || exit;
+// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders, PluginCheck.Security.DirectDB
+// Tables custom InfinityCod : noms de tables issus de Schema::table() (constantes internes,
+// jamais d'entree utilisateur) et valeurs toujours liees via $wpdb->prepare(). Requetes
+// directes volontaires sur nos propres tables (pas d'equivalent WP_Query), avec caches
+// applicatifs la ou c'est chaud (compteurs, tarifs).
+
+
+class Shield {
+
+	/**
+	 * Hooks du module.
+	 *
+	 * @return void
+	 */
+	public function register() {}
+
+	/**
+	 * Clé secrète de signature du timestamp (régénérée par jour).
+	 *
+	 * @return string
+	 */
+	private static function signing_key() {
+		return wp_salt( 'nonce' ) . gmdate( 'Ymd' );
+	}
+
+	/**
+	 * Signe le timestamp d'affichage du formulaire (anti-manipulation).
+	 *
+	 * @param int $timestamp Unix timestamp du rendu.
+	 * @return string
+	 */
+	public static function sign_timestamp( $timestamp ) {
+		return hash_hmac( 'sha256', (string) $timestamp, self::signing_key() );
+	}
+
+	/**
+	 * Vérifie le timestamp signé renvoyé par le formulaire.
+	 *
+	 * @param int    $timestamp Unix timestamp renvoyé.
+	 * @param string $signature Signature renvoyée.
+	 * @return bool Signature valide (le champ n'a pas été falsifié).
+	 */
+	public static function verify_timestamp( $timestamp, $signature ) {
+		return hash_equals( self::sign_timestamp( (int) $timestamp ), (string) $signature );
+	}
+
+	/**
+	 * Évalue une soumission : score de risque 0-100 + liste de drapeaux.
+	 *
+	 * @param array $input Données brutes de la soumission :
+	 *     name, phone, wilaya, commune, mode, quantity, product_id,
+	 *     honeypot, ts, sig, fingerprint.
+	 * @return array{score: int, flags: string[], blocked: bool}
+	 */
+	public function assess( array $input ) {
+		$flags     = array();
+		$score     = 0;
+		$shield_on = (bool) Settings::get( 'shield_enabled', 1 );
+
+		$phone     = Validator::normalize_phone( isset( $input['phone'] ) ? $input['phone'] : '' );
+		$ip        = self::client_ip();
+		$fingerprint = isset( $input['fingerprint'] ) ? substr( preg_replace( '/[^a-zA-Z0-9]/', '', (string) $input['fingerprint'] ), 0, 64 ) : '';
+
+		if ( ! $shield_on ) {
+			return array( 'score' => 0, 'flags' => array(), 'blocked' => false );
+		}
+
+		// 1. Honeypot rempli => bot quasi certain.
+		if ( ! empty( $input['honeypot'] ) ) {
+			$flags[] = 'honeypot';
+			$score  += 100;
+		}
+
+		// 2. Tempo de remplissage.
+		$ts = isset( $input['ts'] ) ? (int) $input['ts'] : 0;
+		$sig = isset( $input['sig'] ) ? (string) $input['sig'] : '';
+		if ( ! $ts || ! self::verify_timestamp( $ts, $sig ) ) {
+			$flags[] = 'ts_invalid';
+			$score  += 70; // Signature falsifiée : très suspect.
+		} else {
+			$elapsed  = time() - $ts;
+			$min_time = (int) Settings::get( 'min_submit_seconds', 3 );
+			if ( $elapsed < $min_time ) {
+				$flags[] = 'too_fast';
+				$score  += 40;
+			}
+		}
+
+		// 3. Blacklist téléphone.
+		if ( $phone && $this->is_blacklisted( 'phone', $phone ) ) {
+			$flags[] = 'blacklist_phone';
+			$score  += 100;
+		}
+
+		// 4. Blacklist IP.
+		if ( $this->is_blacklisted( 'ip', $ip ) ) {
+			$flags[] = 'blacklist_ip';
+			$score  += 100;
+		}
+
+		// 5. Doublon : même numéro avec commande en attente.
+		if ( $phone && Settings::get( 'block_duplicate_phone' ) && $this->has_pending_duplicate( $phone ) ) {
+			$flags[] = 'duplicate_phone';
+			$score  += 60;
+		}
+
+		// 6. Volume par IP sur la dernière heure.
+		$max_per_ip = (int) Settings::get( 'max_per_ip_hour', 5 );
+		if ( $this->count_ip_last_hour( $ip ) >= $max_per_ip ) {
+			$flags[] = 'ip_flood';
+			$score  += 50;
+		}
+
+		// 7. Fingerprint identique ayant soumis récemment (compte double).
+		if ( $fingerprint && $this->count_fingerprint_last_hour( $fingerprint ) >= 2 ) {
+			$flags[] = 'fingerprint_repeat';
+			$score  += 30;
+		}
+
+		// 8. Email : blacklist + volume quotidien.
+		$email = isset( $input['email'] ) ? sanitize_email( $input['email'] ) : '';
+		if ( $email ) {
+			if ( $this->is_blacklisted( 'email', $email ) ) {
+				$flags[] = 'blacklist_email';
+				$score  += 100;
+			}
+			$max_email_day = (int) Settings::get( 'max_per_email_day', 3 );
+			if ( $max_email_day > 0 && $this->count_column_today( Schema::table( 'orders' ), 'email', $email ) >= $max_email_day ) {
+				$flags[] = 'email_day_limit';
+				$score  += 50;
+			}
+		}
+
+		// 9. Volume par téléphone sur 24 h.
+		$max_phone_day = (int) Settings::get( 'max_per_phone_day', 3 );
+		if ( $phone && $max_phone_day > 0 && $this->count_column_today( Schema::table( 'orders' ), 'phone', $phone ) >= $max_phone_day ) {
+			$flags[] = 'phone_day_limit';
+			$score  += 50;
+		}
+
+		// 10. Volume par IP sur 24 h.
+		$max_ip_day = (int) Settings::get( 'max_per_ip_day', 10 );
+		if ( $max_ip_day > 0 && $this->count_column_today( Schema::table( 'orders' ), 'ip', $ip ) >= $max_ip_day ) {
+			$flags[] = 'ip_day_limit';
+			$score  += 40;
+		}
+
+		// 11. Historique de retours du numéro (statuts transporteurs réels) :
+		// chaque colis retourné dans les 90 jours augmente le risque.
+		if ( $phone ) {
+			$returns = $this->count_phone_returns( $phone );
+			if ( $returns > 0 ) {
+				$flags[] = 'phone_returns';
+				$score  += min( 24, 12 * $returns );
+			}
+		}
+
+		// 12. Blacklist communautaire (opt-in) : numéros hashés partagés
+		// entre boutiques InfinityCod (liste publique signée, cache 12 h).
+		if ( $phone && Settings::get( 'community_blacklist' ) && self::community_blacklisted( $phone ) ) {
+			$flags[] = 'community_blacklist';
+			$score  += 35;
+		}
+
+		$score = min( 100, $score );
+		$blocked = $score >= (int) Settings::get( 'min_fraud_score_block', 60 );
+
+		if ( $flags ) {
+			$this->log( $ip, (string) $phone, $fingerprint, $flags, $blocked ? 'blocked' : 'flagged' );
+		}
+
+		return array(
+			'score'   => $score,
+			'flags'   => $flags,
+			'blocked' => $blocked,
+		);
+	}
+
+	/**
+	 * Nombre de colis retournés pour ce téléphone (90 jours, statuts transporteur).
+	 *
+	 * @param string $phone Téléphone normalisé.
+	 * @return int
+	 */
+	public function count_phone_returns( $phone ) {
+		global $wpdb;
+		$orders = Schema::table( 'orders' );
+		$since  = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - 90 * DAY_IN_SECONDS );
+		return (int) $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM {$orders} WHERE phone = %s AND (status = 'returned' OR carrier_status = 'returned') AND created_at >= %s", // phpcs:ignore WordPress.DB.PreparedSQL
+			$phone,
+			$since
+		) );
+	}
+
+	/**
+	 * Le numéro figure-t-il dans la liste communautaire (sha256 du numéro) ?
+	 *
+	 * @param string $phone Téléphone normalisé.
+	 * @return bool
+	 */
+	public static function community_blacklisted( $phone ) {
+		$list = get_transient( 'icod_community_blacklist' );
+		if ( false === $list ) {
+			$list    = array();
+			$raw     = wp_remote_get( 'https://raw.githubusercontent.com/derouicheoussama/infinitycod-releases/main/community-blacklist.json', array( 'timeout' => 6 ) ); // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- liste communautaire opt-in hébergée sur le dépôt officiel des releases.
+			$parsed  = ( is_array( $raw ) && 200 === (int) $raw['response']['code'] ) ? json_decode( $raw['body'], true ) : null;
+			if ( is_array( $parsed ) ) {
+				$list = $parsed;
+			}
+			set_transient( 'icod_community_blacklist', $list, 12 * HOUR_IN_SECONDS );
+		}
+		if ( ! is_array( $list ) || ! $list ) {
+			return false;
+		}
+		$hash = hash( 'sha256', 'icodbl:' . (string) $phone );
+		return in_array( $hash, $list, true );
+	}
+
+		/**
+	 * IP cliente (derrière CDN éventuels, en-têtes les plus courants).
+	 *
+	 * @return string
+	 */
+	public static function client_ip() {
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput -- cles $_SERVER dynamiques issues d'une liste figee en dur ; valeur validee par filter_var(FILTER_VALIDATE_IP) avant tout usage.
+		$candidates = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' );
+		foreach ( $candidates as $key ) {
+			if ( ! empty( $_SERVER[ $key ] ) ) {
+				$ip = trim( explode( ',', (string) $_SERVER[ $key ] )[0] );
+				if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+					return $ip;
+				}
+			}
+		}
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput
+		return '0.0.0.0';
+	}
+
+	/**
+	 * Une valeur (téléphone normalisé ou IP) est-elle en liste noire ?
+	 *
+	 * @param string $kind  'phone' ou 'ip'.
+	 * @param string $value Valeur exacte.
+	 * @return bool
+	 */
+	public function is_blacklisted( $kind, $value ) {
+		global $wpdb;
+		$table = Schema::table( 'blacklist' );
+		return (bool) $wpdb->get_var(
+			$wpdb->prepare( "SELECT id FROM {$table} WHERE kind = %s AND value = %s LIMIT 1", $kind, $value ) // phpcs:ignore WordPress.DB.PreparedSQL
+		);
+	}
+
+	/**
+	 * Ajoute une entrée en liste noire.
+	 *
+	 * @param string $kind   'phone' ou 'ip'.
+	 * @param string $value  Valeur.
+	 * @param string $reason Motif.
+	 * @return bool
+	 */
+	public function blacklist( $kind, $value, $reason = '' ) {
+		global $wpdb;
+		return false !== $wpdb->insert(
+			Schema::table( 'blacklist' ),
+			array(
+				'kind'       => $kind,
+				'value'      => $value,
+				'reason'     => $reason,
+				'created_at' => current_time( 'mysql' ),
+			),
+			array( '%s', '%s', '%s', '%s' )
+		);
+	}
+
+	/**
+	 * Une commande en attente existe-t-elle déjà pour ce numéro ?
+	 *
+	 * @param string $phone Téléphone normalisé.
+	 * @return bool
+	 */
+	public function has_pending_duplicate( $phone ) {
+		global $wpdb;
+		$table = Schema::table( 'orders' );
+		return (bool) $wpdb->get_var(
+			$wpdb->prepare( "SELECT id FROM {$table} WHERE phone = %s AND status IN ('pending','confirmed') LIMIT 1", $phone ) // phpcs:ignore WordPress.DB.PreparedSQL
+		);
+	}
+
+	/**
+	 * Nombre de soumissions/rejets de cette IP sur la dernière heure.
+	 *
+	 * @param string $ip Adresse IP.
+	 * @return int
+	 */
+	public function count_ip_last_hour( $ip ) {
+		global $wpdb;
+		$orders = Schema::table( 'orders' );
+		$logs   = Schema::table( 'fraud_logs' );
+		$since  = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - HOUR_IN_SECONDS );
+
+		$n  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$orders} WHERE ip = %s AND created_at >= %s", $ip, $since ) ); // phpcs:ignore WordPress.DB.PreparedSQL
+		$n += (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$logs} WHERE ip = %s AND created_at >= %s", $ip, $since ) ); // phpcs:ignore WordPress.DB.PreparedSQL
+
+		return $n;
+	}
+
+	/**
+	 * Soumissions récentes de ce fingerprint.
+	 *
+	 * @param string $fingerprint Empreinte navigateur.
+	 * @return int
+	 */
+	public function count_fingerprint_last_hour( $fingerprint ) {
+		global $wpdb;
+		$orders = Schema::table( 'orders' );
+		$since  = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - HOUR_IN_SECONDS );
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare( "SELECT COUNT(*) FROM {$orders} WHERE fingerprint = %s AND created_at >= %s", $fingerprint, $since ) // phpcs:ignore WordPress.DB.PreparedSQL
+		);
+	}
+
+	/**
+	 * Nombre de lignes d'une table pour une colonne/valeur aujourd'hui.
+	 *
+	 * @param string $table  Table complète.
+	 * @param string $column Colonne (blanchie par l'appelant).
+	 * @param string $value  Valeur.
+	 * @return int
+	 */
+	public function count_column_today( $table, $column, $value ) {
+		global $wpdb;
+		$allowed = array( 'ip', 'phone', 'email', 'fingerprint' );
+		if ( ! in_array( $column, $allowed, true ) ) {
+			return 0;
+		}
+		$since = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - DAY_IN_SECONDS );
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE {$column} = %s AND created_at >= %s", $value, $since ) ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
+	}
+
+	/**
+	 * Journalise un événement anti-fraude.
+	 *
+	 * @param string $ip          IP.
+	 * @param string $phone       Téléphone.
+	 * @param string $fingerprint Empreinte.
+	 * @param array  $flags       Drapeaux détectés.
+	 * @param string $action      'flagged' ou 'blocked'.
+	 * @return void
+	 */
+	public function log( $ip, $phone, $fingerprint, array $flags, $action ) {
+		global $wpdb;
+		$wpdb->insert(
+			Schema::table( 'fraud_logs' ),
+			array(
+				'created_at'  => current_time( 'mysql' ),
+				'ip'          => $ip,
+				'phone'       => $phone,
+				'fingerprint' => $fingerprint,
+				'flags'       => implode( ',', $flags ),
+				'action'      => $action,
+			),
+			array( '%s', '%s', '%s', '%s', '%s', '%s' )
+		);
+	}
+}

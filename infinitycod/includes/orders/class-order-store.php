@@ -125,12 +125,19 @@ class OrderStore {
 		$coupon        = $coupon_code ? Coupon::evaluate( $coupon_code, round( $subtotal - $discount_amount, 2 ), $quantity, $product_id ) : array( 'valid' => false, 'amount' => 0.0, 'code' => '', 'label' => '' );
 		$coupon_amount = $coupon['valid'] ? (float) $coupon['amount'] : 0.0;
 
+		// Fidélité : remise automatique en points (commandes livrées), validée
+		// côté serveur uniquement — plafonnée à 30 % du sous-total remisé.
+		$loyalty_discount = 0.0;
+		if ( \InfinityCod\Core\Settings::get( 'loyalty_enabled' ) && ! empty( $data['loyalty_use'] ) ) {
+			$loyalty_discount = \InfinityCod\Loyalty\Loyalty::discount_for( (string) $row['phone'], $subtotal - $discount_amount );
+		}
+
 		// Statistiques du code promo InfinityCod (utilisations + montants).
 		if ( ! empty( $coupon['promo_id'] ) && $coupon_amount > 0 ) {
 			Promo::record_usage( (int) $coupon['promo_id'], $coupon_amount, $total );
 		}
 
-		$total = max( 0, $subtotal - $discount_amount - $coupon_amount + $shipping_price );
+		$total = max( 0, $subtotal - $discount_amount - $coupon_amount - $loyalty_discount + $shipping_price );
 
 		// 3. Commande WooCommerce.
 		$order = wc_create_order( array( 'created_by' => 'infinitycod' ) );
@@ -257,6 +264,7 @@ class OrderStore {
 				'status'        => 'pending',
 				'fraud_score'   => isset( $data['fraud_score'] ) ? (int) $data['fraud_score'] : 0,
 				'ab_variant'    => ( isset( $data['ab'] ) && 'B' === $data['ab'] ) ? 'B' : 'A',
+				'loyalty_used'  => $loyalty_discount,
 				'fraud_flags'   => isset( $data['fraud_flags'] ) ? implode( ',', (array) $data['fraud_flags'] ) : '',
 				'ip'            => isset( $data['ip'] ) ? $data['ip'] : '',
 				'fingerprint'   => isset( $data['fingerprint'] ) ? substr( (string) $data['fingerprint'], 0, 64 ) : '',

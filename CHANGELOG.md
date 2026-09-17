@@ -1,5 +1,18 @@
 # Changelog
 
+## 5.39.0 — 2026-09-17
+
+8 nouvelles fonctionnalités :
+
+- **Portail de suivi client public** (`/suivi-commande/`) : numéro + téléphone, chronologie en direct, transporteur et suivi — anti-abus intégré.
+- **Facture PDF** : générateur intégré sans dépendance, bouton dans la fiche commande, pièce jointe automatique à l'e-mail de confirmation.
+- **Alertes de stock** : badge « Bientôt épuisé » sur le formulaire (seuil réglable) + e-mail quotidien admin.
+- **Rapport quotidien WhatsApp** au marchand (commandes du jour + CA).
+- **Fidélité** : points sur commandes livrées, remise automatique au formulaire plafonnée à 30 %.
+- **PWA marchand** : dashboard installable sur mobile (manifest + service worker + raccourcis).
+- **Étiquettes 10x15 cm** en lot en plus des bordereaux.
+- Réglages : cartes Suivi client / Facture / Stock / WhatsApp quotidien / Fidélité.
+
 ## 5.38.0 — 2026-09-16
 
 - **Design harmonisé du formulaire** : icônes SVG intégrées (utilisateur, épingle, domicile, bureau, portefeuille, camion, retour) en trait fin — la couleur suit automatiquement l'accent choisi et le rendu est identique sur tous les appareils.
