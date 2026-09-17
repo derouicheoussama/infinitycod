@@ -153,6 +153,7 @@ class Schema {
 			tracking varchar(80) NOT NULL DEFAULT '',
 			carrier_status varchar(40) NOT NULL DEFAULT '',
 			ab_variant varchar(1) NOT NULL DEFAULT '',
+			loyalty_used decimal(10,2) NOT NULL DEFAULT 0,
 			fraud_score tinyint(3) unsigned NOT NULL DEFAULT 0,
 			fraud_flags text,
 			ip varchar(45) NOT NULL DEFAULT '',

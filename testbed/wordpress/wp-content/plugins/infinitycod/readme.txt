@@ -5,7 +5,7 @@ Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.38.0
+Stable tag: 5.39.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,15 @@ Yes, the customer pays on the secure Chargily page. Confirmation is verified by 
 3. E-commerce style / advanced customization
 
 == Changelog ==
+
+= 5.39.0 =
+* Nouveau : portail de suivi client public /suivi-commande/ — numéro + téléphone, chronologie en direct, transporteur et suivi.
+* Nouveau : facture PDF (générateur intégré) — bouton dans la fiche commande et pièce jointe automatique à l’e-mail de confirmation.
+* Nouveau : alertes de stock — badge « Bientôt épuisé » sur le formulaire et e-mail quotidien des produits sous le seuil.
+* Nouveau : rapport quotidien WhatsApp au marchand (commandes du jour + CA).
+* Nouveau : fidélité — points gagnés sur les commandes livrées, remise automatique au formulaire (plafond 30 %).
+* Nouveau : PWA marchand — installation du dashboard sur l’écran d’accueil mobile (manifest + service worker).
+* Nouveau : mode étiquettes 10x15 cm en plus des bordereaux.
 
 = 5.38.0 =
 * Design : icônes SVG harmonisées sur le formulaire (coordonnées, livraison, domicile, bureau, réassurance) — trait fin, couleur suit l’accent choisi, rendu identique sur tous les appareils (fini les emojis système).

@@ -1895,9 +1895,87 @@ class SettingsPage {
 				</label>
 			</div>
 		</div>
+		<div class="icod-card">
+			<h2>📦 <?php esc_html_e( 'Portail de suivi client', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Vos clients suivent leur commande en direct sur /suivi-commande/ (numéro + téléphone). Moins d’appels, plus d’autonomie.', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[track_portal_enabled]" value="1" <?php checked( (int) Settings::get( 'track_portal_enabled', 1 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Activer le portail de suivi public /suivi-commande/', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2>🧾 <?php esc_html_e( 'Facture PDF', 'infinitycod' ); ?></h2>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[invoice_enabled]" value="1" <?php checked( (int) Settings::get( 'invoice_enabled', 1 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Facture PDF téléchargeable (bouton « Facture » dans la fiche commande)', 'infinitycod' ); ?></span>
+				</label>
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[invoice_email]" value="1" <?php checked( (int) Settings::get( 'invoice_email', 1 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Joindre automatiquement la facture à l’e-mail de confirmation (si le client a laissé son e-mail)', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2>📦 <?php esc_html_e( 'Alertes de stock', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Badge « Bientôt épuisé » sur le formulaire + e-mail quotidien récapitulatif des produits sous le seuil.', 'infinitycod' ); ?></p>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Seuil d’alerte (quantité, 0 = désactivé)', 'infinitycod' ); ?></span>
+					<input type="number" min="0" max="1000" name="icod[stock_alert_threshold]" value="<?php echo esc_attr( Settings::get( 'stock_alert_threshold', 0 ) ); ?>" />
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2>📲 <?php esc_html_e( 'Rapport quotidien WhatsApp', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Chaque matin : commandes du jour et chiffre d’affaires envoyés sur votre propre WhatsApp (nécessite une passerelle WhatsApp configurée dans l’onglet Formulaire).', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[wa_daily_report]" value="1" <?php checked( (int) Settings::get( 'wa_daily_report' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Recevoir le rapport quotidien sur WhatsApp', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Votre numéro WhatsApp (format international, ex. 2136…)', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[wa_owner_phone]" dir="ltr" value="<?php echo esc_attr( Settings::get( 'wa_owner_phone', '' ) ); ?>" />
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
+			<h2>💛 <?php esc_html_e( 'Fidélité', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Points gagnés sur les commandes livrées ; si le client récommande avec le même numéro et a assez de points, la remise s’applique automatiquement (max 30 % du sous-total).', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[loyalty_enabled]" value="1" <?php checked( (int) Settings::get( 'loyalty_enabled' ), 1 ); ?> />
+					<span><?php esc_html_e( 'Activer la remise fidélité automatique', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( '1 point par (DA livrés)', 'infinitycod' ); ?></span>
+					<input type="number" min="100" step="100" name="icod[loyalty_point_da]" value="<?php echo esc_attr( Settings::get( 'loyalty_point_da', 1000 ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Remise par point (DA)', 'infinitycod' ); ?></span>
+					<input type="number" min="1" name="icod[loyalty_point_value]" value="<?php echo esc_attr( Settings::get( 'loyalty_point_value', 10 ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Points minimum pour déclencher', 'infinitycod' ); ?></span>
+					<input type="number" min="0" name="icod[loyalty_min_points]" value="<?php echo esc_attr( Settings::get( 'loyalty_min_points', 20 ) ); ?>" />
+				</label>
+			</div>
+		</div>
 
 		<div class="icod-card">
 			<h2><?php esc_html_e( 'Devise', 'infinitycod' ); ?></h2>
+
 			<p class="description"><?php esc_html_e( 'Appliquée partout : formulaire, récapitulatif, commandes WooCommerce, pixels et tableaux de bord. Marché arabe : DZD, MAD, TND, EGP, SAR, AED…', 'infinitycod' ); ?></p>
 			<div class="icod-grid">
 				<label>
@@ -2365,6 +2443,16 @@ class SettingsPage {
 			'seo_business_phone'   => array( 'tab' => 'advanced', 'type' => 'text' ),
 			'seo_faq'              => array( 'tab' => 'advanced', 'type' => 'textarea' ),
 			'seo_llms_enabled'     => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'track_portal_enabled' => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'invoice_enabled'      => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'invoice_email'        => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'stock_alert_threshold' => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 0, 'max' => 1000 ),
+			'wa_daily_report'      => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'wa_owner_phone'       => array( 'tab' => 'advanced', 'type' => 'text' ),
+			'loyalty_enabled'      => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'loyalty_point_da'     => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 100, 'max' => 100000 ),
+			'loyalty_point_value'  => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 1, 'max' => 1000 ),
+			'loyalty_min_points'   => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 0, 'max' => 10000 ),
 
 			// ——— Vente PayPal (configurée depuis l'onglet Licence) ———
 			'paypal_enabled'        => array( 'tab' => 'license', 'type' => 'toggle' ),

@@ -571,6 +571,14 @@
 				var discountLabel = el(root, '[data-summary-discount-label]');
 
 				if (subtotalEl) { subtotalEl.textContent = money(json.subtotal); }
+				/* Fidélité : remise automatique si le téléphone a des points. */
+				var loyaltyRow = el(root, '[data-summary-loyalty-row]');
+				var loyaltyEl = el(root, '[data-summary-loyalty]');
+				if (loyaltyRow && loyaltyEl) {
+					var ld = (json.loyalty && json.loyalty.discount) ? parseFloat(json.loyalty.discount) : 0;
+					if (ld > 0) { loyaltyEl.textContent = '−' + money(ld); loyaltyRow.classList.remove('icod-hidden'); }
+					else { loyaltyRow.classList.add('icod-hidden'); }
+				}
 				if (shippingEl) { shippingEl.textContent = (json.shipping < 0) ? '—' : (json.free ? I18N.free : money(json.shipping)); }
 				if (totalEl) { totalEl.textContent = money(json.total); }
 
@@ -892,6 +900,7 @@
 				note: (el(form, '.icod-note') || { value: '' }).value.trim(),
 				honeypot: (el(form, '.icod-hp') || { value: '' }).value,
 				ts: (el(form, '[name="icod_ts"]') || { value: '' }).value,
+				phone: (el(form, '.icod-phone') || el(form, '[data-icod-field="phone"]') || { value: '' }).value,
 				ab: (el(form, '[name="icod_ab"]') || { value: '' }).value,
 				sig: (el(form, '[name="icod_sig"]') || { value: '' }).value,
 				fingerprint: fpInput ? fpInput.value : '',

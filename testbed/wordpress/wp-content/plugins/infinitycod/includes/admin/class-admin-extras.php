@@ -35,6 +35,9 @@ class AdminExtras {
 		add_action( 'wp_ajax_icod_orders_poll', array( $this, 'handle_orders_poll' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_sound_poll' ), 20 );
 		add_action( 'init', array( $this, 'schedule_weekly' ), 20 );
+		add_action( 'init', array( $this, 'schedule_daily_extras' ), 20 );
+		add_action( 'infinitycod_daily_wa_report', array( $this, 'send_daily_wa_report' ) );
+		add_action( 'infinitycod_stock_alert_check', array( $this, 'run_stock_alert_check' ) );
 		add_action( 'infinitycod_weekly_report', array( $this, 'send_weekly_report' ) );
 		add_action( 'admin_notices', array( $this, 'maintenance_notice' ) );
 	}
@@ -44,6 +47,73 @@ class AdminExtras {
 	 *
 	 * @return void
 	 */
+	/**
+	 * Crons journaliers : rapport WhatsApp marchand + vérification des stocks.
+	 *
+	 * @return void
+	 */
+	public function schedule_daily_extras() {
+		if ( Settings::get( 'wa_daily_report' ) && ! wp_next_scheduled( 'infinitycod_daily_wa_report' ) ) {
+			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'infinitycod_daily_wa_report' );
+		}
+		if ( (int) Settings::get( 'stock_alert_threshold', 0 ) > 0 && ! wp_next_scheduled( 'infinitycod_stock_alert_check' ) ) {
+			wp_schedule_event( time() + 2 * HOUR_IN_SECONDS, 'daily', 'infinitycod_stock_alert_check' );
+		}
+	}
+
+	/**
+	 * Rapport quotidien du jour envoyé au marchand sur son WhatsApp.
+	 *
+	 * @return void
+	 */
+	public function send_daily_wa_report() {
+		global $wpdb;
+		$wa_owner = trim( (string) Settings::get( 'wa_owner_phone', '' ) );
+		if ( '' === $wa_owner ) {
+			return;
+		}
+		$orders = Schema::table( 'orders' );
+		$today  = current_time( 'Y-m-d' ) . ' 00:00:00';
+		$row    = $wpdb->get_row( $wpdb->prepare(
+			"SELECT COUNT(*) AS n, COALESCE(SUM(CASE WHEN status IN ('confirmed','shipped','delivered') THEN total ELSE 0 END),0) AS revenue FROM {$orders} WHERE created_at >= %s", // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB
+			$today
+		), ARRAY_A );
+		$wa = infinitycod()->module( 'whatsapp' );
+		if ( $wa && is_array( $row ) ) {
+			$text = '📊 ' . get_bloginfo( 'name' ) . ' — aujourd\'hui : ' . (int) $row['n'] . ' commande(s), ' . number_format_i18n( (float) $row['revenue'], 0 ) . ' ' . Settings::currency_label() . '.';
+			$wa->send( $wa_owner, $text );
+		}
+	}
+
+	/**
+	 * Alerte stock : produits sous le seuil → e-mail admin.
+	 *
+	 * @return void
+	 */
+	public function run_stock_alert_check() {
+		$threshold = (int) Settings::get( 'stock_alert_threshold', 0 );
+		if ( $threshold < 1 || ! function_exists( 'wc_get_products' ) ) {
+			return;
+		}
+		$low = array();
+		$products = wc_get_products( array( 'limit' => 500, 'status' => 'publish', 'type' => array( 'simple' ) ) );
+		foreach ( (array) $products as $product ) {
+			if ( ! $product->managing_stock() ) {
+				continue;
+			}
+			$qty = (int) $product->get_stock_quantity();
+			if ( $qty >= 0 && $qty <= $threshold ) {
+				$low[] = '• ' . $product->get_name() . ' — ' . $qty;
+			}
+		}
+		if ( $low ) {
+			wp_mail( get_option( 'admin_email' ),
+				sprintf( /* translators: 1 : site, 2 : nombre. */ __( '[%1$s] Stock faible : %2$d produit(s)', 'infinitycod' ), get_bloginfo( 'name' ), count( $low ) ),
+				implode( "\n", $low )
+			);
+		}
+	}
+
 	public function schedule_weekly() {
 		if ( Settings::get( 'weekly_report' ) ) {
 			if ( ! wp_next_scheduled( 'infinitycod_weekly_report' ) ) {

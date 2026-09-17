@@ -216,6 +216,7 @@ class Routes {
 		$wilaya_code = isset( $body['wilaya'] ) ? $this->normalize_wilaya_code( sanitize_text_field( $body['wilaya'] ) ) : '';
 		$commune     = isset( $body['commune'] ) ? sanitize_text_field( $body['commune'] ) : '';
 		$mode        = ( isset( $body['mode'] ) && 'desk' === $body['mode'] ) ? RatesManager::MODE_DESK : RatesManager::MODE_HOME;
+		$quote_phone = isset( $body['phone'] ) ? sanitize_text_field( (string) $body['phone'] ) : '';
 
 		$product = $variation_id ? wc_get_product( $variation_id ) : wc_get_product( $product_id );
 		if ( ! $product ) {
@@ -258,7 +259,11 @@ class Routes {
 		$coupon_code = isset( $body['coupon'] ) ? sanitize_text_field( (string) $body['coupon'] ) : '';
 		$base        = round( $subtotal - (float) $discount['amount'], 2 );
 		$coupon      = $coupon_code ? Coupon::evaluate( $coupon_code, $base, $quantity, $product_id ) : array( 'valid' => false, 'amount' => 0.0, 'label' => '' );
-		$coupon_out  = array(
+		// Fidélité : aperçu de la remise fidélité pour ce téléphone (si le client
+		// a assez de points issus de ses commandes livrées).
+		$loyalty = \InfinityCod\Loyalty\Loyalty::preview( $quote_phone, $base );
+
+				$coupon_out  = array(
 			'code'   => $coupon_code,
 			'valid'  => ! empty( $coupon['valid'] ) ? 1 : 0,
 			'amount' => (float) ( $coupon['amount'] ?? 0 ),
