@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.39.2 — 2026-09-17
+
+- **Discrétion totale** : la carte technique « Mises à jour via GitHub » disparaît de Réglages → Avancé, remplacée par un simple statut avec lien vers l'onglet Mises à jour. Les miroirs, dépôts et token restent gérés automatiquement par le plugin (surcharge possible en constantes pour les développeurs).
+
 ## 5.39.0 — 2026-09-17
 
 8 nouvelles fonctionnalités :

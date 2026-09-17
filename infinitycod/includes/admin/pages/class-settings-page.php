@@ -2065,38 +2065,10 @@ class SettingsPage {
 		</div>
 
 		<div class="icod-card">
-			<h2><?php esc_html_e( 'Mises à jour via GitHub', 'infinitycod' ); ?></h2>
-			<div class="icod-notice-ok">✅ <?php esc_html_e( 'Automatique — aucune configuration requise. Votre site vérifie GitHub toutes les heures et propose (ou installe) les mises à jour tout seul. Les champs ci-dessous sont optionnels.', 'infinitycod' ); ?></div>
-			<p class="description"><?php esc_html_e( 'Recommandé : créez un dépôt PUBLIC « releases » contenant uniquement les zips — les clients reçoivent les mises à jour sans aucun token, et vos sources restent privées. Si vous laissez ce champ vide, le plugin consulte le dépôt des sources (token alors obligatoire s‘il est privé).', 'infinitycod' ); ?></p>
-			<div class="icod-grid">
-				<label>
-					<span><?php esc_html_e( 'Miroir personnalisé (secours ultime) — URL d‘un dossier contenant update.json + infinitycod.zip, consulté avant les miroirs GitHub', 'infinitycod' ); ?></span>
-					<input type="url" name="icod[custom_update_url]" dir="ltr" placeholder="https://mon-cdn.exemple/updates/" value="<?php echo esc_attr( Settings::get( 'custom_update_url', '' ) ); ?>" class="regular-text" />
-				</label>
-			</div>
-			<div class="icod-grid">
-				<label>
-					<span><?php esc_html_e( 'Serveur de licences (API d‘activation)', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[license_server]" value="<?php echo esc_attr( Settings::get( 'license_server' ) ); ?>" dir="ltr" />
-				</label>
-				<label>
-					<span><?php esc_html_e( 'Dépôt PUBLIC des releases (recommandé)', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[releases_repo]" value="<?php echo esc_attr( Settings::get( 'releases_repo' ) ); ?>" dir="ltr" placeholder="derouicheoussama/infinitycod-releases" />
-				</label>
-				<label>
-					<span><?php esc_html_e( 'Dépôt des sources (avec token si privé)', 'infinitycod' ); ?></span>
-					<input type="text" name="icod[github_repo]" value="<?php echo esc_attr( Settings::get( 'github_repo' ) ); ?>" dir="ltr" placeholder="derouicheoussama/infinitycod" />
-				</label>
-				<label>
-					<span><?php esc_html_e( 'Token GitHub (dépôt privé uniquement)', 'infinitycod' ); ?></span>
-					<input type="password" name="icod[github_token]" value="" dir="ltr" autocomplete="new-password" placeholder="ghp_…" />
-				</label>
-			</div>
-			<p class="description" style="margin-top:10px">
-				<?php esc_html_e( 'Les clients vérifient les mises à jour toutes les heures directement sur les GitHub Releases du dépôt public. Aucun site web intermédiaire, aucun token requis côté client.', 'infinitycod' ); ?>
-			</p>
+			<h2>🔄 <?php esc_html_e( 'Mises à jour', 'infinitycod' ); ?></h2>
+			<div class="icod-notice-ok">✅ <?php esc_html_e( 'Automatiques — aucune configuration requise. Votre site vérifie les nouvelles versions toutes les heures et vous notifie (ou les installe) tout seul.', 'infinitycod' ); ?></div>
+			<p class="description"><a href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-updates' ) ); ?>"><?php esc_html_e( 'Voir l’état détaillé des mises à jour →', 'infinitycod' ); ?></a></p>
 		</div>
-
 		<div class="icod-card">
 			<h2>🔔 <?php esc_html_e( 'Notifications marchand — Discord / Telegram', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Recevez un résumé (client, téléphone, produit, wilaya, total) à CHAQUE nouvelle commande, directement dans votre salon Discord ou votre chat Telegram. Laissez vide pour désactiver — aucun envoi sans configuration.', 'infinitycod' ); ?></p>
