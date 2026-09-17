@@ -1423,7 +1423,9 @@ class SettingsPage {
 				var product = document.getElementById('icod-preview-product');
 				var status = document.getElementById('icod-preview-status');
 				var nonce = <?php echo wp_json_encode( wp_create_nonce( 'icod_preview_form' ) ); ?>;
-				var ajax = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
+				/* Origine courante (jamais l'URL du site en base) : évite tout
+				   mismatch www / https / domaine de préproduction. */
+				var ajax = window.location.origin + '/wp-admin/admin-ajax.php';
 				var timer = null;
 
 				function refresh() {
@@ -2186,7 +2188,7 @@ class SettingsPage {
 			// L'aperçu vit dans un iframe srcdoc : les styles en file WordPress
 			// ne sont pas imprimés en admin-ajax → liens CSS injectés ici.
 			if ( '' !== $html ) {
-				$css = infinitycod()->asset_url( 'assets/front/css/form.css' ) . '?ver=' . rawurlencode( INFINITYCOD_VERSION );
+				$css = '/wp-content/plugins/infinitycod/assets/front/css/form.css?ver=' . rawurlencode( INFINITYCOD_VERSION );
 				$head = '<link rel="stylesheet" href="' . esc_url( $css ) . '" media="all" />'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- aperçu autonome.
 				if ( \InfinityCod\Core\I18n::is_rtl() ) {
 					$head .= '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" media="all" />'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- police de l'aperçu.

@@ -2,6 +2,10 @@
 
 ## 5.39.2 — 2026-09-17
 
+- **Correctif aperçu en direct** : la requête AJAX de l'aperçu est ancrée sur l'origine courante du navigateur (et non l'URL du site stockée en base) — l'aperçu se met à jour instantanément même en cas de différence www/https/domaine. Les styles de l'aperçu utilisent un chemin relatif.
+
+## 5.39.2 — 2026-09-17
+
 - **Discrétion totale** : la carte technique « Mises à jour via GitHub » disparaît de Réglages → Avancé, remplacée par un simple statut avec lien vers l'onglet Mises à jour. Les miroirs, dépôts et token restent gérés automatiquement par le plugin (surcharge possible en constantes pour les développeurs).
 
 ## 5.39.0 — 2026-09-17
