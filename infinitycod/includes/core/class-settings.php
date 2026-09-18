@@ -93,6 +93,10 @@ class Settings {
 			// Notification e-mail au marchand à chaque nouvelle version.
 			'update_email_notify'  => 1,
 
+			// Notification WhatsApp du marchand à chaque nouvelle version
+			// (utilise la passerelle WhatsApp configurée + wa_owner_phone).
+			'update_wa_notify'     => 0,
+
 			// Passerelle de paiement en ligne.
 			'stripe_currency'      => 'usd',  // Devise de facturation Stripe.
 			'stripe_rate'          => 1,      // Taux DZD -> devise Stripe.

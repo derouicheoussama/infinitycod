@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.40.5 — 2026-09-18
+
+- **Notification WhatsApp des mises à jour** : en complément de l'e-mail, le marchand reçoit un message WhatsApp (passerelle configurée + numéro marchand) dès qu'une nouvelle version sort. Activable dans Mises à jour → Paramètres.
+- **Santé des mises à jour** : statut de la signature Ed25519 du manifest affiché en direct sur la page Mises à jour (valide / invalide / absente + miroir concerné) et latence en millisecondes de chaque source dans le diagnostic.
+- Correctifs : le réglage « notification e-mail » était réinitialisé à chaque enregistrement du formulaire ; affichage de l'empreinte SHA-256 (conversion de tableau en chaîne) ; identifiant produit du formulaire initialisé depuis la page produit courante.
+
 ## 5.40.4 — 2026-09-18
 
 - **Vérification de signature déterministe** : le repli sodium_compat est désormais chargé par le plugin lui-même — certains builds PHP embarquent le module sodium sans toutes ses fonctions, ce qui rendait la vérification fausse par défaut sur ces machines.

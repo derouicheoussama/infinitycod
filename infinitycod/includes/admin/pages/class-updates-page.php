@@ -163,9 +163,28 @@ class UpdatesPage {
 						<td><?php esc_html_e( 'Intégrité du package', 'infinitycod' ); ?></td>
 						<td>
 							<?php if ( ! empty( $remote['sha256'] ) ) : ?>
-								<span class="icod-status icod-status-delivered">SHA-256 <?php esc_html_e( 'vérifié avant installation', 'infinitycod' ); ?></span> <span class="icod-hint" dir="ltr"><?php echo esc_html( substr( (string) ['sha256'], 0, 16 ) ); ?>…</span>
+								<span class="icod-status icod-status-delivered">SHA-256 <?php esc_html_e( 'vérifié avant installation', 'infinitycod' ); ?></span> <span class="icod-hint" dir="ltr"><?php echo esc_html( substr( (string) $remote['sha256'], 0, 16 ) ); ?>…</span>
 							<?php else : ?>
 								<span class="icod-hint"><?php esc_html_e( 'Manifest sans empreinte (installation contrôlée par WordPress)', 'infinitycod' ); ?></span>
+							<?php endif; ?>
+						</td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Signature du manifest', 'infinitycod' ); ?></td>
+						<td>
+							<?php
+							$sig_status = Updater::signature_status();
+							if ( ! empty( $sig_status['version'] ) ) :
+								if ( ! empty( $sig_status['ok'] ) ) :
+									?>
+									<span class="icod-status icod-status-delivered">✅ <?php esc_html_e( 'Signature Ed25519 valide', 'infinitycod' ); ?></span>
+									<span class="icod-hint">— <?php printf( esc_html__( 'miroir %1$s, v%2$s', 'infinitycod' ), esc_html( $sig_status['source'] ), esc_html( $sig_status['version'] ) ); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment ?></span>
+								<?php else : ?>
+									<span class="icod-status icod-status-returned">❌ <?php esc_html_e( 'Signature invalide', 'infinitycod' ); ?></span>
+									<span class="icod-hint">— <?php printf( esc_html__( 'miroir %1$s écarté, sources de repli actives (v%2$s)', 'infinitycod' ), esc_html( $sig_status['source'] ), esc_html( $sig_status['version'] ) ); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment ?></span>
+								<?php endif; ?>
+							<?php else : ?>
+								<span class="icod-status icod-status-pending"><?php echo esc_html( $sig_status['label'] ); ?></span>
 							<?php endif; ?>
 						</td>
 					</tr>
@@ -270,10 +289,14 @@ class UpdatesPage {
 							<input type="checkbox" name="icod[auto_update]" value="1" <?php checked( (int) Settings::get( 'auto_update' ), 1 ); ?> />
 							<span><?php esc_html_e( 'Installation automatique des nouvelles versions', 'infinitycod' ); ?></span>
 						</label>
-								<label class="icod-toggle">
-									<input type="checkbox" name="icod[update_email_notify]" value="1" <?php checked( (int) Settings::get( 'update_email_notify', 1 ), 1 ); ?> />
-									<span><?php esc_html_e( 'M’avertir par e-mail dès qu’une nouvelle version sort', 'infinitycod' ); ?></span>
-								</label>
+						<label class="icod-toggle">
+								<input type="checkbox" name="icod[update_email_notify]" value="1" <?php checked( (int) Settings::get( 'update_email_notify', 1 ), 1 ); ?> />
+								<span><?php esc_html_e( 'M’avertir par e-mail dès qu’une nouvelle version sort', 'infinitycod' ); ?></span>
+							</label>
+							<label class="icod-toggle">
+								<input type="checkbox" name="icod[update_wa_notify]" value="1" <?php checked( (int) Settings::get( 'update_wa_notify', 0 ), 1 ); ?> />
+								<span><?php esc_html_e( 'M’avertir sur WhatsApp dès qu’une nouvelle version sort (numéro marchand requis)', 'infinitycod' ); ?></span>
+							</label>
 					</div>
 					<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Enregistrer', 'infinitycod' ); ?></button></p>
 				</form>
@@ -398,6 +421,8 @@ class UpdatesPage {
 		$channel = isset( $_POST['icod']['update_channel'] ) ? sanitize_key( wp_unslash( $_POST['icod']['update_channel'] ) ) : 'stable';
 		\InfinityCod\Core\Settings::set( 'update_channel', in_array( $channel, array( 'stable', 'beta' ), true ) ? $channel : 'stable' );
 		\InfinityCod\Core\Settings::set( 'auto_update', empty( $_POST['icod']['auto_update'] ) ? 0 : 1 );
+		\InfinityCod\Core\Settings::set( 'update_email_notify', empty( $_POST['icod']['update_email_notify'] ) ? 0 : 1 );
+		\InfinityCod\Core\Settings::set( 'update_wa_notify', empty( $_POST['icod']['update_wa_notify'] ) ? 0 : 1 );
 
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=saved' ) );
 		exit;

@@ -798,6 +798,7 @@ class Updater {
 
 		$out = array();
 		foreach ( $targets as $name => $url ) {
+			$started = microtime( true );
 			$response = wp_remote_get(
 				$url,
 				array(
@@ -806,6 +807,7 @@ class Updater {
 					'headers'    => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
 				)
 			);
+			$latency = (int) round( ( microtime( true ) - $started ) * 1000 );
 
 			if ( is_wp_error( $response ) ) {
 				$out[] = array(
@@ -830,12 +832,86 @@ class Updater {
 			$out[] = array(
 				'name'    => $name,
 				'ok'      => $code >= 200 && $code < 300,
-				'detail'  => (string) $code . ( '' !== $ver ? ' · v' . $ver : '' ),
+				'detail'  => (string) $code . ( '' !== $ver ? ' · v' . $ver : '' ) . ' · ' . $latency . ' ms',
 				'version' => $ver,
 			);
 		}
 
 		return $out;
+	}
+
+	/**
+	 * Statut de la signature Ed25519 du manifest servi par le miroir.
+	 *
+	 * Télécharge update.json + update.json.sig depuis le premier miroir qui
+	 * répond et vérifie la signature avec la clé publique embarquée. C'est
+	 * exactement ce que fera l'installation : un statut « invalide » ici
+	 * signifie que CETTE source serait écartée (les replis restent actifs).
+	 *
+	 * @return array ok, label, version, source.
+	 */
+	public static function signature_status() {
+		$cached = get_transient( 'icod_sig_status' );
+		if ( is_array( $cached ) && isset( $cached['label'] ) ) {
+			return $cached;
+		}
+
+		$repo  = self::releases_repo();
+		$bases = array(
+			// phpcs:disable PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- miroirs de mise a jour (vente directe, hors wp.org).
+			'raw'      => 'https://raw.githubusercontent.com/' . $repo . '/main/latest/',
+			'jsdelivr' => 'https://cdn.jsdelivr.net/gh/' . $repo . '@main/latest/',
+			// phpcs:enable PluginCheck.CodeAnalysis.Offloading.OffloadedContent
+		);
+
+		foreach ( $bases as $kind => $base ) {
+			$m = wp_remote_get( $base . 'update.json', array(
+				'timeout' => 10,
+				'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
+			) );
+			if ( is_wp_error( $m ) || 200 !== (int) wp_remote_retrieve_response_code( $m ) ) {
+				continue;
+			}
+			$raw = (string) wp_remote_retrieve_body( $m );
+			$man = json_decode( $raw, true );
+			if ( ! is_array( $man ) || empty( $man['version'] ) ) {
+				continue;
+			}
+
+			$s    = wp_remote_get( $base . 'update.json.sig', array(
+				'timeout' => 10,
+				'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
+			) );
+			$scode = is_wp_error( $s ) ? 0 : (int) wp_remote_retrieve_response_code( $s );
+			$sig   = ( 200 === $scode ) ? trim( (string) wp_remote_retrieve_body( $s ) ) : '';
+
+			if ( '' === $sig ) {
+				$out = array(
+					'ok'     => false,
+					'label'  => __( 'absente', 'infinitycod' ),
+					'version' => (string) $man['version'],
+					'source' => $kind,
+				);
+			} else {
+				$ok  = self::verify_manifest_signature( $raw, $sig );
+				$out = array(
+					'ok'     => (bool) $ok,
+					'label'  => $ok ? __( 'valide', 'infinitycod' ) : __( 'invalide', 'infinitycod' ),
+					'version' => (string) $man['version'],
+					'source' => $kind,
+				);
+			}
+
+			set_transient( 'icod_sig_status', $out, 15 * MINUTE_IN_SECONDS );
+			return $out;
+		}
+
+		return array(
+			'ok'     => false,
+			'label'  => __( 'miroir injoignable', 'infinitycod' ),
+			'version' => '',
+			'source' => '',
+		);
 	}
 
 	/**
@@ -922,6 +998,25 @@ class Updater {
 		. ' · <a href="' . esc_url( $changelog_url ) . '">' . esc_html__( 'Voir les nouveautés', 'infinitycod' ) . '</a></p>';
 
 		wp_mail( get_option( 'admin_email' ), $subject, $message, array( 'Content-Type: text/html; charset=utf-8' ) );
+
+		// Notification WhatsApp du marchand (complément de l'e-mail, même
+		// cadence « une seule fois par version »). Nécessite la passerelle
+		// WhatsApp configurée et le numéro marchand renseigné.
+		if ( Settings::get( 'update_wa_notify', 0 ) ) {
+			$phone = trim( (string) Settings::get( 'wa_owner_phone', '' ) );
+			$wa    = infinitycod() && infinitycod()->module( 'whatsapp' ) ? infinitycod()->module( 'whatsapp' ) : null;
+			if ( '' !== $phone && $wa ) {
+				$wa->send(
+					$phone,
+					sprintf(
+						/* translators: 1 : nom du site, 2 : version. */
+						__( '🚀 %1$s : InfinityCod %2$s est disponible. Tableau de bord → Mises à jour pour installer en 1 clic.', 'infinitycod' ),
+						get_bloginfo( 'name' ),
+						(string) $version
+					)
+				);
+			}
+		}
 	}
 
 	public function plugin_info( $result, $action, $args ) {
