@@ -82,7 +82,7 @@ jobs:
         run: node tools/verify-update-sig.js dist/update.json dist/update.json.sig
 
       - name: Release interne (dépôt privé des sources)
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             dist/infinitycod.zip
@@ -94,7 +94,7 @@ jobs:
       - name: Release publique (dépôt des mises à jour clients)
         if: env.RELEASES_TOKEN != ''
         continue-on-error: true
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           repository: derouicheoussama/infinitycod-releases
           token: ${{ secrets.RELEASES_TOKEN }}
