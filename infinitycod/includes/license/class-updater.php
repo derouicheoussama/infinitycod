@@ -70,8 +70,12 @@ class Updater {
 
 		if ( class_exists( 'Paragonie_Sodium_Compat' ) ) {
 			try {
-				return \Paragonie_Sodium_Compat::crypto_sign_detached_verify( (string) $raw_json, $sig, $pk );
-			} catch ( \Exception $e ) {
+				// NB : sodium_compat nomme la méthode crypto_sign_VERIFY_detached
+				// (nom libsodium), contrairement à la fonction ext sodium_crypto_
+				// sign_detached_verify — un mauvais nom rendait la vérification
+				// systématiquement fausse sur les hébergeurs sans ext-sodium.
+				return \Paragonie_Sodium_Compat::crypto_sign_verify_detached( (string) $sig, (string) $raw_json, $pk );
+			} catch ( \Throwable $e ) {
 				return false;
 			}
 		}

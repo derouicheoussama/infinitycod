@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.40.3 — 2026-09-18
+
+- **Correctif vérification de signature** : le repli sans extension sodium appelait un nom de méthode inexistant (crypto_sign_detached_verify au lieu de crypto_sign_verify_detached) — la vérification échouait systématiquement sur ces hébergeurs. La signature de chaque mise à jour est désormais validable partout.
+
 ## 5.40.2 — 2026-09-18
 
 - **Correctif critique des mises à jour** : une signature de manifest désynchronisée sur le miroir suffisait à bloquer TOUTE proposition de mise à jour (le cache d'erreur était renvoyé comme des données et court-circuitait les sources de repli Atom/API). Désormais : un cache négatif n'est plus renvoyé comme données, la chaîne de repli complète (miroir → Atom → API GitHub) est toujours parcourue.
