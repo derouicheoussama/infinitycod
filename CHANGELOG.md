@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.40.7 — 2026-09-18
+
+- **Repli CDN automatique** : quand le nœud GitHub des téléchargements renvoie une réponse défaillante (certains nœuds répondent littéralement « 503 error » — d'où le message « La mise à jour a échoué : error »), le téléchargement bascule automatiquement sur le miroir fichiers signé (raw puis jsDelivr). Les messages d'échec de téléchargement ne sont plus jamais des messages HTTP bruts.
+
 ## 5.40.6 — 2026-09-18
 
 - **Correctif « erreur critique » à l'installation des mises à jour** : le téléchargement + la décompression + la copie des fichiers dépassent la limite d'exécution par défaut de 30 s de beaucoup d'hébergeurs (aggravé par l'antivirus sous Windows). La limite est désormais relevée à 300 s au tout début du cycle de mise à jour (premier hook upgrader) et pour l'installation forcée.

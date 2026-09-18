@@ -1238,7 +1238,35 @@ class Updater {
 		} else {
 			$bytes = $this->fetch_package_auth( $url, self::github_token() );
 		}
+
+		// Repli CDN : les nœuds GitHub (objects.githubusercontent.com) renvoient
+		// ponctuellement « 503 error » ou une réponse vide pendant les
+		// propagations — le message brut « error » remontait alors jusqu'à
+		// « La mise à jour a échoué : error ». On retente automatiquement via
+		// le miroir fichiers, qui sert le même zip signé.
+		$is_empty_bytes = ! is_wp_error( $bytes ) && '' === (string) $bytes;
+		if ( ( is_wp_error( $bytes ) || $is_empty_bytes ) && $is_asset && '' !== self::releases_repo() ) {
+			$fallbacks = array(
+				// phpcs:disable PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- miroirs de mise a jour (vente directe, hors wp.org).
+				'raw'      => 'https://raw.githubusercontent.com/' . self::releases_repo() . '/main/latest/infinitycod.zip',
+				'jsdelivr' => 'https://cdn.jsdelivr.net/gh/' . self::releases_repo() . '@main/latest/infinitycod.zip',
+				// phpcs:enable PluginCheck.CodeAnalysis.Offloading.OffloadedContent
+			);
+			foreach ( $fallbacks as $kind => $mirror_url ) {
+				$mres   = wp_remote_get( $mirror_url, array( 'timeout' => 120, 'redirection' => 3, 'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ) ) );
+				$mbytes = is_wp_error( $mres ) ? $mres : (string) wp_remote_retrieve_body( $mres );
+				if ( ! is_wp_error( $mbytes ) && '' !== $mbytes ) {
+					\InfinityCod\Logging\Logger::log( 'update', 'Téléchargement principal indisponible (' . ( is_wp_error( $bytes ) ? $bytes->get_error_message() : 'réponse vide' ) . ') — repli miroir ' . $kind . ' utilisé.' );
+					$bytes = $mbytes;
+					break;
+				}
+			}
+		}
 		$busy = false;
+
+		if ( ! is_wp_error( $bytes ) && '' === (string) $bytes ) {
+			$bytes = new \WP_Error( 'icod_download_empty', __( 'Le serveur des mises à jour a renvoyé une réponse vide.', 'infinitycod' ) );
+		}
 
 		if ( is_wp_error( $bytes ) ) {
 			return new \WP_Error( 'icod_download_failed', __( 'InfinityCod : téléchargement du package impossible. Votre version actuelle reste installée. ', 'infinitycod' ) . $bytes->get_error_message() );
