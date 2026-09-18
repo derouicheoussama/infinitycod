@@ -415,6 +415,57 @@ class LicenseManager {
 	 *
 	 * @return string
 	 */
+	/**
+	 * Carte « Go Pro » réutilisable : roadmap Premium + essai + licence.
+	 *
+	 * Rend une chaîne vide si Premium est actif — la carte ne s'affiche
+	 * que pour les installations gratuites.
+	 *
+	 * @return string HTML de la carte.
+	 */
+	public static function go_pro_card() {
+		if ( self::is_premium() ) {
+			return '';
+		}
+
+		$features = array(
+			__( 'WhatsApp automatique — confirmations, expédition, relances paniers', 'infinitycod' ),
+			__( 'Paliers d’offres par quantité personnalisés', 'infinitycod' ),
+			__( 'Livraison multi-pays & multi-devises', 'infinitycod' ),
+			__( 'Portail de suivi client & facture PDF avancée', 'infinitycod' ),
+			__( 'Statistiques avancées & rapports étendus', 'infinitycod' ),
+			__( 'Support prioritaire + toutes les futures fonctionnalités Pro', 'infinitycod' ),
+		);
+
+		$items = '';
+		foreach ( $features as $feature ) {
+			$items .= '<span><span class="check">✓</span>' . esc_html( $feature ) . '</span>';
+		}
+
+		$trial_used = self::trial_used();
+		$trial_btn  = '';
+		if ( ! $trial_used ) {
+			$trial_btn = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">'
+				. '<input type="hidden" name="action" value="icod_start_trial" />'
+				. wp_nonce_field( 'icod_start_trial' )
+				. '<button type="submit" class="button button-primary icod-gopro-btn-primary">🚀 ' . esc_html__( 'Essai gratuit 7 jours', 'infinitycod' ) . '</button>'
+				. '</form>';
+		}
+
+		$html = '<div class="icod-gopro">'
+			. '<div class="icod-gopro-star">★</div>'
+			. '<h2><span class="star">★</span> ' . esc_html__( 'Passez à InfinityCod Premium', 'infinitycod' ) . '</h2>'
+			. '<p>' . esc_html__( 'Débloquez la feuille de route Pro : WhatsApp automatique, paliers d’offres, multi-pays, support prioritaire — tout en gardant gratuitement chaque fonctionnalité gratuite, pour toujours.', 'infinitycod' ) . '</p>'
+			. '<div class="feat">' . $items . '</div>'
+			. '<div class="btns">'
+			. $trial_btn
+			. '<a class="button icod-gopro-btn-gold" href="' . esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=license' ) ) . '">★ ' . esc_html__( 'Activer une licence', 'infinitycod' ) . '</a>'
+			. '</div>'
+			. '</div>';
+
+		return $html;
+	}
+
 	public static function status_label() {
 		if ( self::trial_active() ) {
 			/* translators: %d : jours restants. */

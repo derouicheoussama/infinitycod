@@ -5,7 +5,7 @@ Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 5.40.0
+Stable tag: 5.40.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,9 @@ Yes, the customer pays on the secure Chargily page. Confirmation is verified by 
 3. E-commerce style / advanced customization
 
 == Changelog ==
+
+= 5.40.1 =
+* Nouveau : carte « Go Pro » sur le tableau de bord — roadmap Premium en 2 colonnes avec boutons Essai 7 jours et Licence, design sombre doré (invisible si Premium actif).
 
 = 5.40.0 =
 * Nouveau : notification e-mail au marchand dès qu’une nouvelle version d’InfinityCod est disponible (une seule fois par version, e-mail de l’admin du site, désactivable dans Mises à jour).

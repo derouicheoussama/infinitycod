@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.40.1 — 2026-09-18
+
+- **Carte Go Pro** sur le tableau de bord : roadmap Premium (WhatsApp, offres, multi-pays, support prioritaire) en 2 colonnes avec boutons Essai 7 jours et Licence — invisible si Premium actif. Design sombre doré avec étoile en filigrane.
+
 ## 5.40.0 — 2026-09-17
 
 - **Notification e-mail des mises à jour** : le marchand reçoit un e-mail dès qu'une nouvelle version sort (une seule fois par version), en complément de la vérification horaire et de la mise à jour automatique. Désactivable dans Mises à jour.
