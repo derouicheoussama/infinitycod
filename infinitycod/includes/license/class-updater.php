@@ -68,6 +68,14 @@ class Updater {
 			}
 		}
 
+		// Charge le repli soi-même si besoin : WordPress ne l'inclut que si
+		// sodium_crypto_box() manque, or certains builds PHP embarquent le
+		// module sodium SANS toutes ses fonctions (ex. sign détaché) — la
+		// vérification doit rester déterministe quelle que soit la machine.
+		if ( ! class_exists( 'Paragonie_Sodium_Compat' ) && file_exists( ABSPATH . WPINC . '/sodium_compat/autoload.php' ) ) {
+			require_once ABSPATH . WPINC . '/sodium_compat/autoload.php';
+		}
+
 		if ( class_exists( 'Paragonie_Sodium_Compat' ) ) {
 			try {
 				// NB : sodium_compat nomme la méthode crypto_sign_VERIFY_detached

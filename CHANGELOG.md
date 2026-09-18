@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.40.4 — 2026-09-18
+
+- **Vérification de signature déterministe** : le repli sodium_compat est désormais chargé par le plugin lui-même — certains builds PHP embarquent le module sodium sans toutes ses fonctions, ce qui rendait la vérification fausse par défaut sur ces machines.
+
 ## 5.40.3 — 2026-09-18
 
 - **Correctif vérification de signature** : le repli sans extension sodium appelait un nom de méthode inexistant (crypto_sign_detached_verify au lieu de crypto_sign_verify_detached) — la vérification échouait systématiquement sur ces hébergeurs. La signature de chaque mise à jour est désormais validable partout.
