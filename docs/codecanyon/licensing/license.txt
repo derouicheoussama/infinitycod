@@ -1,0 +1,30 @@
+InfinityCod — Cash on Delivery for WooCommerce (Algeria)
+Copyright (C) 2025-2026 Derouiche Oussama — https://www.derouicheoussama.com
+
+LICENSING SUMMARY
+=================
+
+1. PHP code (the WordPress plugin)
+   Licensed under the GNU General Public License, version 2 or later (GPL-2.0-or-later).
+   This is the license required for WordPress plugins and it is fully compatible
+   with the Envato Market licensing model for WordPress items.
+
+   This program is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+   PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License along with this
+   program; if not, see https://www.gnu.org/licenses/gpl-2.0.html
+
+2. Your Envato purchase (Regular or Extended License)
+   Governs what you may do with this item, per the standard Envato Market license
+   terms available at https://themeforest.net/licenses (identical on CodeCanyon):
+   - Regular License: one end product for you or one client.
+   - Extended License: one end product where end users may be charged.
+
+3. Trademarks
+   "InfinityCod", the InfinityCod logo and the "∞ Infinity Coder" signature are
+   the property of Derouiche Oussama. WooCommerce, WordPress, Stripe, PayPal,
+   Chargily, Yalidine, ZR Express, Maystro, Noest and E-COM are trademarks of
+   their respective owners; this plugin is an independent integration and is not
+   endorsed by any of them.

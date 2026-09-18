@@ -5,13 +5,23 @@
  * séparateurs '/' conformes à la norme zip — un zip à plat ou écrit avec des
  * '\' (Compress-Archive PS5) casse l'extraction WordPress.
  *
- * Usage : node tools/build.js            → zip commercial (updater licence complet)
- *         node tools/build.js --wporg    → zip distribution WordPress.org (updater neutralisé)
+ * Usage : node tools/build.js                → zip commercial (updater licence complet)
+ *         node tools/build.js --wporg        → zip distribution WordPress.org (updater neutralisé)
+ *         node tools/build.js --codecanyon   → paquet Envato (édition complète + documentation + licences)
  *
  * En mode --wporg, includes/license/class-updater.php est remplacé par le stub
  * tools/wporg/class-updater.stub.php (même API, zéro hook de mise à jour) :
  * Plugin Check passe alors à 0 erreur / 0 warning. Les artefacts miroir
  * (update.json) ne sont produits qu'en mode commercial.
+ *
+ * En mode --codecanyon (Envato : les plugins se vendent sur CodeCanyon,
+ * ThemeForest étant réservé aux thèmes), l'updater est neutralisé comme en
+ * wporg ET le client de licence est remplacé par le stub tools/codecanyon/
+ * class-license-manager.stub.php : is_premium() renvoie toujours vrai —
+ * Envato interdit de verrouiller des fonctionnalités derrière un achat
+ * supplémentaire hors marketplace. Le paquet dist/infinitycod-codecanyon.zip
+ * contient le zip installable + documentation + licences, structure attendue
+ * par les relecteurs Envato.
  */
 'use strict';
 
@@ -20,14 +30,15 @@ const path = require('path');
 const { makeZip } = require('./lib/zip');
 
 const WPORG = process.argv.includes('--wporg');
+const CODECANYON = process.argv.includes('--codecanyon');
 const root = path.join(__dirname, '..');
 const src = path.join(root, 'infinitycod');
 const dist = path.join(root, 'dist');
-const zipPath = path.join(dist, WPORG ? 'infinitycod-wporg.zip' : 'infinitycod.zip');
+const zipPath = path.join(dist, WPORG ? 'infinitycod-wporg.zip' : CODECANYON ? 'infinitycod-codecanyon.zip' : 'infinitycod.zip');
 const UPDATER_ENTRY = 'infinitycod/includes/license/class-updater.php';
 const UPDATER_STUB = path.join(__dirname, 'wporg', 'class-updater.stub.php');
 const LICENSE_ENTRY = 'infinitycod/includes/license/class-license-manager.php';
-const LICENSE_STUB = path.join(__dirname, 'wporg', 'class-license-manager.stub.php');
+const LICENSE_STUB = path.join(__dirname, WPORG ? 'wporg' : 'codecanyon', 'class-license-manager.stub.php');
 
 if (!fs.existsSync(src)) {
   console.error('Dossier plugin introuvable :', src);
@@ -58,9 +69,10 @@ if (fs.existsSync(changelogPath)) {
 
 const totalKo = entries.reduce((sum, e) => sum + e.data.length, 0) / 1024;
 
-// Mode --wporg : neutralisation de l'updater ET du client de licence
-// (voir en-tête du fichier) : aucun appel distant sur WordPress.org.
-if (WPORG) {
+// Modes --wporg / --codecanyon : neutralisation de l'updater ET du client de
+// licence (voir en-tête du fichier) : aucun appel distant. La licence renvoie
+// faux premium sur wp.org, toujours premium sur CodeCanyon (édition complète).
+if (WPORG || CODECANYON) {
   const subs = [
     [UPDATER_ENTRY, UPDATER_STUB],
     [LICENSE_ENTRY, LICENSE_STUB],
@@ -68,11 +80,11 @@ if (WPORG) {
   for (const [entryName, stubPath] of subs) {
     const idx = entries.findIndex((e) => e.name === entryName);
     if (idx === -1) {
-      console.error('✗ ' + entryName + ' introuvable pour la substitution wporg.');
+      console.error('✗ ' + entryName + ' introuvable pour la substitution.');
       process.exit(1);
     }
     entries[idx].data = fs.readFileSync(stubPath);
-    console.log('Mode WordPress.org : ' + entryName + ' neutralisé par ' + path.relative(root, stubPath));
+    console.log('Mode ' + (WPORG ? 'WordPress.org' : 'CodeCanyon') + ' : ' + entryName + ' neutralisé par ' + path.relative(root, stubPath));
   }
 }
 
@@ -90,7 +102,21 @@ for (const e of entries) {
 }
 
 fs.mkdirSync(dist, { recursive: true });
-makeZip(zipPath, entries);
+if (CODECANYON) {
+  // Paquet Envato : zip installable à la racine + documentation + licences
+  // (structure attendue par les relecteurs CodeCanyon).
+  const pluginZip = path.join(dist, 'infinitycod.zip');
+  makeZip(pluginZip, entries);
+  const pkgEntries = [
+    { name: 'infinitycod.zip', data: fs.readFileSync(pluginZip) },
+    { name: 'documentation/documentation.md', data: fs.readFileSync(path.join(root, 'docs', 'codecanyon', 'documentation', 'documentation.md')) },
+    { name: 'licensing/license.txt', data: fs.readFileSync(path.join(root, 'docs', 'codecanyon', 'licensing', 'license.txt')) },
+    { name: 'README.md', data: fs.readFileSync(path.join(root, 'docs', 'codecanyon', 'README.md')) },
+  ];
+  makeZip(zipPath, pkgEntries);
+} else {
+  makeZip(zipPath, entries);
+}
 
 // Vérification structurelle avec unzip -l si disponible, sinon lecture directe.
 let ok = true;
@@ -139,16 +165,19 @@ const manifest = {
   channel: 'stable',
   changelog: latestChangelogSection(changelogText),
 };
-if (!WPORG) {
+if (!WPORG && !CODECANYON) {
   fs.writeFileSync(path.join(dist, 'update.json'), JSON.stringify(manifest, null, 2));
 }
 
 const mb = (fs.statSync(zipPath).size / 1024 / 1024).toFixed(2);
 console.log(`✓ dist/${path.basename(zipPath)} créé (${mb} Mo, ${entries.length} entrées, racine infinitycod/, séparateurs '/')`);
 console.log(`✓ dist/${path.basename(zipPath)}.sha256 (${sha256.slice(0, 16)}…)`);
-if (!WPORG) {
+if (!WPORG && !CODECANYON) {
   console.log(`✓ dist/update.json (v${version}, canal stable)`);
   console.log('  Installation : wp-admin → Extensions → Ajouter → Téléverser → Activer.');
+} else if (CODECANYON) {
+  console.log('  Paquet CodeCanyon : dist/infinitycod-codecanyon.zip (infinitycod.zip + documentation + licensing).');
+  console.log('  Téléverser sur CodeCanyon : les fichiers du paquet + captures + description sur la page de l’article.');
 } else {
   console.log('  Zip à téléverser sur WordPress.org (SVN) : le dépôt officiel gère les mises à jour.');
 }
