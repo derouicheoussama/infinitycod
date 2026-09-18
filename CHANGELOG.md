@@ -1,5 +1,12 @@
 # Changelog
 
+## 5.40.2 — 2026-09-18
+
+- **Correctif critique des mises à jour** : une signature de manifest désynchronisée sur le miroir suffisait à bloquer TOUTE proposition de mise à jour (le cache d'erreur était renvoyé comme des données et court-circuitait les sources de repli Atom/API). Désormais : un cache négatif n'est plus renvoyé comme données, la chaîne de repli complète (miroir → Atom → API GitHub) est toujours parcourue.
+- **Gestion du .sig durcie** : un `update.json.sig` absent (404/corps d'erreur CDN) n'est plus pris pour une signature invalide ; une signature réellement invalide écarte uniquement la source fautive au lieu de couper toute la chaîne pendant 30 minutes.
+- **CI durci** : signature Ed25519 désormais obligatoire (la release échoue sans clé) et vérification octet-par-octet de la paire update.json/.sig avant publication interne et avant push du miroir — une paire désynchronisée ne peut plus être publiée.
+
+
 ## 5.40.1 — 2026-09-18
 
 - **Carte Go Pro** sur le tableau de bord : roadmap Premium (WhatsApp, offres, multi-pays, support prioritaire) en 2 colonnes avec boutons Essai 7 jours et Licence — invisible si Premium actif. Design sombre doré avec étoile en filigrane.

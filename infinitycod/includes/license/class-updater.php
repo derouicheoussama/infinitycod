@@ -87,6 +87,11 @@ class Updater {
 	 */
 	public static function releases_repo() {
 		$repo = trim( (string) Settings::get( 'releases_repo', '' ) );
+		// Défaut : le dépôt public des releases (jamais le dépôt des sources
+		// privé, injoignable sans token pour les installations clientes).
+		if ( '' === $repo ) {
+			$repo = 'derouicheoussama/infinitycod-releases';
+		}
 		return preg_match( '#^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$#', $repo ) ? $repo : '';
 	}
 
@@ -340,7 +345,9 @@ class Updater {
 
 		$cached = get_transient( 'icod_update_atom' );
 		if ( false !== $cached ) {
-			return is_array( $cached ) ? $cached : null;
+			// Un cache négatif {unreachable} ne doit jamais être renvoyé comme
+			// des données : null → la chaîne de repli continue vers l'API.
+			return ( is_array( $cached ) && ! empty( $cached['version'] ) && ! empty( $cached['download_url'] ) ) ? $cached : null;
 		}
 
 		$repos = array_values( array_unique( array_filter( array( self::github_repo(), self::releases_repo() ) ) ) );
@@ -503,7 +510,10 @@ class Updater {
 
 		$cached = get_transient( 'icod_update_mirror' );
 		if ( false !== $cached ) {
-			return is_array( $cached ) ? $cached : null;
+			// Un cache négatif {unreachable, bad_signature…} ne doit jamais être
+			// renvoyé comme des données (il court-circuiterait toute la chaîne
+			// atom/API) : renvoyer null pousse la boucle des tiers à continuer.
+			return ( is_array( $cached ) && ! empty( $cached['version'] ) && ! empty( $cached['download_url'] ) ) ? $cached : null;
 		}
 
 		// Miroir personnalisé (échappatoire définitive) : une URL quelconque
@@ -539,7 +549,12 @@ class Updater {
 				continue;
 			}
 
-			// Signature Ed25519 du manifest : si présente, elle doit être valide.
+			// Signature Ed25519 du manifest : si PRÉSENTE ET BIEN SERVIE (HTTP 200),
+			// elle doit être valide. Un .sig absent (404, corps d'erreur CDN) n'est
+			// PAS une signature — vérifier ce corps échouerait toujours. Une
+			// signature invalide (update.json/.sig désynchronisés côté miroir)
+			// écarte CE miroir via continue : la source suivante (atom, API) reste
+			// essayée au lieu d'un blocage complet, et le cache n'est pas empoisonné.
 			$sres = wp_remote_get(
 				$base . 'update.json.sig',
 				array(
@@ -547,13 +562,12 @@ class Updater {
 					'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
 				)
 			);
-			$sig = is_wp_error( $sres ) ? '' : trim( (string) wp_remote_retrieve_body( $sres ) );
+			$scde = is_wp_error( $sres ) ? 0 : (int) wp_remote_retrieve_response_code( $sres );
+			$sig  = ( 200 === $scde ) ? trim( (string) wp_remote_retrieve_body( $sres ) ) : '';
 
 			if ( '' !== $sig && ! self::verify_manifest_signature( $raw, $sig ) ) {
-				\InfinityCod\Logging\Logger::log( 'security', 'Signature du manifest miroir INVALIDE — miroir ignoré.' );
-				set_transient( 'icod_update_mirror', array( 'unreachable' => 1, 'reason' => 'bad_signature' ), 30 * MINUTE_IN_SECONDS );
-				self::$http_intercept = true;
-				return null;
+				\InfinityCod\Logging\Logger::log( 'security', 'Signature du manifest miroir INVALIDE — miroir écarté, source suivante essayée.' );
+				continue;
 			}
 
 			$data = array(
@@ -591,7 +605,8 @@ class Updater {
 
 		$cached = get_transient( 'icod_update_gh' );
 		if ( false !== $cached ) {
-			return is_array( $cached ) ? $cached : null;
+			// Cache négatif ({unreachable}) = pas des données : null → repli.
+			return ( is_array( $cached ) && ! empty( $cached['version'] ) && ! empty( $cached['download_url'] ) ) ? $cached : null;
 		}
 
 		// Dépôts candidats, dans l'ordre : dépôt des sources, dépôt public.
@@ -695,18 +710,18 @@ class Updater {
 				$mraw = is_wp_error( $mres ) ? '' : (string) wp_remote_retrieve_body( $mres );
 				$mdec = json_decode( $mraw, true );
 
-				// Signature Ed25519 (update.json.sig) : si présente, elle doit être valide.
+				// Signature Ed25519 (update.json.sig) : si PRÉSENTE ET BIEN SERVIE
+				// (HTTP 200), elle doit être valide. Un corps d'erreur (404 sans
+				// asset .sig) n'est pas une signature. Un manifest invalide est
+				// ignoré — le zip de la release (TLS github.com) reste utilisable
+				// et la chaîne ne se coupe pas pour une paire désynchronisée.
 				$sres = wp_remote_get( $url . '.sig', $args );
-				$sig  = is_wp_error( $sres ) ? '' : trim( (string) wp_remote_retrieve_body( $sres ) );
+				$scde = is_wp_error( $sres ) ? 0 : (int) wp_remote_retrieve_response_code( $sres );
+				$sig  = ( 200 === $scde ) ? trim( (string) wp_remote_retrieve_body( $sres ) ) : '';
 
 				if ( '' !== $sig && ! self::verify_manifest_signature( $mraw, $sig ) ) {
-					\InfinityCod\Logging\Logger::log( 'security', 'Manifest signature INVALIDE — manifest ignoré (mise à jour non proposée).' );
-					set_transient( 'icod_update_gh', array( 'unreachable' => 1, 'reason' => 'bad_signature' ), 30 * MINUTE_IN_SECONDS );
-					self::$http_intercept = true;
-					return null;
-				}
-
-				if ( is_array( $mdec ) && ! empty( $mdec['version'] ) && ! empty( $mdec['sha256'] ) ) {
+					\InfinityCod\Logging\Logger::log( 'security', 'Manifest signature INVALIDE — manifest ignoré, zip de release utilisé.' );
+				} elseif ( is_array( $mdec ) && ! empty( $mdec['version'] ) && ! empty( $mdec['sha256'] ) ) {
 					$manifest = $mdec;
 				}
 			}

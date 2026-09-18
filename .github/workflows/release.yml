@@ -71,10 +71,15 @@ jobs:
         run: node tools/build.js
 
       - name: Signature du manifest update.json (Ed25519)
+        # OBLIGATOIRE : sans clé, la release échoue (exit 2) au lieu de publier
+        # un manifest non signé — un update.json sans .sig cohérent déclenche
+        # « bad_signature » chez les clients déjà déployés.
         env:
           INFINITYCOD_SIGNING_KEY: ${{ secrets.INFINITYCOD_SIGNING_KEY }}
-        if: env.INFINITYCOD_SIGNING_KEY != ''
         run: node tools/sign-update.js
+
+      - name: Vérification de la paire manifest/.sig
+        run: node tools/verify-update-sig.js dist/update.json dist/update.json.sig
 
       - name: Release interne (dépôt privé des sources)
         uses: softprops/action-gh-release@v2
@@ -113,7 +118,13 @@ jobs:
           git config --global user.email "infinitycod-release-bot@users.noreply.github.com"
           git clone --depth 1 "https://x-access-token:${RELEASES_TOKEN}@github.com/derouicheoussama/infinitycod-releases.git" mirror-repo
           mkdir -p mirror-repo/latest
-          cp dist/infinitycod.zip dist/infinitycod.zip.sha256 dist/update.json dist/update.json.sig mirror-repo/latest/
+          for f in infinitycod.zip infinitycod.zip.sha256 update.json update.json.sig; do
+            [ -f "dist/$f" ] || { echo "✗ dist/$f manquant — publication miroir annulée."; exit 1; }
+            cp "dist/$f" "mirror-repo/latest/$f"
+          done
+          # La paire poussée sur le miroir doit être cohérente OCTET PAR OCTET :
+          # un update.json/.sig désynchronisés = bad_signature chez les clients.
+          node tools/verify-update-sig.js mirror-repo/latest/update.json mirror-repo/latest/update.json.sig
           cd mirror-repo
           if [ -z "$(git status --porcelain)" ]; then echo "Miroir déjà à jour."; exit 0; fi
           git add latest

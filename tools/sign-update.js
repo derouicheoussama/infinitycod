@@ -40,4 +40,11 @@ if (secretKey.length !== nacl.sign.secretKeyLength) {
 const signature = nacl.sign.detached(new Uint8Array(raw), secretKey);
 fs.writeFileSync(sigPath, Buffer.from(signature).toString('base64'));
 
+// Contrôle final : la paire manifest/.sig doit se vérifier avec la clé
+// publique EMBARQUÉE dans le plugin — c'est ce que les clients vérifieront.
+// Une incohérence ici = « bad_signature » chez tous les clients = plus aucune
+// mise à jour proposée. On échoue la release au lieu de publier un poison.
+const { execFileSync } = require('child_process');
+execFileSync(process.execPath, [path.join(__dirname, 'verify-update-sig.js'), manifestPath, sigPath], { stdio: 'inherit' });
+
 console.log('✓ dist/update.json.sig créé (signature Ed25519 du manifest).');
