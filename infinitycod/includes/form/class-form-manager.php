@@ -1458,10 +1458,12 @@ class FormManager {
 		// Jamais bloquant pour le rendu (WP ≥ 6.3 ; sans effet avant).
 		wp_script_add_data( 'icod-form', 'strategy', 'defer' );
 
-		$needs_form = false;
+		$needs_form  = false;
+		$product_id  = 0;
 
 		if ( function_exists( 'is_product' ) && is_product() ) {
-			$needs_form = true; // Insertion automatique.
+			$needs_form  = true; // Insertion automatique.
+			$product_id  = (int) get_queried_object_id();
 		} elseif ( function_exists( 'is_singular' ) && is_singular() ) {
 			$post = get_post();
 			if ( $post && ( has_shortcode( (string) $post->post_content, 'infinitycod_form' ) || has_shortcode( (string) $post->post_content, 'icod_form' ) ) ) {
