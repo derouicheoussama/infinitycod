@@ -509,6 +509,13 @@ class UpdatesPage {
 			exit;
 		}
 
+		// Installation par remplacement : téléchargement + copie de 125
+		// fichiers — relever la limite de temps avant de commencer (voir
+		// Updater::secure_download pour la mise à jour standard).
+		if ( function_exists( 'set_time_limit' ) ) {
+			@set_time_limit( 300 );
+		}
+
 		$installed = $this->install_package( $remote['download_url'] );
 
 		\InfinityCod\Logging\Logger::log( 'update', 'Installation forcée v' . ( isset( $remote['version'] ) ? $remote['version'] : '?' ) . ' : ' . ( is_wp_error( $installed ) ? $installed->get_error_message() : 'success' ) );

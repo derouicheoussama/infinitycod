@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.40.6 — 2026-09-18
+
+- **Correctif « erreur critique » à l'installation des mises à jour** : le téléchargement + la décompression + la copie des fichiers dépassent la limite d'exécution par défaut de 30 s de beaucoup d'hébergeurs (aggravé par l'antivirus sous Windows). La limite est désormais relevée à 300 s au tout début du cycle de mise à jour (premier hook upgrader) et pour l'installation forcée.
+
 ## 5.40.5 — 2026-09-18
 
 - **Notification WhatsApp des mises à jour** : en complément de l'e-mail, le marchand reçoit un message WhatsApp (passerelle configurée + numéro marchand) dès qu'une nouvelle version sort. Activable dans Mises à jour → Paramètres.

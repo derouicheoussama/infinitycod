@@ -1154,6 +1154,20 @@ class Updater {
 			return $reply;
 		}
 
+		// 0. Temps d'exécution : téléchargement (redirections GitHub) +
+		// décompression + copie des fichiers dépassent largement la limite
+		// par défaut de 30 s de beaucoup d'hébergeurs — le fatal obtenu
+		// s'affiche alors « erreur critique » à l'étape d'installation.
+		// upgrader_pre_download est le tout premier hook du cycle : la limite
+		// relevée couvre tout le reste de la mise à jour. set_time_limit peut
+		// être désactivé chez certains hébergeurs : échec silencieux.
+		if ( function_exists( 'set_time_limit' ) ) {
+			@set_time_limit( 300 );
+		}
+		if ( function_exists( 'wp_raise_memory_limit' ) ) {
+			wp_raise_memory_limit( 'image' );
+		}
+
 		// 1. Compatibilité : bloquer une version incompatible avant téléchargement.
 		$remote = $this->remote();
 		if ( $remote ) {
