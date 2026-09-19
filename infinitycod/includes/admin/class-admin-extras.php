@@ -192,7 +192,7 @@ class AdminExtras {
 	 */
 	public function handle_accounting_export() {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( esc_htmlesc_html__('Accès refusé.', 'infinitycod' ) );
+			wp_die( esc_html__('Accès refusé.', 'infinitycod' ) );
 		}
 		check_admin_referer( 'icod_accounting_export' );
 
@@ -341,7 +341,7 @@ class AdminExtras {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return;
 		}
-		echo '<div class="notice notice-warning"><p><strong>' . esc_htmlesc_html__('⚠️ Commandes en pause :', 'infinitycod' ) . '</strong> ' . esc_htmlesc_html__('le mode maintenance est actif — le formulaire COD affiche un avis aux visiteurs.', 'infinitycod' ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=infinitycod-settings' ) ) . '">' . esc_htmlesc_html__('Désactiver', 'infinitycod' ) . '</a></p></div>';
+		echo '<div class="notice notice-warning"><p><strong>' . esc_html__('⚠️ Commandes en pause :', 'infinitycod' ) . '</strong> ' . esc_html__('le mode maintenance est actif — le formulaire COD affiche un avis aux visiteurs.', 'infinitycod' ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=infinitycod-settings' ) ) . '">' . esc_html__('Désactiver', 'infinitycod' ) . '</a></p></div>';
 	}
 
 	/**
@@ -405,7 +405,7 @@ class AdminExtras {
 	 */
 	public function handle_abandoned_export_xls() {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( esc_htmlesc_html__('Accès refusé.', 'infinitycod' ) );
+			wp_die( esc_html__('Accès refusé.', 'infinitycod' ) );
 		}
 
 		check_admin_referer( 'icod_abandoned_export' );
@@ -435,14 +435,14 @@ class AdminExtras {
 		echo '<html><head><meta charset="utf-8" /></head><body>';
 		echo '<table border="1" cellspacing="0" cellpadding="6" style="font-family:Arial,sans-serif;font-size:13px;border-collapse:collapse">';
 		echo '<tr style="background:#1d5fa8;color:#fff;font-weight:bold">'
-			. '<th>' . esc_htmlesc_html__('Client', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_htmlesc_html__('Téléphone', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_htmlesc_html__('Produit', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_htmlesc_html__('Progression', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_htmlesc_html__('Panier', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_htmlesc_html__('Relances', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_htmlesc_html__('Statut', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_htmlesc_html__('Mise à jour', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_html__('Client', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_html__('Téléphone', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_html__('Produit', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_html__('Progression', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_html__('Panier', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_html__('Relances', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_html__('Statut', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_html__('Mise à jour', 'infinitycod' ) . '</th>'
 			. '</tr>';
 
 		foreach ( (array) $rows as $row ) {
@@ -492,14 +492,14 @@ class AdminExtras {
 		$subject = sprintf( /* translators: 1 : nom du site, 2 : nombre de commandes. */ esc_html__('[%1$s] Semaine COD : %2$d commande(s)', 'infinitycod' ), get_bloginfo( 'name' ), (int) $row['n'] );
 
 		$body  = '<div style="font-family:Arial,sans-serif;font-size:14px;color:#1d2327">';
-		$body .= '<h2 style="color:#0e7a4f">' . esc_htmlesc_html__('Rapport COD des 7 derniers jours', 'infinitycod' ) . '</h2>';
+		$body .= '<h2 style="color:#0e7a4f">' . esc_html__('Rapport COD des 7 derniers jours', 'infinitycod' ) . '</h2>';
 		$body .= '<ul>';
-		$body .= '<li>' . esc_htmlesc_html__('Commandes :', 'infinitycod' ) . ' <strong>' . (int) $row['n'] . '</strong></li>';
-		$body .= '<li>' . esc_htmlesc_html__('Confirmées :', 'infinitycod' ) . ' <strong>' . (int) $row['confirmed'] . '</strong></li>';
-		$body .= '<li>' . esc_htmlesc_html__('Chiffre d’affaires :', 'infinitycod' ) . ' <strong>' . esc_html( number_format_i18n( (float) $row['revenue'], 0 ) . ' ' . Settings::currency_label() ) . '</strong></li>';
-		$body .= '<li>' . esc_htmlesc_html__('En attente de confirmation :', 'infinitycod' ) . ' <strong>' . (int) $pending . '</strong></li>';
+		$body .= '<li>' . esc_html__('Commandes :', 'infinitycod' ) . ' <strong>' . (int) $row['n'] . '</strong></li>';
+		$body .= '<li>' . esc_html__('Confirmées :', 'infinitycod' ) . ' <strong>' . (int) $row['confirmed'] . '</strong></li>';
+		$body .= '<li>' . esc_html__('Chiffre d’affaires :', 'infinitycod' ) . ' <strong>' . esc_html( number_format_i18n( (float) $row['revenue'], 0 ) . ' ' . Settings::currency_label() ) . '</strong></li>';
+		$body .= '<li>' . esc_html__('En attente de confirmation :', 'infinitycod' ) . ' <strong>' . (int) $pending . '</strong></li>';
 		$body .= '</ul>';
-		$body .= '<p><a href="' . esc_url( admin_url( 'admin.php?page=infinitycod-orders' ) ) . '">' . esc_htmlesc_html__('Ouvrir le tableau de bord', 'infinitycod' ) . '</a></p>';
+		$body .= '<p><a href="' . esc_url( admin_url( 'admin.php?page=infinitycod-orders' ) ) . '">' . esc_html__('Ouvrir le tableau de bord', 'infinitycod' ) . '</a></p>';
 		$body .= '</div>';
 
 		wp_mail( $to, $subject, $body, array( 'Content-Type: text/html; charset=utf-8' ) );
