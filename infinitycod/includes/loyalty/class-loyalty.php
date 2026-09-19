@@ -40,11 +40,12 @@ class Loyalty {
 		$phone  = preg_replace( '/[^0-9]/', '', (string) $phone );
 		$per_da = max( 1, (int) Settings::get( 'loyalty_point_da', 1000 ) );
 
-		$orders = Schema::table( 'orders' );
-		$row    = $wpdb->get_row( $wpdb->prepare(
+		$orders = Schema::table( 'orders' ); // Nom de table interne (constante du schéma) — jamais d'entrée utilisateur.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- agrégat temps réel requis pour le solde ; valeurs paramétrées via %s ; nom de table issu du schéma interne.
+		$row = $wpdb->get_row( $wpdb->prepare(
 			"SELECT COALESCE(SUM(CASE WHEN status = 'delivered' THEN total ELSE 0 END),0) AS earned_total,
-				COALESCE(SUM(loyalty_used),0) AS redeemed
-			 FROM {$orders} WHERE phone = %s", // phpcs:ignore WordPress.DB.PreparedSQL
+			 COALESCE(SUM(loyalty_used),0) AS redeemed
+			 FROM {$orders} WHERE phone = %s",
 			$phone
 		), ARRAY_A );
 

@@ -606,10 +606,9 @@ class PaymentManager {
 	 * @return void
 	 */
 	public function handle_return() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- retour public, vérifié contre l'API de la passerelle.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- retour PUBLIC de la passerelle (redirection navigateur, aucun nonce possible) : chaque paiement est revérifié côté API avant validation.
 		$icod_id = isset( $_GET['icod_order'] ) ? absint( $_GET['icod_order'] ) : 0;
 		$gateway = isset( $_GET['icod_gateway'] ) ? sanitize_key( wp_unslash( $_GET['icod_gateway'] ) ) : '';
-		// phpcs:enable WordPress.Security.NonceVerification
 
 		if ( $icod_id < 1 ) {
 			return;
@@ -632,6 +631,7 @@ class PaymentManager {
 			$ref         = $checkout_id;
 			$gateway     = 'chargily';
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		if ( $paid ) {
 			self::mark_paid( $icod_id, $ref, $gateway );

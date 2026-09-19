@@ -168,7 +168,7 @@ class DashboardPage {
 				<a class="btn" href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=tracking' ) ); ?>">🎯 <?php esc_html_e( 'Tracking', 'infinitycod' ); ?></a>
 				<a class="btn" href="<?php echo esc_url( admin_url( 'admin.php?page=infinitycod-updates' ) ); ?>">🔄 <?php esc_html_e( 'Mises à jour', 'infinitycod' ); ?></a>
 			</div>
-			<?php echo \InfinityCod\License\LicenseManager::go_pro_card(); ?>
+			<?php echo wp_kses_post( \InfinityCod\License\LicenseManager::go_pro_card() ); ?>
 			<div class="icod-kpi-grid">
 				<?php foreach ( $periods as $key => $label ) : ?>
 					<div class="icod-card icod-kpi-card">

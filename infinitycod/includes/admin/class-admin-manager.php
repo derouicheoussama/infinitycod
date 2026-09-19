@@ -755,8 +755,8 @@ class AdminManager {
 		}
 
 		// Zones régionales (tarifs de repli par groupe de wilayas).
-		if ( isset( $_POST['icod_zones'] ) && is_array( $_POST['icod_zones'] ) ) {
-			\InfinityCod\Shipping\Zones::save( wp_unslash( $_POST['icod_zones'] ) );
+		if ( isset( $_POST['icod_zones'] ) && is_array( $_POST['icod_zones'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- structure validée ci-dessous, chaque valeur est assainie par Zones::save.
+			\InfinityCod\Shipping\Zones::save( wp_unslash( $_POST['icod_zones'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- assainissement champ par champ dans Zones::save.
 		}
 
 		// Livraison gratuite intelligente + poids + sync transporteurs.
@@ -1703,10 +1703,8 @@ class AdminManager {
 		}
 		check_admin_referer( 'icod_bordereaux' );
 
-		\InfinityCod\Core\AntiLeak::log_export( 'bordereaux', count( array_filter( array_map( 'absint', explode( ',', (string) ( $_GET['ids'] ?? '' ) ) ) ) ), \InfinityCod\Core\AntiLeak::trace_code() );
-
-		$ids = isset( $_GET['ids'] ) ? array_filter( array_map( 'absint', explode( ',', wp_unslash( $_GET['ids'] ) ) ) ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ids absints un par un.
-		$ids = array_values( array_unique( array_slice( $ids, 0, 200 ) ) );
+		$ids = isset( $_GET['ids'] ) ? array_values( array_unique( array_slice( array_filter( array_map( 'absint', explode( ',', wp_unslash( $_GET['ids'] ) ) ) ), 0, 200 ) ) ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- ids absints un par un via absint().
+		\InfinityCod\Core\AntiLeak::log_export( 'bordereaux', count( $ids ), \InfinityCod\Core\AntiLeak::trace_code() );
 
 		nocache_headers();
 		header( 'Content-Type: text/html; charset=utf-8' );

@@ -1162,7 +1162,7 @@ class Updater {
 		// relevée couvre tout le reste de la mise à jour. set_time_limit peut
 		// être désactivé chez certains hébergeurs : échec silencieux.
 		if ( function_exists( 'set_time_limit' ) ) {
-			@set_time_limit( 300 );
+			@set_time_limit( 300 ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- volontaire : les 30 s par défaut des hébergeurs coupent téléchargement + copie (fatal « erreur critique »).
 		}
 		if ( function_exists( 'wp_raise_memory_limit' ) ) {
 			wp_raise_memory_limit( 'image' );

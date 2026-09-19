@@ -518,7 +518,7 @@ class UpdatesPage {
 		// fichiers — relever la limite de temps avant de commencer (voir
 		// Updater::secure_download pour la mise à jour standard).
 		if ( function_exists( 'set_time_limit' ) ) {
-			@set_time_limit( 300 );
+			@set_time_limit( 300 ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- volontaire : installation par remplacement de 125 fichiers, au-delà des 30 s par défaut.
 		}
 
 		$installed = $this->install_package( $remote['download_url'] );

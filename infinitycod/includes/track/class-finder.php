@@ -29,8 +29,9 @@ class Finder {
 			return null;
 		}
 
-		$table = Schema::table( 'orders' );
-		$row   = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d LIMIT 1", $order_id ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL
+		$table = Schema::table( 'orders' ); // Nom de table interne (constante du schéma) — jamais d'entrée utilisateur.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- portail public sans cache persistant ; valeurs paramétrées via %d ; nom de table issu du schéma interne.
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d LIMIT 1", $order_id ), ARRAY_A );
 		if ( ! is_array( $row ) ) {
 			return null;
 		}
