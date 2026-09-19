@@ -192,7 +192,7 @@ class AdminExtras {
 	 */
 	public function handle_accounting_export() {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+			wp_die( esc_htmlesc_html__('Accès refusé.', 'infinitycod' ) );
 		}
 		check_admin_referer( 'icod_accounting_export' );
 
@@ -215,13 +215,13 @@ class AdminExtras {
 		), ARRAY_A );
 
 		$status_labels = array(
-			'pending'   => __( 'En attente', 'infinitycod' ),
-			'confirmed' => __( 'Confirmée', 'infinitycod' ),
-			'shipped'   => __( 'Expédiée', 'infinitycod' ),
-			'delivered' => __( 'Livrée', 'infinitycod' ),
-			'returned'  => __( 'Retour', 'infinitycod' ),
-			'cancelled' => __( 'Annulée', 'infinitycod' ),
-			'no_answer' => __( 'Sans réponse', 'infinitycod' ),
+			'pending'   => esc_html__('En attente', 'infinitycod' ),
+			'confirmed' => esc_html__('Confirmée', 'infinitycod' ),
+			'shipped'   => esc_html__('Expédiée', 'infinitycod' ),
+			'delivered' => esc_html__('Livrée', 'infinitycod' ),
+			'returned'  => esc_html__('Retour', 'infinitycod' ),
+			'cancelled' => esc_html__('Annulée', 'infinitycod' ),
+			'no_answer' => esc_html__('Sans réponse', 'infinitycod' ),
 		);
 
 		nocache_headers();
@@ -230,16 +230,16 @@ class AdminExtras {
 		// BOM UTF-8 : les accents s'affichent correctement dans Excel.
 		echo "\xEF\xBB\xBF";
 		echo $this->csv_line( array(
-			__( 'Date', 'infinitycod' ),
-			__( 'Commande', 'infinitycod' ),
-			__( 'Client', 'infinitycod' ),
-			__( 'Téléphone', 'infinitycod' ),
-			__( 'Wilaya', 'infinitycod' ),
-			__( 'Commune', 'infinitycod' ),
-			__( 'Transporteur', 'infinitycod' ),
-			__( 'Statut', 'infinitycod' ),
-			__( 'Total', 'infinitycod' ),
-			__( 'Livraison', 'infinitycod' ),
+			esc_html__('Date', 'infinitycod' ),
+			esc_html__('Commande', 'infinitycod' ),
+			esc_html__('Client', 'infinitycod' ),
+			esc_html__('Téléphone', 'infinitycod' ),
+			esc_html__('Wilaya', 'infinitycod' ),
+			esc_html__('Commune', 'infinitycod' ),
+			esc_html__('Transporteur', 'infinitycod' ),
+			esc_html__('Statut', 'infinitycod' ),
+			esc_html__('Total', 'infinitycod' ),
+			esc_html__('Livraison', 'infinitycod' ),
 		) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sortie CSV téléchargée ; libellés i18n échappés.
 
 		$totals          = array( 'total' => 0.0, 'shipping' => 0.0, 'delivered' => 0.0 );
@@ -258,9 +258,9 @@ class AdminExtras {
 		}
 		echo $this->csv_line( array() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- ligne vide de séparation.
 		$summary = array(
-			__( 'TOTAL CA enregistré', 'infinitycod' ) . ' : ' . number_format( $totals['total'], 2, ',', '' ) . $currency_suffix,
-			__( 'Frais de livraison cumulés', 'infinitycod' ) . ' : ' . number_format( $totals['shipping'], 2, ',', '' ) . $currency_suffix,
-			__( 'TOTAL CA livré', 'infinitycod' ) . ' : ' . number_format( $totals['delivered'], 2, ',', '' ) . $currency_suffix,
+			esc_html__('TOTAL CA enregistré', 'infinitycod' ) . ' : ' . number_format( $totals['total'], 2, ',', '' ) . $currency_suffix,
+			esc_html__('Frais de livraison cumulés', 'infinitycod' ) . ' : ' . number_format( $totals['shipping'], 2, ',', '' ) . $currency_suffix,
+			esc_html__('TOTAL CA livré', 'infinitycod' ) . ' : ' . number_format( $totals['delivered'], 2, ',', '' ) . $currency_suffix,
 		);
 		echo $this->csv_line( $summary ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sortie CSV téléchargée ; libellés i18n + number_format().
 		exit;
@@ -313,7 +313,7 @@ class AdminExtras {
 		}
 		if ( $low ) {
 			wp_mail( get_option( 'admin_email' ),
-				sprintf( /* translators: 1 : site, 2 : nombre. */ __( '[%1$s] Stock faible : %2$d produit(s)', 'infinitycod' ), get_bloginfo( 'name' ), count( $low ) ),
+				sprintf( /* translators: 1 : site, 2 : nombre. */ esc_html__('[%1$s] Stock faible : %2$d produit(s)', 'infinitycod' ), get_bloginfo( 'name' ), count( $low ) ),
 				implode( "\n", $low )
 			);
 		}
@@ -341,7 +341,7 @@ class AdminExtras {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return;
 		}
-		echo '<div class="notice notice-warning"><p><strong>' . esc_html__( '⚠️ Commandes en pause :', 'infinitycod' ) . '</strong> ' . esc_html__( 'le mode maintenance est actif — le formulaire COD affiche un avis aux visiteurs.', 'infinitycod' ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=infinitycod-settings' ) ) . '">' . esc_html__( 'Désactiver', 'infinitycod' ) . '</a></p></div>';
+		echo '<div class="notice notice-warning"><p><strong>' . esc_htmlesc_html__('⚠️ Commandes en pause :', 'infinitycod' ) . '</strong> ' . esc_htmlesc_html__('le mode maintenance est actif — le formulaire COD affiche un avis aux visiteurs.', 'infinitycod' ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=infinitycod-settings' ) ) . '">' . esc_htmlesc_html__('Désactiver', 'infinitycod' ) . '</a></p></div>';
 	}
 
 	/**
@@ -405,7 +405,7 @@ class AdminExtras {
 	 */
 	public function handle_abandoned_export_xls() {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( esc_html__( 'Accès refusé.', 'infinitycod' ) );
+			wp_die( esc_htmlesc_html__('Accès refusé.', 'infinitycod' ) );
 		}
 
 		check_admin_referer( 'icod_abandoned_export' );
@@ -418,9 +418,9 @@ class AdminExtras {
 		$rows  = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY updated_at DESC LIMIT 2000", ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
 
 		$labels = array(
-			'open'      => __( 'En attente', 'infinitycod' ),
-			'recovered' => __( 'Récupéré', 'infinitycod' ),
-			'archived'  => __( 'Archivé', 'infinitycod' ),
+			'open'      => esc_html__('En attente', 'infinitycod' ),
+			'recovered' => esc_html__('Récupéré', 'infinitycod' ),
+			'archived'  => esc_html__('Archivé', 'infinitycod' ),
 		);
 		$colors = array(
 			'open'      => '#fdf3e0',
@@ -435,14 +435,14 @@ class AdminExtras {
 		echo '<html><head><meta charset="utf-8" /></head><body>';
 		echo '<table border="1" cellspacing="0" cellpadding="6" style="font-family:Arial,sans-serif;font-size:13px;border-collapse:collapse">';
 		echo '<tr style="background:#1d5fa8;color:#fff;font-weight:bold">'
-			. '<th>' . esc_html__( 'Client', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_html__( 'Téléphone', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_html__( 'Produit', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_html__( 'Progression', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_html__( 'Panier', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_html__( 'Relances', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_html__( 'Statut', 'infinitycod' ) . '</th>'
-			. '<th>' . esc_html__( 'Mise à jour', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_htmlesc_html__('Client', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_htmlesc_html__('Téléphone', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_htmlesc_html__('Produit', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_htmlesc_html__('Progression', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_htmlesc_html__('Panier', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_htmlesc_html__('Relances', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_htmlesc_html__('Statut', 'infinitycod' ) . '</th>'
+			. '<th>' . esc_htmlesc_html__('Mise à jour', 'infinitycod' ) . '</th>'
 			. '</tr>';
 
 		foreach ( (array) $rows as $row ) {
@@ -489,17 +489,17 @@ class AdminExtras {
 		$pending = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$orders} WHERE status = 'pending'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
 
 		$to      = get_option( 'admin_email' );
-		$subject = sprintf( /* translators: 1 : nom du site, 2 : nombre de commandes. */ __( '[%1$s] Semaine COD : %2$d commande(s)', 'infinitycod' ), get_bloginfo( 'name' ), (int) $row['n'] );
+		$subject = sprintf( /* translators: 1 : nom du site, 2 : nombre de commandes. */ esc_html__('[%1$s] Semaine COD : %2$d commande(s)', 'infinitycod' ), get_bloginfo( 'name' ), (int) $row['n'] );
 
 		$body  = '<div style="font-family:Arial,sans-serif;font-size:14px;color:#1d2327">';
-		$body .= '<h2 style="color:#0e7a4f">' . esc_html__( 'Rapport COD des 7 derniers jours', 'infinitycod' ) . '</h2>';
+		$body .= '<h2 style="color:#0e7a4f">' . esc_htmlesc_html__('Rapport COD des 7 derniers jours', 'infinitycod' ) . '</h2>';
 		$body .= '<ul>';
-		$body .= '<li>' . esc_html__( 'Commandes :', 'infinitycod' ) . ' <strong>' . (int) $row['n'] . '</strong></li>';
-		$body .= '<li>' . esc_html__( 'Confirmées :', 'infinitycod' ) . ' <strong>' . (int) $row['confirmed'] . '</strong></li>';
-		$body .= '<li>' . esc_html__( 'Chiffre d’affaires :', 'infinitycod' ) . ' <strong>' . esc_html( number_format_i18n( (float) $row['revenue'], 0 ) . ' ' . Settings::currency_label() ) . '</strong></li>';
-		$body .= '<li>' . esc_html__( 'En attente de confirmation :', 'infinitycod' ) . ' <strong>' . (int) $pending . '</strong></li>';
+		$body .= '<li>' . esc_htmlesc_html__('Commandes :', 'infinitycod' ) . ' <strong>' . (int) $row['n'] . '</strong></li>';
+		$body .= '<li>' . esc_htmlesc_html__('Confirmées :', 'infinitycod' ) . ' <strong>' . (int) $row['confirmed'] . '</strong></li>';
+		$body .= '<li>' . esc_htmlesc_html__('Chiffre d’affaires :', 'infinitycod' ) . ' <strong>' . esc_html( number_format_i18n( (float) $row['revenue'], 0 ) . ' ' . Settings::currency_label() ) . '</strong></li>';
+		$body .= '<li>' . esc_htmlesc_html__('En attente de confirmation :', 'infinitycod' ) . ' <strong>' . (int) $pending . '</strong></li>';
 		$body .= '</ul>';
-		$body .= '<p><a href="' . esc_url( admin_url( 'admin.php?page=infinitycod-orders' ) ) . '">' . esc_html__( 'Ouvrir le tableau de bord', 'infinitycod' ) . '</a></p>';
+		$body .= '<p><a href="' . esc_url( admin_url( 'admin.php?page=infinitycod-orders' ) ) . '">' . esc_htmlesc_html__('Ouvrir le tableau de bord', 'infinitycod' ) . '</a></p>';
 		$body .= '</div>';
 
 		wp_mail( $to, $subject, $body, array( 'Content-Type: text/html; charset=utf-8' ) );
