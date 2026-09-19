@@ -82,6 +82,7 @@ function esc_url( $s ) { return (string) $s; }
 function esc_url_raw( $s ) { return (string) $s; }
 function esc_sql( $s ) { return is_array( $s ) ? array_map( 'addslashes', $s ) : addslashes( (string) $s ); }
 function esc_textarea( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
+function wp_kses_post( $s ) { return is_string( $s ) ? $s : ''; } // Sortie HTML de confiance du plugin (construite avec esc_html).
 function get_option( $k, $d = false ) { return array_key_exists( $k, $GLOBALS['__options'] ) ? $GLOBALS['__options'][ $k ] : $d; }
 function update_option( $k, $v, $autoload = null ) { $GLOBALS['__options'][ $k ] = $v; return true; }
 function add_option( $k, $v, $x = '', $a = false ) { $GLOBALS['__options'][ $k ] = $v; return true; }
