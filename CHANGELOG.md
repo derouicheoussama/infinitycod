@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.41.3 — 2026-09-19
+
+- **Plugin Check — positionnement des ignores** : les annotations de sortie CSV et d'interpolation de nom de table sont désormais positionnées sur la ligne exacte rapportée par l'analyseur (export comptable, portail de suivi, fidélité).
+
 ## 5.41.2 — 2026-09-19
 
 - **Plugin Check final** : couverture des interpolations de nom de table (schéma interne) dans les ignores documentés du portail de suivi et de la fidélité ; normalisation des fins de ligne de la page Réglages.

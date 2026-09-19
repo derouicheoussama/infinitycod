@@ -240,7 +240,7 @@ class AdminExtras {
 			__( 'Statut', 'infinitycod' ),
 			__( 'Total', 'infinitycod' ),
 			__( 'Livraison', 'infinitycod' ),
-		) );
+		) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sortie CSV téléchargée ; libellés i18n échappés.
 
 		$totals          = array( 'total' => 0.0, 'shipping' => 0.0, 'delivered' => 0.0 );
 		$currency_suffix = ' ' . Settings::currency_label();
@@ -248,30 +248,21 @@ class AdminExtras {
 			$status = isset( $status_labels[ $row['status'] ] ) ? $status_labels[ $row['status'] ] : (string) $row['status'];
 			$total  = (float) $row['total'];
 			$ship   = (float) $row['shipping'];
-			echo $this->csv_line( array(
-				$row['created_at'],
-				$row['wc_order_id'],
-				$row['customer_name'],
-				$row['phone'],
-				$row['wilaya_code'],
-				$row['commune'],
-				$row['carrier'],
-				$status,
-				number_format( $total, 2, ',', '' ) . $currency_suffix,
-				number_format( $ship, 2, ',', '' ) . $currency_suffix,
-			) );
+			$cells  = array( $row['created_at'], $row['wc_order_id'], $row['customer_name'], $row['phone'], $row['wilaya_code'], $row['commune'], $row['carrier'], $status, number_format( $total, 2, ',', '' ) . $currency_suffix, number_format( $ship, 2, ',', '' ) . $currency_suffix );
+			echo $this->csv_line( $cells ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sortie CSV téléchargée (pas du HTML) : valeurs construites depuis la base et number_format().
 			$totals['total']    += $total;
 			$totals['shipping'] += $ship;
 			if ( 'delivered' === $row['status'] ) {
 				$totals['delivered'] += $total;
 			}
 		}
-		echo $this->csv_line( array() );
-		echo $this->csv_line( array(
+		echo $this->csv_line( array() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- ligne vide de séparation.
+		$summary = array(
 			__( 'TOTAL CA enregistré', 'infinitycod' ) . ' : ' . number_format( $totals['total'], 2, ',', '' ) . $currency_suffix,
 			__( 'Frais de livraison cumulés', 'infinitycod' ) . ' : ' . number_format( $totals['shipping'], 2, ',', '' ) . $currency_suffix,
 			__( 'TOTAL CA livré', 'infinitycod' ) . ' : ' . number_format( $totals['delivered'], 2, ',', '' ) . $currency_suffix,
-		) );
+		);
+		echo $this->csv_line( $summary ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sortie CSV téléchargée ; libellés i18n + number_format().
 		exit;
 	}
 
