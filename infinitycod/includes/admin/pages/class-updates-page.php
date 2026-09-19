@@ -297,6 +297,10 @@ class UpdatesPage {
 								<input type="checkbox" name="icod[update_wa_notify]" value="1" <?php checked( (int) Settings::get( 'update_wa_notify', 0 ), 1 ); ?> />
 								<span><?php esc_html_e( 'M’avertir sur WhatsApp dès qu’une nouvelle version sort (numéro marchand requis)', 'infinitycod' ); ?></span>
 							</label>
+							<label class="icod-toggle">
+								<input type="checkbox" name="icod[telemetry_optin]" value="1" <?php checked( (int) Settings::get( 'telemetry_optin', 0 ), 1 ); ?> />
+								<span><?php esc_html_e( 'Envoyer un rapport de santé mensuel anonyme (versions plugin/PHP/WP, résultat de la dernière mise à jour — aucune donnée client)', 'infinitycod' ); ?></span>
+							</label>
 					</div>
 					<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Enregistrer', 'infinitycod' ); ?></button></p>
 				</form>
@@ -423,6 +427,7 @@ class UpdatesPage {
 		\InfinityCod\Core\Settings::set( 'auto_update', empty( $_POST['icod']['auto_update'] ) ? 0 : 1 );
 		\InfinityCod\Core\Settings::set( 'update_email_notify', empty( $_POST['icod']['update_email_notify'] ) ? 0 : 1 );
 		\InfinityCod\Core\Settings::set( 'update_wa_notify', empty( $_POST['icod']['update_wa_notify'] ) ? 0 : 1 );
+		\InfinityCod\Core\Settings::set( 'telemetry_optin', empty( $_POST['icod']['telemetry_optin'] ) ? 0 : 1 );
 
 		wp_safe_redirect( admin_url( 'admin.php?page=infinitycod-updates&icod_msg=saved' ) );
 		exit;

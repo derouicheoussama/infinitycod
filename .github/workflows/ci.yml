@@ -52,3 +52,53 @@ jobs:
       - name: Cohérence de version (source unique)
         if: startsWith(github.ref, 'refs/tags/v')
         run: node tools/version.js --check "${{ github.ref_name }}"
+
+  # PHP 8.4 : compatibilité syntaxe + harnais d'activation (les hébergeurs
+  # avancés tournent déjà 8.4 ; le lint local ne couvre qu'une seule version).
+  php84:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: PHP 8.4 + sodium
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: sodium, zip, gd, intl, curl
+          coverage: none
+
+      - name: Dépendances
+        run: npm ci || npm install
+
+      - name: PHP lint 8.4 (tous les fichiers)
+        run: node tools/lint-php.js
+
+      - name: Harnais d'activation (PHP 8.4)
+        run: php tools/test-activation.php
+
+  # Test E2E de mise à jour : WordPress jetable (SQLite), plugin fictif v0.0.1,
+  # mise à jour par le vrai upgrader contre le vrai serveur de releases —
+  # l'offre doit sortir, l'installation doit réussir, zéro fatal. Rejoue le
+  # parcours client exact ; a déjà intercepté 5 bugs que les audits passaient.
+  e2e-update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP 8.2 (sqlite + zip + réseau)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: sodium, pdo_sqlite, sqlite3, zip, gd, intl, curl, mbstring, fileinfo
+          coverage: none
+
+      - name: Test E2E de mise à jour (simple site)
+        run: php tools/test-update-e2e.php
+
+      - name: Test E2E de mise à jour (multisite)
+        run: php tools/test-update-e2e.php --multisite

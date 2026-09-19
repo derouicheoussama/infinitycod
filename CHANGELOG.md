@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.41.0 — 2026-09-19
+
+- **Relance d'avis après livraison** : WhatsApp automatique au client X jours après la livraison (configurable), avec votre lien d'avis Google/Facebook — une seule relance par commande. Réglages → WhatsApp.
+- **Export comptable mensuel** : CSV compatible Excel depuis Statistiques P&L — chaque commande du mois, statut transporteur, CA enregistré / livré et frais de livraison cumulés.
+- **Notification navigateur des nouvelles commandes** : le marchand reçoit une notification système (en plus du bip sonore) dès qu'une commande arrive, même avec l'onglet en arrière-plan.
+- **Anti-fraude adaptatif** : le Shield apprend de votre historique — un numéro avec 3 commandes ou plus et aucune livraison sur 90 jours majore automatiquement son score de risque (drapeau phone_never_delivered).
+- **Télémétrie de santé opt-in** : rapport mensuel strictement anonyme (versions plugin/PHP/WP + résultat de la dernière mise à jour), désactivé par défaut, activable dans Mises à jour.
+- **Infrastructure qualité** : test E2E de mise à jour exécuté dans le CI (WordPress jetable via SQLite, offre réelle → upgrader réel → zéro fatal, mode multisite inclus), compatibilité PHP 8.4 vérifiée en CI, et outil promote-stable de re-propagation signée du miroir (vérification Ed25519 avant publication + purge CDN).
+
 ## 5.40.7 — 2026-09-18
 
 - **Repli CDN automatique** : quand le nœud GitHub des téléchargements renvoie une réponse défaillante (certains nœuds répondent littéralement « 503 error » — d'où le message « La mise à jour a échoué : error »), le téléchargement bascule automatiquement sur le miroir fichiers signé (raw puis jsDelivr). Les messages d'échec de téléchargement ne sont plus jamais des messages HTTP bruts.

@@ -97,6 +97,17 @@ class Settings {
 			// (utilise la passerelle WhatsApp configurée + wa_owner_phone).
 			'update_wa_notify'     => 0,
 
+			// Télémétrie de santé : 100 % opt-in, désactivée par défaut. Ping
+			// mensuel anonyme (versions plugin/PHP/WP + résultat de la dernière
+			// mise à jour) — aucune donnée client, commande ou personnelle.
+			'telemetry_optin'      => 0,
+
+			// Relance d'avis post-livraison : WhatsApp automatique X jours après
+			// la livraison (0 = désactivé), avec lien d'avis marchand.
+			'wa_review_enable'     => 0,
+			'wa_review_days'       => 2,
+			'wa_review_link'       => '',
+
 			// Passerelle de paiement en ligne.
 			'stripe_currency'      => 'usd',  // Devise de facturation Stripe.
 			'stripe_rate'          => 1,      // Taux DZD -> devise Stripe.

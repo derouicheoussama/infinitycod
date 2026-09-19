@@ -66,6 +66,35 @@ class StatsPage {
 				<?php endforeach; ?>
 			</nav>
 
+			<?php
+			$acct_month = gmdate( 'Y-m', strtotime( '-1 month' ) );
+			$acct_url   = wp_nonce_url(
+				admin_url( 'admin-post.php?action=icod_accounting_export&month=' . rawurlencode( $acct_month ) ),
+				'icod_accounting_export'
+			);
+			?>
+			<div class="icod-card" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+				<div style="flex:1;min-width:240px">
+					<h2 style="margin:0 0 4px"><?php esc_html_e( '🧾 Export comptable mensuel', 'infinitycod' ); ?></h2>
+					<p class="description" style="margin:0"><?php esc_html_e( 'CSV compatible Excel : chaque commande du mois, statut transporteur, CA enregistré / livré et frais de livraison.', 'infinitycod' ); ?></p>
+				</div>
+				<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" style="display:flex;gap:8px;align-items:center">
+					<input type="hidden" name="page" value="infinitycod-stats" />
+					<input type="month" id="icod-acct-month" value="<?php echo esc_attr( $acct_month ); ?>" />
+					<a class="button button-primary" id="icod-acct-link" href="<?php echo esc_url( $acct_url ); ?>"><?php esc_html_e( 'Exporter le CSV', 'infinitycod' ); ?></a>
+				</form>
+				<script>
+				(function () {
+					var m = document.getElementById('icod-acct-month');
+					var l = document.getElementById('icod-acct-link');
+					if (!m || !l) { return; }
+					m.addEventListener('change', function () {
+						l.href = l.href.replace(/month=[0-9]{4}-[0-9]{2}/, 'month=' + encodeURIComponent(m.value));
+					});
+				})();
+				</script>
+			</div>
+
 			<div class="icod-kpi-grid">
 				<div class="icod-card icod-kpi-card">
 					<h2><?php esc_html_e( 'CA encaissé (livrées)', 'infinitycod' ); ?></h2>

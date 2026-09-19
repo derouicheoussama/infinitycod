@@ -170,6 +170,16 @@ class Shield {
 				$flags[] = 'phone_returns';
 				$score  += min( 24, 12 * $returns );
 			}
+
+			// 11b. Score adaptatif « taux de livraison » : un numéro connu avec
+			// au moins 3 commandes sur 90 jours et AUCUNE livraison confirmée
+			// (tout annulé/refusé) est structurellement risqué — le score
+			// apprend de l'historique réel du marchand sans configuration.
+			$history = $this->phone_delivery_history( $phone );
+			if ( $history['total'] >= 3 && 0 === $history['delivered'] ) {
+				$flags[] = 'phone_never_delivered';
+				$score  += 20;
+			}
 		}
 
 		// 12. Blacklist communautaire (opt-in) : numéros hashés partagés
@@ -208,6 +218,28 @@ class Shield {
 			$phone,
 			$since
 		) );
+	}
+
+	/**
+	 * Historique de livraison du téléphone (90 jours) : total de commandes et
+	 * livraisons confirmées — alimente le score adaptatif du Shield.
+	 *
+	 * @param string $phone Téléphone normalisé.
+	 * @return array{total: int, delivered: int}
+	 */
+	public function phone_delivery_history( $phone ) {
+		global $wpdb;
+		$orders = Schema::table( 'orders' );
+		$since  = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - 90 * DAY_IN_SECONDS );
+		$row    = $wpdb->get_row( $wpdb->prepare(
+			"SELECT COUNT(*) AS total, COALESCE(SUM(CASE WHEN status = 'delivered' OR carrier_status = 'delivered' THEN 1 ELSE 0 END), 0) AS delivered FROM {$orders} WHERE phone = %s AND created_at >= %s", // phpcs:ignore WordPress.DB.PreparedSQL
+			$phone,
+			$since
+		), ARRAY_A );
+		return array(
+			'total'     => (int) ( $row['total'] ?? 0 ),
+			'delivered' => (int) ( $row['delivered'] ?? 0 ),
+		);
 	}
 
 	/**

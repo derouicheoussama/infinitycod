@@ -32,6 +32,23 @@
 		document.body.appendChild(box);
 		setTimeout(function () { box.remove(); }, 5000);
 	}
+	// Notification système (PWA marchand / onglet en arrière-plan) : demande la
+	// permission au premier sondage, puis une notification par lot de nouvelles
+	// commandes — visible même quand l'onglet n'est pas au premier plan.
+	function notify(txt) {
+		try {
+			if (!('Notification' in window)) { return; }
+			if (Notification.permission === 'granted') {
+				new Notification('InfinityCod — nouvelle commande', {
+					body: txt,
+					icon: (icodPoll.icon || ''),
+					tag: 'icod-pending'
+				});
+			} else if (Notification.permission !== 'denied') {
+				Notification.requestPermission();
+			}
+		} catch (e) {}
+	}
 	function poll() {
 		fetch(icodPoll.ajaxUrl, {
 			method: 'POST', credentials: 'same-origin',
@@ -41,7 +58,9 @@
 			if (!json || !json.success || !json.data) { return; }
 			if (lastPending !== null && json.data.pending > lastPending) {
 				beep();
-				toast(json.data.pending + ' commande(s) en attente de confirmation');
+				var txt = json.data.pending + ' commande(s) en attente de confirmation';
+				toast(txt);
+				notify(txt);
 			}
 			lastPending = json.data.pending;
 		}).catch(function () {});

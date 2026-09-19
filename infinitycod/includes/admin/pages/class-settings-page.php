@@ -1951,6 +1951,27 @@ class SettingsPage {
 		</div>
 
 		<div class="icod-card">
+			<h2>⭐ <?php esc_html_e( 'Relance d’avis après livraison', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'X jours après une livraison, le client reçoit automatiquement un WhatsApp de remerciement avec votre lien d’avis (Google, Facebook…). Une seule relance par commande.', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[wa_review_enable]" value="1" <?php checked( (int) Settings::get( 'wa_review_enable', 0 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Envoyer automatiquement la demande d’avis', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'Délai après la livraison (jours)', 'infinitycod' ); ?></span>
+					<input type="number" name="icod[wa_review_days]" min="1" max="30" value="<?php echo esc_attr( (string) Settings::get( 'wa_review_days', 2 ) ); ?>" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Lien d’avis (Google, Facebook…)', 'infinitycod' ); ?></span>
+					<input type="url" name="icod[wa_review_link]" dir="ltr" placeholder="https://g.page/r/…" value="<?php echo esc_attr( Settings::get( 'wa_review_link', '' ) ); ?>" />
+				</label>
+			</div>
+		</div>
+
+		<div class="icod-card">
 			<h2>💛 <?php esc_html_e( 'Fidélité', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Points gagnés sur les commandes livrées ; si le client récommande avec le même numéro et a assez de points, la remise s’applique automatiquement (max 30 % du sous-total).', 'infinitycod' ); ?></p>
 			<div class="icod-toggles">
@@ -2428,6 +2449,11 @@ class SettingsPage {
 			'loyalty_point_value'  => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 1, 'max' => 1000 ),
 			'loyalty_min_points'   => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 0, 'max' => 10000 ),
 			'update_email_notify'  => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'update_wa_notify'     => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'telemetry_optin'      => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'wa_review_enable'     => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'wa_review_days'       => array( 'tab' => 'advanced', 'type' => 'int', 'min' => 1, 'max' => 30 ),
+			'wa_review_link'       => array( 'tab' => 'advanced', 'type' => 'url' ),
 
 			// ——— Vente PayPal (configurée depuis l'onglet Licence) ———
 			'paypal_enabled'        => array( 'tab' => 'license', 'type' => 'toggle' ),
