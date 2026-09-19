@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.41.2 — 2026-09-19
+
+- **Plugin Check final** : couverture des interpolations de nom de table (schéma interne) dans les ignores documentés du portail de suivi et de la fidélité ; normalisation des fins de ligne de la page Réglages.
+
 ## 5.41.1 — 2026-09-19
 
 - **Nettoyage Plugin Check** : sortie du tableau de bord filtrée via wp_kses_post ; échappement/sanitization explicites des entrées (zones régionales, ids bordereaux) ; requêtes directes documentées (table interne du schéma, valeurs paramétrées) ; `set_time_limit` volontaires justifiés. Le signalement plugin_updater_detected est inhérent à l'édition commerciale (son système de mises à jour signées) — la build WordPress.org avec stubs reste à 0 erreur / 0 warning.

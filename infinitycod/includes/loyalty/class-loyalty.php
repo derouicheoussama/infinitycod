@@ -41,7 +41,7 @@ class Loyalty {
 		$per_da = max( 1, (int) Settings::get( 'loyalty_point_da', 1000 ) );
 
 		$orders = Schema::table( 'orders' ); // Nom de table interne (constante du schéma) — jamais d'entrée utilisateur.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- agrégat temps réel requis pour le solde ; valeurs paramétrées via %s ; nom de table issu du schéma interne.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- agrégat temps réel requis pour le solde ; valeurs paramétrées via %s ; {$orders} = nom de table issu du schéma interne (jamais d'entrée utilisateur).
 		$row = $wpdb->get_row( $wpdb->prepare(
 			"SELECT COALESCE(SUM(CASE WHEN status = 'delivered' THEN total ELSE 0 END),0) AS earned_total,
 			 COALESCE(SUM(loyalty_used),0) AS redeemed
