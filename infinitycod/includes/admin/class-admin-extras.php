@@ -229,6 +229,7 @@ class AdminExtras {
 		header( 'Content-Disposition: attachment; filename=infinitycod-comptable-' . $month . '.csv' );
 		// BOM UTF-8 : les accents s'affichent correctement dans Excel.
 		echo "\xEF\xBB\xBF";
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sortie CSV téléchargée (pas du HTML) ; libellés i18n échappés via esc_html__().
 		echo $this->csv_line( array(
 			esc_html__('Date', 'infinitycod' ),
 			esc_html__('Commande', 'infinitycod' ),
