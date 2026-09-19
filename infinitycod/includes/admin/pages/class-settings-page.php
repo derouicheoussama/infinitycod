@@ -740,10 +740,10 @@ class SettingsPage {
 			</table>
 		</div>
 
-		<?php if ( current_user_can( 'manage_options' ) ) : ?>
+		<?php if ( defined( 'INFINITYCOD_SELLER_MODE' ) && INFINITYCOD_SELLER_MODE && current_user_can( 'manage_options' ) ) : ?>
 			<div class="icod-card">
 				<h2>⚙️ <?php esc_html_e( 'Vente Pro — configuration vendeur', 'infinitycod' ); ?></h2>
-				<p class="description"><?php esc_html_e( 'Deux canaux possibles : Freemius (paiement par carte du client chez Freemius — recommandé, fonctionne depuis l’Algérie avec un payout virement bancaire) et PayPal direct (nécessite un PayPal capable de recevoir). Les cartes d’achat apparaissent automatiquement pour vos clients sans licence.', 'infinitycod' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Section réservée à l’éditeur du plugin (constante INFINITYCOD_SELLER_MODE dans wp-config.php). Elle configure comment VOUS êtes payé quand un client achète la version Pro — elle n’apparaît pas sur les installations de vos clients.', 'infinitycod' ); ?></p>
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 					<input type="hidden" name="action" value="icod_save_paypal" />
 					<?php wp_nonce_field( 'icod_save_paypal' ); ?>
@@ -1389,7 +1389,7 @@ class SettingsPage {
 		<aside class="icod-form-preview">
 		<div class="icod-card" id="icod-preview-card">
 			<h2>👁️ <?php esc_html_e( 'Aperçu en direct', 'infinitycod' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'Rendu par le MÊME moteur que le frontend, avec vos réglages en cours (non encore enregistrés). L’aperçu se rafraîchit à chaque modification ; « Enregistrer » reste nécessaire pour appliquer sur le site.', 'infinitycod' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Aperçu FIDÈLE : la vraie page produit de votre thème, avec vos réglages en cours (non encore enregistrés) appliqués. Se rafraîchit à chaque modification ; « Enregistrer » reste nécessaire pour appliquer sur le site.', 'infinitycod' ); ?></p>
 			<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
 				<?php
 				$preview_choices = array();
@@ -1437,16 +1437,10 @@ class SettingsPage {
 					fetch(ajax, { method: 'POST', credentials: 'same-origin', body: params })
 						.then(function (r) { return r.json(); })
 						.then(function (json) {
-							if (json && json.success && json.data && json.data.html) {
-								/* Anti-saut : conserve la position de défilement du
-								   client dans l'aperçu entre deux rafraîchissements. */
-								var sy = 0;
-								try { sy = frame.contentWindow.scrollY || 0; } catch (e) { sy = 0; }
-								frame.srcdoc = json.data.html;
-								frame.addEventListener('load', function onl() {
-									frame.removeEventListener('load', onl);
-									try { frame.contentWindow.scrollTo(0, sy); } catch (e) {}
-								});
+							if (json && json.success && json.data && json.data.url) {
+								/* Aperçu fidèle : la vraie page produit avec le
+								   brouillon appliqué (thème + styles du site). */
+								frame.src = json.data.url;
 								if (status) { status.textContent = ''; }
 							} else if (status) {
 								status.textContent = <?php echo wp_json_encode( __( 'Aperçu indisponible (aucun produit publié ?)', 'infinitycod' ) ); ?>;
@@ -2183,14 +2177,6 @@ class SettingsPage {
 				$draft[ $key ] = $value;
 			}
 
-			// Le VRAI renderer lit Settings::all() → on filtre l'option le
-			// temps de ce rendu uniquement (jamais écrit en base).
-			$override = static function () use ( $draft ) {
-				return $draft;
-			};
-			add_filter( 'pre_option_infinitycod_settings', $override, 99 );
-			\InfinityCod\Core\Settings::setCache( null );
-
 			if ( ! $product_id && function_exists( 'wc_get_products' ) ) {
 				$found = wc_get_products( array( 'limit' => 1, 'status' => 'publish', 'return' => 'objects' ) );
 				if ( $found ) {
@@ -2198,26 +2184,19 @@ class SettingsPage {
 				}
 			}
 
-			$html = '';
+			// Aperçu FIDÈLE : le brouillon est appliqué sur la VRAIE page
+			// produit (thème, mise en page, styles du site — exactement ce que
+			// verra le client). Le jeton transient, à durée limitée, porte le
+			// brouillon ; aucune donnée n'est écrite en base.
+			$url = '';
 			if ( $product_id ) {
-				$form = infinitycod()->module( 'form' );
-				$html = $form ? $form->render( $product_id, '', '' ) : '';
-			}
-			remove_filter( 'pre_option_infinitycod_settings', $override, 99 );
-			\InfinityCod\Core\Settings::setCache( null );
-
-			// L'aperçu vit dans un iframe srcdoc : les styles en file WordPress
-			// ne sont pas imprimés en admin-ajax → liens CSS injectés ici.
-			if ( '' !== $html ) {
-				$css = '/wp-content/plugins/infinitycod/assets/front/css/form.css?ver=' . rawurlencode( INFINITYCOD_VERSION );
-				$head = '<link rel="stylesheet" href="' . esc_url( $css ) . '" media="all" />'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- aperçu autonome.
-				if ( \InfinityCod\Core\I18n::is_rtl() ) {
-					$head .= '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" media="all" />'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- police de l'aperçu.
-				}
-				$html = $head . $html;
+				$token = wp_generate_password( 24, false, false );
+				set_transient( 'icod_preview_' . $token, $draft, 10 * MINUTE_IN_SECONDS );
+				$permalink = get_permalink( $product_id );
+				$url       = $permalink ? add_query_arg( 'icod_preview', $token, $permalink ) : '';
 			}
 
-			wp_send_json_success( array( 'html' => $html, 'product_id' => $product_id ) );
+			wp_send_json_success( array( 'url' => $url, 'product_id' => $product_id ) );
 		}
 
 	/**

@@ -144,8 +144,16 @@
 			}
 			if (labelEl) {
 				var clock = pad(Math.floor(remaining / 60)) + ':' + pad(remaining % 60);
-				labelEl.textContent = template ? template.replace('{time}', clock) : '⏳ ' + clock;
+				/* Horloge dans un badge dédié : style distinct + animation CSS.
+				   Le gabarit est saisi par le marchand dans ses réglages. */
+				labelEl.innerHTML = template
+					? template.replace('{time}', '<span class="icod-timer-clock">' + clock + '</span>')
+					: '<span class="icod-timer-clock">⏳ ' + clock + '</span>';
 			}
+			/* Urgence croissante : barre qui se vide + états hot (≤ 10 min) / critical (≤ 60 s). */
+			timer.style.setProperty('--icod-timer-frac', String(remaining / (minutes * 60)));
+			timer.classList.toggle('icod-timer-hot', remaining <= 600);
+			timer.classList.toggle('icod-timer-critical', remaining <= 60);
 		}
 		tick();
 		window.setInterval(tick, 1000);

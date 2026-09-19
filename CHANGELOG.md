@@ -1,5 +1,16 @@
 # Changelog
 
+## 5.42.0 — 2026-09-19
+
+- **Aperçu en direct fidèle** : l'aperçu applique vos réglages en cours sur la VRAIE page produit de votre thème (mise en page, styles du site, produit réel) au lieu d'un rendu isolé — ce que vous voyez est exactement ce que verra le client. Brouillon appliqué via jeton transient (10 min), sans écriture en base.
+- **Minuteur d'urgence v2** : horloge stylée animée (respiration), barre de progression qui se vide en temps réel, urgence croissante — pulsation sous 10 minutes, tremblement + horloge pleine sous 1 minute. Respecte prefers-reduced-motion.
+- **Configuration vendeur masquée** : la section « Vente Pro — configuration vendeur » n'apparaît plus sur les installations clientes ; réservée à l'éditeur via la constante INFINITYCOD_SELLER_MODE (à définir dans wp-config.php sur votre propre site).
+
+## 5.41.4 / 5.41.5 / 5.41.6 — 2026-09-19
+
+- **Nettoyage Plugin Check complet** : sortie du tableau de bord filtrée (wp_kses_post), sanitization explicite (zones régionales, ids bordereaux), requêtes directes documentées (portail de suivi, fidélité), set_time_limit volontaires justifiés, libellés CSV en esc_html__, ignores positionnés sur les lignes exactes. Reste attendu sur l'édition commerciale : uniquement plugin_updater_detected + 3 warnings updater (build wp.org avec stubs = 0/0).
+- 5.41.5 corrige un double préfixe esc_html__ introduit en 5.41.4 (19 occurrences).
+
 ## 5.41.3 — 2026-09-19
 
 - **Plugin Check — positionnement des ignores** : les annotations de sortie CSV et d'interpolation de nom de table sont désormais positionnées sur la ligne exacte rapportée par l'analyseur (export comptable, portail de suivi, fidélité).

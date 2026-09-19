@@ -538,3 +538,18 @@ fieldset.icod-mode{min-width:0}
 .icod-mode-option input:checked ~ .icod-mode-box .icod-mode-title .icod-ico,
 .icod-mode-option input:checked + .icod-mode-box .icod-mode-title .icod-ico{color:var(--icod-accent)}
 .icod-reassurance .icod-ico,.icod-reassurance-top .icod-ico{color:var(--icod-accent)}
+/* ---------- Minuteur v2 : horloge animée, barre de progression, urgence croissante ---------- */
+.icod-timer{--icod-timer-frac:1;font-size:1rem}
+.icod-timer .icod-timer-clock{display:inline-flex;align-items:center;padding:2px 12px;margin-left:2px;border-radius:9px;background:color-mix(in srgb,var(--icod-danger) 14%,transparent);color:var(--icod-danger);font-size:1.08em;font-variant-numeric:tabular-nums;animation:icod-clock-breathe 2s ease-in-out infinite}
+@keyframes icod-clock-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+/* Barre de progression qui se vide (partagée par les 3 styles). */
+.icod-timer::after{content:"";position:absolute;left:14px;right:14px;bottom:3px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--icod-danger) calc(var(--icod-timer-frac,1)*100%),color-mix(in srgb,var(--icod-danger) 15%,transparent) calc(var(--icod-timer-frac,1)*100%));transition:background .6s linear}
+.icod-timer-ribbon::after{left:26px;right:26px}
+/* Urgence : ≤ 10 min = pulsation d'anneau ; ≤ 60 s = tremblement + horloge pleine. */
+.icod-timer-hot{animation:icod-fade-in .4s ease both,icod-timer-pulse 1.4s ease-in-out infinite}
+.icod-timer-hot .icod-timer-clock{background:var(--icod-danger);color:#fff;animation:icod-clock-breathe 1s ease-in-out infinite}
+@keyframes icod-timer-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--icod-danger) 38%,transparent)}50%{box-shadow:0 0 0 12px transparent}}
+.icod-timer-critical{animation:icod-fade-in .4s ease both,icod-timer-shake .5s ease-in-out infinite}
+.icod-timer-critical .icod-timer-clock{animation:icod-clock-breathe .6s ease-in-out infinite}
+@keyframes icod-timer-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
+@media (prefers-reduced-motion:reduce){.icod-timer,.icod-timer-hot,.icod-timer-critical,.icod-timer .icod-timer-clock,.icod-timer::after{animation:none !important}}

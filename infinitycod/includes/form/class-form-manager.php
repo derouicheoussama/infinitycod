@@ -30,6 +30,23 @@ class FormManager {
 		add_action( 'wp', array( $this, 'maybe_disable_add_to_cart' ), 5 );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'assets' ) );
+
+		// Aperçu en direct fidèle : quand l'URL porte un jeton de
+		// prévisualisation valide, le brouillon d'admin (transient, 10 min)
+		// remplace les réglages le temps de ce rendu — le marchand voit la
+		// vraie page produit avec ses nouveaux réglages, thème compris.
+		if ( isset( $_GET['icod_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- jeton aléatoire à durée limitée, lecture seule.
+			$token = sanitize_text_field( wp_unslash( $_GET['icod_preview'] ) );
+			if ( preg_match( '/^[A-Za-z0-9]{16,32}$/', $token ) ) {
+				$draft = get_transient( 'icod_preview_' . $token );
+				if ( is_array( $draft ) && $draft ) {
+					add_filter( 'pre_option_infinitycod_settings', static function () use ( $draft ) {
+						return $draft;
+					}, 99 );
+					add_action( 'send_headers', 'nocache_headers' );
+				}
+			}
+		}
 	}
 
 	/**
