@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.42.7 — 2026-09-20
+
+- **Correctif critique de l'aperçu en direct** : le brouillon de réglages n'était jamais appliqué sur le rendu — `Settings::all()` lit la base via une requête directe (sans `pre_option`) et met le résultat en cache statique avant l'ajout du filtre. Le brouillon est désormais injecté directement dans ce cache (`setCache`), l'aperçu reflète instantanément chaque modification, et le rendu reste fidèle après enregistrement.
+
 ## 5.42.6 — 2026-09-20
 
 - **Barre « Enregistrer » en flux normal** : elle ne suit plus le défilement et ne recouvre plus l'aperçu ni les champs — elle se place à la fin du formulaire, comme dans l'admin WordPress classique.

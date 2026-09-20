@@ -43,6 +43,11 @@ class FormManager {
 					add_filter( 'pre_option_infinitycod_settings', static function () use ( $draft ) {
 						return $draft;
 					}, 99 );
+					// Settings::all() lit la base via read_saved() (wpdb direct,
+					// sans pre_option) et met en cache statique — injecter le
+					// brouillon DANS le cache est le seul moyen fiable de le
+					// faire appliquer sur ce rendu.
+					\InfinityCod\Core\Settings::setCache( $draft );
 					add_action( 'send_headers', 'nocache_headers' );
 					// Mode « formulaire seul » : masque le reste de la page dès
 					// le <head> (anti-flash), le JS de pied de page révèle ensuite
