@@ -412,6 +412,38 @@ class SettingsPage {
 				<?php esc_html_e( 'Webhook automatique :', 'infinitycod' ); ?>
 				<code><?php echo esc_html( rest_url( 'infinitycod/v1/chargily/webhook' ) ); ?></code>
 			</p>
+			<p style="margin-top:10px">
+				<button type="button" class="button" data-icod-pay-test="chargily"><?php esc_html_e( '🔌 Tester la connexion Chargily', 'infinitycod' ); ?></button>
+				<span class="description icod-pay-test-result" data-for="chargily" style="margin-inline-start:8px" aria-live="polite"></span>
+			</p>
+			<script>
+			(function () {
+				var nonce = <?php echo wp_json_encode( wp_create_nonce( 'icod_admin' ) ); ?>;
+				document.querySelectorAll('[data-icod-pay-test]').forEach(function (btn) {
+					btn.addEventListener('click', function () {
+						var gw = btn.getAttribute('data-icod-pay-test');
+						var out = document.querySelector('.icod-pay-test-result[data-for="' + gw + '"]');
+						btn.disabled = true;
+						if (out) { out.textContent = '…'; out.style.color = ''; }
+						var body = new URLSearchParams();
+						body.set('action', 'icod_payment_test');
+						body.set('nonce', nonce);
+						body.set('gateway', gw);
+						fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', { method: 'POST', credentials: 'same-origin', body: body })
+							.then(function (r) { return r.json(); })
+							.then(function (j) {
+								var ok = j && j.success && j.data && j.data.ok;
+								if (out) {
+									out.textContent = (j && j.data && j.data.message) ? j.data.message : (ok ? 'OK' : 'échec');
+									out.style.color = ok ? '#0e7a4f' : '#b32d2e';
+								}
+								btn.disabled = false;
+							})
+							.catch(function () { if (out) { out.textContent = 'erreur réseau'; } btn.disabled = false; });
+					});
+				});
+			})();
+			</script>
 
 			<h3 style="margin-top:16px"><?php esc_html_e( '🖼️ Logos officiels des cartes', 'infinitycod' ); ?></h3>
 			<p class="description"><?php esc_html_e( 'Téléversez les logos officiels CIB et Edahabia depuis votre médiathèque (Médiathèque → image → ID dans l’URL d’édition). Format conseillé : 260×164. Ces logos s’affichent quand la passerelle Chargily est active.', 'infinitycod' ); ?></p>
@@ -1946,7 +1978,38 @@ class SettingsPage {
 					<span><?php esc_html_e( 'Votre numéro WhatsApp (format international, ex. 2136…)', 'infinitycod' ); ?></span>
 					<input type="text" name="icod[wa_owner_phone]" dir="ltr" value="<?php echo esc_attr( Settings::get( 'wa_owner_phone', '' ) ); ?>" />
 				</label>
+				<label>
+					<span><?php esc_html_e( 'Test de la passerelle', 'infinitycod' ); ?></span>
+					<button type="button" class="button" id="icod-wa-test"><?php esc_html_e( '📡 Envoyer un message test', 'infinitycod' ); ?></button>
+					<span id="icod-wa-test-result" class="description" style="margin-inline-start:8px" aria-live="polite"></span>
+				</label>
 			</div>
+			<script>
+			(function () {
+				var b = document.getElementById('icod-wa-test');
+				if (!b) { return; }
+				var nonce = <?php echo wp_json_encode( wp_create_nonce( 'icod_admin' ) ); ?>;
+				b.addEventListener('click', function () {
+					var out = document.getElementById('icod-wa-test-result');
+					b.disabled = true;
+					if (out) { out.textContent = '…'; }
+					var body = new URLSearchParams();
+					body.set('action', 'icod_whatsapp_test');
+					body.set('nonce', nonce);
+					fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', { method: 'POST', credentials: 'same-origin', body: body })
+						.then(function (r) { return r.json(); })
+						.then(function (j) {
+							var ok = j && j.success && j.data && j.data.ok;
+							if (out) {
+								out.textContent = (j && j.data && j.data.message) ? j.data.message : (ok ? 'OK' : 'échec');
+								out.style.color = ok ? '#0e7a4f' : '#b32d2e';
+							}
+							b.disabled = false;
+						})
+						.catch(function () { if (out) { out.textContent = 'erreur réseau'; } b.disabled = false; });
+				});
+			})();
+			</script>
 		</div>
 
 		<div class="icod-card">

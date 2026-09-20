@@ -1256,3 +1256,12 @@ body.folded .icod-wrap form > .icod-save-sticky{left:36px}
 .icod-btoggles{display:flex;gap:14px;margin-left:auto;white-space:nowrap}
 .icod-builder-add{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:2px solid #f0f0f1;padding:12px 2px 0;margin-top:10px}
 .icod-builder-add strong{font-size:12px}
+/* ---------- Onboarding : 4 étapes de démarrage ---------- */
+.icod-onboarding{border-inline-start:4px solid #0e7a4f}
+.icod-onb-steps{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:10px}
+.icod-onb-steps li{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid #e8eaec;border-radius:10px;background:#fff}
+.icod-onb-steps li.done{background:#f2f8f4;border-color:#cde8d8}
+.icod-onb-check{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;font-weight:800;font-size:13px;background:#f0f0f1;color:#646970;flex:none}
+.icod-onb-steps li.done .icod-onb-check{background:#0e7a4f;color:#fff}
+.icod-onb-label{flex:1;font-weight:600}
+.icod-onb-steps .button{flex:none}

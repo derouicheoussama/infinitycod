@@ -32,7 +32,40 @@ class DashboardPage {
 	public function render() {
 		global $wpdb;
 
+		/**
+		 * Étapes de démarrage : wilayas importées, tarifs configurés,
+		 * transporteur connecté, WhatsApp configuré.
+		 *
+		 * @return array[] num, label, done, link.
+		 */
+		$onboarding_steps = function () {
+			global $wpdb;
+			$geo   = \InfinityCod\Core\Schema::table( 'wilayas' );
+			$w_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$geo}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+			$rates   = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$geo} WHERE price_home >= 0" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+			$wa_phone = trim( (string) \InfinityCod\Core\Settings::get( 'wa_owner_phone', '' ) );
+			$carrier  = '';
+			foreach ( array( 'ecotrack_api_token', 'zrexpress_api_key', 'noest_api_key', 'maystro_api_key' ) as $k ) {
+				$v = trim( (string) \InfinityCod\Core\Settings::get( $k, '' ) );
+				if ( '' !== $v ) { $carrier = $k; break; }
+			}
+			$admin = admin_url( 'admin.php?page=' );
+			return array(
+				array( 'num' => 1, 'label' => __( 'Importer les 58 wilayas et tarifs de livraison', 'infinitycod' ), 'done' => $w_count > 0 && $rates > 0, 'link' => $admin . 'infinitycod-geo' ),
+				array( 'num' => 2, 'label' => __( 'Connecter un transporteur (Yalidine, ZR Express…)', 'infinitycod' ), 'done' => '' !== $carrier, 'link' => $admin . 'infinitycod-carriers' ),
+				array( 'num' => 3, 'label' => __( 'Configurer WhatsApp automatique', 'infinitycod' ), 'done' => '' !== $wa_phone, 'link' => $admin . 'infinitycod-settings&tab=advanced' ),
+				array( 'num' => 4, 'label' => __( 'Personnaliser le formulaire de commande', 'infinitycod' ), 'done' => '' !== trim( (string) \InfinityCod\Core\Settings::get( 'form_title', '' ) ), 'link' => $admin . 'infinitycod-settings&tab=form' ),
+			);
+		};
+
 		$orders = Schema::table( 'orders' );
+
+		// Onboarding : 4 étapes de démarrage (visibles tant que tout n'est pas configuré).
+		$steps = $onboarding_steps();
+		$steps_remaining = 0;
+		foreach ( $steps as $s ) {
+			if ( ! $s['done'] ) { $steps_remaining++; }
+		}
 
 		$periods = array(
 			'today' => __( "Aujourd'hui", 'infinitycod' ),
@@ -156,6 +189,23 @@ class DashboardPage {
 								<a class="button button-small" href="<?php echo esc_url( $item['link'] ); ?>"><?php esc_html_e( 'Configurer', 'infinitycod' ); ?></a>
 							<?php endif; ?>
 						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+			<?php endif; ?>
+
+			<?php if ( $steps_remaining > 0 ) : ?>
+			<div class="icod-card icod-onboarding">
+				<h2>🧭 <?php esc_html_e( 'Démarrage — configurez votre boutique en 4 étapes', 'infinitycod' ); ?></h2>
+				<ul class="icod-onb-steps">
+					<?php foreach ( $steps as $s ) : ?>
+					<li class="<?php echo $s['done'] ? 'done' : 'todo'; ?>">
+						<span class="icod-onb-check"><?php echo $s['done'] ? '✓' : ( $s['num'] . '' ); ?></span>
+						<span class="icod-onb-label"><?php echo esc_html( $s['label'] ); ?></span>
+						<?php if ( ! $s['done'] && $s['link'] ) : ?>
+						<a class="button button-small" href="<?php echo esc_url( $s['link'] ); ?>"><?php esc_html_e( 'Configurer', 'infinitycod' ); ?></a>
+						<?php endif; ?>
+					</li>
 					<?php endforeach; ?>
 				</ul>
 			</div>
