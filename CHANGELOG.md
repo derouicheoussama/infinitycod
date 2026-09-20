@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.42.4 — 2026-09-20
+
+- **Résistance aux mélanges CDN** : manifestes et signatures de mise à jour récupérés avec cache-busting — les CDN servant manifest et signature avec des âges de cache indépendants, une fenêtre de mélange après chaque release ressemblait à une signature invalide. Le statut de signature teste les DEUX miroirs et retient le premier cohérent ; cache négatif réduit à 3 minutes ; le zip est déchargé du cache avec vérification SHA-256.
+
+## 5.42.2 / 5.42.3 — 2026-09-20
+
+- **Aperçu en direct : formulaire seul** : l'aperçu n'affiche plus la page entière — uniquement le formulaire COD, avec les styles réels du thème (masquage du reste de la page actif uniquement sous jeton de prévisualisation). 5.42.3 corrige la racine d'isolation (formulaire visible).
+
 ## 5.42.1 — 2026-09-20
 
 - **Aperçu en direct : formulaire seul** : l'aperçu n'affiche plus la page entière — uniquement le formulaire COD, avec les styles réels du thème (masquage du reste de la page actif uniquement sous jeton de prévisualisation).

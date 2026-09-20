@@ -864,8 +864,13 @@ class Updater {
 			// phpcs:enable PluginCheck.CodeAnalysis.Offloading.OffloadedContent
 		);
 
+		$first_invalid = null;
 		foreach ( $bases as $kind => $base ) {
-			$m = wp_remote_get( $base . 'update.json', array(
+			// Cache-busting : les CDN servent manifest et signature avec des âges
+			// de cache indépendants — une fenêtre de mélange après chaque release
+			// ressemble à une signature invalide alors que la branche est saine.
+			$cb   = '?cb=' . time();
+			$m = wp_remote_get( $base . 'update.json' . $cb, array(
 				'timeout' => 10,
 				'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
 			) );
@@ -878,7 +883,7 @@ class Updater {
 				continue;
 			}
 
-			$s    = wp_remote_get( $base . 'update.json.sig', array(
+			$s    = wp_remote_get( $base . 'update.json.sig' . $cb, array(
 				'timeout' => 10,
 				'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ),
 			) );
@@ -902,8 +907,20 @@ class Updater {
 				);
 			}
 
-			set_transient( 'icod_sig_status', $out, 15 * MINUTE_IN_SECONDS );
-			return $out;
+			if ( ! empty( $out['ok'] ) ) {
+				set_transient( 'icod_sig_status', $out, 15 * MINUTE_IN_SECONDS );
+				return $out;
+			}
+			// Premier miroir invalide : mémorisé mais on tente le suivant — un
+			// mélange CDN sur raw ne doit pas masquer un jsDelivr cohérent.
+			if ( null === $first_invalid ) {
+				$first_invalid = $out;
+			}
+		}
+
+		if ( $first_invalid ) {
+			set_transient( 'icod_sig_status', $first_invalid, 3 * MINUTE_IN_SECONDS );
+			return $first_invalid;
 		}
 
 		return array(
@@ -1228,15 +1245,22 @@ class Updater {
 		}
 
 		$busy = true;
+		// Cache-busting miroir : un zip issu du cache d'un CDN peut appartenir
+		// à une génération antérieure — le buster force une récupération à
+		// l'origine ; l'intégrité SHA-256 reste vérifiée ensuite.
+		$fetch_url = $url;
+		if ( false === strpos( $fetch_url, '?' ) && ( $is_mirror || $is_asset ) ) {
+			$fetch_url .= '?cb=' . time();
+		}
 		if ( $is_mirror ) {
 			// Miroir : téléchargement direct, sans authentification.
-			$response = wp_remote_get( $url, array( 'timeout' => 120, 'redirection' => 3, 'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ) ) );
+			$response = wp_remote_get( $fetch_url, array( 'timeout' => 120, 'redirection' => 3, 'headers' => array( 'User-Agent' => 'InfinityCod-Updater/' . INFINITYCOD_VERSION ) ) );
 			$bytes    = is_wp_error( $response ) ? $response : (string) wp_remote_retrieve_body( $response );
 			if ( ! is_wp_error( $bytes ) && '' === $bytes ) {
 				$bytes = new \WP_Error( 'icod_download_empty', __( 'Réponse vide du miroir.', 'infinitycod' ) );
 			}
 		} else {
-			$bytes = $this->fetch_package_auth( $url, self::github_token() );
+			$bytes = $this->fetch_package_auth( $fetch_url, self::github_token() );
 		}
 
 		// Repli CDN : les nœuds GitHub (objects.githubusercontent.com) renvoient
