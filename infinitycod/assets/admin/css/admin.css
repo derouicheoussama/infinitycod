@@ -230,8 +230,9 @@
 .icod-mini strong{display:block;font-size:1.7rem;font-weight:800;line-height:1.2}
 .icod-mini span{font-size:12px;color:#646970}
 .icod-mini-pending{color:#b32d2e}
-/* Bouton Enregistrer toujours visible en bas des longues pages */
-.icod-wrap form > .icod-submit{position:sticky;bottom:0;z-index:20;background:#f0f0f1;padding:14px 0;margin:0;border-top:1px solid #dcdcde}
+/* Bouton Enregistrer en flux normal (fin du formulaire) — ne recouvre plus
+   l'aperçu ni les champs pendant le défilement. */
+.icod-wrap form > .icod-submit{margin:18px 0;padding:14px 0}
 
 /* ============================================================
    UI v1.7 — Design professionnel InfinityCod
@@ -855,13 +856,10 @@ body.icod-modal-open{overflow:hidden}
 .icod-paystrip-on span::first-line{color:#0e7a4f;font-weight:700}
 .icod-paylogo{border-radius:6px}
 
-/* --- Réglages : bouton Enregistrer toujours accessible --- */
+/* --- Réglages : bouton Enregistrer en flux normal (fin du formulaire) --- */
 .icod-wrap form .icod-submit{
-	position:sticky;bottom:10px;z-index:20;
 	display:flex;justify-content:flex-end;
 	margin-bottom:0!important;padding:8px 0;
-	background:linear-gradient(to top,rgba(240,240,241,.96) 65%,rgba(240,240,241,0));
-	border-radius:8px;
 }
 .icod-wrap form .icod-submit .button-hero{box-shadow:0 4px 18px rgba(0,0,0,.22)!important}
 .icod-saving{opacity:.7;cursor:wait}
@@ -1045,7 +1043,7 @@ body.icod-modal-open{overflow:hidden}
 .icod-steps{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 4px}
 .icod-steps span{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #dcdcde;border-radius:99px;padding:5px 14px;font-size:12.5px;color:#2c3338}
 .icod-steps strong{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#1877c2;color:#fff;font-size:11px}
-.icod-save-sticky{position:sticky;bottom:10px;z-index:60;display:flex;align-items:center;gap:14px;margin:0;padding:12px 14px;background:#fff;border:1px solid #dcdcde;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.1)}
+.icod-save-sticky{display:flex;align-items:center;gap:14px;margin:18px 0;padding:12px 14px;background:#fff;border:1px solid #dcdcde;border-radius:12px}
 .icod-save-hint{color:#646970;font-size:12.5px}
 @media (max-width:782px){.icod-save-hint{display:none}}
 

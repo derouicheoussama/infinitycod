@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.42.6 — 2026-09-20
+
+- **Barre « Enregistrer » en flux normal** : elle ne suit plus le défilement et ne recouvre plus l'aperçu ni les champs — elle se place à la fin du formulaire, comme dans l'admin WordPress classique.
+
 ## 5.42.5 — 2026-09-20
 
 - **Aperçu en direct — rendu fidèle corrigé** : l'isolation déplace désormais le wrapper complet `.icod-root` (avec sa classe de thème) et non le formulaire nu — le formulaire de l'aperçu conserve tous ses styles scopés au lieu d'apparaître brut.
