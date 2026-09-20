@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.43.1 — 2026-09-20
+
+- **Checkout Builder repensé** : chaque champ est une carte propre (poignée de déplacement, boutons ▲▼ empilés, badge de clé, type, label, toggles alignés à droite) — plus de rangées qui se replient en désordre sur les vrais sites.
+
 ## 5.43.0 — 2026-09-20
 
 - **Réglages → Formulaire repensé** : aperçu en direct TOUJOURS en colonne de droite (vis-à-vis des réglages à gauche) dès 1100 px d'écran, tableau de bord élargi (1780 px), aperçu collant au défilement. Description réduite à une ligne. La largeur d'aperçu (Mobile 390 / Tablette 768 / Pleine largeur) reste commutable d'un clic.

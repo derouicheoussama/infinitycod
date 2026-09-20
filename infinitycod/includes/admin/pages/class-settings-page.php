@@ -987,18 +987,22 @@ class SettingsPage {
 			}
 			$cfmove_nonce = wp_create_nonce( 'icod_cfmove' );
 			foreach ( $fields as $i => $fld ) : ?>
-			<div class="icod-builder-row" style="display:flex;gap:8px;align-items:center;border-bottom:1px solid #f0f0f1;padding:8px 0;flex-wrap:wrap">
+			<div class="icod-builder-row">
 				<span class="icod-bdrag" draggable="true" title="<?php esc_attr_e( 'Glisser pour réordonner', 'infinitycod' ); ?>">⠿</span>
-				<a href="?page=infinitycod-settings&tab=form&cfmove=up:<?php echo (int) $i; ?>&_wpnonce=<?php echo esc_attr( $cfmove_nonce ); ?>" class="button" style="padding:2px 8px">▲</a>
-				<a href="?page=infinitycod-settings&tab=form&cfmove=down:<?php echo (int) $i; ?>&_wpnonce=<?php echo esc_attr( $cfmove_nonce ); ?>" class="button" style="padding:2px 8px">▼</a>
-				<code dir="ltr" style="width:110px"><?php echo esc_html( $fld['key'] ); ?></code>
-				<select name="icod[checkout_fields][<?php echo (int) $i; ?>][type]">
+				<span class="icod-bmove">
+					<a href="?page=infinitycod-settings&tab=form&cfmove=up:<?php echo (int) $i; ?>&_wpnonce=<?php echo esc_attr( $cfmove_nonce ); ?>" class="button" title="<?php esc_attr_e( 'Monter', 'infinitycod' ); ?>">▲</a>
+					<a href="?page=infinitycod-settings&tab=form&cfmove=down:<?php echo (int) $i; ?>&_wpnonce=<?php echo esc_attr( $cfmove_nonce ); ?>" class="button" title="<?php esc_attr_e( 'Descendre', 'infinitycod' ); ?>">▼</a>
+				</span>
+				<code class="icod-bkey" dir="ltr"><?php echo esc_html( $fld['key'] ); ?></code>
+				<select class="icod-btype" name="icod[checkout_fields][<?php echo (int) $i; ?>][type]">
 				<?php foreach ( array( 'text', 'tel', 'email', 'select', 'radio', 'checkbox', 'textarea', 'date', 'number' ) as $t ) : ?>
 				<option <?php selected( $fld['type'], $t ); ?>><?php echo esc_html( $t ); ?></option>
 				<?php endforeach; ?></select>
-				<input type="text" name="icod[checkout_fields][<?php echo (int) $i; ?>][label]" placeholder="Label personnalisé…" value="<?php echo esc_attr( $fld['label'] ); ?>" style="flex:1;min-width:150px" />
-				<label style="white-space:nowrap"><input type="checkbox" name="icod[checkout_fields][<?php echo (int) $i; ?>][on]" value="1" <?php checked( ! empty( $fld['on'] ) ); ?> /> Actif</label>
-				<label style="white-space:nowrap"><input type="checkbox" name="icod[checkout_fields][<?php echo (int) $i; ?>][req]" value="1" <?php checked( ! empty( $fld['req'] ) ); ?> /> Obligatoire</label>
+				<input type="text" class="icod-blabel" name="icod[checkout_fields][<?php echo (int) $i; ?>][label]" placeholder="<?php esc_attr_e( 'Label personnalisé…', 'infinitycod' ); ?>" value="<?php echo esc_attr( $fld['label'] ); ?>" />
+				<span class="icod-btoggles">
+					<label><input type="checkbox" name="icod[checkout_fields][<?php echo (int) $i; ?>][on]" value="1" <?php checked( ! empty( $fld['on'] ) ); ?> /> <?php esc_html_e( 'Actif', 'infinitycod' ); ?></label>
+					<label><input type="checkbox" name="icod[checkout_fields][<?php echo (int) $i; ?>][req]" value="1" <?php checked( ! empty( $fld['req'] ) ); ?> /> <?php esc_html_e( 'Obligatoire', 'infinitycod' ); ?></label>
+				</span>
 				<input type="hidden" name="icod[checkout_fields][<?php echo (int) $i; ?>][key]" value="<?php echo esc_attr( $fld['key'] ); ?>" />
 				<input type="hidden" name="icod[checkout_fields][<?php echo (int) $i; ?>][order]" value="<?php echo (int) $i; ?>" />
 			</div>

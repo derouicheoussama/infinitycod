@@ -1243,3 +1243,16 @@ body.folded .icod-wrap form > .icod-save-sticky{left:36px}
 @media (max-width:782px){.icod-gopro{padding:20px}.icod-gopro .feat{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.icod-gopro{animation:icod-gopro-in .35s ease-out}}
 @keyframes icod-gopro-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* ---------- Checkout Builder : rangées en grille lisible ---------- */
+.icod-builder-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid #e8eaec;border-radius:10px;background:#fff;margin:0 0 8px;flex-wrap:wrap}
+.icod-builder-row:hover{border-color:#c3c6ca;box-shadow:0 1px 6px rgba(0,0,0,.05)}
+.icod-bdrag{cursor:grab;color:#8c8f94;font-size:15px;user-select:none}
+.icod-bdrag:active{cursor:grabbing}
+.icod-bmove{display:flex;flex-direction:column;gap:2px}
+.icod-bmove .button{padding:0 6px;height:19px;line-height:17px;font-size:10px;min-height:0;border-radius:5px}
+.icod-bkey{background:#f0f0f1;border-radius:6px;padding:4px 9px;font-size:11.5px}
+.icod-btype{width:120px}
+.icod-blabel{flex:1;min-width:200px}
+.icod-btoggles{display:flex;gap:14px;margin-left:auto;white-space:nowrap}
+.icod-builder-add{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:2px solid #f0f0f1;padding:12px 2px 0;margin-top:10px}
+.icod-builder-add strong{font-size:12px}
