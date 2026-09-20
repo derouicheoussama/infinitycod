@@ -33,8 +33,8 @@ class FormManager {
 
 		// Aperçu en direct fidèle : quand l'URL porte un jeton de
 		// prévisualisation valide, le brouillon d'admin (transient, 10 min)
-		// remplace les réglages le temps de ce rendu — le marchand voit la
-		// vraie page produit avec ses nouveaux réglages, thème compris.
+		// remplace les réglages le temps de ce rendu — le marchand voit le
+		// formulaire seul, avec les styles réels du thème.
 		if ( isset( $_GET['icod_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- jeton aléatoire à durée limitée, lecture seule.
 			$token = sanitize_text_field( wp_unslash( $_GET['icod_preview'] ) );
 			if ( preg_match( '/^[A-Za-z0-9]{16,32}$/', $token ) ) {
@@ -44,6 +44,15 @@ class FormManager {
 						return $draft;
 					}, 99 );
 					add_action( 'send_headers', 'nocache_headers' );
+					// Mode « formulaire seul » : masque le reste de la page dès
+					// le <head> (anti-flash), le JS de pied de page révèle ensuite
+					// uniquement l'hébergeur du formulaire.
+					add_action( 'wp_head', static function () {
+						echo '<style id="icod-preview-style">html.icod-preview-only{margin-top:0!important;padding-top:0!important}html.icod-preview-only #wpadminbar{display:none!important}html.icod-preview-only body>*:not(.icod-preview-host):not(script):not(style):not(link){display:none!important}html.icod-preview-only body{margin:0!important;padding:14px!important;background:#fff}</style>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- isolation d'aperçu.
+					} );
+					add_action( 'wp_footer', static function () {
+						echo '<script id="icod-preview-only-js">(function(){var f=document.querySelector(".icod-form");if(!f){return;}var h=f;while(h.parentElement&&h.parentElement!==document.body){h=h.parentElement;}if(h===document.body){f.classList.add("icod-preview-host");h=f;}else{h.classList.add("icod-preview-host");}document.documentElement.classList.add("icod-preview-only");var b=document.getElementById("wpadminbar");if(b){b.style.display="none";}window.scrollTo(0,0);})();</script>';
+					} );
 				}
 			}
 		}

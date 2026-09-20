@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.42.1 — 2026-09-20
+
+- **Aperçu en direct : formulaire seul** : l'aperçu n'affiche plus la page entière — uniquement le formulaire COD, avec les styles réels du thème (masquage du reste de la page actif uniquement sous jeton de prévisualisation).
+
 ## 5.42.0 — 2026-09-19
 
 - **Aperçu en direct fidèle** : l'aperçu applique vos réglages en cours sur la VRAIE page produit de votre thème (mise en page, styles du site, produit réel) au lieu d'un rendu isolé — ce que vous voyez est exactement ce que verra le client. Brouillon appliqué via jeton transient (10 min), sans écriture en base.
