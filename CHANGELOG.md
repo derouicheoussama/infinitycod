@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.42.5 — 2026-09-20
+
+- **Aperçu en direct — rendu fidèle corrigé** : l'isolation déplace désormais le wrapper complet `.icod-root` (avec sa classe de thème) et non le formulaire nu — le formulaire de l'aperçu conserve tous ses styles scopés au lieu d'apparaître brut.
+
 ## 5.42.4 — 2026-09-20
 
 - **Résistance aux mélanges CDN** : manifestes et signatures de mise à jour récupérés avec cache-busting — les CDN servant manifest et signature avec des âges de cache indépendants, une fenêtre de mélange après chaque release ressemblait à une signature invalide. Le statut de signature teste les DEUX miroirs et retient le premier cohérent ; cache négatif réduit à 3 minutes ; le zip est déchargé du cache avec vérification SHA-256.
