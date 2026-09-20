@@ -63,6 +63,48 @@ class DiagnosticsPage {
 				<div class="notice notice-info is-dismissible"><p><?php esc_html_e( 'Test de connexion effectué — voir la ligne « Dernier test de connexion » ci-dessous.', 'infinitycod' ); ?></p></div>
 			<?php endif; ?>
 
+			<?php
+			// Bandeau récapitulatif automatique : vérifications exécutées à
+			// chaque chargement de la page (run_checks ci-dessus), aucune
+			// action manuelle nécessaire.
+			$diag_ok = 0;
+			$diag_ko = 0;
+			foreach ( $this->results as $row ) {
+				if ( false !== strpos( (string) $row['class'], 'ok' ) || 'delivered' === (string) $row['class'] ) {
+					$diag_ok++;
+				} else {
+					$diag_ko++;
+				}
+			}
+			?>
+			<div class="icod-card" style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+				<div style="font-size:15px;font-weight:700">
+					<?php
+					echo $diag_ko
+						? esc_html( sprintf( '🟢 %d vérifications OK · 🔴 %d à corriger', $diag_ok, $diag_ko ) )
+						: esc_html( sprintf( '🟢 Les %d vérifications sont OK — tout est en ordre.', $diag_ok ) );
+					?>
+				</div>
+				<div style="margin-inline-start:auto;display:flex;gap:8px">
+					<button type="button" class="button" id="icod-diag-filter-ko"><?php esc_html_e( 'Afficher seulement les problèmes', 'infinitycod' ); ?></button>
+				</div>
+			</div>
+			<script>
+			(function () {
+				var b = document.getElementById('icod-diag-filter-ko');
+				if (!b) { return; }
+				var on = false;
+				b.addEventListener('click', function () {
+					on = !on;
+					b.textContent = on ? <?php echo wp_json_encode( __( 'Afficher toutes les vérifications', 'infinitycod' ) ); ?> : <?php echo wp_json_encode( __( 'Afficher seulement les problèmes', 'infinitycod' ) ); ?>;
+					document.querySelectorAll('.icod-diag-table tbody tr').forEach(function (tr) {
+						var bad = !tr.querySelector('.icod-status-ok, .icod-status-delivered');
+						tr.style.display = (on && !bad) ? 'none' : '';
+					});
+				});
+			})();
+			</script>
+
 			<div class="icod-card">
 				<table class="widefat striped icod-table icod-diag-table">
 					<thead><tr>

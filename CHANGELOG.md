@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.43.0 — 2026-09-20
+
+- **Réglages → Formulaire repensé** : aperçu en direct TOUJOURS en colonne de droite (vis-à-vis des réglages à gauche) dès 1100 px d'écran, tableau de bord élargi (1780 px), aperçu collant au défilement. Description réduite à une ligne. La largeur d'aperçu (Mobile 390 / Tablette 768 / Pleine largeur) reste commutable d'un clic.
+- **Diagnostics enrichis** : bandeau récapitulatif automatique (vérifications OK / à corriger) exécuté à chaque chargement + filtre « problèmes seulement » en un clic.
+
 ## 5.42.8 — 2026-09-20
 
 - **Barre « Enregistrer » repensée** : fine barre fixe en bas de l'écran, toujours accessible sans jamais recouvrir le contenu (padding de compensation sur la page) — remplace la barre collante qui gênait la navigation et l'aperçu.

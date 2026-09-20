@@ -1062,13 +1062,13 @@ body.folded .icod-wrap form > .icod-save-sticky{left:36px}
   body.icod-has-savebar{padding-bottom:64px!important}
 }
 
-/* Réglages → Formulaire : aperçu en direct en colonne collante à droite.
-   Écrans < 1660 px : disposition empilée classique. */
+/* Réglages → Formulaire : aperçu en direct TOUJOURS en colonne de droite
+   (vis-à-vis des réglages à gauche), collant au défilement. */
 .icod-form-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
 .icod-form-layout .icod-form-left{min-width:0}
 .icod-wrap.icod-split{max-width:1780px}
-@media (min-width:1660px){
-	.icod-form-layout{grid-template-columns:minmax(0,1fr) 620px}
+@media (min-width:1100px){
+	.icod-form-layout{grid-template-columns:minmax(0,1fr) 560px}
 	.icod-form-preview{position:sticky;top:56px;z-index:15}
 	.icod-form-preview #icod-preview-frame{height:calc(100vh - 250px)!important}
 }

@@ -1390,7 +1390,7 @@ class SettingsPage {
 		<aside class="icod-form-preview">
 		<div class="icod-card" id="icod-preview-card">
 			<h2>👁️ <?php esc_html_e( 'Aperçu en direct', 'infinitycod' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'Le formulaire seul, avec les styles réels de votre thème, et vos réglages en cours appliqués (non encore enregistrés). Se rafraîchit à chaque modification ; « Enregistrer » reste nécessaire pour appliquer sur le site.', 'infinitycod' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Styles réels du thème · réglages en cours appliqués · se met à jour tout seul.', 'infinitycod' ); ?></p>
 			<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
 				<?php
 				$preview_choices = array();
