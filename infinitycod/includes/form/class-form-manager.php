@@ -51,7 +51,7 @@ class FormManager {
 						echo '<style id="icod-preview-style">html.icod-preview-only{margin-top:0!important;padding-top:0!important}html.icod-preview-only #wpadminbar{display:none!important}html.icod-preview-only body>*:not(.icod-preview-host):not(script):not(style):not(link){display:none!important}html.icod-preview-only body{margin:0!important;padding:14px!important;background:#fff}</style>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- isolation d'aperçu.
 					} );
 					add_action( 'wp_footer', static function () {
-						echo '<script id="icod-preview-only-js">(function(){var f=document.querySelector(".icod-form");if(!f){return;}var h=f;while(h.parentElement&&h.parentElement!==document.body){h=h.parentElement;}if(h===document.body){f.classList.add("icod-preview-host");h=f;}else{h.classList.add("icod-preview-host");}document.documentElement.classList.add("icod-preview-only");var b=document.getElementById("wpadminbar");if(b){b.style.display="none";}window.scrollTo(0,0);})();</script>';
+						echo '<script id="icod-preview-only-js">(function(){var f=document.querySelector(".icod-form");if(!f){return;}var host=document.createElement("div");host.className="icod-preview-host";f.parentNode.insertBefore(host,f);host.appendChild(f);Array.prototype.forEach.call(document.body.children,function(el){if(el!==host&&el.tagName!=="SCRIPT"&&el.tagName!=="STYLE"&&el.id!=="wpadminbar"){el.style.display="none";}});var bar=document.getElementById("wpadminbar");if(bar){bar.style.display="none";}document.documentElement.classList.add("icod-preview-only");document.body.style.cssText+=";margin:0;padding:16px;background:#fff";window.scrollTo(0,0);})();</script>';
 					} );
 				}
 			}
