@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.43.2 — 2026-09-20
+
+- **Correctif critique — chargement des communes** : sur les sites avec permaliens simples, l'URL REST des communes/stopdesks était malformée (double « ? » → 404) et le client ne pouvait pas choisir sa commune. Le JS construit désormais l'URL correctement quelle que soit la configuration des permaliens.
+
 ## 5.43.1 — 2026-09-20
 
 - **Checkout Builder repensé** : chaque champ est une carte propre (poignée de déplacement, boutons ▲▼ empilés, badge de clé, type, label, toggles alignés à droite) — plus de rangées qui se replient en désordre sur les vrais sites.
