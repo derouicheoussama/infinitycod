@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.43.4 — 2026-09-20
+
+- **Section compatibilité 2026** : badges animés sur le formulaire — Mobilis, Djezzy, Ooredoo, CIB, Edahabia, +213 (apparence pop en cascade, respecte prefers-reduced-motion).
+- **Validation téléphonique 2026** : le plugin accepte tous les préfixes mobiles algériens actuels et futurs (03/04/05/06/07/08/09 + +213), pas seulement 05/06/07.
+
 ## 5.43.2 — 2026-09-20
 
 - **Correctif critique — chargement des communes** : sur les sites avec permaliens simples, l'URL REST des communes/stopdesks était malformée (double « ? » → 404) et le client ne pouvait pas choisir sa commune. Le JS construit désormais l'URL correctement quelle que soit la configuration des permaliens.

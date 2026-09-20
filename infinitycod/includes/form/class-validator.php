@@ -33,7 +33,10 @@ class Validator {
 			$digits = '0' . substr( $digits, 3 );
 		}
 
-		if ( ! preg_match( '/^0[5-7][0-9]{8}$/', $digits ) ) {
+		// Préfixes algériens : 05/06/07 (actuels) + 03/04/08/09 (réservés ARPT
+		// 2026+) — le plugin accepte tous les numéros mobiles valides, y
+		// compris les futurs préfixes attribués par le régulateur.
+		if ( ! preg_match( '/^0[3-9][0-9]{8}$/', $digits ) ) {
 			return null;
 		}
 

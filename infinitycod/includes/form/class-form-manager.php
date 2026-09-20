@@ -958,6 +958,17 @@ class FormManager {
 				<span>🚛 <?php esc_html_e( 'Livraison 58 wilayas', 'infinitycod' ); ?></span>
 				<span>↩️ <?php esc_html_e( 'Vérifiez le colis à la réception', 'infinitycod' ); ?></span>
 			</p>
+			<div class="icod-compat" aria-hidden="true">
+				<div class="icod-compat-title">🇩🇿 <?php esc_html_e( 'Compatible 2026 — tous opérateurs', 'infinitycod' ); ?></div>
+				<div class="icod-compat-badges">
+					<span class="icod-compat-badge">📱 Mobilis</span>
+					<span class="icod-compat-badge">📱 Djezzy</span>
+					<span class="icod-compat-badge">📱 Ooredoo</span>
+					<span class="icod-compat-badge">💳 CIB</span>
+					<span class="icod-compat-badge">💳 Edahabia</span>
+					<span class="icod-compat-badge">🌍 +213</span>
+				</div>
+			</div>
 			<?php $reass_html = ob_get_clean(); ?>
 			<?php endif; ?>
 			<?php echo ( $show_reassurance && $reass_top ) ? $reass_html : ''; // phpcs:ignore WordPress.Security.EscapeOutput -- construit échappé. ?>

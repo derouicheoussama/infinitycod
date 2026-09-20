@@ -553,3 +553,17 @@ fieldset.icod-mode{min-width:0}
 .icod-timer-critical .icod-timer-clock{animation:icod-clock-breathe .6s ease-in-out infinite}
 @keyframes icod-timer-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
 @media (prefers-reduced-motion:reduce){.icod-timer,.icod-timer-hot,.icod-timer-critical,.icod-timer .icod-timer-clock,.icod-timer::after{animation:none !important}}
+/* ---------- Compatibilité 2026 : badges opérateurs + paiements ---------- */
+.icod-compat{margin:14px 0 0;padding:14px 16px;border-radius:14px;background:color-mix(in srgb,var(--icod-accent) 6%,var(--icod-surface));border:1px solid color-mix(in srgb,var(--icod-accent) 18%,transparent);animation:icod-fade-in .4s ease both}
+.icod-compat-title{font-weight:800;font-size:.82rem;color:var(--icod-accent);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.icod-compat-badges{display:flex;flex-wrap:wrap;gap:6px}
+.icod-compat-badge{display:inline-flex;align-items:center;padding:4px 11px;border-radius:99px;font-size:.75rem;font-weight:700;background:color-mix(in srgb,var(--icod-accent) 10%,var(--icod-surface));color:var(--icod-text);border:1px solid color-mix(in srgb,var(--icod-accent) 20%,transparent);animation:icod-compat-pop .35s ease both;transition:transform .15s ease,border-color .15s ease}
+.icod-compat-badge:nth-child(1){animation-delay:.05s}
+.icod-compat-badge:nth-child(2){animation-delay:.1s}
+.icod-compat-badge:nth-child(3){animation-delay:.15s}
+.icod-compat-badge:nth-child(4){animation-delay:.2s}
+.icod-compat-badge:nth-child(5){animation-delay:.25s}
+.icod-compat-badge:nth-child(6){animation-delay:.3s}
+.icod-compat-badge:hover{transform:translateY(-1px) scale(1.04);border-color:var(--icod-accent)}
+@keyframes icod-compat-pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.icod-compat-badge{animation:none !important}}
