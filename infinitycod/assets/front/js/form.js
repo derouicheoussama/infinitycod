@@ -87,7 +87,14 @@
 			options.headers = { 'Content-Type': 'application/json' };
 			options.body = JSON.stringify(body);
 		}
-		return fetch(icodFront.restUrl + path, options).then(function (res) {
+		/* Permaliens simples : restUrl contient déjà « ?rest_route=… » — le
+		   « ? » du path doit devenir « & » ou l'URL est malformée (404). */
+		var url = icodFront.restUrl + path;
+		var q = url.indexOf('?');
+		if (q !== -1 && url.indexOf('?', q + 1) !== -1) {
+			url = url.slice(0, q + 1) + url.slice(q + 1).replace('?', '&');
+		}
+		return fetch(url, options).then(function (res) {
 			return res.json().catch(function () { return {}; });
 		});
 	}
