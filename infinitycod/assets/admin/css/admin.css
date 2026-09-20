@@ -1043,9 +1043,24 @@ body.icod-modal-open{overflow:hidden}
 .icod-steps{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 4px}
 .icod-steps span{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #dcdcde;border-radius:99px;padding:5px 14px;font-size:12.5px;color:#2c3338}
 .icod-steps strong{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#1877c2;color:#fff;font-size:11px}
-.icod-save-sticky{display:flex;align-items:center;gap:14px;margin:18px 0;padding:12px 14px;background:#fff;border:1px solid #dcdcde;border-radius:12px}
-.icod-save-hint{color:#646970;font-size:12.5px}
-@media (max-width:782px){.icod-save-hint{display:none}}
+/* Barre Enregistrer : fixe en bas de l'écran, fine, avec padding de
+   compensation sur le body — toujours accessible, ne recouvre rien. */
+.icod-wrap form > .icod-save-sticky{
+  position:fixed;bottom:0;left:160px;right:20px;z-index:50;
+  display:flex;align-items:center;gap:14px;
+  margin:0;padding:10px 16px;
+  background:#fff;border-top:1px solid #dcdcde;border-radius:0;
+  box-shadow:0 -4px 14px rgba(0,0,0,.06);
+}
+.icod-save-sticky .icod-save-hint{color:#646970;font-size:12.5px}
+body.icod-has-savebar{padding-bottom:84px!important}
+body.folded .icod-wrap form > .icod-save-sticky{left:36px}
+@media (max-width:960px){body.auto-fold .icod-wrap form > .icod-save-sticky{left:36px}}
+@media (max-width:782px){
+  .icod-wrap form > .icod-save-sticky{left:0;right:0}
+  .icod-save-sticky .icod-save-hint{display:none}
+  body.icod-has-savebar{padding-bottom:64px!important}
+}
 
 /* Réglages → Formulaire : aperçu en direct en colonne collante à droite.
    Écrans < 1660 px : disposition empilée classique. */

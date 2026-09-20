@@ -90,6 +90,7 @@ class SettingsPage {
 				<input type="hidden" name="action" value="icod_save_settings" />
 				<input type="hidden" name="tab" value="<?php echo esc_attr( $this->tab ); ?>" />
 				<?php wp_nonce_field( 'icod_save_settings' ); ?>
+				<script>document.body.classList.add('icod-has-savebar');</script>
 
 				<?php
 				switch ( $this->tab ) {
