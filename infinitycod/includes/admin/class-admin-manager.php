@@ -79,6 +79,14 @@ class AdminManager {
 		add_action( 'admin_post_icod_carrier_save', array( $this, 'handle_carrier_save' ) );
 		add_action( 'wp_ajax_icod_carrier_test', array( $this, 'handle_carrier_test' ) );
 		add_action( 'wp_ajax_icod_parcel_create', array( $this, 'handle_parcel_create' ) );
+		add_action( 'wp_ajax_icod_parcel_update', array( $this, 'handle_parcel_update' ) );
+		add_action( 'wp_ajax_icod_parcel_delete', array( $this, 'handle_parcel_delete' ) );
+		add_action( 'wp_ajax_icod_parcel_label', array( $this, 'handle_parcel_label' ) );
+		add_action( 'wp_ajax_icod_parcel_note', array( $this, 'handle_parcel_note' ) );
+		add_action( 'wp_ajax_icod_parcel_info', array( $this, 'handle_parcel_info' ) );
+		add_action( 'wp_ajax_icod_parcel_track', array( $this, 'handle_parcel_track' ) );
+		add_action( 'wp_ajax_icod_carrier_wilayas', array( $this, 'handle_carrier_wilayas' ) );
+		add_action( 'wp_ajax_icod_carrier_rates', array( $this, 'handle_carrier_rates' ) );
 		add_action( 'wp_ajax_icod_sync_tracking', array( $this, 'handle_sync_tracking' ) );
 		add_action( 'wp_ajax_icod_import_offices', array( $this, 'handle_import_offices' ) );
 		add_action( 'admin_menu', array( $this, 'apply_menu_badge' ), 999 );
@@ -1599,6 +1607,185 @@ class AdminManager {
 			wp_send_json_success( $result );
 		}
 		wp_send_json_error( $result );
+	}
+
+	/**
+	 * Récupère l'adaptateur du transporteur d'une commande (tracking stocké).
+	 *
+	 * @return array{manager: object|null, carrier: string, tracking: string}
+	 */
+	private function carrier_for_request() {
+		$carrier  = isset( $_POST['carrier'] ) ? sanitize_key( wp_unslash( $_POST['carrier'] ) ) : '';
+		$tracking = isset( $_POST['tracking'] ) ? sanitize_text_field( wp_unslash( $_POST['tracking'] ) ) : '';
+
+		$manager = infinitycod() ? infinitycod()->module( 'carriers' ) : null;
+		return array(
+			'manager'  => $manager,
+			'carrier'  => $carrier,
+			'tracking' => $tracking,
+			'driver'   => ( $manager && '' !== $carrier ) ? $manager->factory( $carrier ) : null,
+		);
+	}
+
+	/**
+	 * Modifie un colis avant expédition (AJAX).
+	 *
+	 * @return void
+	 */
+	public function handle_parcel_update() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+		$ctx = $this->carrier_for_request();
+		if ( ! $ctx['driver'] || '' === $ctx['tracking'] ) {
+			wp_send_json_error( array( 'message' => __( 'Transporteur ou numéro de suivi manquant.', 'infinitycod' ) ) );
+		}
+		$s      = array(
+			'customer_name'  => isset( $_POST['customer_name'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_name'] ) ) : null,
+			'customer_phone' => isset( $_POST['customer_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_phone'] ) ) : null,
+			'address'        => isset( $_POST['address'] ) ? sanitize_textarea_field( wp_unslash( $_POST['address'] ) ) : null,
+			'commune'        => isset( $_POST['commune'] ) ? sanitize_text_field( wp_unslash( $_POST['commune'] ) ) : null,
+			'declared_value' => isset( $_POST['declared_value'] ) ? (float) $_POST['declared_value'] : null,
+			'note'           => isset( $_POST['note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['note'] ) ) : null,
+			'delivery_type'  => isset( $_POST['delivery_type'] ) ? sanitize_key( wp_unslash( $_POST['delivery_type'] ) ) : null,
+		);
+		$result = $ctx['driver']->update_parcel( $ctx['tracking'], array_filter( $s, static function ( $v ) { return null !== $v; } ) );
+		empty( $result['ok'] ) ? wp_send_json_error( $result ) : wp_send_json_success( $result );
+	}
+
+	/**
+	 * Supprime un colis avant expédition (AJAX).
+	 *
+	 * @return void
+	 */
+	public function handle_parcel_delete() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+		$ctx = $this->carrier_for_request();
+		if ( ! $ctx['driver'] || '' === $ctx['tracking'] ) {
+			wp_send_json_error( array( 'message' => __( 'Transporteur ou numéro de suivi manquant.', 'infinitycod' ) ) );
+		}
+		$result = $ctx['driver']->delete_parcel( $ctx['tracking'] );
+		// Colis supprimé chez le transporteur → on efface aussi le suivi local.
+		$icod_id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+		if ( ! empty( $result['ok'] ) && $icod_id > 0 ) {
+			global $wpdb;
+			$table = \InfinityCod\Core\Schema::table( 'orders' );
+			$wpdb->query( $wpdb->prepare( "UPDATE {$table} SET tracking = '', carrier = '' WHERE id = %d", $icod_id ) ); // phpcs:ignore WordPress.DB.PreparedSQL
+		}
+		empty( $result['ok'] ) ? wp_send_json_error( $result ) : wp_send_json_success( $result );
+	}
+
+	/**
+	 * Étiquette d'un colis (AJAX) — renvoie une URL ou un PDF base64.
+	 *
+	 * @return void
+	 */
+	public function handle_parcel_label() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+		$ctx = $this->carrier_for_request();
+		if ( ! $ctx['driver'] || '' === $ctx['tracking'] ) {
+			wp_send_json_error( array( 'message' => __( 'Transporteur ou numéro de suivi manquant.', 'infinitycod' ) ) );
+		}
+		$result = $ctx['driver']->get_label( $ctx['tracking'] );
+		empty( $result['ok'] ) ? wp_send_json_error( $result ) : wp_send_json_success( $result );
+	}
+
+	/**
+	 * Remarque sur un colis (AJAX).
+	 *
+	 * @return void
+	 */
+	public function handle_parcel_note() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+		$ctx = $this->carrier_for_request();
+		if ( ! $ctx['driver'] || '' === $ctx['tracking'] ) {
+			wp_send_json_error( array( 'message' => __( 'Transporteur ou numéro de suivi manquant.', 'infinitycod' ) ) );
+		}
+		$note   = isset( $_POST['note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['note'] ) ) : '';
+		$result = $ctx['driver']->add_note( $ctx['tracking'], $note );
+		empty( $result['ok'] ) ? wp_send_json_error( $result ) : wp_send_json_success( $result );
+	}
+
+	/**
+	 * Fiche complète d'un colis (AJAX).
+	 *
+	 * @return void
+	 */
+	public function handle_parcel_info() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+		$ctx = $this->carrier_for_request();
+		if ( ! $ctx['driver'] || '' === $ctx['tracking'] ) {
+			wp_send_json_error( array( 'message' => __( 'Transporteur ou numéro de suivi manquant.', 'infinitycod' ) ) );
+		}
+		$result = $ctx['driver']->get_parcel_info( $ctx['tracking'] );
+		empty( $result['ok'] ) ? wp_send_json_error( $result ) : wp_send_json_success( $result );
+	}
+
+	/**
+	 * Suivi détaillé d'un colis (AJAX) — tous les événements.
+	 *
+	 * @return void
+	 */
+	public function handle_parcel_track() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+		$ctx = $this->carrier_for_request();
+		if ( ! $ctx['driver'] || '' === $ctx['tracking'] ) {
+			wp_send_json_error( array( 'message' => __( 'Transporteur ou numéro de suivi manquant.', 'infinitycod' ) ) );
+		}
+		$result = $ctx['driver']->fetch_status( $ctx['tracking'] );
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Wilayas actives d'un transporteur (AJAX).
+	 *
+	 * @return void
+	 */
+	public function handle_carrier_wilayas() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+		$ctx = $this->carrier_for_request();
+		if ( ! $ctx['driver'] ) {
+			wp_send_json_error( array( 'message' => __( 'Transporteur non configuré ou Premium requis.', 'infinitycod' ) ) );
+		}
+		$result = $ctx['driver']->get_wilayas();
+		empty( $result['ok'] ) ? wp_send_json_error( $result ) : wp_send_json_success( $result );
+	}
+
+	/**
+	 * Tarifs de livraison d'un transporteur (AJAX).
+	 *
+	 * @return void
+	 */
+	public function handle_carrier_rates() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+		$ctx = $this->carrier_for_request();
+		if ( ! $ctx['driver'] ) {
+			wp_send_json_error( array( 'message' => __( 'Transporteur non configuré ou Premium requis.', 'infinitycod' ) ) );
+		}
+		$result = $ctx['driver']->get_rates();
+		empty( $result['ok'] ) ? wp_send_json_error( $result ) : wp_send_json_success( $result );
 	}
 
 	/**

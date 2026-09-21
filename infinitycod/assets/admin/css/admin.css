@@ -1265,3 +1265,9 @@ body.folded .icod-wrap form > .icod-save-sticky{left:36px}
 .icod-onb-steps li.done .icod-onb-check{background:#0e7a4f;color:#fff}
 .icod-onb-label{flex:1;font-weight:600}
 .icod-onb-steps .button{flex:none}
+/* ---------- Colis expédiés : actions API transporteur ---------- */
+.icod-parcel-actions{white-space:nowrap}
+.icod-parcel-actions .button{margin-inline-end:3px}
+.icod-parcel-result{margin-top:14px}
+.icod-parcel-events{list-style:none;margin:8px 0;padding:0;max-width:640px}
+.icod-parcel-events li{padding:7px 10px;border-inline-start:3px solid #0e7a4f;background:#f6f8f8;margin-bottom:5px;border-radius:6px}

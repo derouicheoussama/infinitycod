@@ -31,6 +31,151 @@ abstract class AbstractCarrier implements CarrierInterface {
 	}
 
 	/**
+	 * Fonctionnalités supportées (surchargé par chaque transporteur).
+	 *
+	 * @return string[]
+	 */
+	public function features() {
+		return array();
+	}
+
+	/**
+	 * Une fonctionnalité est-elle supportée ?
+	 *
+	 * @param string $feature update|delete|label|wilayas|rates|info|return|ship|note.
+	 * @return bool
+	 */
+	public function supports( $feature ) {
+		return in_array( $feature, $this->features(), true );
+	}
+
+	/**
+	 * Réponse standard « fonctionnalité non disponible chez ce transporteur ».
+	 *
+	 * @param string $feature Fonctionnalité demandée.
+	 * @return array{ok: bool, message: string}
+	 */
+	protected function unsupported( $feature ) {
+		$labels = array(
+			'update'  => __( 'La modification', 'infinitycod' ),
+			'delete'  => __( 'La suppression', 'infinitycod' ),
+			'label'   => __( 'L‘étiquette', 'infinitycod' ),
+			'info'    => __( 'La fiche colis', 'infinitycod' ),
+			'return'  => __( 'La demande de retour', 'infinitycod' ),
+			'ship'    => __( 'L‘expédition', 'infinitycod' ),
+			'note'    => __( 'La remarque', 'infinitycod' ),
+			'wilayas' => __( 'La liste des wilayas', 'infinitycod' ),
+			'rates'   => __( 'La liste des tarifs', 'infinitycod' ),
+		);
+		$label  = isset( $labels[ $feature ] ) ? $labels[ $feature ] : ucfirst( $feature );
+		return array(
+			'ok'      => false,
+			'message' => $label . ' ' . __( 'n‘est pas disponible chez ce transporteur (non prévue par son API).', 'infinitycod' ),
+		);
+	}
+
+	/**
+	 * Modification de colis (défaut : non supporté).
+	 *
+	 * @param string $tracking Numéro de suivi.
+	 * @param array  $s        Champs à modifier.
+	 * @return array{ok: bool, message: string}
+	 */
+	public function update_parcel( $tracking, array $s ) {
+		unset( $tracking, $s );
+		return $this->unsupported( 'update' );
+	}
+
+	/**
+	 * Suppression de colis (défaut : non supporté).
+	 *
+	 * @param string $tracking Numéro de suivi.
+	 * @return array{ok: bool, message: string}
+	 */
+	public function delete_parcel( $tracking ) {
+		unset( $tracking );
+		return $this->unsupported( 'delete' );
+	}
+
+	/**
+	 * Étiquette (défaut : non supporté).
+	 *
+	 * @param string $tracking Numéro de suivi.
+	 * @return array{ok: bool, url: string, pdf: string, message: string}
+	 */
+	public function get_label( $tracking ) {
+		unset( $tracking );
+		$r = $this->unsupported( 'label' );
+		return array_merge( $r, array( 'url' => '', 'pdf' => '' ) );
+	}
+
+	/**
+	 * Fiche colis (défaut : non supporté).
+	 *
+	 * @param string $tracking Numéro de suivi.
+	 * @return array{ok: bool, data: array, message: string}
+	 */
+	public function get_parcel_info( $tracking ) {
+		unset( $tracking );
+		$r = $this->unsupported( 'info' );
+		return array_merge( $r, array( 'data' => array() ) );
+	}
+
+	/**
+	 * Wilayas actives (défaut : non supporté).
+	 *
+	 * @return array{ok: bool, wilayas: array[], message: string}
+	 */
+	public function get_wilayas() {
+		$r = $this->unsupported( 'wilayas' );
+		return array_merge( $r, array( 'wilayas' => array() ) );
+	}
+
+	/**
+	 * Tarifs de livraison (défaut : non supporté).
+	 *
+	 * @return array{ok: bool, rates: array[], message: string}
+	 */
+	public function get_rates() {
+		$r = $this->unsupported( 'rates' );
+		return array_merge( $r, array( 'rates' => array() ) );
+	}
+
+	/**
+	 * Remarque de colis (défaut : non supporté).
+	 *
+	 * @param string $tracking Numéro de suivi.
+	 * @param string $note     Texte.
+	 * @return array{ok: bool, message: string}
+	 */
+	public function add_note( $tracking, $note ) {
+		unset( $tracking, $note );
+		return $this->unsupported( 'note' );
+	}
+
+	/**
+	 * Demande de retour (défaut : non supporté).
+	 *
+	 * @param string $tracking Numéro de suivi.
+	 * @return array{ok: bool, message: string}
+	 */
+	public function request_return( $tracking ) {
+		unset( $tracking );
+		return $this->unsupported( 'return' );
+	}
+
+	/**
+	 * Expédition du colis (défaut : non supporté).
+	 *
+	 * @param string $tracking Numéro de suivi.
+	 * @return array{ok: bool, message: string}
+	 */
+	public function ship_parcel( $tracking ) {
+		unset( $tracking );
+		return $this->unsupported( 'ship' );
+	}
+
+	/**
 	 * Url de base sans slash final.
 	 *
 	 * @return string

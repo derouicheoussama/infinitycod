@@ -568,6 +568,136 @@
 			});
 		});
 	}
+
+	/* ===== Colis expédiés : étiquette, suivi détaillé, fiche, remarque, suppression ===== */
+	var parcelResult = document.getElementById('icod-parcel-result');
+	function parcelShow(html) {
+		if (parcelResult) { parcelResult.innerHTML = html; }
+	}
+	function parcelRow(btn) { return btn.closest('tr'); }
+	function parcelCtx(btn) {
+		var tr = parcelRow(btn);
+		return {
+			tracking: tr ? tr.getAttribute('data-tracking') : '',
+			carrier: tr ? tr.getAttribute('data-carrier') : '',
+			id: tr ? tr.getAttribute('data-id') : ''
+		};
+	}
+	function escapeHtml(s) {
+		return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+			return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+		});
+	}
+
+	document.querySelectorAll('[data-icod-parcel]').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			var action = btn.getAttribute('data-icod-parcel');
+			var ctx = parcelCtx(btn);
+			if (!ctx.tracking) { toast('Numéro de suivi manquant', 'error'); return; }
+
+			// Suppression : confirmation + effacement du suivi local.
+			if (action === 'delete') {
+				if (!window.confirm('Supprimer ce colis chez le transporteur ? (uniquement avant expédition)')) { return; }
+				btn.disabled = true;
+				post('icod_parcel_delete', { tracking: ctx.tracking, carrier: ctx.carrier, id: ctx.id }).then(function (json) {
+					btn.disabled = false;
+					if (json && json.success) {
+						var tr = parcelRow(btn);
+						if (tr) { tr.remove(); }
+						toast('✅ ' + ((json.data && json.data.message) || 'Colis supprimé'), 'success');
+					} else {
+						toast('❌ ' + ((json.data && json.data.message) || icodAdmin.i18n.error), 'error');
+					}
+				}).catch(function () { btn.disabled = false; toast(icodAdmin.i18n.error, 'error'); });
+				return;
+			}
+
+			// Remarque : demande le texte puis met à jour le colis.
+			if (action === 'note') {
+				var note = window.prompt('Remarque à joindre au colis :', '');
+				if (note === null) { return; }
+				btn.disabled = true;
+				post('icod_parcel_note', { tracking: ctx.tracking, carrier: ctx.carrier, note: note }).then(function (json) {
+					btn.disabled = false;
+					var ok = json && json.success;
+					toast((ok ? '✅ ' : '❌ ') + ((json.data && json.data.message) || icodAdmin.i18n.error), ok ? 'success' : 'error');
+				}).catch(function () { btn.disabled = false; toast(icodAdmin.i18n.error, 'error'); });
+				return;
+			}
+
+			// Étiquette, suivi détaillé, fiche : GET AJAX commun.
+			var endpoint = action === 'label' ? 'icod_parcel_label' : (action === 'track' ? 'icod_parcel_track' : 'icod_parcel_info');
+			btn.disabled = true;
+			post(endpoint, { tracking: ctx.tracking, carrier: ctx.carrier }).then(function (json) {
+				btn.disabled = false;
+				var payload = (json && json.data) || {};
+				if (!(json && json.success)) {
+					toast('❌ ' + (payload.message || icodAdmin.i18n.error), 'error');
+					return;
+				}
+				if (action === 'label') {
+					if (payload.url) {
+						window.open(payload.url, '_blank');
+					} else if (payload.pdf) {
+						var blob = new Blob([Uint8Array.from(atob(payload.pdf), function (c) { return c.charCodeAt(0); })], { type: 'application/pdf' });
+						window.open(URL.createObjectURL(blob), '_blank');
+					}
+					return;
+				}
+				if (action === 'track' && payload.events) {
+					var rows = payload.events.map(function (ev) {
+						return '<li><strong>' + escapeHtml(ev.label) + '</strong>' + (ev.date ? ' <span class="icod-sub">' + escapeHtml(ev.date) + '</span>' : '') + '</li>';
+					}).join('');
+					parcelShow('<h3 style="margin-top:12px">🔍 Suivi ' + escapeHtml(ctx.tracking) + '</h3><ul class="icod-parcel-events">' + rows + '</ul>');
+					return;
+				}
+				// Fiche complète : joli affichage clé/valeur.
+				var data = payload.data && payload.data.data ? payload.data.data : payload.data;
+				var out = '<h3 style="margin-top:12px">📄 Fiche colis ' + escapeHtml(ctx.tracking) + '</h3><table class="widefat striped icod-table" style="max-width:720px"><tbody>';
+				Object.keys(data || {}).forEach(function (k) {
+					if (typeof data[k] === 'object') { return; }
+					out += '<tr><td><strong>' + escapeHtml(k) + '</strong></td><td>' + escapeHtml(data[k]) + '</td></tr>';
+				});
+				out += '</tbody></table>';
+				parcelShow(out);
+			}).catch(function () {
+				btn.disabled = false;
+				toast(icodAdmin.i18n.error, 'error');
+			});
+		});
+	});
+
+	/* ===== Données transporteur : wilayas actives + tarifs ===== */
+	var carrierDataResult = document.getElementById('icod-carrier-data-result');
+	document.querySelectorAll('[data-icod-carrier-data]').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			var kind = btn.getAttribute('data-icod-carrier-data');
+			var carrier = btn.getAttribute('data-carrier');
+			btn.disabled = true;
+			post(kind === 'wilayas' ? 'icod_carrier_wilayas' : 'icod_carrier_rates', { carrier: carrier }).then(function (json) {
+				btn.disabled = false;
+				if (!carrierDataResult) { return; }
+				if (!(json && json.success)) {
+					carrierDataResult.innerHTML = '<div class="notice notice-error"><p>❌ ' + escapeHtml((json.data && json.data.message) || 'Erreur') + '</p></div>';
+					return;
+				}
+				var rows = json.data && (json.data.wilayas || json.data.rates) || [];
+				var html = '<h3 style="margin-top:12px">' + (kind === 'wilayas' ? '📍 Wilayas actives' : '💰 Tarifs de livraison') + ' — ' + escapeHtml(carrier) + '</h3>';
+				html += '<table class="widefat striped icod-table" style="max-width:640px"><tbody>';
+				if (kind === 'wilayas') {
+					rows.forEach(function (w) {
+						html += '<tr><td style="width:70px"><strong>' + escapeHtml(w.code) + '</strong></td><td>' + escapeHtml(w.name) + '</td></tr>';
+					});
+				} else {
+					rows.forEach(function (r) {
+						html += '<tr><td><strong>' + escapeHtml(r.wilaya) + '</strong></td><td>Domicile : ' + r.home + '</td><td>Stopdesk : ' + r.desk + '</td></tr>';
+					});
+				}
+				html += '</tbody></table>';
+				carrierDataResult.innerHTML = html;
+			}).catch(function () { btn.disabled = false; toast(icodAdmin.i18n.error, 'error'); });
+		});
+	});
 })();
 
 /* ===== Anti double-soumission : boutons principaux désactivés au POST ===== */

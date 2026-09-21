@@ -121,4 +121,68 @@ class Zrexpress extends AbstractCarrier {
 			'events' => $events,
 		);
 	}
+
+	/**
+	 * Fonctionnalités supportées par l'API ZR Express.
+	 *
+	 * @return string[]
+	 */
+	public function features() {
+		return array( 'delete', 'wilayas', 'info' );
+	}
+
+	/**
+	 * Wilayas actives (même endpoint que le test de connexion).
+	 *
+	 * @return array{ok: bool, wilayas: array[], message: string}
+	 */
+	public function get_wilayas() {
+		$data = $this->http( $this->url( '/wilayas' ) );
+		if ( is_wp_error( $data ) ) {
+			return array( 'ok' => false, 'wilayas' => array(), 'message' => $data->get_error_message() );
+		}
+		$rows = is_array( $data ) ? $data : array();
+		$out  = array();
+		foreach ( $rows as $code => $w ) {
+			$out[] = array(
+				'code' => is_array( $w ) && isset( $w['code'] ) ? (string) $w['code'] : (string) $code,
+				'name' => is_array( $w ) && isset( $w['name'] ) ? (string) $w['name'] : ( is_string( $w ) ? $w : '' ),
+			);
+		}
+		return array( 'ok' => true, 'wilayas' => $out, 'message' => '' );
+	}
+
+	/**
+	 * Supprime un colis avant expédition.
+	 *
+	 * @param string $tracking Numéro de suivi.
+	 * @return array{ok: bool, message: string}
+	 */
+	public function delete_parcel( $tracking ) {
+		$data = $this->http( $this->url( '/delete-colis' ), array(
+			'method'     => 'POST',
+			'body_array' => array( 'Tracking' => (string) $tracking ),
+		) );
+		if ( is_wp_error( $data ) ) {
+			return array( 'ok' => false, 'message' => $data->get_error_message() );
+		}
+		return array( 'ok' => true, 'message' => __( 'Colis supprimé chez ZR Express.', 'infinitycod' ) );
+	}
+
+	/**
+	 * Fiche complète du colis.
+	 *
+	 * @param string $tracking Numéro de suivi.
+	 * @return array{ok: bool, data: array, message: string}
+	 */
+	public function get_parcel_info( $tracking ) {
+		$data = $this->http( $this->url( '/get-colis' ), array(
+			'method'     => 'POST',
+			'body_array' => array( 'Tracking' => (string) $tracking ),
+		) );
+		if ( is_wp_error( $data ) ) {
+			return array( 'ok' => false, 'data' => array(), 'message' => $data->get_error_message() );
+		}
+		return array( 'ok' => true, 'data' => $data, 'message' => '' );
+	}
 }

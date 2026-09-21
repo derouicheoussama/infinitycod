@@ -233,6 +233,75 @@ class CarriersPage {
 				<p><?php esc_html_e( 'Aucune commande confirmée en attente d‘expédition 🎉', 'infinitycod' ); ?></p>
 			<?php endif; ?>
 		</div>
+
+		<?php
+		// ——— Colis déjà expédiés : suivi + actions API complètes ———
+		$shipped = $wpdb->get_results(
+			"SELECT o.*, w.name_fr AS wilaya_name FROM {$table} o
+			 LEFT JOIN {$wilayas} w ON w.code = o.wilaya_code
+			 WHERE o.tracking != '' AND o.tracking IS NOT NULL
+			 ORDER BY o.id DESC LIMIT 50", // phpcs:ignore WordPress.DB.PreparedSQL
+			ARRAY_A
+		);
+		?>
+		<div class="icod-card">
+			<h2>📦 <?php esc_html_e( 'Colis expédiés — actions transporteur', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Étiquette, modification, remarque, suppression (avant expédition), fiche complète et suivi détaillé — directement via l‘API du transporteur.', 'infinitycod' ); ?></p>
+
+			<?php if ( ! $shipped ) : ?>
+				<p class="icod-hint"><?php esc_html_e( 'Aucun colis expédié pour le moment.', 'infinitycod' ); ?></p>
+			<?php else : ?>
+				<div class="icod-table-scroll">
+					<table class="widefat striped icod-table icod-parcels-table">
+						<thead>
+							<tr>
+								<th><?php esc_html_e( 'Client', 'infinitycod' ); ?></th>
+								<th><?php esc_html_e( 'Suivi', 'infinitycod' ); ?></th>
+								<th><?php esc_html_e( 'Transporteur', 'infinitycod' ); ?></th>
+								<th><?php esc_html_e( 'Actions', 'infinitycod' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( (array) $shipped as $row ) : ?>
+								<tr data-tracking="<?php echo esc_attr( $row['tracking'] ); ?>" data-carrier="<?php echo esc_attr( $row['carrier'] ); ?>" data-id="<?php echo esc_attr( $row['id'] ); ?>">
+									<td>
+										<strong><?php echo esc_html( $row['customer_name'] ); ?></strong>
+										<span class="icod-sub"><?php echo esc_html( $row['phone'] ); ?> · <?php echo esc_html( $row['wilaya_name'] ); ?></span>
+									</td>
+									<td><code dir="ltr"><?php echo esc_html( $row['tracking'] ); ?></code></td>
+									<td><?php echo esc_html( ucfirst( str_replace( '_', ' ', (string) $row['carrier'] ) ) ); ?></td>
+									<td class="icod-parcel-actions">
+										<button type="button" class="button button-small" data-icod-parcel="label" title="<?php esc_attr_e( 'Étiquette (bordereau)', 'infinitycod' ); ?>">🏷️</button>
+										<button type="button" class="button button-small" data-icod-parcel="track" title="<?php esc_attr_e( 'Suivi détaillé', 'infinitycod' ); ?>">🔍</button>
+										<button type="button" class="button button-small" data-icod-parcel="info" title="<?php esc_attr_e( 'Fiche complète du colis', 'infinitycod' ); ?>">📄</button>
+										<button type="button" class="button button-small" data-icod-parcel="note" title="<?php esc_attr_e( 'Ajouter une remarque', 'infinitycod' ); ?>">💬</button>
+										<button type="button" class="button button-small" data-icod-parcel="delete" title="<?php esc_attr_e( 'Supprimer le colis (avant expédition)', 'infinitycod' ); ?>">🗑️</button>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+				<div id="icod-parcel-result" class="icod-parcel-result" aria-live="polite"></div>
+			<?php endif; ?>
+		</div>
+
+		<?php
+		// ——— Outils API : wilayas actives + tarifs par transporteur configuré ———
+		if ( $usable ) :
+			?>
+			<div class="icod-card">
+				<h2>🗺️ <?php esc_html_e( 'Données transporteur — wilayas actives & tarifs', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Récupère en direct les wilayas actives et les tarifs de livraison depuis l‘API de chaque transporteur configuré.', 'infinitycod' ); ?></p>
+				<p style="display:flex;gap:8px;flex-wrap:wrap">
+					<?php foreach ( $usable as $entry ) : ?>
+						<button type="button" class="button" data-icod-carrier-data="wilayas" data-carrier="<?php echo esc_attr( $entry['code'] ); ?>">📍 <?php echo esc_html( $entry['name'] ); ?> — wilayas</button>
+						<button type="button" class="button" data-icod-carrier-data="rates" data-carrier="<?php echo esc_attr( $entry['code'] ); ?>">💰 <?php echo esc_html( $entry['name'] ); ?> — tarifs</button>
+					<?php endforeach; ?>
+				</p>
+				<div id="icod-carrier-data-result" class="icod-parcel-result" aria-live="polite"></div>
+			</div>
+		<?php endif; ?>
 		<?php
 	}
 }

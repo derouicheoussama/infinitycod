@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.44.0 — 2026-09-21
+
+- **API transporteurs complète** — pour tous les transporteurs (Yalidine, ZR Express, Maystro, Noest, E-COM, DHD, réseau Ecotrack personnalisé) : modification d'un colis avant expédition, suppression avant expédition, étiquette/bordereau, remarque, fiche colis complète, suivi détaillé événement par événement, wilayas actives et tarifs de livraison récupérés en direct. Interface : nouvelle carte « Colis expédiés » avec actions par colis + boutons « Wilayas / Tarifs » par transporteur. Chaque action ne s'affiche que si l'API du transporteur la supporte (rejet propre sinon).
+
 ## 5.43.4 — 2026-09-20
 
 - **Section compatibilité 2026** : badges animés sur le formulaire — Mobilis, Djezzy, Ooredoo, CIB, Edahabia, +213 (apparence pop en cascade, respecte prefers-reduced-motion).
