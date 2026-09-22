@@ -637,7 +637,11 @@ class SettingsPage {
 		<?php elseif ( ! $premium ) : ?>
 			<div class="icod-card">
 				<h2>💳 <?php esc_html_e( 'Acheter la version Premium', 'infinitycod' ); ?></h2>
-				<p class="description"><?php esc_html_e( 'Le paiement par carte (Freemius) n’est pas encore activé sur ce site : configurez le lien de checkout Freemius, ou utilisez PayPal / virement depuis l‘espace vendeur.', 'infinitycod' ); ?></p>
+				<p class="description">
+					<?php esc_html_e( 'L’achat en ligne n’est pas disponible sur ce site pour le moment.', 'infinitycod' ); ?>
+					<a href="https://derouicheoussama.com" target="_blank" rel="noopener"><?php esc_html_e( 'Contactez l’éditeur pour acheter Premium', 'infinitycod' ); ?></a>
+					— <?php esc_html_e( 'vous recevrez votre clé de licence par email.', 'infinitycod' ); ?>
+				</p>
 			</div>
 		<?php endif; ?>
 

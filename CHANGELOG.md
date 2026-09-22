@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.46.1 — 2026-09-23
+
+- **Message d'achat client-friendly** : quand le checkout Freemius n'est pas encore configuré, la carte « Acheter Premium » propose de contacter l'éditeur (lien vers son site) au lieu d'afficher des instructions de configuration vendeur.
+
 ## 5.46.0 — 2026-09-21
 
 - **Achat Premium intégré via Freemius** : bouton « Acheter Premium — par carte » directement dans le plugin (carte Go Pro du tableau de bord, bannière 3 étapes dans l'onglet Licence, lien de la liste des extensions). Le client paie sur le checkout sécurisé Freemius, reçoit sa clé par email, la colle dans Réglages → Licence — Premium actif immédiatement. Configuration de l'éditeur : constante INFINITYCOD_CHECKOUT_URL (une ligne dans le plugin ou wp-config) ou réglage freemius_checkout_url.
