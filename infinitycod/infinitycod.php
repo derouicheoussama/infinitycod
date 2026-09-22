@@ -3,7 +3,7 @@
  * Plugin Name:       InfinityCod — Paiement à la livraison (COD Algérie)
  * Plugin URI:        https://infinitycoder.app/infinitycod
  * Description:       Solution COD tout-en-un pour WooCommerce Algérie : formulaire de commande rapide, 58 wilayas & 1541 communes, tarifs domicile/stopdesk, anti-fraude, transporteurs intégrés (Yalidine, ZR Express, Maystro, Noest, Guepex…), WhatsApp automatique, offres par quantité et statistiques P&L.
- * Version:           5.45.0
+ * Version:           5.46.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * WC requires at least: 6.0
@@ -22,10 +22,21 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'INFINITYCOD_VERSION', '5.45.0' );
+define( 'INFINITYCOD_VERSION', '5.46.0' );
 define( 'INFINITYCOD_DB_VERSION', '1.7.0' );
 define( 'INFINITYCOD_AUTHOR', 'Derouiche Oussama' );
 define( 'INFINITYCOD_AUTHOR_URL', 'https://derouicheoussama.com' );
+
+// Lien d'achat Premium (checkout Freemius) — vu par TOUS les clients dans
+// l'interface (carte Go Pro, onglet Licence, liste des extensions).
+// À configurer UNE SEULE FOIS avec le lien de checkout de ton produit
+// Freemius (Dashboard Freemius → Plans → Checkout Link), ex. :
+// https://checkout.freemius.com/plugin/1234/plan/5678/
+// Surcharge possible dans wp-config.php sans toucher au plugin.
+if ( ! defined( 'INFINITYCOD_CHECKOUT_URL' ) ) {
+	define( 'INFINITYCOD_CHECKOUT_URL', '' );
+}
+
 define( 'INFINITYCOD_FILE', __FILE__ );
 define( 'INFINITYCOD_PATH', plugin_dir_path( __FILE__ ) );
 define( 'INFINITYCOD_URL', plugin_dir_url( __FILE__ ) );

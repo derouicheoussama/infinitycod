@@ -150,11 +150,17 @@ class AdminManager {
 			);
 		}
 
-		// Sans licence : mise en avant Pro.
+		// Sans licence : mise en avant Pro (checkout Freemius direct si configuré).
 		if ( ! \InfinityCod\License\LicenseManager::is_premium() ) {
+			$pro_url = \InfinityCod\License\LicenseManager::checkout_url();
+			if ( '' === $pro_url ) {
+				$pro_url = admin_url( 'admin.php?page=infinitycod-settings&tab=license' );
+			}
+			$target = ( 0 === strpos( $pro_url, 'http' ) ) ? ' target="_blank" rel="noopener"' : '';
 			$custom[] = sprintf(
-				'<a href="%1$s" style="color:#0e7a4f;font-weight:700" title="%2$s">★ %3$s</a>',
-				esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=license' ) ),
+				'<a href="%1$s"%2$s style="color:#0e7a4f;font-weight:700" title="%3$s">★ %4$s</a>',
+				esc_url( $pro_url ),
+				$target,
 				esc_attr__( 'Débloque WhatsApp automatique, transporteurs, offres et multi-pays.', 'infinitycod' ),
 				esc_html__( 'Passer à la version Pro', 'infinitycod' )
 			);

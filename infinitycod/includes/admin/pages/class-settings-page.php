@@ -623,6 +623,24 @@ class SettingsPage {
 			</p></div>
 		<?php endif; ?>
 
+		<?php $checkout_url = \InfinityCod\License\LicenseManager::checkout_url(); ?>
+		<?php if ( ! $premium && '' !== $checkout_url ) : ?>
+			<div class="icod-card" style="border-inline-start:4px solid #f7b600;background:linear-gradient(135deg,#fffdf5,#fff)">
+				<h2>💳 <?php esc_html_e( 'Acheter la version Premium — paiement par carte sécurisé (Freemius)', 'infinitycod' ); ?></h2>
+				<ol style="margin:8px 0 12px;padding-inline-start:20px">
+					<li><?php esc_html_e( 'Payez en toute sécurité par carte bancaire sur le checkout Freemius (reçu et facture automatiques).', 'infinitycod' ); ?></li>
+					<li><?php esc_html_e( 'Votre clé de licence vous est envoyée par email dans la minute.', 'infinitycod' ); ?></li>
+					<li><?php esc_html_e( 'Collez la clé dans le champ « Activer une licence » ci-dessous — Premium actif immédiatement.', 'infinitycod' ); ?></li>
+				</ol>
+				<a class="button button-primary button-hero" style="background:#f7b600;border-color:#f7b600;color:#1a1d21;font-weight:800" href="<?php echo esc_url( $checkout_url ); ?>" target="_blank" rel="noopener">💳 <?php esc_html_e( 'Acheter Premium maintenant', 'infinitycod' ); ?></a>
+			</div>
+		<?php elseif ( ! $premium ) : ?>
+			<div class="icod-card">
+				<h2>💳 <?php esc_html_e( 'Acheter la version Premium', 'infinitycod' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Le paiement par carte (Freemius) n’est pas encore activé sur ce site : configurez le lien de checkout Freemius, ou utilisez PayPal / virement depuis l‘espace vendeur.', 'infinitycod' ); ?></p>
+			</div>
+		<?php endif; ?>
+
 		<div class="icod-card">
 			<h2>📋 <?php esc_html_e( 'Statut de la licence', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Vue d’ensemble : plan, titulaire, expiration et synchronisation avec le serveur de licences.', 'infinitycod' ); ?></p>

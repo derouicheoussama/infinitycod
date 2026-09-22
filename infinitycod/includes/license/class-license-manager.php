@@ -428,6 +428,8 @@ class LicenseManager {
 			return '';
 		}
 
+		$checkout = self::checkout_url();
+
 		$features = array(
 			__( 'WhatsApp automatique — confirmations, expédition, relances paniers', 'infinitycod' ),
 			__( 'Paliers d’offres par quantité personnalisés', 'infinitycod' ),
@@ -452,18 +454,43 @@ class LicenseManager {
 				. '</form>';
 		}
 
+		// Achat direct Freemius : le client paie par carte sur le checkout
+		// sécurisé de l'éditeur, reçoit sa clé par email, la colle dans
+		// Réglages → Licence. Le bouton ne s'affiche que si le lien existe.
+		$buy_btn = '';
+		if ( '' !== $checkout ) {
+			$buy_btn = '<a class="button button-primary icod-gopro-btn-gold" href="' . esc_url( $checkout ) . '" target="_blank" rel="noopener">💳 ' . esc_html__( 'Acheter Premium — par carte (paiement sécurisé)', 'infinitycod' ) . '</a>';
+		}
+
 		$html = '<div class="icod-gopro">'
 			. '<div class="icod-gopro-star">★</div>'
 			. '<h2><span class="star">★</span> ' . esc_html__( 'Passez à InfinityCod Premium', 'infinitycod' ) . '</h2>'
 			. '<p>' . esc_html__( 'Débloquez la feuille de route Pro : WhatsApp automatique, paliers d’offres, multi-pays, support prioritaire — tout en gardant gratuitement chaque fonctionnalité gratuite, pour toujours.', 'infinitycod' ) . '</p>'
 			. '<div class="feat">' . $items . '</div>'
 			. '<div class="btns">'
+			. $buy_btn
 			. $trial_btn
 			. '<a class="button icod-gopro-btn-gold" href="' . esc_url( admin_url( 'admin.php?page=infinitycod-settings&tab=license' ) ) . '">★ ' . esc_html__( 'Activer une licence', 'infinitycod' ) . '</a>'
 			. '</div>'
 			. '</div>';
 
 		return $html;
+	}
+
+	/**
+	 * Lien d'achat Premium (checkout Freemius de l'éditeur).
+	 *
+	 * Priorité : constante INFINITYCOD_CHECKOUT_URL (gravée dans le build,
+	 * donc visible par tous les clients) → réglage vendeur freemius_checkout_url.
+	 *
+	 * @return string Url du checkout, ou chaîne vide si non configuré.
+	 */
+	public static function checkout_url() {
+		if ( defined( 'INFINITYCOD_CHECKOUT_URL' ) && '' !== trim( (string) INFINITYCOD_CHECKOUT_URL ) ) {
+			return trim( (string) INFINITYCOD_CHECKOUT_URL );
+		}
+		$url = trim( (string) Settings::get( 'freemius_checkout_url', '' ) );
+		return ( '' !== $url && 0 === strpos( $url, 'https://' ) ) ? $url : '';
 	}
 
 	public static function status_label() {
