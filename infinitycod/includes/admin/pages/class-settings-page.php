@@ -41,6 +41,86 @@ class SettingsPage {
 		add_action( 'admin_post_icod_save_paypal', array( $this, 'handle_paypal_settings' ) );
 		add_action( 'admin_post_icod_reset_settings', array( $this, 'handle_reset_settings' ) );
 		add_action( 'wp_ajax_icod_preview_form', array( $this, 'handle_preview_form' ) );
+		add_action( 'wp_ajax_icod_whatsapp_test', array( $this, 'handle_whatsapp_test' ) );
+		add_action( 'wp_ajax_icod_payment_test', array( $this, 'handle_payment_test' ) );
+		add_action( 'wp_ajax_icod_webhook_test', array( $this, 'handle_webhook_test' ) );
+	}
+
+	/**
+	 * Test WhatsApp : envoie un message de test au numéro marchand.
+	 *
+	 * @return void
+	 */
+	public function handle_whatsapp_test() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ), 403 );
+		}
+		check_ajax_referer( 'icod_admin', 'nonce' );
+		$result = \InfinityCod\Core\IntegrationTests::whatsapp();
+		wp_send_json( array( 'success' => (bool) $result['ok'], 'data' => array( 'ok' => (bool) $result['ok'], 'message' => $result['message'] ) ) );
+	}
+
+	/**
+	 * Test d'une passerelle de paiement (chargily|stripe|paypal).
+	 *
+	 * @return void
+	 */
+	public function handle_payment_test() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ), 403 );
+		}
+		check_ajax_referer( 'icod_admin', 'nonce' );
+		$gateway = isset( $_POST['gateway'] ) ? sanitize_key( wp_unslash( $_POST['gateway'] ) ) : '';
+		$result  = \InfinityCod\Core\IntegrationTests::payment( $gateway );
+		wp_send_json( array( 'success' => (bool) $result['ok'], 'data' => array( 'ok' => (bool) $result['ok'], 'message' => $result['message'] ) ) );
+	}
+
+	/**
+	 * Test du webhook : envoie une commande factice signée (HMAC) et
+	 * renvoie le verdict — permet de valider Google Sheets/Zapier/CRM.
+	 *
+	 * @return void
+	 */
+	public function handle_webhook_test() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ), 403 );
+		}
+		check_ajax_referer( 'icod_admin', 'nonce' );
+
+		$url = trim( (string) Settings::get( 'webhook_url', '' ) );
+		if ( '' === $url || ! preg_match( '#^https?://#', $url ) ) {
+			wp_send_json( array( 'success' => false, 'data' => array( 'ok' => false, 'message' => __( 'Renseignez d’abord une URL de webhook valide.', 'infinitycod' ) ) ) );
+		}
+
+		$payload = array(
+			'event'     => 'test',
+			'source'    => 'infinitycod',
+			'version'   => INFINITYCOD_VERSION,
+			'site'      => home_url(),
+			'timestamp' => gmdate( 'c' ),
+			'order'     => array(
+				'reference' => 'TEST-' . wp_rand( 1000, 9999 ),
+				'customer'  => __( 'Client de test', 'infinitycod' ),
+				'product'   => __( 'Produit de test', 'infinitycod' ),
+				'total'     => 0,
+			),
+		);
+		$body    = wp_json_encode( $payload );
+		$secret  = (string) Settings::get( 'webhook_secret', '' );
+		$headers = array( 'Content-Type' => 'application/json' );
+		if ( '' !== $secret ) {
+			$headers['X-InfinityCod-Signature'] = 'sha256=' . hash_hmac( 'sha256', $body, $secret );
+		}
+
+		$res  = wp_remote_post( $url, array( 'timeout' => 15, 'headers' => $headers, 'body' => $body ) );
+		if ( is_wp_error( $res ) ) {
+			wp_send_json( array( 'success' => false, 'data' => array( 'ok' => false, 'message' => $res->get_error_message() ) ) );
+		}
+		$code = (int) wp_remote_retrieve_response_code( $res );
+		if ( $code >= 200 && $code < 300 ) {
+			wp_send_json( array( 'success' => true, 'data' => array( 'ok' => true, 'message' => sprintf( /* translators: %d : code HTTP. */ __( 'Webhook appelé avec succès (HTTP %d) — vérifiez la réception côté destination.', 'infinitycod' ), $code ) ) ) );
+		}
+		wp_send_json( array( 'success' => false, 'data' => array( 'ok' => false, 'message' => sprintf( /* translators: %d : code HTTP. */ __( 'Le webhook a répondu HTTP %d — la destination doit renvoyer 2xx.', 'infinitycod' ), $code ) ) ) );
 	}
 
 	/**
@@ -1431,11 +1511,12 @@ class SettingsPage {
 				<?php
 				$preview_choices = array();
 				if ( function_exists( 'wc_get_products' ) ) {
-					foreach ( (array) wc_get_products( array( 'limit' => 50, 'status' => 'publish', 'orderby' => 'title', 'order' => 'ASC', 'return' => 'objects' ) ) as $p ) {
+					foreach ( (array) wc_get_products( array( 'limit' => 200, 'status' => 'publish', 'orderby' => 'title', 'order' => 'ASC', 'return' => 'objects' ) ) as $p ) {
 						$preview_choices[ $p->get_id() ] = $p->get_name();
 					}
 				}
 				?>
+				<input type="search" id="icod-preview-search" placeholder="<?php esc_attr_e( 'Rechercher un produit…', 'infinitycod' ); ?>" style="min-width:180px" />
 				<select id="icod-preview-product">
 					<?php foreach ( $preview_choices as $cid => $cname ) : ?>
 						<option value="<?php echo esc_attr( $cid ); ?>"><?php echo esc_html( $cname ); ?></option>
@@ -1444,6 +1525,22 @@ class SettingsPage {
 				<button type="button" class="button" id="icod-preview-refresh"><?php esc_html_e( 'Actualiser l’aperçu', 'infinitycod' ); ?></button>
 				<span id="icod-preview-status" class="description" aria-live="polite"></span>
 			</div>
+			<script>
+			(function () {
+				var s = document.getElementById('icod-preview-search');
+				var sel = document.getElementById('icod-preview-product');
+				if (!s || !sel) { return; }
+				s.addEventListener('input', function () {
+					var q = s.value.toLowerCase();
+					Array.prototype.forEach.call(sel.options, function (opt) {
+						if (!opt.value) { return; }
+						opt.hidden = opt.textContent.toLowerCase().indexOf(q) === -1;
+						if (!opt.hidden) { sel.value = opt.value; }
+					});
+					if (q === '') { sel.selectedIndex = 0; }
+				});
+			})();
+			</script>
 			<div style="display:flex;gap:6px;margin:0 0 8px;flex-wrap:wrap">
 				<button type="button" class="button" data-icod-w="390">📱 <?php esc_html_e( 'Mobile (390)', 'infinitycod' ); ?></button>
 				<button type="button" class="button" data-icod-w="768">📋 <?php esc_html_e( 'Tablette (768)', 'infinitycod' ); ?></button>
@@ -1836,6 +1933,36 @@ class SettingsPage {
 					<input type="password" name="icod[webhook_secret]" dir="ltr" autocomplete="new-password" value="" class="regular-text" placeholder="<?php esc_attr_e( 'Laisser vide pour conserver le secret actuel', 'infinitycod' ); ?>" />
 				</label>
 			</div>
+			<p style="margin-top:8px">
+				<button type="button" class="button" id="icod-webhook-test"><?php esc_html_e( '📡 Envoyer un test signé', 'infinitycod' ); ?></button>
+				<span id="icod-webhook-test-result" class="description" style="margin-inline-start:8px" aria-live="polite"></span>
+			</p>
+			<script>
+			(function () {
+				var b = document.getElementById('icod-webhook-test');
+				if (!b) { return; }
+				var nonce = <?php echo wp_json_encode( wp_create_nonce( 'icod_admin' ) ); ?>;
+				b.addEventListener('click', function () {
+					var out = document.getElementById('icod-webhook-test-result');
+					b.disabled = true;
+					if (out) { out.textContent = '…'; out.style.color = ''; }
+					var body = new URLSearchParams();
+					body.set('action', 'icod_webhook_test');
+					body.set('nonce', nonce);
+					fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', { method: 'POST', credentials: 'same-origin', body: body })
+						.then(function (r) { return r.json(); })
+						.then(function (j) {
+							var ok = j && j.success && j.data && j.data.ok;
+							if (out) {
+								out.textContent = (j && j.data && j.data.message) ? j.data.message : (ok ? 'OK' : 'échec');
+								out.style.color = ok ? '#0e7a4f' : '#b32d2e';
+							}
+							b.disabled = false;
+						})
+						.catch(function () { if (out) { out.textContent = 'erreur réseau'; } b.disabled = false; });
+				});
+			})();
+			</script>
 			<div class="icod-toggles">
 				<label class="icod-toggle">
 					<input type="checkbox" name="icod[webhook_on_status]" value="1" <?php checked( (int) Settings::get( 'webhook_on_status' ), 1 ); ?> />

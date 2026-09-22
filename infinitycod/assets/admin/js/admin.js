@@ -698,6 +698,127 @@
 			}).catch(function () { btn.disabled = false; toast(icodAdmin.i18n.error, 'error'); });
 		});
 	});
+
+	/* ===== Colis en masse : sélection + création séquentielle ===== */
+	var checkAllShip = document.getElementById('icod-ship-check-all');
+	var bulkShipBtn = document.getElementById('icod-bulk-ship');
+	if (checkAllShip) {
+		checkAllShip.addEventListener('change', function () {
+			document.querySelectorAll('.icod-ship-check').forEach(function (cb) { cb.checked = checkAllShip.checked; });
+		});
+	}
+	if (bulkShipBtn) {
+		bulkShipBtn.addEventListener('click', function () {
+			var checked = Array.prototype.slice.call(document.querySelectorAll('.icod-ship-check:checked'));
+			if (!checked.length) { toast('Sélectionnez au moins une commande', 'error'); return; }
+			bulkShipBtn.disabled = true;
+			var statusEl = document.getElementById('icod-bulk-ship-status');
+			var done = 0, ok = 0, fail = 0;
+			var firstSelect = document.querySelector('.icod-ship-carrier');
+			var carrier = firstSelect ? firstSelect.value : '';
+
+			function next() {
+				if (done >= checked.length) {
+					bulkShipBtn.disabled = false;
+					if (statusEl) { statusEl.textContent = '✅ ' + ok + ' colis créés' + (fail ? ' · ❌ ' + fail + ' échec(s)' : ''); }
+					if (ok) { window.setTimeout(function () { window.location.reload(); }, 1200); }
+					return;
+				}
+				var cb = checked[done];
+				var id = cb.getAttribute('data-id');
+				done++;
+				if (statusEl) { statusEl.textContent = '⏳ ' + done + '/' + checked.length + '…'; }
+				post('icod_parcel_create', { id: id, carrier: carrier }).then(function (json) {
+					if (json && json.success) { ok++; cb.checked = false; } else { fail++; }
+					next();
+				}).catch(function () { fail++; next(); });
+			}
+			next();
+		});
+	}
+
+	/* ===== Colis expédiés : filtres + bordereau groupé ===== */
+	var parcelSearch = document.getElementById('icod-parcel-search');
+	var parcelCarrierFilter = document.getElementById('icod-parcel-filter-carrier');
+	function applyParcelFilters() {
+		var q = parcelSearch ? parcelSearch.value.toLowerCase() : '';
+		var c = parcelCarrierFilter ? parcelCarrierFilter.value : '';
+		document.querySelectorAll('.icod-parcels-table tbody tr').forEach(function (tr) {
+			var matchC = !c || tr.getAttribute('data-carrier') === c;
+			var matchQ = !q || (tr.getAttribute('data-search') || '').toLowerCase().indexOf(q) !== -1;
+			tr.style.display = (matchC && matchQ) ? '' : 'none';
+		});
+	}
+	if (parcelSearch) { parcelSearch.addEventListener('input', applyParcelFilters); }
+	if (parcelCarrierFilter) { parcelCarrierFilter.addEventListener('change', applyParcelFilters); }
+
+	var checkAllParcels = document.getElementById('icod-parcel-check-all');
+	if (checkAllParcels) {
+		checkAllParcels.addEventListener('change', function () {
+			document.querySelectorAll('.icod-parcel-check').forEach(function (cb) { cb.checked = checkAllParcels.checked; });
+		});
+	}
+	var labelsBulkBtn = document.getElementById('icod-parcel-labels-bulk');
+	if (labelsBulkBtn) {
+		labelsBulkBtn.addEventListener('click', function () {
+			var checked = Array.prototype.slice.call(document.querySelectorAll('.icod-parcel-check:checked'));
+			if (!checked.length) { toast('Sélectionnez au moins un colis', 'error'); return; }
+			// Groupe par transporteur : les API multi-trackings (Ecotrack, Yalidine)
+			// fusionnent naturellement, les autres passent en requêtes séparées.
+			var byCarrier = {};
+			checked.forEach(function (cb) {
+				var c = cb.getAttribute('data-carrier') || 'unknown';
+				(byCarrier[c] = byCarrier[c] || []).push(cb.getAttribute('data-tracking'));
+			});
+			labelsBulkBtn.disabled = true;
+			var statusEl = document.getElementById('icod-parcel-labels-status');
+			if (statusEl) { statusEl.textContent = '⏳ préparation…'; }
+			var results = [];
+			var carriers = Object.keys(byCarrier);
+			var opened = false;
+			function openTarget(res) {
+				if (res.url) { window.open(res.url, '_blank'); opened = true; }
+				else if (res.pdf) {
+					var blob = new Blob([Uint8Array.from(atob(res.pdf), function (c) { return c.charCodeAt(0); })], { type: 'application/pdf' });
+					window.open(URL.createObjectURL(blob), '_blank');
+					opened = true;
+				}
+			}
+			carriers.forEach(function (c) {
+				post('icod_parcel_labels_bulk', { carrier: c, trackings: byCarrier[c].join(',') }).then(function (json) {
+					var labels = (json && json.data && json.data.labels) || [];
+					labels.forEach(function (l) {
+						results.push(l);
+						if (!opened && l.ok) { openTarget(l); }
+					});
+					if (statusEl) { statusEl.textContent = '✅ ' + labels.filter(function (l) { return l.ok; }).length + ' étiquette(s)'; }
+					// Liste cliquable pour les étiquettes non ouvertes automatiquement.
+					if (carrierDataResult || parcelResult) {
+						var target = parcelResult || carrierDataResult;
+						var links = labels.filter(function (l) { return l.ok; }).map(function (l) {
+							return '<li><code>' + escapeHtml(l.tracking) + '</code> — <a href="#" data-pdf-b64="' + (l.pdf || '') + '" data-url="' + escapeHtml(l.url || '') + '" class="icod-open-label">ouvrir l&#39;étiquette</a></li>';
+						}).join('');
+						if (links) {
+							target.insertAdjacentHTML('beforeend', '<h3 style="margin-top:12px">🏷️ Étiquettes prêtes</h3><ul class="icod-parcel-events">' + links + '</ul>');
+							target.querySelectorAll('.icod-open-label').forEach(function (a) {
+								a.addEventListener('click', function (e) {
+									e.preventDefault();
+									var url = a.getAttribute('data-url');
+									var b64 = a.getAttribute('data-pdf-b64');
+									if (url) { window.open(url, '_blank'); }
+									else if (b64) {
+										var blob = new Blob([Uint8Array.from(atob(b64), function (c) { return c.charCodeAt(0); })], { type: 'application/pdf' });
+										window.open(URL.createObjectURL(blob), '_blank');
+									}
+								});
+							});
+						}
+					}
+					labelsBulkBtn.disabled = false;
+				}).catch(function () { labelsBulkBtn.disabled = false; toast(icodAdmin.i18n.error, 'error'); });
+			});
+		});
+	}
 })();
 
 /* ===== Anti double-soumission : boutons principaux désactivés au POST ===== */

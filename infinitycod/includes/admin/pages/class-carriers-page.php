@@ -195,10 +195,16 @@ class CarriersPage {
 			<?php endif; ?>
 
 			<?php if ( $rows ) : ?>
+				<p style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+					<button type="button" class="button" id="icod-bulk-ship-all"><?php esc_html_e( '☑️ Tout sélectionner', 'infinitycod' ); ?></button>
+					<button type="button" class="button button-primary" id="icod-bulk-ship"><?php esc_html_e( '🚀 Créer les colis sélectionnés', 'infinitycod' ); ?></button>
+					<span id="icod-bulk-ship-status" class="description" aria-live="polite"></span>
+				</p>
 				<div class="icod-table-scroll">
 					<table class="widefat striped icod-table icod-ship-table">
 						<thead>
 							<tr>
+								<th style="width:34px"><input type="checkbox" id="icod-ship-check-all" /></th>
 								<th><?php esc_html_e( 'Client', 'infinitycod' ); ?></th>
 								<th><?php esc_html_e( 'Destination', 'infinitycod' ); ?></th>
 								<th><?php esc_html_e( 'Produit', 'infinitycod' ); ?></th>
@@ -209,6 +215,7 @@ class CarriersPage {
 						<tbody>
 							<?php foreach ( $rows as $row ) : ?>
 								<tr>
+									<td><input type="checkbox" class="icod-ship-check" data-id="<?php echo esc_attr( $row['id'] ); ?>" /></td>
 									<td><strong><?php echo esc_html( $row['customer_name'] ); ?></strong><span class="icod-sub"><?php echo esc_html( $row['phone'] ); ?></span></td>
 									<td>
 										<?php echo esc_html( $row['wilaya_name'] ); ?>
@@ -251,10 +258,24 @@ class CarriersPage {
 			<?php if ( ! $shipped ) : ?>
 				<p class="icod-hint"><?php esc_html_e( 'Aucun colis expédié pour le moment.', 'infinitycod' ); ?></p>
 			<?php else : ?>
+				<p style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+					<input type="search" id="icod-parcel-search" placeholder="<?php esc_attr_e( 'Rechercher client / téléphone / suivi…', 'infinitycod' ); ?>" style="min-width:220px" />
+					<select id="icod-parcel-filter-carrier">
+						<option value=""><?php esc_html_e( 'Tous les transporteurs', 'infinitycod' ); ?></option>
+						<?php foreach ( array_unique( wp_list_pluck( (array) $shipped, 'carrier' ) ) as $c ) : ?>
+							<?php if ( '' !== (string) $c ) : ?>
+								<option value="<?php echo esc_attr( $c ); ?>"><?php echo esc_html( ucfirst( str_replace( '_', ' ', (string) $c ) ) ); ?></option>
+							<?php endif; ?>
+						<?php endforeach; ?>
+					</select>
+					<button type="button" class="button button-primary" id="icod-parcel-labels-bulk"><?php esc_html_e( '🏷️ Bordereau groupé (sélection)', 'infinitycod' ); ?></button>
+					<span id="icod-parcel-labels-status" class="description" aria-live="polite"></span>
+				</p>
 				<div class="icod-table-scroll">
 					<table class="widefat striped icod-table icod-parcels-table">
 						<thead>
 							<tr>
+								<th style="width:34px"><input type="checkbox" id="icod-parcel-check-all" /></th>
 								<th><?php esc_html_e( 'Client', 'infinitycod' ); ?></th>
 								<th><?php esc_html_e( 'Suivi', 'infinitycod' ); ?></th>
 								<th><?php esc_html_e( 'Transporteur', 'infinitycod' ); ?></th>
@@ -263,7 +284,8 @@ class CarriersPage {
 						</thead>
 						<tbody>
 							<?php foreach ( (array) $shipped as $row ) : ?>
-								<tr data-tracking="<?php echo esc_attr( $row['tracking'] ); ?>" data-carrier="<?php echo esc_attr( $row['carrier'] ); ?>" data-id="<?php echo esc_attr( $row['id'] ); ?>">
+								<tr data-tracking="<?php echo esc_attr( $row['tracking'] ); ?>" data-carrier="<?php echo esc_attr( $row['carrier'] ); ?>" data-id="<?php echo esc_attr( $row['id'] ); ?>" data-search="<?php echo esc_attr( $row['customer_name'] . ' ' . $row['phone'] . ' ' . $row['tracking'] ); ?>">
+									<td><input type="checkbox" class="icod-parcel-check" data-tracking="<?php echo esc_attr( $row['tracking'] ); ?>" data-carrier="<?php echo esc_attr( $row['carrier'] ); ?>" /></td>
 									<td>
 										<strong><?php echo esc_html( $row['customer_name'] ); ?></strong>
 										<span class="icod-sub"><?php echo esc_html( $row['phone'] ); ?> · <?php echo esc_html( $row['wilaya_name'] ); ?></span>

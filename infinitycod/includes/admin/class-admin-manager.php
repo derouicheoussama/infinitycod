@@ -82,6 +82,7 @@ class AdminManager {
 		add_action( 'wp_ajax_icod_parcel_update', array( $this, 'handle_parcel_update' ) );
 		add_action( 'wp_ajax_icod_parcel_delete', array( $this, 'handle_parcel_delete' ) );
 		add_action( 'wp_ajax_icod_parcel_label', array( $this, 'handle_parcel_label' ) );
+		add_action( 'wp_ajax_icod_parcel_labels_bulk', array( $this, 'handle_parcel_labels_bulk' ) );
 		add_action( 'wp_ajax_icod_parcel_note', array( $this, 'handle_parcel_note' ) );
 		add_action( 'wp_ajax_icod_parcel_info', array( $this, 'handle_parcel_info' ) );
 		add_action( 'wp_ajax_icod_parcel_track', array( $this, 'handle_parcel_track' ) );
@@ -1750,6 +1751,36 @@ class AdminManager {
 		}
 		$result = $ctx['driver']->fetch_status( $ctx['tracking'] );
 		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Bordereaux groupés (AJAX) : une étiquette par colis, groupée par
+	 * transporteur. Les API Ecotrack/Yalidine acceptent plusieurs trackings
+	 * d'un coup — on en profite pour les transporteurs qui le supportent.
+	 *
+	 * @return void
+	 */
+	public function handle_parcel_labels_bulk() {
+		check_ajax_referer( 'icod_admin', 'nonce' );
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'forbidden' ) );
+		}
+
+		$carrier   = isset( $_POST['carrier'] ) ? sanitize_key( wp_unslash( $_POST['carrier'] ) ) : '';
+		$trackings = isset( $_POST['trackings'] ) ? array_filter( array_map( 'sanitize_text_field', explode( ',', wp_unslash( $_POST['trackings'] ) ) ) ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- each item sanitized above.
+		$trackings = array_values( array_unique( array_slice( $trackings, 0, 50 ) ) );
+
+		$manager = infinitycod() ? infinitycod()->module( 'carriers' ) : null;
+		$driver  = ( $manager && '' !== $carrier ) ? $manager->factory( $carrier ) : null;
+		if ( ! $driver || ! $trackings ) {
+			wp_send_json_error( array( 'message' => __( 'Transporteur ou colis manquant.', 'infinitycod' ) ) );
+		}
+
+		$labels = array();
+		foreach ( $trackings as $t ) {
+			$labels[] = array_merge( array( 'tracking' => $t ), $driver->get_label( $t ) );
+		}
+		wp_send_json_success( array( 'labels' => $labels ) );
 	}
 
 	/**

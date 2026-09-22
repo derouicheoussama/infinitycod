@@ -1,5 +1,25 @@
 # Changelog
 
+## 5.45.0 — 2026-09-21
+
+- **Bloc Gutenberg du formulaire COD** : « InfinityCod — Formulaire COD » insérable dans l'éditeur de blocs, rendu serveur (le VRAI formulaire), réglages ID produit et titre personnalisés.
+- **Colis en masse** : sur Transporteurs → Créer des colis, sélection multiple (tout sélectionner) et création séquentielle des colis avec compteur de progression.
+- **Bordereau groupé** : dans Colis expédiés, sélection multiple → une étiquette par colis groupée par transporteur (les API multi-trackings fusionnent naturellement).
+- **Filtres Colis expédiés** : recherche client/téléphone/suivi + filtre par transporteur.
+- **Test Webhook** : bouton « Envoyer un test signé » (HMAC-SHA256) dans Réglages → Avancé pour valider Google Sheets/Zapier/CRM.
+- **Export comptable enrichi** : filtre par transporteur + nombre de retours dans le récapitulatif.
+- Correctif : les boutons test WhatsApp/Chargily n'avaient plus leurs handlers (perdus lors d'une restauration git) — rétablis et vérifiés.
+
+## 5.44.0 — 2026-09-21
+
+- **API transporteurs complète** — pour tous les transporteurs (Yalidine, ZR Express, Maystro, Noest, E-COM, DHD, réseau Ecotrack personnalisé) : modification d'un colis avant expédition, suppression avant expédition, étiquette/bordereau, remarque, fiche colis complète, suivi détaillé événement par événement, wilayas actives et tarifs de livraison récupérés en direct. Interface : nouvelle carte « Colis expédiés » avec actions par colis + boutons « Wilayas / Tarifs » par transporteur. Chaque action ne s'affiche que si l'API du transporteur la supporte (rejet propre sinon).
+
+## 5.43.3 — 2026-09-20
+
+- **Bouton test WhatsApp** : vérification de la passerelle en un clic depuis Réglages → WhatsApp (message de test envoyé au numéro marchand, verdict détaillé).
+- **Bouton test Chargily** : « Tester la connexion Chargily » valide la clé secrète en direct dans l'onglet Paiement.
+- **Démarrage guidé** : carte d'onboarding sur le tableau de bord — 4 étapes (wilayas/tarifs, transporteur, WhatsApp, formulaire) avec coche verte à chaque étape complétée.
+
 ## 5.44.0 — 2026-09-21
 
 - **API transporteurs complète** — pour tous les transporteurs (Yalidine, ZR Express, Maystro, Noest, E-COM, DHD, réseau Ecotrack personnalisé) : modification d'un colis avant expédition, suppression avant expédition, étiquette/bordereau, remarque, fiche colis complète, suivi détaillé événement par événement, wilayas actives et tarifs de livraison récupérés en direct. Interface : nouvelle carte « Colis expédiés » avec actions par colis + boutons « Wilayas / Tarifs » par transporteur. Chaque action ne s'affiche que si l'API du transporteur la supporte (rejet propre sinon).
@@ -123,7 +143,7 @@
 
 - **Correctif aperçu en direct** : la requête AJAX de l'aperçu est ancrée sur l'origine courante du navigateur (et non l'URL du site stockée en base) — l'aperçu se met à jour instantanément même en cas de différence www/https/domaine. Les styles de l'aperçu utilisent un chemin relatif.
 
-## 5.39.2 — 2026-09-17
+## 5.39.1 — 2026-09-17
 
 - **Discrétion totale** : la carte technique « Mises à jour via GitHub » disparaît de Réglages → Avancé, remplacée par un simple statut avec lien vers l'onglet Mises à jour. Les miroirs, dépôts et token restent gérés automatiquement par le plugin (surcharge possible en constantes pour les développeurs).
 

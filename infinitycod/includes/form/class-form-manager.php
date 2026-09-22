@@ -31,6 +31,11 @@ class FormManager {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'assets' ) );
 
+		// Bloc Gutenberg (rendu serveur = même moteur que le shortcode).
+		if ( class_exists( 'InfinityCod\Form\Block' ) ) {
+			( new Block() )->register();
+		}
+
 		// Aperçu en direct fidèle : quand l'URL porte un jeton de
 		// prévisualisation valide, le brouillon d'admin (transient, 10 min)
 		// remplace les réglages le temps de ce rendu — le marchand voit le

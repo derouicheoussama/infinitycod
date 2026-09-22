@@ -203,16 +203,21 @@ class AdminExtras {
 		if ( ! preg_match( '/^\d{4}-\d{2}$/', $month ) ) {
 			$month = gmdate( 'Y-m', strtotime( '-1 month' ) );
 		}
+		// Filtre optionnel par transporteur.
+		$carrier_filter = isset( $_GET['carrier'] ) ? sanitize_key( wp_unslash( $_GET['carrier'] ) ) : '';
 		$start = $month . '-01 00:00:00';
 		$end   = gmdate( 'Y-m-t 23:59:59', strtotime( $start ) );
 
 		global $wpdb;
 		$table = Schema::table( 'orders' );
-		$rows  = $wpdb->get_results( $wpdb->prepare(
-			"SELECT created_at, wc_order_id, customer_name, phone, wilaya_code, commune, carrier, status, total, shipping FROM {$table} WHERE created_at >= %s AND created_at <= %s ORDER BY created_at ASC", // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
-			$start,
-			$end
-		), ARRAY_A );
+		$sql   = "SELECT created_at, wc_order_id, customer_name, phone, wilaya_code, commune, carrier, status, total, shipping FROM {$table} WHERE created_at >= %s AND created_at <= %s";
+		$args  = array( $start, $end );
+		if ( '' !== $carrier_filter ) {
+			$sql   .= ' AND carrier = %s';
+			$args[] = $carrier_filter;
+		}
+		$sql .= ' ORDER BY created_at ASC';
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $args ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
 
 		$status_labels = array(
 			'pending'   => esc_html__('En attente', 'infinitycod' ),
@@ -244,6 +249,7 @@ class AdminExtras {
 		) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sortie CSV téléchargée ; libellés i18n échappés.
 
 		$totals          = array( 'total' => 0.0, 'shipping' => 0.0, 'delivered' => 0.0 );
+		$returned_count  = 0;
 		$currency_suffix = ' ' . Settings::currency_label();
 		foreach ( (array) $rows as $row ) {
 			$status = isset( $status_labels[ $row['status'] ] ) ? $status_labels[ $row['status'] ] : (string) $row['status'];
@@ -256,12 +262,16 @@ class AdminExtras {
 			if ( 'delivered' === $row['status'] ) {
 				$totals['delivered'] += $total;
 			}
+			if ( 'returned' === $row['status'] ) {
+				$returned_count++;
+			}
 		}
 		echo $this->csv_line( array() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- ligne vide de séparation.
 		$summary = array(
 			esc_html__('TOTAL CA enregistré', 'infinitycod' ) . ' : ' . number_format( $totals['total'], 2, ',', '' ) . $currency_suffix,
 			esc_html__('Frais de livraison cumulés', 'infinitycod' ) . ' : ' . number_format( $totals['shipping'], 2, ',', '' ) . $currency_suffix,
 			esc_html__('TOTAL CA livré', 'infinitycod' ) . ' : ' . number_format( $totals['delivered'], 2, ',', '' ) . $currency_suffix,
+			__( 'Retours', 'infinitycod' ) . ' : ' . $returned_count . ' commande(s)',
 		);
 		echo $this->csv_line( $summary ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sortie CSV téléchargée ; libellés i18n + number_format().
 		exit;
