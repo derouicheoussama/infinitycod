@@ -39,7 +39,7 @@ class Webpush {
 	 */
 	public static function vapid_keys() {
 		$keys = get_option( self::OPTION_KEYS, array() );
-		if ( is_array( $keys ) && ! empty( $keys['public_raw'] ) && ! empty( $keys['private_pem'] ) ) {
+		if ( is_array( $keys ) && ! empty( $keys['public_b64u'] ) && ! empty( $keys['private_pem'] ) ) {
 			return $keys;
 		}
 		return array();
@@ -63,8 +63,9 @@ class Webpush {
 		}
 
 		$raw_public = "\x04" . $details['ec']['x'] . $details['ec']['y']; // Point non compressé (65 octets).
+		// NB : stocker des octets bruts casse certains stockages SQLite —
+		// tout est conservé en base64 (décodé au moment de l'envoi).
 		update_option( self::OPTION_KEYS, array(
-			'public_raw'  => base64_encode( $raw_public ), // Réutilisation interne (jamais affichée).
 			'public_b64u' => self::b64url_encode( $raw_public ), // Envoyée au navigateur (applicationServerKey).
 			'public_pem'  => $details['key'],
 			'private_pem' => $export,

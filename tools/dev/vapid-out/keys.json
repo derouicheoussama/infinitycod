@@ -1,0 +1,9 @@
+{
+  "pubB64u": "BCEgOS6cZILzKqw_s3BDk7yJcvL56YDy1bSt9d6AuuKugtNqa6ZRlt5yMSxOsJmvVrbNeemWmAPgWnMOHiWDRts",
+  "pubRawB64": "BCEgOS6cZILzKqw/s3BDk7yJcvL56YDy1bSt9d6AuuKugtNqa6ZRlt5yMSxOsJmvVrbNeemWmAPgWnMOHiWDRts=",
+  "privPemPhp": "-----BEGIN PRIVATE KEY-----\\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg3m2/t81P7tqN4Swr\\nnh2dQgZvtLsaLJGTQOQtHa9ZBUehRANCAAQhIDkunGSC8yqsP7NwQ5O8iXLy+emA\\n8tW0rfXegLriroLTamumUZbecjEsTrCZr1a2zXnplpgD4FpzDh4lg0bb\\n-----END PRIVATE KEY-----\\n",
+  "sub": {
+    "p256dh": "BC79eES-jjJoBtxcjwhJP3jkTqdYd_kY-BKzGm7NUG3SHNCK8j-sRbvREjtyDwZbgCItPdBp1yJwMi1RJuqBuZ4",
+    "auth": "vmIKOI56nr1Z6wYJ00fOdg"
+  }
+}

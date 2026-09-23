@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.48.1 — 2026-09-23
+
+- **Correctif stockage Web Push** : les clés VAPID sont stockées entièrement en base64 (le champ binaire binaisait certains stockages SQLite).
+
 ## 5.48.0 — 2026-09-23
 
 - **🔔 Web Push (dernière technologie, zéro service externe)** : recevez chaque nouvelle commande comme une notification sur votre ordinateur ou téléphone, même écran verrouillé. Clés VAPID générées sur votre site, chiffrement aes128gcm (RFC 8291) et signature ES256 (RFC 8292) en PHP pur via OpenSSL — aucun SDK, aucun abonnement. Boutons « Générer les clés », « Activer sur cet appareil », « Envoyer un test » dans Réglages → Avancé.
