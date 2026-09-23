@@ -213,14 +213,16 @@ class Webpush {
 			return array( 'chiffrement impossible', 0 );
 		}
 
-		$record = $salt . pack( 'N', 4096 ) . "\x00" . $ciph . $tag;
+		// En-tête aes128gcm : sel ‖ rs(4096) ‖ idlen=65 ‖ clé publique éphémère ‖ ciphertext ‖ tag.
+		// La clé éphémère DOIT voyager dans l'en-tête (RFC 8291 §4) sinon le service push ne peut pas déchiffrer.
+		$record = $salt . pack( 'N', 4096 ) . "\x41" . $eph_pub_raw . $ciph . $tag;
 
 		$jwt  = self::vapid_jwt( $vapid, parse_url( $sub['endpoint'], PHP_URL_HOST ) );
 		$headers = array(
 			'Content-Encoding'  => 'aes128gcm',
 			'TTL'               => (string) 3600,
 			'Urgency'           => 'high',
-			'Authorization'     => 'vapid t=' . $jwt . ', k=' . self::b64url_encode( base64_decode( $vapid['public_b64u'], true ) ),
+			'Authorization'     => 'vapid t=' . $jwt . ', k=' . self::b64url_encode( (string) self::b64url_decode( $vapid['public_b64u'] ) ), // public_b64u est en base64url : base64_decode standard renverrait false.
 			'Content-Type'      => 'application/octet-stream',
 		);
 

@@ -60,11 +60,13 @@ class Pwa {
 	 * @return void
 	 */
 	public function head_tags() {
-		$manifest = home_url( '/icod-manifest.json' );
+		// URLs en query-string : fonctionnent quel que soit le réglage de permaliens
+		// (les rewrites /icod-sw.js échouent en permaliens « simple » → SW jamais enregistré).
+		$manifest = home_url( '/?icod_pwa=manifest' );
 		echo '<link rel="manifest" href="' . esc_url( $manifest ) . '">' . "\n";
 		echo '<meta name="theme-color" content="#0e7a4f">' . "\n";
 		echo '<link rel="apple-touch-icon" href="' . esc_url( INFINITYCOD_URL . 'assets/icon-256x256.png' ) . '">' . "\n";
-		echo '<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("' . esc_js( home_url( '/icod-sw.js' ) ) . '").catch(function(){})}</script>' . "\n";
+		echo '<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("' . esc_js( home_url( '/?icod_pwa=sw' ) ) . '").catch(function(){})}</script>' . "\n";
 	}
 
 	/**
