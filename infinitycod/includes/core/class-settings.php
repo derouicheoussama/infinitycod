@@ -438,6 +438,16 @@ class Settings {
 		if ( defined( 'INFINITYCOD_LOCK_FORM' ) ) {
 			return (bool) constant( 'INFINITYCOD_LOCK_FORM' );
 		}
+
+		// Distribution commerciale : sans licence activée ni essai en cours,
+		// le formulaire de commande exige l'activation (clé signée de
+		// l'éditeur ou essai 7 jours). Le garde method_exists évite le blocage
+		// sur la build WordPress.org dont le stub de licence ne connaît pas
+		// cette API (distribution gratuite non verrouillée).
+		if ( class_exists( '\InfinityCod\License\LicenseManager' ) && method_exists( '\InfinityCod\License\LicenseManager', 'checkout_url' ) ) {
+			return ! \InfinityCod\License\LicenseManager::is_premium();
+		}
+
 		return (bool) self::get( 'license_lock_form', 0 );
 	}
 

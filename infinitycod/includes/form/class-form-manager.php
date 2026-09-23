@@ -522,14 +522,21 @@ class FormManager {
 	 * @return string HTML (vide si produit indisponible).
 	 */
 	public function render( $product_id, $custom_title = '', $custom_button = '' ) {
-		// Verrou licence : le formulaire est masqué tant qu'aucune licence
-		// n'est active (réglage « distribution commerciale », désactivé par
-		// défaut). L'administrateur voit une explication à la place.
+		// Verrou licence : sans licence activée ni essai en cours, les
+		// visiteurs voient une carte d'activation et l'administrateur un
+		// rappel avec lien direct vers l'activation.
 		if ( Settings::lock_form_enabled() && ! \InfinityCod\License\LicenseManager::is_premium() ) {
+			$accent   = esc_attr( Settings::get( 'accent_color', '#0e7a4f' ) );
+			$lic_url  = admin_url( 'admin.php?page=infinitycod-settings&tab=license' );
 			if ( current_user_can( 'manage_woocommerce' ) ) {
-				return '<div class="icod-form-locked-admin">' . esc_html__( '🔒 Le formulaire est masqué pour les visiteurs : « Verrouiller le formulaire sans licence » est actif (Réglages → Avancé). Activez votre licence dans Réglages → Licence pour le réafficher.', 'infinitycod' ) . '</div>';
+				return '<div class="icod-root" style="--icod-accent:' . $accent . '"><div class="icod-maintenance-card" style="max-width:520px;margin:24px auto;text-align:center">'
+					. '<h2 style="margin-top:0">🔒 ' . esc_html__( 'Activez InfinityCod pour recevoir des commandes', 'infinitycod' ) . '</h2>'
+					. '<p>' . esc_html__( 'Ce formulaire est verrouillé jusqu‘à l‘activation de votre licence (clé reçue par email après achat, ou essai gratuit 7 jours).', 'infinitycod' ) . '</p>'
+					. '<p><a class="button button-primary" href="' . esc_url( $lic_url ) . '">' . esc_html__( 'Activer ma licence', 'infinitycod' ) . '</a></p></div></div>';
 			}
-			return '';
+			return '<div class="icod-root" style="--icod-accent:' . $accent . '"><div class="icod-maintenance-card" style="max-width:520px;margin:24px auto;text-align:center">'
+				. '<h2 style="margin-top:0">🔒 ' . esc_html__( 'Commandes bientôt disponibles', 'infinitycod' ) . '</h2>'
+				. '<p>' . esc_html__( 'Merci de votre visite — la prise de commande rouvre dans quelques instants. Contactez-nous pour commander directement.', 'infinitycod' ) . '</p></div></div>';
 		}
 
 		// Mode maintenance : pause des commandes (les admins voient quand même l'état).

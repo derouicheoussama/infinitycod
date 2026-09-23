@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.47.0 — 2026-09-23
+
+- **Verrou à l'installation** : sans licence activée ni essai en cours, le formulaire de commande affiche une carte d'activation (lien direct « Activer ma licence » pour le marchand, message d'attente élégant pour les visiteurs). Se débloque avec une clé signée, l'essai 7 jours, ou l'achat Freemius.
+- **Clés de licence signées hors ligne (Ed25519)** : émises par l'éditeur avec l'outil `gen-license-key` (client, email, durée), vérifiables sans serveur — clé publique embarquée, expiration intégrée, aucun appel distant, compatible tous hébergeurs.
+- Test réel : le build commercial se verrouille à l'installation et se déverrouille avec une clé signée (états activé / expiré / désactivé testés).
+
 ## 5.46.1 — 2026-09-23
 
 - **Message d'achat client-friendly** : quand le checkout Freemius n'est pas encore configuré, la carte « Acheter Premium » propose de contacter l'éditeur (lien vers son site) au lieu d'afficher des instructions de configuration vendeur.

@@ -22,6 +22,11 @@ class LicenseManager {
 
 	const OPTION       = 'infinitycod_license';
 	const TRIAL_OPTION = 'infinitycod_trial';
+	/**
+	 * Préfixe des clés signées hors ligne (Ed25519, émises par l'éditeur) :
+	 * ICOD1.<payload base64url>.<signature base64url>.
+	 */
+	const KEY_PREFIX = 'ICOD1.';
 
 	const TRIAL_DAYS = 7;
 
@@ -107,6 +112,31 @@ class LicenseManager {
 
 		if ( '' === $key ) {
 			return array( 'ok' => false, 'message' => __( 'Veuillez saisir votre clé de licence.', 'infinitycod' ) );
+		}
+
+		// Clés signées Ed25519 hors ligne (ICOD1.…) : émises par l'éditeur,
+		// vérifiables SANS serveur — la clé publique est embarquée dans le
+		// plugin. Couvre les clés de test du développeur et les ventes
+		// traitées manuellement ou via un webhook de paiement.
+		if ( 0 === strpos( $key, self::KEY_PREFIX ) ) {
+			$data = self::verify_offline_key( $key );
+			if ( null === $data ) {
+				return array( 'ok' => false, 'message' => __( 'Clé signée invalide ou expirée.', 'infinitycod' ) );
+			}
+			update_option( self::OPTION, array(
+				'key_hash'   => hash( 'sha256', $key ),
+				'status'     => 'ACTIVE',
+				'client'     => (string) ( isset( $data['client'] ) ? $data['client'] : '' ),
+				'email'      => (string) ( isset( $data['email'] ) ? $data['email'] : '' ),
+				'expires_at' => (string) ( isset( $data['expires'] ) ? $data['expires'] : '' ),
+				'offline'    => true,
+				'checked_at' => current_time( 'mysql' ),
+			), true );
+			return array(
+				'ok'      => true,
+				/* translators: 1 : type de licence, 2 : date d'expiration. */
+				'message' => sprintf( __( 'Licence %1$s activée — valable jusqu‘au %2$s.', 'infinitycod' ), (string) ( isset( $data['type'] ) ? $data['type'] : 'pro' ), (string) ( isset( $data['expires'] ) ? $data['expires'] : '' ) ),
+			);
 		}
 
 		// Clé de développement : uniquement si INFINITYCOD_DEV_MODE est défini
@@ -208,6 +238,11 @@ class LicenseManager {
 			return;
 		}
 
+		// Licence hors ligne signée : rien à synchroniser avec un serveur.
+		if ( ! empty( $stored['offline'] ) ) {
+			return;
+		}
+
 		$response = $this->remote_status( 'heartbeat', $stored['key_hash'] );
 
 		if ( is_wp_error( $response ) ) {
@@ -235,6 +270,20 @@ class LicenseManager {
 
 		if ( empty( $stored['key_hash'] ) ) {
 			return array( 'ok' => false, 'message' => __( 'Aucune clé enregistrée : activez d’abord votre licence.', 'infinitycod' ) );
+		}
+
+		// Licence hors ligne signée : validité recalculée localement.
+		if ( ! empty( $stored['offline'] ) ) {
+			$stored['checked_at'] = current_time( 'mysql' );
+			update_option( self::OPTION, $stored, true );
+			if ( ! empty( $stored['expires_at'] ) && $stored['expires_at'] < gmdate( 'Y-m-d' ) ) {
+				return array( 'ok' => false, 'message' => __( 'Licence hors ligne expirée — demandez une nouvelle clé à l‘éditeur.', 'infinitycod' ) );
+			}
+			return array(
+				'ok'      => true,
+				/* translators: %s : date d'expiration. */
+				'message' => sprintf( __( 'Licence hors ligne valide jusqu‘au %s (signature vérifiée localement).', 'infinitycod' ), (string) $stored['expires_at'] ),
+			);
 		}
 
 		$response = $this->remote_status( 'heartbeat', $stored['key_hash'] );
@@ -329,7 +378,98 @@ class LicenseManager {
 		}
 
 		$stored = self::stored();
-		return ! empty( $stored['key_hash'] ) && in_array( isset( $stored['status'] ) ? $stored['status'] : '', array( 'ACTIVE', 'UNKNOWN' ), true );
+		if ( empty( $stored['key_hash'] ) || ! in_array( isset( $stored['status'] ) ? $stored['status'] : '', array( 'ACTIVE', 'UNKNOWN' ), true ) ) {
+			return false;
+		}
+
+		// Licence hors ligne signée : expire localement, sans serveur.
+		if ( ! empty( $stored['offline'] ) && ! empty( $stored['expires_at'] ) && $stored['expires_at'] < gmdate( 'Y-m-d' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Vérifie une clé signée Ed25519 hors ligne (format ICOD1.…).
+	 *
+	 * @param string $key Clé complète.
+	 * @return array|null Données du payload (client, email, expires, type) ou null.
+	 */
+	public static function verify_offline_key( $key ) {
+		$key = trim( (string) $key );
+		if ( 0 !== strpos( $key, self::KEY_PREFIX ) ) {
+			return null;
+		}
+
+		$parts = explode( '.', substr( $key, strlen( self::KEY_PREFIX ) ) );
+		if ( 2 !== count( $parts ) ) {
+			return null;
+		}
+
+		$payload = self::b64url_decode( $parts[0] );
+		$sig     = self::b64url_decode( $parts[1] );
+		// Clé publique Ed25519 : celle de la classe Updater (embarquée dans
+		// le plugin et identique à celle des manifests signés). Absente de la
+		// build WordPress.org (stub) → les clés hors ligne n'y sont pas
+		// supportées, volontairement.
+		$pk = ( class_exists( '\InfinityCod\License\Updater' ) && defined( '\InfinityCod\License\Updater::SIGNING_PUBLIC_KEY' ) )
+			? base64_decode( \InfinityCod\License\Updater::SIGNING_PUBLIC_KEY, true )
+			: false;
+		if ( false === $payload || false === $sig || false === $pk ) {
+			return null;
+		}
+		if ( ! self::ed25519_verify( $payload, $sig, $pk ) ) {
+			return null;
+		}
+
+		$data = json_decode( $payload, true );
+		if ( ! is_array( $data ) || empty( $data['expires'] ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $data['expires'] ) ) {
+			return null;
+		}
+		if ( (string) $data['expires'] < gmdate( 'Y-m-d' ) ) {
+			return null; // Expirée.
+		}
+		return $data;
+	}
+
+	/**
+	 * Vérification Ed25519 : extension sodium, repli sodium_compat de WordPress.
+	 *
+	 * @param string $msg Message signé.
+	 * @param string $sig Signature détachée (octets).
+	 * @param string $pk  Clé publique (octets).
+	 * @return bool
+	 */
+	private static function ed25519_verify( $msg, $sig, $pk ) {
+		if ( function_exists( 'sodium_crypto_sign_detached_verify' ) ) {
+			try {
+				return sodium_crypto_sign_detached_verify( $msg, $sig, $pk );
+			} catch ( \Throwable $e ) {
+				return false;
+			}
+		}
+		if ( ! class_exists( 'ParagonIE_Sodium_Compat' ) && file_exists( ABSPATH . WPINC . '/sodium_compat/autoload.php' ) ) {
+			require_once ABSPATH . WPINC . '/sodium_compat/autoload.php';
+		}
+		if ( class_exists( 'ParagonIE_Sodium_Compat' ) ) {
+			try {
+				return \ParagonIE_Sodium_Compat::crypto_sign_verify_detached( $sig, $msg, $pk );
+			} catch ( \Throwable $e ) {
+				return false;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Décode du base64-url (tolérant au padding absent).
+	 *
+	 * @param string $s Chaîne base64url.
+	 * @return string|false
+	 */
+	private static function b64url_decode( $s ) {
+		return base64_decode( strtr( rtrim( (string) $s, '=' ), '-_', '+/' ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- décodage de notre propre format signé.
 	}
 
 	/**
