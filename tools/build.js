@@ -91,7 +91,7 @@ if (WPORG || CODECANYON) {
 console.log(`Plugin : ${entries.length} fichiers, ${totalKo.toFixed(0)} Ko${WPORG ? ' (wporg)' : ''}`);
 
 // Validation pré-build : fichiers interdits dans un zip commercial.
-const forbidden = [/\.git\//, /\.github\//, /node_modules\//, /(^|\/)tests?\//, /\.env/, /\.tools\//];
+const forbidden = [/\.git\//, /\.github\//, /node_modules\//, /(^|\/)tests?\//, /\.env/, /\.tools\//, /(^|\/)dev\/(vapid-out|seed)/];
 for (const e of entries) {
   for (const re of forbidden) {
     if (re.test(e.name)) {
