@@ -631,9 +631,9 @@ class Routes {
 		}
 
 		// 5. Notification Web Push au marchand (si activée et appareils abonnés).
-		if ( class_exists( '\InfinityCod\Core\WebPush' ) ) {
+		if ( class_exists( '\InfinityCod\Core\Webpush' ) ) {
 			$total_display = number_format_i18n( (float) ( isset( $result['total'] ) ? $result['total'] : 0 ), 0 ) . ' ' . Settings::currency_label();
-			\InfinityCod\Core\WebPush::notify_all(
+			\InfinityCod\Core\Webpush::notify_all(
 				/* translators: %s : nom du client. */
 				sprintf( __( '🛒 Nouvelle commande — %s', 'infinitycod' ), $name ),
 				/* translators: 1 : commune, 2 : montant. */

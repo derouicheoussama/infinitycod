@@ -15,7 +15,7 @@ namespace InfinityCod\Core;
 
 defined( 'ABSPATH' ) || exit;
 
-class WebPush {
+class Webpush {
 
 	const OPTION_KEYS = 'icod_webpush_vapid';
 	const OPTION_SUBS = 'icod_webpush_subs';
