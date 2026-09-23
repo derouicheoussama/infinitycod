@@ -51,7 +51,10 @@ class Webpush {
 	 * @return bool
 	 */
 	public static function generate_vapid() {
-		$res = openssl_pkey_new( array( 'curve_name' => 'prime256v1' ) );
+		$res = openssl_pkey_new( array(
+			'curve_name'       => 'prime256v1',
+			'private_key_type' => OPENSSL_KEYTYPE_EC, // Sans cette option OpenSSL génère un RSA et ignore curve_name.
+		) );
 		if ( false === $res ) {
 			return false;
 		}
@@ -156,7 +159,10 @@ class Webpush {
 			return array( 'abonnement incomplet', 0 );
 		}
 
-		$eph_res = openssl_pkey_new( array( 'curve_name' => 'prime256v1' ) );
+		$eph_res = openssl_pkey_new( array(
+			'curve_name'       => 'prime256v1',
+			'private_key_type' => OPENSSL_KEYTYPE_EC,
+		) );
 		$eph_pub_raw = '';
 		if ( $eph_res ) {
 			$d = openssl_pkey_get_details( $eph_res );
