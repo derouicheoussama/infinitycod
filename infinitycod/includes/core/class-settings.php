@@ -194,6 +194,7 @@ class Settings {
 			'maintenance_message'   => '',   // Message personnalisé du mode maintenance.
 			'order_sound'           => 1,    // Bip + notification à chaque nouvelle commande COD.
 			'weekly_report'         => 0,    // Rapport hebdomadaire par email.
+		'webpush_enabled'       => 0,    // Notifications Web Push (VAPID) à chaque commande.
 
 			'show_reassurance'      => 1,
 			'reassurance_top'       => 0,    // Réassurance affichée AVANT les champs (style landing).

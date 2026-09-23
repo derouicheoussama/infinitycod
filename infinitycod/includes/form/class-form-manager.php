@@ -318,7 +318,7 @@ class FormManager {
 		return '<div class="icod-field' . self::req_class( $field ) . '">'
 			. '<label for="icod-phone-' . esc_attr( $pid ) . '">' . esc_html( $field['label'] ) . '</label>'
 			. '<div class="icod-input-wrap">' . self::field_icon( 'phone' )
-			. '<input type="tel" name="icod_phone" id="icod-phone-' . esc_attr( $pid ) . '" class="icod-input icod-input-phone" inputmode="tel" autocomplete="tel" placeholder="' . esc_attr( Settings::get( 'phone_placeholder' ) ) . '" data-icod-field="phone"' . self::req_attrs( $field ) . ' />'
+			. '<input type="tel" name="icod_phone" id="icod-phone-' . esc_attr( $pid ) . '" class="icod-input icod-input-phone" inputmode="tel" autocomplete="tel" enterkeyhint="next" placeholder="' . esc_attr( Settings::get( 'phone_placeholder' ) ) . '" data-icod-field="phone"' . self::req_attrs( $field ) . ' />'
 			. '</div></div>';
 	}
 

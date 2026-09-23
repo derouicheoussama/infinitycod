@@ -1931,6 +1931,91 @@ class SettingsPage {
 	private function tab_advanced() {
 		?>
 		<div class="icod-card">
+			<h2>🔔 <?php esc_html_e( 'Web Push — notifications même écran verrouillé', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Recevez chaque nouvelle commande comme une notification sur votre ordinateur ou votre téléphone (PWA installée), sans aucun service externe : les clés VAPID sont générées sur votre site.', 'infinitycod' ); ?></p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[webpush_enabled]" value="1" <?php checked( (int) Settings::get( 'webpush_enabled', 0 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Notifier chaque nouvelle commande par Web Push', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+			<p style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
+				<button type="button" class="button" id="icod-push-vapid">🔑 <?php esc_html_e( 'Générer les clés VAPID', 'infinitycod' ); ?></button>
+				<button type="button" class="button" id="icod-push-subscribe">🔔 <?php esc_html_e( 'Activer sur cet appareil', 'infinitycod' ); ?></button>
+				<button type="button" class="button" id="icod-push-test">📨 <?php esc_html_e( 'Envoyer un test', 'infinitycod' ); ?></button>
+				<span id="icod-push-result" class="description" style="margin-inline-start:8px" aria-live="polite"></span>
+			</p>
+			<script>
+			(function () {
+				var nonce = <?php echo wp_json_encode( wp_create_nonce( 'icod_admin' ) ); ?>;
+				var out = document.getElementById('icod-push-result');
+				function say(t, ok) { if (out) { out.textContent = t; out.style.color = ok ? '#0e7a4f' : '#b32d2e'; } }
+				function b64ToUint8(b64) {
+					var pad = '='.repeat((4 - (b64.length % 4)) % 4);
+					var b = window.atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+					return new Uint8Array(Array.prototype.map.call(b, function (c) { return c.charCodeAt(0); }));
+				}
+				function post(action, body) {
+					var f = new FormData();
+					f.append('action', action); f.append('nonce', nonce);
+					Object.keys(body || {}).forEach(function (k) { f.append(k, body[k]); });
+					return fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', { method: 'POST', credentials: 'same-origin', body: f }).then(function (r) { return r.json(); });
+				}
+				function ensureKeys() {
+					return post('icod_push_status', {}).then(function (j) {
+						if (j && j.success && j.data && j.data.keys) { return j.data.public_b64u; }
+						return post('icod_push_vapid_generate', {}).then(function (j2) {
+							return (j2 && j2.success && j2.data && j2.data.public_b64u) ? j2.data.public_b64u : null;
+						});
+					});
+				}
+				var vapidBtn = document.getElementById('icod-push-vapid');
+				if (vapidBtn) {
+					vapidBtn.addEventListener('click', function () {
+						vapidBtn.disabled = true; say('…', true);
+						post('icod_push_vapid_generate', {}).then(function (j) {
+							vapidBtn.disabled = false;
+							say((j && j.data && j.data.message) || (j && j.success ? 'OK' : 'échec'), j && j.success);
+						}).catch(function () { vapidBtn.disabled = false; say('erreur réseau', false); });
+					});
+				}
+				var subBtn = document.getElementById('icod-push-subscribe');
+				if (subBtn) {
+					subBtn.addEventListener('click', function () {
+						subBtn.disabled = true; say('…', true);
+						if (!('serviceWorker' in navigator) || !('PushManager' in window)) { say('❌ Navigateur sans support Web Push', false); subBtn.disabled = false; return; }
+						ensureKeys().then(function (pub) {
+							if (!pub) { throw new Error('Clés VAPID indisponibles'); }
+							return navigator.serviceWorker.ready.then(function (reg) {
+								return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToUint8(pub) });
+							});
+						}).then(function (subscription) {
+							return post('icod_push_subscribe', { subscription: JSON.stringify(subscription), device: navigator.userAgent.slice(0, 120) });
+						}).then(function (j) {
+							var ok = j && j.success;
+							say((j && j.data && j.data.message) || (ok ? 'OK' : 'échec'), ok);
+							subBtn.disabled = false;
+						}).catch(function (e) {
+							say(e && e.message ? e.message : 'erreur réseau', false);
+							subBtn.disabled = false;
+						});
+					});
+				}
+				var testBtn = document.getElementById('icod-push-test');
+				if (testBtn) {
+					testBtn.addEventListener('click', function () {
+						testBtn.disabled = true; say('…', true);
+						post('icod_push_test', {}).then(function (j) {
+							var ok = j && j.success && j.data && j.data.ok;
+							testBtn.disabled = false;
+							say((j && j.data && j.data.message) || (ok ? 'OK' : 'échec'), ok);
+						}).catch(function () { testBtn.disabled = false; say('erreur réseau', false); });
+					});
+				}
+			})();
+			</script>
+		</div>
+		<div class="icod-card">
 			<h2><?php esc_html_e( 'Notifications & rapports', 'infinitycod' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Soyez alerté à chaque commande COD et recevez un résumé hebdomadaire de votre boutique.', 'infinitycod' ); ?></p>
 			<label class="icod-toggle">
@@ -2494,6 +2579,7 @@ class SettingsPage {
 			'maintenance_message'  => array( 'tab' => 'form', 'type' => 'textarea' ),
 			'order_sound'          => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 			'weekly_report'        => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+			'webpush_enabled'      => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 			'show_reassurance'   => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'reassurance_top'    => array( 'tab' => 'form', 'type' => 'toggle' ),
 			'show_email'         => array( 'tab' => 'form', 'type' => 'toggle' ),

@@ -63,6 +63,7 @@ final class Plugin {
 		'seo'       => '\\InfinityCod\\Seo\\SeoManager',
 		'stats'     => '\\InfinityCod\\Stats\\Pnl',
 		'tracking'  => '\\InfinityCod\\Tracking\\PixelManager',
+		'webpush'   => '\\InfinityCod\\Core\\WebPush',
 		'admin'     => '\\InfinityCod\\Admin\\AdminManager',
 		'license'   => '\\InfinityCod\\License\\LicenseManager',
 	);

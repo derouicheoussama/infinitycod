@@ -107,6 +107,10 @@ class Pwa {
 		echo 'self.addEventListener("install",function(e){self.skipWaiting()});';
 		echo 'self.addEventListener("activate",function(e){e.waitUntil(self.clients.claim())});';
 		echo 'self.addEventListener("fetch",function(){/* passthrough */});';
+		// Web Push : notification « nouvelle commande » même écran verrouillé.
+		echo 'self.addEventListener("push",function(e){var d={};try{d=e.data.json()}catch(err){d={title:"InfinityCod"}};';
+		echo 'e.waitUntil(self.registration.showNotification(d.title||"InfinityCod",{body:d.body||"",icon:d.icon||"",badge:d.icon||"",tag:d.tag||"icod",data:{url:d.url||""},requireInteraction:true}))});';
+		echo 'self.addEventListener("notificationclick",function(e){e.notification.close();var u=e.notification.data&&e.notification.data.url;e.waitUntil(self.clients.matchAll({type:"window",includeUncontrolled:true}).then(function(cs){for(var i=0;i<cs.length;i++){if("focus" in cs[i]){if(u){return cs[i].navigate(u)}return cs[i].focus()}}return u?self.clients.openWindow(u):undefined}))});';
 		exit;
 	}
 }

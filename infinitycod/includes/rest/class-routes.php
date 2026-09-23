@@ -630,6 +630,18 @@ class Routes {
 			// Échec checkout : la commande reste COD (dégradation propre).
 		}
 
+		// 5. Notification Web Push au marchand (si activée et appareils abonnés).
+		if ( class_exists( '\InfinityCod\Core\WebPush' ) ) {
+			$total_display = number_format_i18n( (float) ( isset( $result['total'] ) ? $result['total'] : 0 ), 0 ) . ' ' . Settings::currency_label();
+			\InfinityCod\Core\WebPush::notify_all(
+				/* translators: %s : nom du client. */
+				sprintf( __( '🛒 Nouvelle commande — %s', 'infinitycod' ), $name ),
+				/* translators: 1 : commune, 2 : montant. */
+				sprintf( __( '%1$s · %2$s', 'infinitycod' ), $commune_name, $total_display ),
+				admin_url( 'admin.php?page=infinitycod-orders' )
+			);
+		}
+
 		// 6. Le panier abandonné éventuel est considéré récupéré.
 		if ( class_exists( '\\InfinityCod\\Orders\\Abandoned' ) ) {
 			\InfinityCod\Orders\Abandoned::mark_recovered_by_phone( $phone );

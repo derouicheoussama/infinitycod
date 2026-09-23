@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.48.0 — 2026-09-23
+
+- **🔔 Web Push (dernière technologie, zéro service externe)** : recevez chaque nouvelle commande comme une notification sur votre ordinateur ou téléphone, même écran verrouillé. Clés VAPID générées sur votre site, chiffrement aes128gcm (RFC 8291) et signature ES256 (RFC 8292) en PHP pur via OpenSSL — aucun SDK, aucun abonnement. Boutons « Générer les clés », « Activer sur cet appareil », « Envoyer un test » dans Réglages → Avancé.
+- **enterkeyhint** sur les champs du formulaire : la touche du clavier mobile affiche l'action adaptée (suivant, envoyer).
+
 ## 5.47.0 — 2026-09-23
 
 - **Verrou à l'installation** : sans licence activée ni essai en cours, le formulaire de commande affiche une carte d'activation (lien direct « Activer ma licence » pour le marchand, message d'attente élégant pour les visiteurs). Se débloque avec une clé signée, l'essai 7 jours, ou l'achat Freemius.
