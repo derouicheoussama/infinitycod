@@ -41,6 +41,8 @@ export function seed() {
 		const ins = db.prepare('INSERT INTO email_templates(slug,subject,body) VALUES(?,?,?)');
 		ins.run('license_created', 'Your {{product_name}} license is ready',
 			`Hello {{customer_name}},\n\nYour license is ready.\n\nProduct: {{product_name}}\nLicense: {{license_key}}\nExpires: {{expiration_date}}\nAllowed sites: {{activation_limit}}\n\nDownload: {{download_url}}\n\nThank you,\nInfinity License`);
+		ins.run('license_renewed', 'Your {{product_name}} license has been renewed',
+			`Hello {{customer_name}},\n\nThank you for your renewal — your license now expires on {{expiration_date}}.\n\nProduct: {{product_name}}\nLicense: {{license_key}}\n\nDownload: {{download_url}}\n\nThank you,\nInfinity License`);
 		ins.run('license_expiring', 'Your {{product_name}} license expires soon',
 			`Hello {{customer_name}},\n\nYour license {{license_key}} expires on {{expiration_date}}.\nRenew here: {{download_url}}`);
 		ins.run('welcome', 'Welcome to Infinity License',

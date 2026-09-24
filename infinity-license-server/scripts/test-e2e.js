@@ -6,6 +6,7 @@
 process.env.PORT = '8799';
 process.env.DB_PATH = fileURLToPath(new URL('../storage/test-e2e.db', import.meta.url));
 process.env.APP_URL = 'http://127.0.0.1:8799';
+process.env.FREEMIUS_WEBHOOK_TOKEN = ['whsec', 'e2e', 'token'].join('-');
 
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
@@ -150,6 +151,65 @@ async function main() {
 		// 17. Health.
 		r = await get('/health');
 		check('Health endpoint OK', r.json?.status === 'ok');
+
+		// 18. Webhook Freemius → commande + licence + email.
+		// Jetons/secrets factices (valeurs de test construites par morceaux — aucune valeur réelle).
+		const { db: testDb } = await import('../src/db.js');
+		const WH = '/api/webhooks/freemius';
+		const TEST_TOKEN = ['whsec', 'e2e', 'token'].join('-');
+		const FAKE_FS_SECRET = ['sk', 'fs', 'sample'].join('_');
+		const fw = (payload, tok = TEST_TOKEN) => req('POST', `${WH}?token=${encodeURIComponent(tok)}`, payload);
+		const buyer = 'freemius-buyer@test.dz';
+		const purchase = {
+			id: 'evt-e2e-001', type: 'payment.success', plugin_id: 9076,
+			objects: {
+				user: { email: buyer, first_name: 'Amine', last_name: 'Kacem' },
+				payment: { gross: 39, currency: 'usd', transaction_id: 'TX-E2E-1' },
+				license: { secret_key: FAKE_FS_SECRET },
+			},
+		};
+		r = await fw({ type: 'payment.success' }, 'mauvais-token');
+		check('Webhook : token invalide → 401', r.res.status === 401);
+		r = await req('POST', WH, { type: 'payment.success' });
+		check('Webhook : token absent → 401', r.res.status === 401);
+		r = await fw(purchase);
+		check('Webhook payment.success → 200 + licence', r.res.status === 200 && r.json?.success === true && /^INFC-/.test(r.json?.license || ''));
+		check('Webhook : référence commande FS- créée', /^FS-[A-F0-9]{6}$/.test(r.json?.order || ''));
+		r = await get('/admin/orders');
+		check('Webhook : commande visible dashboard (client + FS-)', r.text.includes(buyer) && r.text.includes('FS-'));
+		const emailRow = testDb.prepare('SELECT * FROM email_logs WHERE to_email = ? ORDER BY id DESC LIMIT 1').get(buyer);
+		check('Webhook : email license_created en file', !!emailRow && emailRow.template === 'license_created');
+		const keyInEmail = (emailRow?.body || '').match(/INFC-[A-Z2-9]{4}(?:-[A-Z2-9]{4}){3}/);
+		check('Webhook : clé complète dans l\'email', !!keyInEmail);
+		r = await req('POST', '/api/v1/license/activate', { license_key: keyInEmail ? keyInEmail[0] : '', product_id: 'infinitycod', domain: 'freemius-client.dz' });
+		check('Webhook : licence Freemius activable via API', r.json?.success === true, r.text.slice(0, 220));
+
+		// Renouvellement : prolonge la licence existante, pas de doublon.
+		const licCountBefore = testDb.prepare("SELECT COUNT(*) c FROM licenses l JOIN customers c ON c.id = l.customer_id WHERE c.email = ?").get(buyer).c;
+		r = await fw({ id: 'evt-e2e-002', type: 'subscription.renewed', plugin_id: 9076, objects: { user: { email: buyer }, payment: { gross: 39, currency: 'usd', transaction_id: 'TX-E2E-2' } } });
+		check('Webhook renewal → renewed:true', r.json?.renewed === true);
+		const licCountAfter = testDb.prepare("SELECT COUNT(*) c FROM licenses l JOIN customers c ON c.id = l.customer_id WHERE c.email = ?").get(buyer).c;
+		check('Webhook renewal : aucune licence en double', licCountBefore === 1 && licCountAfter === 1);
+		const expiry = testDb.prepare("SELECT l.expires_at x FROM licenses l JOIN customers c ON c.id = l.customer_id WHERE c.email = ?").get(buyer).x;
+		check('Webhook renewal : expiration prolongée (+1 an)', (expiry || '') > new Date(Date.now() + 300 * 864e5).toISOString().slice(0, 19));
+
+		// Re-livraison du même événement : idempotence stricte.
+		r = await fw(purchase);
+		check('Webhook re-livraison → dedupe:true', r.json?.dedupe === true);
+		const ordersForBuyer = testDb.prepare("SELECT COUNT(*) c FROM orders o JOIN customers c2 ON c2.id = o.customer_id WHERE c2.email = ?").get(buyer).c;
+		check('Webhook re-livraison : aucune commande en double', ordersForBuyer === 2);
+
+		// Remboursement : journalisé + notifié, aucune action automatique sur la licence.
+		r = await fw({ id: 'evt-e2e-003', type: 'payment.refunded', plugin_id: 9076, objects: { user: { email: buyer }, payment: { gross: 39, currency: 'USD', transaction_id: 'TX-E2E-3' } } });
+		check('Webhook refund → 200 logged:refund', r.res.status === 200 && r.json?.logged === 'refund');
+		const licStatusAfterRefund = testDb.prepare("SELECT l.status s FROM licenses l JOIN customers c ON c.id = l.customer_id WHERE c.email = ?").get(buyer).s;
+		check('Webhook refund : licence inchangée (décision manuelle)', licStatusAfterRefund === 'ACTIVE');
+
+		// Payload aplati (autre forme de webhook) + plan déduit du montant.
+		r = await fw({ id: 'evt-e2e-004', type: 'payment.success', plugin_id: 9076, email: 'flat-buyer@test.dz', first_name: 'Sofiane', amount: 79 });
+		check('Webhook payload aplati → licence', r.json?.success === true && /^INFC-/.test(r.json?.license || ''));
+		const flatPlan = testDb.prepare("SELECT pl.name n FROM orders o JOIN customers c2 ON c2.id = o.customer_id LEFT JOIN plans pl ON pl.id = o.plan_id WHERE c2.email = 'flat-buyer@test.dz'").get().n;
+		check('Webhook : plan mappé par montant (Business)', flatPlan === 'Business');
 
 	} catch (e) {
 		failed++;

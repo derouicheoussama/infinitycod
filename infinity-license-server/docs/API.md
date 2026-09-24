@@ -53,3 +53,35 @@ Téléchargement du ZIP (jeton à usage limité, expirant). Le chemin de stockag
 
 ## Rate limits (par IP)
 activate 30/h · validate 120/h · heartbeat 240/h · deactivate 60/h · check-update 120/h.
+
+## Webhook entrant — Freemius : POST /api/webhooks/freemius?token=…
+
+Reçoit les événements Freemius et transforme un paiement réussi en commande
+payée + licence + email au client. **Activé uniquement si `FREEMIUS_WEBHOOK_TOKEN`
+est configuré** (variable d'environnement) ; le token passé en query
+(`?token=…`) ou en en-tête `X-Webhook-Token` est comparé en temps constant —
+401 sinon. Si `FREEMIUS_WEBHOOK_SECRET` est configuré et que la requête porte
+un en-tête `x-signature` (HMAC-SHA256 hex du corps brut), la signature est
+vérifiée (401 si invalide).
+
+Comportement par type d'événement :
+
+| Événement (exemples) | Effet |
+|---|---|
+| `payment.success`, `subscription.started`, `subscription.renewed` | Commande `FS-XXXXXX` PAID + licence (`INFC-…`) + email `license_created`. Si le client possède déjà une licence du produit → **prolongation** de 1 an (`renewed: true`, email `license_renewed`), jamais de doublon |
+| `payment.refunded`, `subscription.cancelled` | Notification admin uniquement — **aucune action automatique** sur la licence (décision marchande) |
+| Autres | Journalisés (`webhook_events`, `api_logs`) |
+
+- **Idempotent** : `UNIQUE(provider, event_key)` — une re-livraison répond
+  `{"success":true,"dedupe":true}` sans reproduire d'effet.
+- Réponse achat : `{"success":true,"order":"FS-…","license":"INFC-…-…-…-…","renewed":false}`.
+- Mapping produit/plan : réglages `freemius_plugin_id` (sécurité : événement
+  d'un autre plugin_id refusé), `freemius_product_slug` (défaut `infinitycod`),
+  `freemius_plan_id` ; le plan est sinon déduit du montant, sinon premier plan actif.
+- L'email acheteur est lu dans les formes de payload Freemius courantes
+  (`objects.user.email`, `user.email`, `email`…). Payload sans email exploitable
+  → `{"success":false,"code":"NO_EMAIL"}` + notification (HTTP 200 : une
+  re-livraison ne réparera pas un payload invalide).
+
+Configurer le webhook : Freemius → Settings → Webhooks → URL
+`https://votre-serveur/api/webhooks/freemius?token=<FREEMIUS_WEBHOOK_TOKEN>`.

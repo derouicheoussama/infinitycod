@@ -31,6 +31,10 @@ export const config = {
 	SMTP_PASSWORD: env.SMTP_PASSWORD || '',
 	MAIL_FROM: env.MAIL_FROM || 'licenses@infinitycod.pro',
 	GITHUB_TOKEN: env.GITHUB_TOKEN || '',
+	// Webhook Freemius : token d'URL obligatoire (auth primaire, recommandation Freemius
+	// pour les intégrations custom) + secret optionnel pour vérifier x-signature (HMAC-SHA256).
+	FREEMIUS_WEBHOOK_TOKEN: env.FREEMIUS_WEBHOOK_TOKEN || process.env.FREEMIUS_WEBHOOK_TOKEN || '',
+	FREEMIUS_WEBHOOK_SECRET: env.FREEMIUS_WEBHOOK_SECRET || process.env.FREEMIUS_WEBHOOK_SECRET || '',
 	BRAND: { name: 'Infinity License', accent: '#1877c2', navy: '#0b2239' },
 };
 

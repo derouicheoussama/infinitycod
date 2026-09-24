@@ -35,6 +35,7 @@ npm test
 | **Sécurité** | Rate limiting par IP+route, détection d'installations suspectes (conflits de domaine, limites atteintes, tentatives bloquées), journal API + **audit log** de toutes les actions admin, sessions expirantes, CSRF, anti brute-force (10 essais / 15 min), mots de passe scrypt |
 | **Boutique** | Landing Ocean Blue (clair/sombre), catalogue produits, plans paramétrables (durée, sites, updates), **checkout manuel** → commande → génération de licence → email |
 | **Commandes manuelles** | Orders → Create → status PAID → **Generate license** (la clé part par email) |
+| **Webhook Freemius** | `POST /api/webhooks/freemius?token=…` — paiement réussi → commande PAID + licence (renouvellement = prolongation) + email au client, idempotent (re-livraisons sans effet), remboursements notifiés sans action automatique. Activé par `FREEMIUS_WEBHOOK_TOKEN` |
 | **Releases & updates** | Upload de ZIP par release (stable/beta/dev), entitlement de mise à jour séparé de l'expiration, URLs de téléchargement temporaires signées |
 | **Emails** | Templates éditables avec variables `{{…}}`, file + journal complets |
 | **Analytics** | Compteurs et graphiques calculés **depuis la base** (aucun chiffre en dur), exports CSV |

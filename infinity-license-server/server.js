@@ -5,6 +5,7 @@ import zlib from 'node:zlib';
 import { config, ensureStorage } from './src/config.js';
 import { seed } from './src/seed.js';
 import { handleApi } from './src/api.js';
+import { handleFreemiusWebhook } from './src/webhooks.js';
 import { handleAuthRoutes, currentAdmin, adminsExist } from './src/auth.js';
 import * as admin from './src/admin.js';
 import { landingPage, productsPage, productPage, checkoutPage, checkoutDone } from './src/views.js';
@@ -48,7 +49,13 @@ function parseBody(req) {
 		req.on('data', (c) => { data += c; if (data.length > 60 * 1024 * 1024) req.destroy(); });
 		req.on('end', () => {
 			if (ct.includes('application/json')) {
-				try { resolve(JSON.parse(data || '{}')); } catch { resolve({}); }
+				let parsed = {};
+				try { parsed = JSON.parse(data || '{}'); } catch { parsed = {}; }
+				// Corps brut conservé (non énuméré) pour les webhooks : signature x-signature + hash d'idempotence.
+				if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+					Object.defineProperty(parsed, '__raw', { value: data, enumerable: false, configurable: true });
+				}
+				resolve(parsed);
 			} else if (ct.includes('multipart/form-data')) {
 				// Multipart minimal : ne gère que l'upload ZIP des releases (champ zip_file) via base64 côté admin —
 				// ici on extrait les champs textuels et le fichier en base64.
@@ -89,6 +96,15 @@ async function handle(req, res) {
 	if (url.pathname === '/health' || url.pathname.startsWith('/api/')) {
 		let body = {};
 		if (req.method === 'POST') body = await parseBody(req);
+
+		// Webhooks entrants (Freemius…) : corps brut requis pour la vérification de signature.
+		if (url.pathname.startsWith('/api/webhooks/')) {
+			if (url.pathname === '/api/webhooks/freemius') {
+				return handleFreemiusWebhook(req, res, url, body && body.__raw ? body.__raw : JSON.stringify(body), ip);
+			}
+			res.writeHead(404, { 'Content-Type': 'application/json' });
+			return res.end(JSON.stringify({ success: false, error: { code: 'NOT_FOUND', message: 'Webhook inconnu.' } }));
+		}
 		return handleApi(req, res, url, body, ip);
 	}
 
