@@ -282,7 +282,8 @@ class AdminManager {
 
 	/**
 	 * Avertissement persistant : verrou actif sans licence (copie non
-	 * autorisée du plugin). Visible sur tout l'admin jusqu'à activation.
+	 * autorisée du plugin). Restreint aux pages InfinityCod et au tableau
+	 * de bord uniquement (jamais sur tout l'admin), carte verre dépoli.
 	 *
 	 * @return void
 	 */
@@ -290,8 +291,16 @@ class AdminManager {
 		if ( ! \InfinityCod\Core\Settings::lock_form_enabled() || \InfinityCod\License\LicenseManager::is_premium() ) {
 			return;
 		}
+		$page    = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- simple affichage.
+		$screen  = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		$is_icod = ( '' !== $page && 0 === strpos( $page, 'infinitycod' ) );
+		if ( ! $is_icod && ( ! $screen || 'dashboard' !== $screen->id ) ) {
+			return;
+		}
 		$url = admin_url( 'admin.php?page=infinitycod-settings&tab=license' );
-		echo '<div class="notice notice-error"><p><strong>🔒 InfinityCod est verrouillé :</strong> aucune licence active sur ce site — le formulaire et la création de commandes sont désactivés. <a href="' . esc_url( $url ) . '">Activer ma licence</a></p></div>';
+		// Styles embarqués : le bandeau s'affiche aussi sur le tableau de bord où admin.css du plugin n'est pas chargé.
+		echo '<style>.icod-locknag{display:flex;align-items:center;gap:12px;margin:16px 20px 0 2px;padding:13px 18px;border-radius:14px;background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);border:1px solid rgba(0,0,0,.07);box-shadow:0 8px 24px rgba(30,42,68,.12);position:relative;overflow:hidden}@supports ((backdrop-filter:blur(14px)) or (-webkit-backdrop-filter:blur(14px))){.icod-locknag{background:rgba(255,255,255,.45)}}.icod-locknag::before{content:"";position:absolute;top:0;bottom:0;left:0;width:5px;background:linear-gradient(180deg,#e05252,#b3377a)}.icod-locknag-ico{font-size:22px;line-height:1}.icod-locknag p{margin:0;font-size:13.5px;color:#1e2a44}.icod-locknag strong{color:#b3261e}.icod-locknag .icod-locknag-btn{display:inline-block;margin-inline-start:10px;padding:7px 14px;border-radius:8px;background:#1e2a44;color:#fff!important;text-decoration:none;font-weight:600;font-size:13px;white-space:nowrap}.icod-locknag .icod-locknag-btn:hover{background:#2f3f63;color:#fff}</style>';
+		echo '<div class="icod-locknag" role="alert"><span class="icod-locknag-ico" aria-hidden="true">🔒</span><p><strong>InfinityCod est verrouillé :</strong> aucune licence active sur ce site — le formulaire et la création de commandes sont désactivés.<a class="icod-locknag-btn" href="' . esc_url( $url ) . '">Activer ma licence</a></p></div>';
 	}
 
 	/**
