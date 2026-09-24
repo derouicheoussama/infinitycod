@@ -1996,7 +1996,16 @@ class SettingsPage {
 							say((j && j.data && j.data.message) || (ok ? 'OK' : 'échec'), ok);
 							subBtn.disabled = false;
 						}).catch(function (e) {
-							say(e && e.message ? e.message : 'erreur réseau', false);
+							// Messages compréhensibles : les erreurs brutes du navigateur
+							// (« Registration failed - push service not available ») sont cryptiques.
+							var m = e && e.message ? String(e.message) : '';
+							if (/push service not available|registration failed/i.test(m)) {
+								say('❌ Ce navigateur ne fournit pas de service de notifications (aperçu intégré ou navigateur sans service push). Ouvrez l’admin dans Chrome, Edge ou Firefox à jour pour activer les notifications.', false);
+							} else if (e && e.name === 'NotAllowedError') {
+								say('🚫 Notifications refusées : autorisez-les pour ce site (icône cadenas / cadenas barré dans la barre d’adresse), puis réessayez.', false);
+							} else {
+								say(m || 'erreur réseau', false);
+							}
 							subBtn.disabled = false;
 						});
 					});
