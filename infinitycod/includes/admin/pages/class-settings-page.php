@@ -29,7 +29,7 @@ class SettingsPage {
 	public function __construct() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- navigation par onglet.
 		$tab       = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'form';
-		$this->tab = in_array( $tab, array( 'form', 'order', 'fraud', 'whatsapp', 'tracking', 'payment', 'license', 'advanced' ), true ) ? $tab : 'form';
+		$this->tab = in_array( $tab, array( 'form', 'order', 'fraud', 'whatsapp', 'sheets', 'tracking', 'payment', 'license', 'advanced' ), true ) ? $tab : 'form';
 		// phpcs:enable WordPress.Security.NonceVerification
 
 		add_action( 'admin_post_icod_save_settings', array( $this, 'handle_save' ) );

@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.49.1 — 2026-09-24
+
+- **Correctif** : l'onglet « Google Sheets » s'affiche correctement (le slug du nouvel onglet manquait à la liste blanche des onglets de Réglages).
+
 ## 5.49.0 — 2026-09-24
 
 - **📊 Google Sheets natif (nouvel onglet Réglages → Google Sheets)** : chaque commande COD écrit une ligne dans votre tableur Google, via l'API officielle Google Sheets (compte de service) — sans Apps Script ni service tiers. Collez le JSON du compte de service, l'e-mail est extrait tout seul.
