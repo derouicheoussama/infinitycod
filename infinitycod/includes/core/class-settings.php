@@ -87,6 +87,15 @@ class Settings {
 			'webhook_secret'       => '',
 			'webhook_on_status'    => 0,
 
+			// Google Sheets natif (compte de service, API officielle).
+			'sheets_enabled'       => 0,
+			'sheets_id'            => '',
+			'sheets_email'         => '',
+			'sheets_key'           => '',
+			'sheets_tab'           => 'Commandes',
+			'sheets_on_status'     => 0,
+			'sheets_columns'       => '',
+
 			// Blacklist communautaire (opt-in, numéros hashés).
 			'community_blacklist'  => 0,
 

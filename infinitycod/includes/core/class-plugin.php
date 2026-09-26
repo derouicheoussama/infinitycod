@@ -64,6 +64,7 @@ final class Plugin {
 		'stats'     => '\\InfinityCod\\Stats\\Pnl',
 		'tracking'  => '\\InfinityCod\\Tracking\\PixelManager',
 		'webpush'   => '\\InfinityCod\\Core\\Webpush',
+		'sheets'    => '\\InfinityCod\\Core\\Sheets',
 		'admin'     => '\\InfinityCod\\Admin\\AdminManager',
 		'license'   => '\\InfinityCod\\License\\LicenseManager',
 	);

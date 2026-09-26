@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.49.0 — 2026-09-24
+
+- **📊 Google Sheets natif (nouvel onglet Réglages → Google Sheets)** : chaque commande COD écrit une ligne dans votre tableur Google, via l'API officielle Google Sheets (compte de service) — sans Apps Script ni service tiers. Collez le JSON du compte de service, l'e-mail est extrait tout seul.
+- **Mise à jour en place** : à chaque changement de statut, la ligne existante est mise à jour (statut, n° de suivi, transporteur) — jamais de doublon, même structure garantie.
+- **Structure de colonnes configurable** : 15 colonnes (commande Woo, date, statut, client, téléphone, wilaya, commune, livraison, produit, qté, total, transporteur, suivi, risque, note) — cochez celles que vous voulez.
+- **File d'attente fiable** : si Google est indisponible, les envois passent en file et réessaient tout seuls (backoff exponentiel, toutes les 5 minutes) — aucune commande perdue, la création de commande n'est jamais ralentie.
+- **Outils** : boutons « Tester la connexion », « Créer l'onglet + en-têtes » (création automatique de l'onglet, n'écrase jamais vos données), « Exporter toutes les commandes » (export complet avec reprise), « Forcer la synchronisation », et journal de synchronisation dans l'admin.
+
 ## 5.48.1 — 2026-09-23
 
 - **Correctif stockage Web Push** : les clés VAPID sont stockées entièrement en base64 (le champ binaire binaisait certains stockages SQLite).

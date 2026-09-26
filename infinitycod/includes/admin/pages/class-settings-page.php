@@ -156,6 +156,7 @@ class SettingsPage {
 				<a href="?page=infinitycod-settings&tab=order" class="nav-tab <?php echo 'order' === $this->tab ? 'nav-tab-active' : ''; ?>">🧾 <?php esc_html_e( 'Commande', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=fraud" class="nav-tab <?php echo 'fraud' === $this->tab ? 'nav-tab-active' : ''; ?>">🛡️ <?php esc_html_e( 'Anti-fraude', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=whatsapp" class="nav-tab <?php echo 'whatsapp' === $this->tab ? 'nav-tab-active' : ''; ?>">💬 <?php esc_html_e( 'WhatsApp', 'infinitycod' ); ?></a>
+				<a href="?page=infinitycod-settings&tab=sheets" class="nav-tab <?php echo 'sheets' === $this->tab ? 'nav-tab-active' : ''; ?>">📊 <?php esc_html_e( 'Google Sheets', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=tracking" class="nav-tab <?php echo 'tracking' === $this->tab ? 'nav-tab-active' : ''; ?>">🎯 <?php esc_html_e( 'Tracking', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=payment" class="nav-tab <?php echo 'payment' === $this->tab ? 'nav-tab-active' : ''; ?>" >💳 <?php esc_html_e( 'Paiement', 'infinitycod' ); ?></a>
 				<a href="?page=infinitycod-settings&tab=license" class="nav-tab <?php echo 'license' === $this->tab ? 'nav-tab-active' : ''; ?>">🔑 <?php esc_html_e( 'Licence', 'infinitycod' ); ?></a>
@@ -182,6 +183,9 @@ class SettingsPage {
 						break;
 					case 'whatsapp':
 						$this->tab_whatsapp();
+						break;
+					case 'sheets':
+						$this->tab_sheets();
 						break;
 					case 'tracking':
 						$this->tab_tracking();
@@ -1924,6 +1928,149 @@ class SettingsPage {
 	}
 
 	/**
+	 * Onglet Google Sheets.
+	 *
+	 * @return void
+	 */
+	private function tab_sheets() {
+		$sheets  = new \InfinityCod\Core\Sheets();
+		$catalog = \InfinityCod\Core\Sheets::columns();
+		$enabled = \InfinityCod\Core\Sheets::enabled_columns();
+		$log     = $sheets->recent_log();
+		$pending = get_option( 'icod_sheets_queue', array() );
+		$pending = is_array( $pending ) ? count( $pending ) : 0;
+		?>
+		<div class="icod-card">
+			<h2>📊 <?php esc_html_e( 'Google Sheets — synchronisation des commandes', 'infinitycod' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'Chaque commande COD écrit une ligne dans votre tableur Google Sheets, et le statut se met à jour tout seul (confirmée, expédiée, livrée…). Connexion directe via l’API officielle Google — sans Apps Script ni service externe.', 'infinitycod' ); ?>
+			</p>
+			<div class="icod-toggles">
+				<label class="icod-toggle">
+					<input type="checkbox" name="icod[sheets_enabled]" value="1" <?php checked( (int) Settings::get( 'sheets_enabled', 0 ), 1 ); ?> />
+					<span><?php esc_html_e( 'Activer la synchronisation Google Sheets', 'infinitycod' ); ?></span>
+				</label>
+			</div>
+
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'ID du tableur', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[sheets_id]" dir="ltr" class="regular-text" value="<?php echo esc_attr( Settings::get( 'sheets_id', '' ) ); ?>" placeholder="1AbC…xyz" />
+					<code class="description" style="display:block;font-size:11px"><?php esc_html_e( 'L’identifiant dans l’URL du tableur : docs.google.com/spreadsheets/d/CE_ID/edit', 'infinitycod' ); ?></code>
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Onglet', 'infinitycod' ); ?></span>
+					<input type="text" name="icod[sheets_tab]" class="regular-text" value="<?php echo esc_attr( Settings::get( 'sheets_tab', __( 'Commandes', 'infinitycod' ) ) ); ?>" />
+				</label>
+			</div>
+
+			<div class="icod-grid">
+				<label>
+					<span><?php esc_html_e( 'E-mail du compte de service', 'infinitycod' ); ?></span>
+					<input type="email" name="icod[sheets_email]" dir="ltr" class="regular-text" value="<?php echo esc_attr( Settings::get( 'sheets_email', '' ) ); ?>" placeholder="icod@mon-projet.iam.gserviceaccount.com" />
+				</label>
+				<label>
+					<span><?php esc_html_e( 'Clé du compte de service (JSON ou PEM) — secrète', 'infinitycod' ); ?></span>
+					<textarea name="icod[sheets_key]" rows="3" dir="ltr" class="large-text code" autocomplete="new-password" placeholder="<?php esc_attr_e( 'Collez le contenu du fichier JSON (ou la clé PEM). Vide = clé actuelle conservée.', 'infinitycod' ); ?>"></textarea>
+					<code class="description" style="display:block;font-size:11px"><?php esc_html_e( 'Google Cloud → API Sheets activée → Compte de service → Clé JSON. Partagez ensuite le tableur avec l’e-mail du compte de service.', 'infinitycod' ); ?></code>
+				</label>
+			</div>
+
+			<p style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
+				<button type="button" class="button" id="icod-sheets-test">🔌 <?php esc_html_e( 'Tester la connexion', 'infinitycod' ); ?></button>
+				<button type="button" class="button" id="icod-sheets-init">🧾 <?php esc_html_e( 'Créer l’onglet + en-têtes', 'infinitycod' ); ?></button>
+				<button type="button" class="button" id="icod-sheets-backfill">⬇️ <?php esc_html_e( 'Exporter toutes les commandes', 'infinitycod' ); ?></button>
+				<button type="button" class="button" id="icod-sheets-flush">🔄 <?php esc_html_e( 'Forcer la synchronisation', 'infinitycod' ); ?></button>
+				<span id="icod-sheets-result" class="description" style="margin-inline-start:8px" aria-live="polite"></span>
+			</p>
+			<script>
+			(function () {
+				var nonce = <?php echo wp_json_encode( wp_create_nonce( 'icod_admin' ) ); ?>;
+				var out = document.getElementById('icod-sheets-result');
+				function say(t, ok) { if (out) { out.textContent = t; out.style.color = ok ? '#0e7a4f' : '#b32d2e'; } }
+				function post(action, body) {
+					var f = new FormData();
+					f.append('action', action); f.append('nonce', nonce);
+					Object.keys(body || {}).forEach(function (k) { f.append(k, body[k]); });
+					return fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', { method: 'POST', credentials: 'same-origin', body: f }).then(function (r) { return r.json(); });
+				}
+				function bind(id, action, after) {
+					var b = document.getElementById(id);
+					if (!b) { return; }
+					b.addEventListener('click', function () {
+						b.disabled = true; say('…', true);
+						post(action, {}).then(function (j) {
+							b.disabled = false;
+							var m = (j && j.data && j.data.message) || (j && j.success ? 'OK' : 'échec');
+							say(m, j && j.data && j.data.ok);
+							if (after) { after(j); }
+						}).catch(function () { b.disabled = false; say('erreur réseau', false); });
+					});
+				}
+				bind('icod-sheets-test', 'icod_sheets_test');
+				bind('icod-sheets-init', 'icod_sheets_init');
+				bind('icod-sheets-backfill', 'icod_sheets_backfill');
+				bind('icod-sheets-flush', 'icod_sheets_flush', function (j) {
+					if (j && j.data && typeof j.data.pending !== 'undefined') {
+						var el = document.getElementById('icod-sheets-pending');
+						if (el) { el.textContent = j.data.pending; }
+					}
+				});
+			})();
+			</script>
+		</div>
+
+		<div class="icod-card">
+			<h2>🧱 <?php esc_html_e( 'Structure des colonnes', 'infinitycod' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Choisissez les colonnes du tableur (l’ordre suit la liste). « Créer l’onglet + en-têtes » écrit la nouvelle structure sans toucher aux données existantes.', 'infinitycod' ); ?></p>
+			<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 16px">
+				<?php foreach ( $catalog as $key => $label ) : ?>
+					<label class="icod-toggle" style="justify-content:flex-start">
+						<input type="checkbox" name="icod[sheets_columns][]" value="<?php echo esc_attr( $key ); ?>" <?php checked( in_array( $key, $enabled, true ) ); ?> />
+						<span><?php echo esc_html( $label ); ?></span>
+					</label>
+				<?php endforeach; ?>
+			</div>
+			<label class="icod-toggle" style="margin-top:12px">
+				<input type="checkbox" name="icod[sheets_on_status]" value="1" <?php checked( (int) Settings::get( 'sheets_on_status', 0 ), 1 ); ?> />
+				<span><?php esc_html_e( 'Mettre à jour le statut / suivi dans la ligne existante à chaque changement (jamais de doublon)', 'infinitycod' ); ?></span>
+			</label>
+		</div>
+
+		<div class="icod-card">
+			<h2>🩺 <?php esc_html_e( 'Journal de synchronisation', 'infinitycod' ); ?></h2>
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %d : travaux en attente. */
+					esc_html__( 'File d’attente : %d synchronisation(s) en attente (réessais automatiques toutes les 5 minutes).', 'infinitycod' ),
+					(int) $pending
+				);
+				?>
+				<span id="icod-sheets-pending" style="display:none"><?php echo (int) $pending; ?></span>
+			</p>
+			<?php if ( empty( $log ) ) : ?>
+				<p class="description"><?php esc_html_e( 'Aucune synchronisation pour l’instant.', 'infinitycod' ); ?></p>
+			<?php else : ?>
+				<table class="widefat striped" style="max-width:860px">
+					<thead><tr><th style="width:140px"><?php esc_html_e( 'Date', 'infinitycod' ); ?></th><th style="width:90px"><?php esc_html_e( 'Type', 'infinitycod' ); ?></th><th style="width:80px"><?php esc_html_e( 'Résultat', 'infinitycod' ); ?></th><th><?php esc_html_e( 'Détail', 'infinitycod' ); ?></th></tr></thead>
+					<tbody>
+					<?php foreach ( $log as $entry ) : ?>
+						<tr>
+							<td><code><?php echo esc_html( $entry['ts'] ); ?></code></td>
+							<td><?php echo esc_html( $entry['event'] ); ?></td>
+							<td><?php echo $entry['ok'] ? '✅' : '❌'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- emoji fixe. ?></td>
+							<td><?php echo esc_html( $entry['msg'] ); ?></td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Onglet avancé.
 	 *
 	 * @return void
@@ -2719,6 +2866,16 @@ class SettingsPage {
 			'webhook_url'          => array( 'tab' => 'advanced', 'type' => 'url' ),
 			'webhook_secret'       => array( 'tab' => 'advanced', 'type' => 'secret' ),
 			'webhook_on_status'    => array( 'tab' => 'advanced', 'type' => 'toggle' ),
+
+			// ——— Onglet Google Sheets ———
+			'sheets_enabled'       => array( 'tab' => 'sheets', 'type' => 'toggle' ),
+			'sheets_id'            => array( 'tab' => 'sheets', 'type' => 'text' ),
+			'sheets_email'         => array( 'tab' => 'sheets', 'type' => 'email' ),
+			'sheets_key'           => array( 'tab' => 'sheets', 'type' => 'pem' ),
+			'sheets_tab'           => array( 'tab' => 'sheets', 'type' => 'text' ),
+			'sheets_on_status'     => array( 'tab' => 'sheets', 'type' => 'toggle' ),
+			'sheets_columns'       => array( 'tab' => 'sheets', 'type' => 'columns' ),
+
 			'community_blacklist'  => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 			'antileak_pixels'      => array( 'tab' => 'advanced', 'type' => 'toggle' ),
 			'mask_phones'          => array( 'tab' => 'advanced', 'type' => 'toggle' ),
@@ -3123,6 +3280,36 @@ class SettingsPage {
 					// il faut ressaisir la clé complète pour la remplacer.
 					if ( '' !== trim( (string) $value ) ) {
 						$clean[ $key ] = sanitize_text_field( $value );
+					}
+					break;
+				case 'pem':
+					// Clé de compte de service : JSON complet ou PEM multi-ligne.
+					// Vide = clé actuelle conservée (jamais renvoyée dans le HTML).
+					$pem_val = trim( (string) $value );
+					if ( '' === $pem_val ) {
+						break;
+					}
+					if ( 0 === strpos( $pem_val, '{' ) ) {
+						$pem_json = json_decode( $pem_val, true );
+						if ( is_array( $pem_json ) && ! empty( $pem_json['private_key'] ) && ! empty( $pem_json['client_email'] ) ) {
+							$clean[ $key ] = (string) $pem_json['private_key'];
+							if ( empty( $clean['sheets_email'] ) ) {
+								$clean['sheets_email'] = sanitize_email( (string) $pem_json['client_email'] );
+							}
+							break;
+						}
+					}
+					$pem_val = sanitize_textarea_field( $pem_val ); // Conserve les sauts de ligne du PEM.
+					if ( false !== strpos( $pem_val, '-----BEGIN PRIVATE KEY-----' ) ) {
+						$clean[ $key ] = $pem_val;
+					}
+					break;
+				case 'columns':
+					// Liste de colonnes Google Sheets : clés validées contre le
+					// catalogue (ordre imposé par le catalogue côté affichage).
+					if ( is_array( $value ) ) {
+						$catalog = \InfinityCod\Core\Sheets::columns();
+						$clean[ $key ] = wp_json_encode( array_values( array_intersect( array_map( 'strval', $value ), array_keys( $catalog ) ) ) );
 					}
 					break;
 			}
