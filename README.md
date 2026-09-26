@@ -85,6 +85,8 @@ Les mises à jour sont publiées sur le dépôt public [infinitycod-releases](ht
 
 ```bash
 node tools/build.js        # construit dist/infinitycod.zip + manifeste signé
+node tools/build.js --stamp "Client — LIC-…"   # copie nominative traçable (vente directe ;
+                                               # interdit en --wporg/--codecanyon)
 npm run check              # lint, smoke, audits, attribution
 php tools/test-activation.php  # harnais d'activation complet
 ```

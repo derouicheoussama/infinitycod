@@ -28,3 +28,40 @@ LICENSING SUMMARY
    Chargily, Yalidine, ZR Express, Maystro, Noest and E-COM are trademarks of
    their respective owners; this plugin is an independent integration and is not
    endorsed by any of them.
+
+4. Artificial intelligence — prohibited uses (non-GPL elements)
+   You MUST NOT submit, upload, paste or otherwise provide this product — in
+   whole or in part, including documentation, texts, branding, visual assets,
+   CSS/JS bundles and the delivered package as a whole — to any generative
+   artificial-intelligence system or service (ChatGPT, Claude, Gemini, Copilot,
+   Llama, Midjourney, or any successor/derivative), for any of these purposes:
+
+   - reproducing, recreating, cloning or deriving a competing or equivalent
+     product, in any programming language or for any platform;
+   - training, fine-tuning, grounding or improving any AI model or dataset;
+   - generating documentation, marketing material or derivatives that imitate
+     this product for distribution.
+
+   The documentation, commercial texts, branding, logos, the "∞ Infinity Coder"
+   signature and the delivered package composition are protected by copyright
+   (all rights reserved, Derouiche Oussama) and are NOT licensed under the GPL.
+   Feeding them to an AI service is an unauthorized reproduction and
+   distribution.
+
+   Note on GPL code: the PHP source remains GPL-2.0-or-later; nothing in this
+   section restricts the freedoms the GPL grants. However, any work derived
+   from this code — by a human or with AI assistance — MUST (a) remain under
+   GPL-2.0-or-later with full attribution, (b) NOT use the "InfinityCod" name,
+   logo, "∞ Infinity Coder" signature or any confusingly similar branding
+   (trademark law applies regardless of code license), and (c) NOT be
+   misleadingly marketed as an original creation.
+
+   Every delivered copy is traceable: direct-sale packages carry a unique
+   license stamp. If a copy is found in an AI training corpus, a clone or an
+   unauthorized distribution, the stamp identifies the original purchaser, who
+   bears responsibility for the leak under these terms.
+
+5. Enforcement
+   Violations are pursued under copyright law (DMCA takedowns against hosting
+   platforms, marketplaces and AI providers), trademark law, and the Envato
+   Market terms. Report violations: https://www.derouicheoussama.com

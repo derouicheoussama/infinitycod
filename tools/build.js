@@ -8,6 +8,8 @@
  * Usage : node tools/build.js                → zip commercial (updater licence complet)
  *         node tools/build.js --wporg        → zip distribution WordPress.org (updater neutralisé)
  *         node tools/build.js --codecanyon   → paquet Envato (édition complète + documentation + licences)
+ *         node tools/build.js --stamp "Client — LIC-…" → copie nominative traçable (vente directe
+ *                     uniquement ; interdit en --wporg/--codecanyon qui doivent rester génériques)
  *
  * En mode --wporg, includes/license/class-updater.php est remplacé par le stub
  * tools/wporg/class-updater.stub.php (même API, zéro hook de mise à jour) :
@@ -31,6 +33,20 @@ const { makeZip } = require('./lib/zip');
 
 const WPORG = process.argv.includes('--wporg');
 const CODECANYON = process.argv.includes('--codecanyon');
+
+// Estampille nominative (traçabilité anti-fuite, vente directe) : un fichier
+// LICENSE-STAMP.txt nominatif est ajouté au zip — toute copie qui ressort
+// (partage, revente, dépôt dans une IA) identifie son titulaire.
+const stampFlagIdx = process.argv.indexOf('--stamp');
+const STAMP = stampFlagIdx !== -1 ? String(process.argv[stampFlagIdx + 1] || '').trim() : '';
+if (stampFlagIdx !== -1 && !STAMP) {
+  console.error('✗ --stamp requiert une identité client, ex. --stamp "Jean Dupont — LIC-1234"');
+  process.exit(1);
+}
+if (STAMP && (WPORG || CODECANYON)) {
+  console.error('✗ --stamp interdit en mode --wporg / --codecanyon : ces paquets génériques ne doivent contenir aucune donnée client.');
+  process.exit(1);
+}
 const root = path.join(__dirname, '..');
 const src = path.join(root, 'infinitycod');
 const dist = path.join(root, 'dist');
@@ -102,6 +118,35 @@ for (const e of entries) {
 }
 
 fs.mkdirSync(dist, { recursive: true });
+
+// Estampille client : ajoutée après la validation des fichiers interdits,
+// elle est par définition nominative et toujours voulue.
+if (STAMP) {
+  const stampCrypto = require('crypto');
+  // Empreinte calculée AVANT l'ajout de l'estampille (stable et indépendante d'elle).
+  const fingerprint = stampCrypto.createHash('sha256')
+    .update(entries.map((e) => e.name + ':' + e.data.length).join('|'))
+    .digest('hex').slice(0, 16).toUpperCase();
+  const stampContent = [
+    'InfinityCod — copie nominative',
+    '==============================',
+    'Titulaire : ' + STAMP,
+    'Construit : ' + new Date().toISOString(),
+    'Empreinte du paquet : ' + fingerprint,
+    '',
+    'CETTE COPIE EST PERSONNALISÉE ET TRAÇABLE.',
+    'Toute diffusion de ce fichier (partage, revente, dépôt sur un service en',
+    'ligne ou dans une intelligence artificielle — ChatGPT, Claude, Gemini…) remonte',
+    'au titulaire ci-dessus, seul responsable de la fuite selon la licence.',
+    'Reproduction ou imitation par un système d’IA générative : INTERDIT.',
+    '',
+    '© 2025-2026 Derouiche Oussama — https://www.derouicheoussama.com',
+    '',
+  ].join('\n');
+  entries.push({ name: 'infinitycod/LICENSE-STAMP.txt', data: Buffer.from(stampContent, 'utf8') });
+  console.log('Estampille client : ' + STAMP + ' (empreinte ' + fingerprint + ')');
+}
+
 if (CODECANYON) {
   // Paquet Envato : zip installable à la racine + documentation + licences
   // (structure attendue par les relecteurs CodeCanyon).
