@@ -3300,7 +3300,9 @@ class SettingsPage {
 						}
 					}
 					$pem_val = sanitize_textarea_field( $pem_val ); // Conserve les sauts de ligne du PEM.
-					if ( false !== strpos( $pem_val, '-----BEGIN PRIVATE KEY-----' ) ) {
+					// Validation réelle (parse OpenSSL) plutôt que textuelle : une clé
+					// illisible n'est jamais enregistrée, quel que soit son format.
+					if ( '' !== $pem_val && false !== openssl_pkey_get_private( $pem_val ) ) {
 						$clean[ $key ] = $pem_val;
 					}
 					break;
